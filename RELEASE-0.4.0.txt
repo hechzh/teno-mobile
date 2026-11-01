@@ -1,0 +1,9 @@
+Teno 0.4.0 / versionCode 5 / com.teno.app
+
+Team audio upload, processing status, playback, speaker review and voice profile controls are now connected to the shared backend. File import supports 120 minutes / 250 MiB; phone capture remains 54 minutes. Realtime captions use the existing Azure Speech SDK bridge. Saved team audio uses Azure Fast diarization.
+
+Install over the existing signed release. Keep local recordings and JWD device keys; no uninstall is required. Keys for Azure and DeepSeek remain on the server.
+
+Initial voice profiles require manual review because calibration did not pass. Samuel also lacks a third independent recording. Unconfirmed speakers block publication. Android UI remains English.
+
+Verified on API 35 emulator: 17 flow checks, 22 protocol checks, signed upgrade from 0.3 and cold launch. Magic4 Pro and JWD physical acceptance remains pending. No Wi-Fi fast transfer, OTA, realtime voice identity or multi-speaker realtime captions were added.

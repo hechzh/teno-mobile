@@ -1,8 +1,18 @@
-# Teno Android 0.3.0
+# Teno Android 0.4.0
 
-Native Android implementation of the English V2 design, with live transcription and team workspaces. Package: `com.teno.app`; version code: `4`. Release date: 2026-11-01.
+Native Android implementation of the English V2 design, with live transcription and team workspaces. Package: `com.teno.app`; version code: `5`. Release date: 2026-11-01.
 
-Install `dist/Teno-0.3.0.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.2.1 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
+Install `dist/Teno-0.4.0.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.2.1 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
+
+## Version 0.4 team audio
+
+Open **Team → Meetings → Meeting audio**. Import a file, a saved phone/JWD recording, or an owned library recording; confirm that audio will be shared with the current team. The app retains the original and a private retry receipt. Upload progress uses a foreground service; retry sends the original file with the same client ID.
+
+Processing status, authenticated playback, segment seeking and speaker confirmation use the shared backend. Keep unknown speakers in review, or explicitly confirm an external speaker. Automatic and human matches are distinct. Publication stays disabled until every identity is resolved and notes match the current transcript revision.
+
+**Voice profiles** supports administrator enrollment and calibration and member self-revocation. Samples and embeddings remain on the server. The first historical calibration failed the conservative separation check, so initial profiles remain manual-review-only; Samuel also lacks an independent validation recording. No automatic name attribution is enabled for these profiles.
+
+Current evidence: 17 Android flow checks on an API 35 emulator, 22 unchanged JWD protocol checks, signed 0.3 → 0.4 upgrade and cold start, release lint with no errors. See `verification/v0.4.0` and `dist/Teno-0.4.0-release-manifest.json`. Physical Magic4 Pro/JWD, full English meetings and long microphone recordings are not certified by these checks. Earlier 0.3 reports below remain historical evidence.
 
 ## Interface and navigation
 
@@ -31,7 +41,7 @@ Design pages marked as future concepts remain outside this release. These includ
 
 Azure and model keys remain on the server. The APK contains only business authentication tokens encrypted with Android Keystore. First use of 0.3 initializes generated output to English; **Account → Preferences** can select another summary language. Recognition language is independent of interface/output language.
 
-Audio remains local if networking fails, the service is busy or recognition cannot finish. Interrupted capture metadata is recovered on return to the library where possible. This does not guarantee recovery from full storage, hardware failure or deletion by Android/the user. Phone WAV recording is limited to approximately 54 minutes to stay below the 100 MiB upload cap. Imported files are limited to 60 minutes / 100 MiB. The current Azure F0 configuration admits one recognition session at a time.
+Audio remains local if networking fails, the service is busy or recognition cannot finish. Interrupted capture metadata is recovered on return to the library where possible. This does not guarantee recovery from full storage, hardware failure or deletion by Android/the user. Phone WAV recording remains limited to 54 minutes. Imported files are limited to 120 minutes / 250 MiB. The S0 backend supports 2 realtime sessions, 1 Fast file task and 1 voice task independently. When realtime capacity is busy, local recording continues.
 
 ## JWD recorder behavior
 

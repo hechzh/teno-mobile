@@ -21,6 +21,8 @@
         <service android:name=".TransferService" android:exported="false" android:foregroundServiceType="dataSync" />
         <activity android:name=".JwdActivity" android:exported="false" android:configChanges="orientation|screenSize" />
         <activity android:name=".TeamActivity" android:exported="false" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".TeamAudioActivity" android:exported="false" android:configChanges="orientation|screenSize" android:windowSoftInputMode="adjustResize" />
+        <service android:name=".TeamAudioUploadService" android:exported="false" android:foregroundServiceType="dataSync" />
         <service android:name=".JwdService" android:exported="false" android:foregroundServiceType="connectedDevice" />
         <receiver android:name=".ReminderReceiver" android:exported="false" />
     </application>

@@ -76,8 +76,8 @@ public final class Api {
                 c.setDoOutput(true);c.setChunkedStreamingMode(65536);c.setRequestProperty("Content-Type","multipart/form-data; boundary="+boundary);
                 try(OutputStream out=c.getOutputStream()){
                     if(fields!=null){java.util.Iterator<String> it=fields.keys();while(it.hasNext()){String k=it.next();write(out,"--"+boundary+"\r\nContent-Disposition: form-data; name=\""+k+"\"\r\n\r\n"+fields.getString(k)+"\r\n");}}
-                    write(out,"--"+boundary+"\r\nContent-Disposition: form-data; name=\"file\"; filename=\""+filename.replaceAll("[\"\r\n]","_")+"\"\r\nContent-Type: application/octet-stream\r\n\r\n");
-                    try(InputStream in=new FileInputStream(file)){byte[] buffer=new byte[65536];long sent=0;int n;while((n=in.read(buffer))!=-1){out.write(buffer,0,n);sent+=n;if(progress!=null)progress.update(sent,file.length());}}
+                    if(file!=null){write(out,"--"+boundary+"\r\nContent-Disposition: form-data; name=\"file\"; filename=\""+filename.replaceAll("[\"\r\n]","_")+"\"\r\nContent-Type: application/octet-stream\r\n\r\n");
+                    try(InputStream in=new FileInputStream(file)){byte[] buffer=new byte[65536];long sent=0;int n;while((n=in.read(buffer))!=-1){out.write(buffer,0,n);sent+=n;if(progress!=null)progress.update(sent,file.length());}}}
                     write(out,"\r\n--"+boundary+"--\r\n");
                 }
                 return new JSONObject(new String(read(c),StandardCharsets.UTF_8));
