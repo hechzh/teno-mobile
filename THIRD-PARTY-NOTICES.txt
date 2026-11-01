@@ -1,0 +1,21 @@
+Teno Android 0.3.0
+
+JWD / Actions decoder
+ASCDecoder.java and ARM native libraries are supplied by the hardware vendor.
+Original files and hashes are documented in VENDOR-JWD.md. Their ownership remains with the vendor.
+
+Lucide icons
+Vector paths were converted from the Lucide assets used in the approved local design.
+The original ISC license notice is included in LUCIDE-LICENSE.txt.
+
+OkHttp 4.12.0 and Okio
+Copyright Square, Inc. and contributors. Apache License 2.0.
+https://github.com/square/okhttp/blob/parent-4.12.0/LICENSE.txt
+https://github.com/square/okio/blob/master/LICENSE.txt
+
+Kotlin standard library (transitive dependency)
+Copyright JetBrains s.r.o. and contributors. Apache License 2.0.
+Dependency license metadata remains in the packaged JAR resources.
+
+Android platform widgets and fonts are provided by the operating system.
+No Pocket application code, private service or branded graphics are included.

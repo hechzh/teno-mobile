@@ -1,0 +1,24 @@
+Teno Android 本地版本管理
+
+本目录为独立 Git 仓库，主分支 main，无远程地址。
+首次提交保存 0.3.0 源码基线，标签 android-v0.3.0。
+网页与共享 API 继续使用 ../teno-v1.1 的原 Git 仓库，两边分别提交。
+
+允许范围
+app/src、app/build.gradle、gradle wrapper、根 Gradle 配置、tests、许可与说明文件。
+verification/v0.3.0/package_release.py 保留为发布工具；其他历史改写脚本、验收产物留在本地。
+dist APK/ZIP、签名、local.properties、缓存、日志、账号、录音和所有 AGENTS.md 均忽略。
+
+常用命令
+git status --short --branch
+git switch -c feature/describe-change
+git add <明确选定的源码或文档路径>
+git diff --cached --stat
+git diff --cached
+git commit -m "Describe the change"
+
+发布要求
+按 README 构建与验收，保留同一签名；更新版本和交付清单，验证后再标记版本标签。
+源码 ZIP 使用显式允许清单，不能直接压缩整个工作目录或把 AGENTS.md 加入发布包。
+Git 提交不构建、不部署、不上传；Git 只备份被跟踪的源码，不包含 dist 和本地验收证据。
+根交接位于 ../../AGENTS.md；可分发的目录说明见 ../docs/handoffs/2026-11-01/。

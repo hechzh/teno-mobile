@@ -1,0 +1,34 @@
+plugins { id 'com.android.application' }
+def tenoSigning = new Properties()
+def tenoSigningFile = new File(System.getProperty('user.home'), '.android/teno-signing.properties')
+if (tenoSigningFile.exists()) tenoSigningFile.withInputStream { tenoSigning.load(it) }
+android {
+    namespace 'com.teno.app'
+    compileSdk 35
+    defaultConfig {
+        applicationId project.findProperty('verificationAppId') ?: 'com.teno.app'
+        minSdk 26
+        targetSdk 35
+        versionCode 4
+        versionName '0.3.0'
+        testInstrumentationRunner project.findProperty('testRunner') ?: 'com.teno.app.SmokeInstrumentation'
+    }
+    signingConfigs {
+        if (tenoSigningFile.exists()) {
+            internal {
+                storeFile file(tenoSigning['storeFile'])
+                storePassword tenoSigning['storePassword']
+                keyAlias tenoSigning['keyAlias']
+                keyPassword tenoSigning['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (tenoSigningFile.exists()) signingConfig signingConfigs.internal
+        }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+dependencies { implementation 'com.squareup.okhttp3:okhttp:4.12.0' }
