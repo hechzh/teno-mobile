@@ -1,0 +1,33 @@
+Teno Android 0.4.3 — Recording flow and Tasks
+Release date: 2026-11-02 (Asia/Shanghai)
+Package: com.teno.app / versionCode 8
+
+Install dist/Teno-0.4.3.apk over 0.4.2. Keep the app installed to retain recordings and recorder keys.
+
+Recording
+- Record with device starts the authorized recorder directly. If disconnected, it reconnects the last successfully authorized recorder. First binding still needs service/key verification.
+- Recording preferences are explained once and remembered. Automatic cloud processing and Wi-Fi-only uploads are optional. Live transcription has its own switch.
+- Stop and save automatically keeps phone audio. Recorder audio is synced to the phone after the device confirms stop, with length/end-marker/CRC verification and decoding before upload.
+- There is no separate Keep on phone or Save and continue step. A local copy remains after successful upload. Rename and local playback are optional actions on the saved recording.
+- Recorder-button recordings sync when connected again. Interrupted transfers retry the original file; successfully synced device entries are skipped. Recorder originals are never deleted automatically.
+- Automatic uploads are queued, survive interruption and resume on connectivity/app launch. Transient failures retry up to three times; format/authentication failures require action. Force-stopped apps must be reopened.
+- Team sharing, speaker confirmation and publication remain explicit and unchanged.
+
+Tasks
+- Long personal task titles use their full measured height and no longer overlap their descriptions.
+- Action buttons have gaps and stack at large font sizes. Team filters wrap whole labels instead of splitting words in narrow equal-width columns.
+
+Verification
+- 411dp normal text and 360dp with 1.5 text scale; 48 checks each and 26 screenshots.
+- Actual emulator PCM save, loopback uploads, synthetic JWD protocol/CRC/sync/reconnect and deduplication.
+- 8 offline/relaunch/preferences checks, including a queue surviving force-stop; 22 JWD protocol checks.
+- Actual same-signature release upgrade and cold launch; exact lint/signature/checksum results in dist/Teno-0.4.3-release-manifest.json.
+- Gallery: verification/v0.4.3/flow-review.html.
+- All 26 flow screenshots, recording preferences and the signed release cold-start screen were visually reviewed. Lint: 0 errors / 68 warnings.
+
+Boundaries
+No physical JWD or Magic4 Pro acceptance is claimed. Test transport replies and loopback transcripts are not real BLE or Azure recognition. Existing JWD import limit is 60 minutes/100 MiB; general import is 120 minutes/250 MiB; phone capture is 54 minutes. New automatic flows need physical firmware/timing/lock-screen validation. No backend, website or production team data was changed.
+Existing Summary/Transcript tabs in recording results can still break within words at 360dp/1.5 text scaling. This is outside the Tasks overlap correction; the screenshots do not certify the whole app's typography.
+
+Recovery
+Failed uploads keep the local file. Use Retry upload on the saved recording. A failed recorder sync keeps the original on the device; reconnect or use Device recordings to retry. No uninstall, reset, format or automatic deletion is required.

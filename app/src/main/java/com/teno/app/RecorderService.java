@@ -55,7 +55,7 @@ public final class RecorderService extends Service {
             active=false;finishing=true;paused=false;if(recorder!=null){try{recorder.stop();}catch(Exception ignored){}recorder.release();recorder=null;}
             if(live!=null){if(keep&&valid)reusable=live.finish();else live.close();}
             try{if(owner.equals(store.scope())){JSONObject d=store.draft(draftId);d.put("duration_ms",capturedBytes/32).put("status",valid?"local":"invalid").put("live_session_id",reusable).put("live_complete",!reusable.isEmpty());
-                if(live!=null)d.put("live_segments",live.segments());if(!error.isEmpty())d.put("error",error);store.save(d);if(!keep)store.deleteDraft(d);}}
+                if(live!=null)d.put("live_segments",live.segments());if(!error.isEmpty())d.put("error",error);store.save(d);if(!keep)store.deleteDraft(d);else if(valid)UploadQueue.saved(this,d);}}
             catch(Exception e){error="Audio saved, but its details could not be updated.";}
             if(wake!=null&&wake.isHeld())wake.release();finishing=false;stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();
         }

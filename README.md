@@ -1,10 +1,24 @@
-# Teno Android 0.4.2
+# Teno Android 0.4.3
 
-Native Android companion app for the JWD recorder, with live transcription, optional phone recording and team workspaces. Package: `com.teno.app`; version code: `7`. Release date: 2026-11-02.
+Native Android companion app for the JWD recorder, with live transcription, optional phone recording and team workspaces. Package: `com.teno.app`; version code: `8`. Release date: 2026-11-02.
 
-Install `dist/Teno-0.4.2.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.4.1 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
+Install `dist/Teno-0.4.3.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.4.2 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
 
-## Version 0.4.2 recorder-first entry
+## Version 0.4.3 recording flow and Tasks
+
+**Record with device** starts an authorized idle recorder using remembered settings, or reconnects the last successfully authorized recorder. First-time binding still verifies the service and device key. A pending start expires after 45 seconds and is canceled when the screen is left; reconnecting by itself never issues a start command. Phone recording stays a small explicit link and starts directly after its first permission/preferences setup.
+
+The first recording-preferences dialog explains automatic phone copies and optional cloud processing. Language, live transcription, automatic cloud processing and Wi-Fi-only uploads are remembered. Audio retention is unconditional: stopping phone capture finalizes the local WAV; stopping the recorder automatically lists, verifies and imports the matching device file. The recording detail opens without choosing a folder, pressing Import, naming the file or confirming Keep on phone. Rename remains optional. Recorder-button recordings and unsynced files found on reconnect use the same local sync path.
+
+Cloud processing sends a copy to the personal library. Upload requests are persisted and processed serially. Temporary failures/429/5xx retry with backoff, up to three attempts; permanent failures offer manual retry. Android jobs and the next app launch resume pending uploads after connection loss or process termination. Client IDs and the original audio file are reused. Local audio is never removed after upload. Switching automatic cloud processing off leaves queued automatic recordings local; explicit upload remains available. Android force-stop requires reopening the app before its background jobs can run again.
+
+Tasks now measures a multiline personal task title as a single checkbox/text control, preventing descriptions from covering its second line. Task action groups have spacing and stack at enlarged font sizes. Team status filters wrap whole controls, preserve single-line labels and maintain their selection.
+
+Evidence: two isolated API 35 runs at 411dp/normal text and 360dp/1.5 text scaling; 48 checks per run, 26 screenshots. All 26 were visually inspected, along with recording preferences and the signed release cold-start screen. Eight further checks disable emulator connectivity, retain a queue across force-stop, resume it after relaunch and verify recording preferences. The 22 JWD protocol checks pass. Same-signature upgrade from 0.4.2 and cold launch passed; release lint reports 0 errors and 68 warnings. Screenshots and review scope are in `verification/v0.4.3/flow-review.html` and `visual-review.json`; release metadata is in `dist/Teno-0.4.3-release-manifest.json`. Existing Summary/Transcript result tabs still break within words at 360dp/1.5 text scale; this is outside the Tasks overlap fix, and this review does not certify every app page.
+
+The UI tests use actual emulator phone PCM capture and a loopback HTTP server. Recorder service tests feed synthetic protocol replies through a transport substitute; they exercise production file verification and local sync logic, not a physical Bluetooth connection. No production Azure, backend, team publication or task mutations were performed. Magic4 Pro, JWD firmware timing, battery restrictions and long physical transfers still require hardware acceptance. JWD BLE import retains its existing 60-minute/100-MiB limit; general file/team import remains 120 minutes/250 MiB, and phone recording remains 54 minutes.
+
+## Historical version 0.4.2 recorder-first entry
 
 The main **Record with device** button is now above the recording library and opens the recorder connection/control screen. An unconnected recorder goes through the existing scan, service verification and authorization flow; an authorized recorder exposes its recording controls. Opening this entry never starts the phone microphone or silently falls back to phone recording.
 
@@ -49,10 +63,10 @@ Design pages marked as future concepts remain outside this release. These includ
 
 ## Phone recording and Azure Speech
 
-1. Choose the small **Record with phone** link, set a title and recognition language, then choose **Start phone recording**. Live transcription can be disabled.
+1. Choose the small **Record with phone** link. After the first preferences/permission setup, recording starts directly with remembered settings. Live transcription can be disabled in Recording preferences.
 2. `AudioRecord` captures 16 kHz mono PCM16. The foreground service writes a WAV file on the phone while `LiveTranscriber` sends PCM frames through the authenticated Teno WebSocket bridge to the server's Azure Speech SDK.
 3. Confirmed segments and the current partial segment are displayed separately. Pause does not add silence or elapsed audio. Stop remains visible below the scrolling transcript.
-4. **Stop and save** finalizes local audio and waits for the last recognition result. **Save and continue** uploads; **Keep on phone** leaves a local recording.
+4. **Stop and save** finalizes local audio and waits for the last recognition result. The recording is kept automatically and opens in its detail screen. Cloud upload is queued if enabled; otherwise **Upload and process** remains optional.
 5. A completed live preview can be reused only if account, client ID, language, PCM byte count and SHA-256 all match the uploaded audio. Interrupted or mismatched previews fall back to a full-file transcription. One stable upload client ID prevents duplicate library recordings.
 
 Azure and model keys remain on the server. The APK contains only business authentication tokens encrypted with Android Keystore. First use of 0.3 initializes generated output to English; **Account → Preferences** can select another summary language. Recognition language is independent of interface/output language.
@@ -65,7 +79,7 @@ Service verification, serial GATT operations, independent encrypted 16-character
 
 Live preview accepts fragmented fixed-80-byte Opus packets and decodes each to 320 PCM samples using the supplied vendor decoder. Live and file decoding share a lock because that decoder is a process-wide singleton. An invalid packet is reported rather than silently skipped. BLE file transfer remains unavailable during recording. There is no device pause command in this UI.
 
-Device start/stop state follows acknowledged hardware messages. Disconnecting Bluetooth does not claim to stop the recorder. A live preview does not become an uploadable device recording: after stopping, import the complete original file through the existing integrity checks. Original device files are never deleted automatically.
+Device start/stop state follows acknowledged hardware messages. Disconnecting Bluetooth does not claim to stop the recorder. A live preview does not become an uploadable device recording: after stopping, the complete original is synced automatically through the existing integrity checks before upload. Original device files are never deleted automatically.
 
 Viewing a saved key requires Android screen-lock confirmation and uses a secure window. Reset help documents three quick presses followed by an approximately five-second hold, the conflicting completion-light descriptions, and the format/unbind consequence. The app does not issue reset/format commands.
 

@@ -8,7 +8,7 @@ import java.util.*;
 
 /** All callbacks and GATT operations run on one handler. No raw commands are logged. */
 @SuppressLint("MissingPermission")
-final class JwdBle {
+final class JwdBle implements JwdTransport {
     interface Listener {void ready();void stage(String stage);void serviceChecked(boolean matches,String reason);void command(byte[] bytes);void audio(byte[] bytes);void closed(String reason);}
     private final android.content.Context context;private final Handler handler;private final Listener listener;
     private BluetoothGatt gatt;private BluetoothGattCharacteristic writer;
@@ -18,8 +18,8 @@ final class JwdBle {
     private final Runnable handshakeTimeout=()->fail("Connection timed out. Keep the recorder nearby and close other recorder apps before retrying.");
     private final Runnable writeTimeout=()->fail("Bluetooth command timed out. Reconnect the recorder.");
     JwdBle(android.content.Context c,Handler h,Listener l){context=c;handler=h;listener=l;}
-    void connect(BluetoothDevice device){connect(device,false);}
-    void probe(BluetoothDevice device){connect(device,true);}
+    public void connect(BluetoothDevice device){connect(device,false);}
+    public void probe(BluetoothDevice device){connect(device,true);}
     private void connect(BluetoothDevice device,boolean probe){
         close();probeOnly=probe;handler.postDelayed(handshakeTimeout,25000);
         try{gatt=device.connectGatt(context,false,callbacks,BluetoothDevice.TRANSPORT_LE);if(gatt==null)fail("Bluetooth connection could not start");}
@@ -74,7 +74,7 @@ final class JwdBle {
         if(d==null||!gatt.setCharacteristicNotification(c,true)){fail("The device notification channel is unavailable");return;}
         d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);if(!gatt.writeDescriptor(d))fail("Notification setup failed");
     }
-    void send(String command)throws IOException{
+    public void send(String command)throws IOException{
         if(!ready||gatt==null)throw new IOException("Bluetooth is not ready");
         byte[] b=JwdProtocol.encode(command);if(b.length>mtu-3)throw new IOException("The command exceeds the Bluetooth packet limit");
         if(writes.size()>30)throw new IOException("Wait for the current device command to finish");writes.add(b);pump();
@@ -86,7 +86,7 @@ final class JwdBle {
         writer.setValue(writes.remove());writing=true;handler.postDelayed(writeTimeout,6000);
         if(!gatt.writeCharacteristic(writer))fail("Bluetooth is busy. Reconnect and try again.");
     }
-    void close(){
+    public void close(){
         handler.removeCallbacks(handshakeTimeout);handler.removeCallbacks(writeTimeout);writes.clear();writing=false;ready=false;nextWrite=0;
         BluetoothGatt old=gatt;gatt=null;writer=null;
         if(old!=null){try{old.disconnect();}catch(Exception ignored){}try{old.close();}catch(Exception ignored){}}

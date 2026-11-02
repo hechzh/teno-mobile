@@ -25,6 +25,19 @@ public final class Store {
     public String scope(){return prefs.getString("scope","");}
     public String language(){return prefs.getString("language","zh-CN");}
     public void language(String v){prefs.edit().putString("language",v).apply();}
+    public boolean recordingOptionsSet(){return prefs.getBoolean("recording_options."+scope(),false);}
+    public boolean autoUpload(){return recordingOptionsSet()&&prefs.getBoolean("auto_upload."+scope(),false);}
+    public boolean wifiUpload(){return prefs.getBoolean("wifi_upload."+scope(),false);}
+    public boolean liveDefault(){return prefs.getBoolean("live_default",true);}
+    public void recordingOptions(boolean cloud,boolean wifi,boolean live){prefs.edit().putBoolean("recording_options."+scope(),true).putBoolean("auto_upload."+scope(),cloud).putBoolean("wifi_upload."+scope(),wifi).putBoolean("live_default",live).commit();}
+    public String recorderAddress(){return prefs.getString("jwd.last_address","");}
+    public String recorderName(){return prefs.getString("jwd.last_name","Recorder");}
+    public void rememberRecorder(String address,String name){prefs.edit().putString("jwd.last_address",address).putString("jwd.last_name",name).commit();}
+    private String deviceRecordKey(String address,String dir,String name,long seconds){return "jwd.synced."+scope()+"."+address+"."+dir+"."+name+"."+seconds;}
+    public boolean deviceRecordSynced(String address,String dir,String name,long seconds){return prefs.contains(deviceRecordKey(address,dir,name,seconds));}
+    public void deviceRecordSynced(String address,String dir,String name,long seconds,String id){prefs.edit().putString(deviceRecordKey(address,dir,name,seconds),id).commit();}
+    public String pendingDeviceRecord(String address){return prefs.getString("jwd.pending."+scope()+"."+address,"");}
+    public void pendingDeviceRecord(String address,String name){prefs.edit().putString("jwd.pending."+scope()+"."+address,name).commit();}
     public boolean nativePreferencesSet(){return prefs.getBoolean("native_prefs_0_3_"+scope(),false);}
     public void markNativePreferences(){prefs.edit().putBoolean("native_prefs_0_3_"+scope(),true).putString("summary_language","en-US").apply();}
     public void identity(String username,String id)throws Exception{
@@ -88,6 +101,7 @@ public final class Store {
             try{File file=new File(d.getString("path"));long bytes=Math.max(0,file.length()-44);boolean valid=bytes>=3200&&bytes%2==0&&file.getName().endsWith(".wav");
                 if(valid)try(RandomAccessFile audio=new RandomAccessFile(file,"rw")){byte[] header=new byte[4];audio.readFully(header);valid=new String(header,StandardCharsets.US_ASCII).equals("RIFF");if(valid){audio.seek(0);audio.write(JwdAudio.wavHeader(bytes));audio.getFD().sync();}}
                 d.put("status",valid?"local":"invalid").put("duration_ms",valid?bytes/32:0).put("live_complete",false).put("live_session_id","").put("error",valid?"Recording was interrupted. The saved audio is ready to upload.":"Recording was interrupted before usable audio was saved.");save(d);
+                if(valid)UploadQueue.saved(context,d);
             }catch(Exception ignored){}
         }
     }
