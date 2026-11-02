@@ -1,0 +1,16 @@
+Teno Android 0.4.1 — Bottom navigation alignment
+2026-11-02 | com.teno.app | versionCode 6
+
+Install dist/Teno-0.4.1.apk over the existing release. The signing certificate is unchanged; do not uninstall to upgrade.
+
+Changes
+The Library, Ask, Tasks and Account labels now sit directly below their icons in both personal and team workspaces. Each icon/label pair shares one tap target. Navigation height accommodates enlarged system text. Calendar, folders and saved context show their corresponding active tab.
+
+Verification
+API 35 emulator: 14 navigation scenarios at three display configurations, producing 42 screenshots and checking 168 icon/label pairs. Normal text, 1.5 text scaling and a 360dp compact display pass alignment and visibility checks. Actual primary navigation clicks and selected states pass. All 14 normal screenshots and eight enlarged/compact screenshots were visually inspected.
+Signed release: 0.4.0 → 0.4.1 replacement install and cold launch passed. Release lint: 0 errors, 59 warnings. The APK excludes test runners and private credentials. Reports and original screenshots: verification/v0.4.1/navigation-review.html.
+
+Scope
+The isolated screenshot app uses read-only synthetic loopback data and the production view code. The signed release cold-start check reached the sign-in page. This is not new backend, live speech, Bluetooth or physical Magic4 Pro acceptance. Previous 0.4.0 functional evidence remains historical. At enlarged text sizes, some existing content buttons and filters still wrap words awkwardly; this release verifies the bottom navigation, not every content layout.
+
+The server, meeting data, voice profiles and recording/transfer logic were not changed in this release. APK and source checksums are in dist/Teno-0.4.1-release-manifest.json and dist/SHA256SUMS.txt.

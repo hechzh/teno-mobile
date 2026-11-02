@@ -11,6 +11,7 @@
 !/README-0.2.1-history.md
 !/RELEASE-0.3.0.txt
 !/RELEASE-0.4.0.txt
+!/RELEASE-0.4.1.txt
 !/VERSIONING.txt
 !/VENDOR-JWD.md
 !/JWD-测试指南.txt
@@ -29,6 +30,8 @@
 !/verification/v0.3.0/package_release.py
 !/verification/v0.4.0/
 !/verification/v0.4.0/package_release.py
+!/verification/v0.4.1/
+!/verification/v0.4.1/package_release.py
 
 # Private configuration and generated material never enter source control.
 **/[Aa][Gg][Ee][Nn][Tt][Ss].[Mm][Dd]

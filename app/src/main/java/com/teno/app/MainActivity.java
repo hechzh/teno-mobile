@@ -72,9 +72,31 @@ public class MainActivity extends EnglishActivity {
         else{header.addView(iconButton("arrow_left","Back",this::onBackPressed));TextView caption=text(name.equals("login")?"teno.":title,15,INK);caption.setPadding(dp(12),0,0,0);header.addView(caption,new LinearLayout.LayoutParams(0,-2,1));}
         root.addView(header);status=text("",12,MUTED);status.setPadding(dp(22),0,dp(22),dp(3));root.addView(status);
         scroll=new ScrollView(this);scroll.setFillViewport(true);content=column();content.setPadding(dp(22),dp(10),dp(22),dp(26));scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-        if(top){content.addView(bold(title,28,INK));gap(content,16);nav=row();nav.setPadding(dp(4),dp(7),dp(4),dp(8));nav.setBackgroundColor(Color.WHITE);addNav("Library",this::home,name.equals("home"));addNav("Ask",this::chats,name.equals("chats"));addNav("Tasks",this::actions,name.equals("actions")||name.equals("resource")&&(resourceKind.equals("tasks")||resourceKind.equals("events")));addNav("Account",this::settings,name.equals("settings"));root.addView(nav);}
+        if(top){content.addView(bold(title,28,INK));gap(content,16);nav=navigationBar();String selected=personalNavigation(name);addNav("Library",this::home,selected.equals("Library"));addNav("Ask",this::chats,selected.equals("Ask"));addNav("Tasks",this::actions,selected.equals("Tasks"));addNav("Account",this::settings,selected.equals("Account"));root.addView(nav);}
     }
-    void addNav(String title,Runnable action,boolean active){LinearLayout item=column();item.setGravity(Gravity.CENTER);item.setPadding(0,dp(8),0,dp(4));String name=title.equals("Library")?"files":title.equals("Ask")?"messages_square":title.equals("Tasks")?"list_checks":"user_round";ImageView image=icon(name,active?INK:MUTED);item.addView(image,new LinearLayout.LayoutParams(dp(22),dp(22)));TextView label=text(title,11,active?INK:MUTED);label.setPadding(0,dp(5),0,0);item.addView(label);item.setContentDescription(title);item.setFocusable(true);item.setOnClickListener(v->action.run());nav.addView(item,new LinearLayout.LayoutParams(0,dp(54),1));}
+    LinearLayout navigationBar(){LinearLayout bar=row();bar.setPadding(dp(4),dp(6),dp(4),dp(6));bar.setBackgroundColor(Color.WHITE);return bar;}
+    String personalNavigation(String name){
+        if(name.equals("home"))return "Library";
+        if(name.equals("chats"))return "Ask";
+        if(name.equals("actions"))return "Tasks";
+        if(name.equals("resource")){
+            if(resourceKind.equals("tasks")||resourceKind.equals("events"))return "Tasks";
+            if(resourceKind.equals("folders")||resourceKind.equals("tags"))return "Library";
+        }
+        return "Account";
+    }
+    void addNav(String title,Runnable action,boolean active){
+        LinearLayout item=column();item.setGravity(Gravity.CENTER);item.setPadding(dp(4),dp(8),dp(4),dp(6));item.setMinimumHeight(dp(56));
+        String name=title.equals("Library")?"files":title.equals("Ask")?"messages_square":title.equals("Tasks")?"list_checks":"user_round";
+        ImageView image=icon(name,active?INK:MUTED);image.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        item.addView(image,new LinearLayout.LayoutParams(dp(22),dp(22)));
+        TextView label=text(title,11,active?INK:MUTED);label.setGravity(Gravity.CENTER);label.setIncludeFontPadding(false);label.setSingleLine(true);label.setLineSpacing(0,1);
+        label.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        LinearLayout.LayoutParams caption=new LinearLayout.LayoutParams(-1,-2);caption.topMargin=dp(4);item.addView(label,caption);
+        item.setContentDescription(title);item.setSelected(active);item.setFocusable(true);item.setOnClickListener(v->action.run());
+        // Natural height keeps enlarged system text inside the same tap target.
+        nav.addView(item,new LinearLayout.LayoutParams(0,-2,1));
+    }
     <T> void task(String message,Work<T> work,Result<T> result){
         int version=generation;loading=true;if(status!=null)status.setText(message);
         pendingOperations.incrementAndGet();

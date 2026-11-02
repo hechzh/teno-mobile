@@ -1,8 +1,16 @@
-# Teno Android 0.4.0
+# Teno Android 0.4.1
 
-Native Android implementation of the English V2 design, with live transcription and team workspaces. Package: `com.teno.app`; version code: `5`. Release date: 2026-11-01.
+Native Android implementation of the English V2 design, with live transcription and team workspaces. Package: `com.teno.app`; version code: `6`. Release date: 2026-11-02.
 
-Install `dist/Teno-0.4.0.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.2.1 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
+Install `dist/Teno-0.4.1.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.4.0 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
+
+## Version 0.4.1 navigation correction
+
+Bottom navigation labels were left-aligned inside full-width views while their icons were centered. The shared personal/team component now centers each label beneath its icon, uses a consistent gap and grows with system text size. Folders, calendar and saved context also retain the appropriate active tab.
+
+The earlier 0.4.0 screenshots covered selected team-audio flows, not a complete visual review of the app. This release adds 14 navigation scenarios at three display settings: 411dp width with normal text, 411dp with 1.5 text scaling and 360dp with 1.5 text scaling. All 42 captures pass glyph alignment, visibility, spacing, selected-tab and click-destination checks. Visual review covers all 14 normal screenshots plus eight enlarged/compact screenshots. Evidence and before/after images are in `verification/v0.4.1/navigation-review.html` and its JSON reports.
+
+Tests run against read-only synthetic loopback data in the isolated `com.teno.app.navigationverification` package, using the production view code. No fixture server, synthetic account or test runner is included in the release APK. The actual signed `com.teno.app` package was upgraded from 0.4.0 on the API 35 emulator and cold-started to the sign-in page. Release lint reports 0 errors and 59 warnings. No new backend or physical Magic4 Pro/JWD acceptance is claimed. Existing long content-button labels can still wrap awkwardly at enlarged text sizes; the navigation pass does not certify every dialog or content layout.
 
 ## Version 0.4 team audio
 
@@ -12,7 +20,7 @@ Processing status, authenticated playback, segment seeking and speaker confirmat
 
 **Voice profiles** supports administrator enrollment and calibration and member self-revocation. Samples and embeddings remain on the server. The first historical calibration failed the conservative separation check, so initial profiles remain manual-review-only; Samuel also lacks an independent validation recording. No automatic name attribution is enabled for these profiles.
 
-Current evidence: 17 Android flow checks on an API 35 emulator, 22 unchanged JWD protocol checks, signed 0.3 → 0.4 upgrade and cold start, release lint with no errors. See `verification/v0.4.0` and `dist/Teno-0.4.0-release-manifest.json`. Physical Magic4 Pro/JWD, full English meetings and long microphone recordings are not certified by these checks. Earlier 0.3 reports below remain historical evidence.
+Historical 0.4.0 evidence: 17 Android flow checks on an API 35 emulator, 22 unchanged JWD protocol checks, signed 0.3 → 0.4 upgrade and cold start, release lint with no errors. See `verification/v0.4.0` and `dist/Teno-0.4.0-release-manifest.json`. These checks were not rerun as part of the 0.4.1 navigation correction. Physical Magic4 Pro/JWD, full English meetings and long microphone recordings are not certified by these checks. Earlier 0.3 reports below remain historical evidence.
 
 ## Interface and navigation
 
@@ -87,8 +95,10 @@ $env:JAVA_HOME='C:/Program Files/Android/Android Studio/jbr'
 ./gradlew.bat :app:assembleDebug :app:assembleDebugAndroidTest '-PverificationAppId=com.teno.app.v3verification' '-PtestRunner=com.teno.app.V3Instrumentation'
 ```
 
+For isolated navigation screenshots, build with `-PverificationAppId=com.teno.app.navigationverification -PtestRunner=com.teno.app.NavigationInstrumentation` instead. Install the resulting debug and androidTest APKs only on the development emulator, then run `adb -s emulator-5554 shell am instrument -w com.teno.app.navigationverification.test/com.teno.app.NavigationInstrumentation`. This runner needs no cloud account and rejects other target package names. Set the emulator's display/font configuration before each run and restore it afterward. Always rebuild release without verification properties before packaging.
+
 Release signing reads `~/.android/teno-signing.properties`. Do not copy signing credentials, account files, SSH keys, server `.env`, or the private root `AGENTS.md` into source archives. The source ZIP is created from an explicit allowlist.
 
 Test runners require the existing protected internal test accounts to be copied into the isolated emulator app's private files and removed afterward. `V3Instrumentation` also requires `speech.wav` and `opus.raw` from the synthetic JWD verification fixtures. `V3PolishInstrumentation` reuses that runner's result IDs in the isolated acceptance workspace. Neither runner should target the user's physical installation.
 
-The previous README is retained as `README-0.2.1-history.md` for historical evidence only. Installation notes for this release are in `RELEASE-0.3.0.txt`.
+The previous README is retained as `README-0.2.1-history.md` for historical evidence only. Installation notes for this release are in `RELEASE-0.4.1.txt`.
