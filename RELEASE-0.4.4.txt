@@ -1,0 +1,12 @@
+Teno 0.4.4 — Automatic transcription language
+2026-11-02 · com.teno.app · versionCode 9
+
+Install dist/Teno-0.4.4.apk over the previous signed release. Keep the existing app installed to preserve recordings and recorder keys.
+
+Recording and importing no longer require choosing Chinese or English. Phone and JWD audio, live previews, personal uploads and team audio imports all use Automatic. Old saved language preferences and pending upload receipts use Automatic when sent. Summary output language remains independent.
+
+Shared backend 1.2.2 is required and deployed. It accepts legacy locale parameters, uses Fast multilingual transcription for files and continuous Chinese/English detection for realtime. Final file processing runs even after a complete preview, so live preview and file transcription both use Azure quota. Realtime can still misrecognize words inside a mixed-language sentence.
+
+Device recording remains the primary action. Local audio is saved automatically; team sharing still requires explicit confirmation. No historical transcript, speaker identity or analysis is overwritten.
+
+Validation: 41 Android emulator checks across normal/large text, screenshots of the affected pages, signed upgrade/cold start, release lint; 43 backend checks, six real Azure provider checks and 12 real HTTPS/WebSocket checks using synthetic Chinese, English and mixed speech. Physical Magic4 Pro and JWD hardware are not certified by this release.

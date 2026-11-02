@@ -1,14 +1,22 @@
-# Teno Android 0.4.3
+# Teno Android 0.4.4
 
-Native Android companion app for the JWD recorder, with live transcription, optional phone recording and team workspaces. Package: `com.teno.app`; version code: `8`. Release date: 2026-11-02.
+Native Android companion app for the JWD recorder, with live transcription, optional phone recording and team workspaces. Package: `com.teno.app`; version code: `9`. Release date: 2026-11-02.
 
-Install `dist/Teno-0.4.3.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.4.2 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
+Install `dist/Teno-0.4.4.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.4.3 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
 
-## Version 0.4.3 recording flow and Tasks
+## Version 0.4.4 automatic transcription language
+
+Phone recording, recorder live preview, personal audio uploads and team audio imports use **Automatic**. Recording preferences and team imports no longer offer Chinese/English recognition choices. Previously saved language preferences and pending uploads also send `auto`. Summary output language remains a separate preference.
+
+Shared backend 1.2.2 accepts old locale parameters and normalizes them to automatic. Fast uses multilingual file transcription; realtime Speech SDK continuously detects Chinese/English. Realtime text remains a preview, and the saved original is processed by Fast for the final transcript. Live and file recognition each consume Azure usage. Sentence-internal language switches can still be wrong in realtime; this release does not promise unrestricted multilingual live recognition.
+
+Two API 35 emulator configurations pass 20 and 21 checks (normal and large text), covering UI, actual PCM/local saving, request parameters, old personal/team upload receipts, and explicit team sharing. Screenshots are in `verification/v0.4.4/automatic-review.html`. Backend verification includes 43 isolated tests, six real Azure provider checks and 12 production HTTPS/WebSocket checks using synthetic Chinese/English/mixed audio. Same-signature release upgrade from 0.4.3 is checked separately. Physical Magic4 Pro/JWD and recognition accuracy on real meetings remain unverified in this release.
+
+## Historical version 0.4.3 recording flow and Tasks
 
 **Record with device** starts an authorized idle recorder using remembered settings, or reconnects the last successfully authorized recorder. First-time binding still verifies the service and device key. A pending start expires after 45 seconds and is canceled when the screen is left; reconnecting by itself never issues a start command. Phone recording stays a small explicit link and starts directly after its first permission/preferences setup.
 
-The first recording-preferences dialog explains automatic phone copies and optional cloud processing. Language, live transcription, automatic cloud processing and Wi-Fi-only uploads are remembered. Audio retention is unconditional: stopping phone capture finalizes the local WAV; stopping the recorder automatically lists, verifies and imports the matching device file. The recording detail opens without choosing a folder, pressing Import, naming the file or confirming Keep on phone. Rename remains optional. Recorder-button recordings and unsynced files found on reconnect use the same local sync path.
+The first recording-preferences dialog explains automatic phone copies and optional cloud processing. In 0.4.3, language, live transcription, automatic cloud processing and Wi-Fi-only uploads were remembered; 0.4.4 removes the recognition-language choice. Audio retention is unconditional: stopping phone capture finalizes the local WAV; stopping the recorder automatically lists, verifies and imports the matching device file. The recording detail opens without choosing a folder, pressing Import, naming the file or confirming Keep on phone. Rename remains optional. Recorder-button recordings and unsynced files found on reconnect use the same local sync path.
 
 Cloud processing sends a copy to the personal library. Upload requests are persisted and processed serially. Temporary failures/429/5xx retry with backoff, up to three attempts; permanent failures offer manual retry. Android jobs and the next app launch resume pending uploads after connection loss or process termination. Client IDs and the original audio file are reused. Local audio is never removed after upload. Switching automatic cloud processing off leaves queued automatic recordings local; explicit upload remains available. Android force-stop requires reopening the app before its background jobs can run again.
 
@@ -67,9 +75,9 @@ Design pages marked as future concepts remain outside this release. These includ
 2. `AudioRecord` captures 16 kHz mono PCM16. The foreground service writes a WAV file on the phone while `LiveTranscriber` sends PCM frames through the authenticated Teno WebSocket bridge to the server's Azure Speech SDK.
 3. Confirmed segments and the current partial segment are displayed separately. Pause does not add silence or elapsed audio. Stop remains visible below the scrolling transcript.
 4. **Stop and save** finalizes local audio and waits for the last recognition result. The recording is kept automatically and opens in its detail screen. Cloud upload is queued if enabled; otherwise **Upload and process** remains optional.
-5. A completed live preview can be reused only if account, client ID, language, PCM byte count and SHA-256 all match the uploaded audio. Interrupted or mismatched previews fall back to a full-file transcription. One stable upload client ID prevents duplicate library recordings.
+5. Language is detected automatically. Every saved upload goes through final file transcription; a complete live preview is not substituted for the final text. One stable upload client ID prevents duplicate library recordings.
 
-Azure and model keys remain on the server. The APK contains only business authentication tokens encrypted with Android Keystore. First use of 0.3 initializes generated output to English; **Account → Preferences** can select another summary language. Recognition language is independent of interface/output language.
+Azure and model keys remain on the server. The APK contains only business authentication tokens encrypted with Android Keystore. First use of 0.3 initializes generated output to English; **Account → Preferences** can select another summary language. Recognition uses Automatic and is independent of interface/output language.
 
 Audio remains local if networking fails, the service is busy or recognition cannot finish. Interrupted capture metadata is recovered on return to the library where possible. This does not guarantee recovery from full storage, hardware failure or deletion by Android/the user. Phone WAV recording remains limited to 54 minutes. Imported files are limited to 120 minutes / 250 MiB. The S0 backend supports 2 realtime sessions, 1 Fast file task and 1 voice task independently. When realtime capacity is busy, local recording continues.
 

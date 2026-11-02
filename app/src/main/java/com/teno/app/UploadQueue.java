@@ -75,7 +75,7 @@ final class UploadQueue {
             JSONObject draft;
             synchronized(Store.class){draft=store.draft(id);draft.put("status","uploading").put("upload_attempts",draft.optInt("upload_attempts")+1).remove("error");store.save(draft);}
             File audio=new File(draft.getString("path"));if(!audio.isFile()||audio.length()==0)throw new IOException("No valid audio file found");
-            JSONObject fields=new JSONObject().put("client_id",id).put("title",draft.getString("title")).put("language",draft.optString("language","zh-CN"));
+            JSONObject fields=new JSONObject().put("client_id",id).put("title",draft.getString("title")).put("language",store.language());
             if(!draft.optString("live_session_id").isEmpty())fields.put("live_session_id",draft.getString("live_session_id"));
             JSONObject result=api.upload("/api/v1/recordings",audio,audio.getName(),fields,(sent,total)->{TransferService.message="Uploading "+(total==0?0:sent*100/total)+"%";progress.update(TransferService.message);});
             if(!owner.equals(store.scope()))return;

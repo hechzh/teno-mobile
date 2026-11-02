@@ -23,8 +23,8 @@ public final class Store {
     public void base(String url){prefs.edit().putString("server",url.replaceAll("/+$","")).apply();}
     public String name(){return prefs.getString("username","");}
     public String scope(){return prefs.getString("scope","");}
-    public String language(){return prefs.getString("language","zh-CN");}
-    public void language(String v){prefs.edit().putString("language",v).apply();}
+    public String language(){return "auto";}
+    public void language(String v){prefs.edit().putString("language","auto").apply();}
     public boolean recordingOptionsSet(){return prefs.getBoolean("recording_options."+scope(),false);}
     public boolean autoUpload(){return recordingOptionsSet()&&prefs.getBoolean("auto_upload."+scope(),false);}
     public boolean wifiUpload(){return prefs.getBoolean("wifi_upload."+scope(),false);}

@@ -24,7 +24,7 @@ public final class TeamAudioUploadService extends Service {
             try{d=drafts.load(id);if(!scope.equals(d.optString("scope")))throw new IOException("Sign in to the original account");
                 d.put("status","uploading");drafts.save(d);File file=new File(d.getString("path"));
                 if(!file.getCanonicalPath().startsWith(drafts.folder.getCanonicalPath()+File.separator)||!file.isFile()||file.length()==0||file.length()>250L*1024*1024)throw new IOException("Select an audio file up to 250 MiB");
-                JSONObject fields=new JSONObject().put("client_id",id).put("share_with_team","true").put("title",d.getString("title")).put("language",d.optString("language","zh-CN"));
+                JSONObject fields=new JSONObject().put("client_id",id).put("share_with_team","true").put("title",d.getString("title")).put("language",store.language());
                 final long[] last={0};JSONObject result=new Api(store).upload("/api/v1/teams/"+d.getString("team_id")+"/meeting-audio-imports",file,d.optString("filename","recording.wav"),fields,(sent,total)->{
                     if(!scope.equals(store.scope()))throw new IllegalStateException("Account changed. Retry from the original account.");
                     message="Uploading "+sent*100/Math.max(1,total)+"%";

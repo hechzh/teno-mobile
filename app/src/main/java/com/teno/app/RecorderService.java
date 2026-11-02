@@ -31,7 +31,7 @@ public final class RecorderService extends Service {
                 int size=Math.max(6400,AudioRecord.getMinBufferSize(16000,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT)*2);
                 recorder=new AudioRecord(MediaRecorder.AudioSource.MIC,16000,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT,size);
                 if(recorder.getState()!=AudioRecord.STATE_INITIALIZED)throw new IOException("The microphone could not be opened");
-                live=draft.optBoolean("live",true)?new LiveTranscriber(store,draftId,draft.optString("title"),draft.optString("language","zh-CN")):null;
+                live=draft.optBoolean("live",true)?new LiveTranscriber(store,draftId,draft.optString("title"),store.language()):null;
                 recorder.startRecording();active=true;started=SystemClock.elapsedRealtime();draft.put("status","recording");store.save(draft);
                 wake=((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"Teno:Recording");wake.acquire(3600000);
                 capture=new Thread(()->capture(draft),"TenoPcmCapture");capture.start();

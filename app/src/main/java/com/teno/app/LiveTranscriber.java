@@ -19,7 +19,7 @@ public final class LiveTranscriber {
     private boolean ready=false,stopping=false,closed=false,paused=false,retryScheduled=false,complete=false;
     public volatile String status="Connecting",partial="",sessionId="";
     public volatile boolean gap=false;
-    LiveTranscriber(Store s,String id,String name,String locale){store=s;api=new Api(s);draftId=id;title=name;language=locale;connect();}
+    LiveTranscriber(Store s,String id,String name,String locale){store=s;api=new Api(s);draftId=id;title=name;language="auto";connect();}
     public synchronized JSONArray segments(){JSONArray result=new JSONArray();for(JSONObject s:segments)result.put(s);return result;}
     public synchronized long audioMillis(){return bytes/32;}
     private synchronized void connect(){

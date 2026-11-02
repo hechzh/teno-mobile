@@ -209,7 +209,7 @@ public class JwdActivity extends EnglishActivity {
         try{UploadQueue.enqueue(store,draft.getString("id"),false);UploadQueue.resume(this);}catch(Exception e){error(e.getMessage());}
     }
     private void exportDiagnostics(){
-        try{JSONObject diagnostics=new JSONObject(JwdService.snapshot);diagnostics.put("app_version","0.4.3").put("phone",Build.MANUFACTURER+" "+Build.MODEL).put("android",Build.VERSION.RELEASE).put("api",Build.VERSION.SDK_INT).put("abis",new JSONArray(Arrays.asList(Build.SUPPORTED_ABIS))).put("hardware_validation","pending_user_device_test");
+        try{JSONObject diagnostics=new JSONObject(JwdService.snapshot);diagnostics.put("app_version","0.4.4").put("phone",Build.MANUFACTURER+" "+Build.MODEL).put("android",Build.VERSION.RELEASE).put("api",Build.VERSION.SDK_INT).put("abis",new JSONArray(Arrays.asList(Build.SUPPORTED_ABIS))).put("hardware_validation","pending_user_device_test");
             if(JwdService.live!=null)diagnostics.put("live_status",JwdService.live.transcriber.status).put("live_samples",JwdService.live.samples).put("live_error",JwdService.live.problem);diagnostics.remove("address");diagnostics.remove("devices");exportText=diagnostics.toString(2);
             startActivityForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_TITLE,"Teno-JWD-diagnostics.json"),33);
         }catch(Exception e){error(e.getMessage());}
