@@ -6,7 +6,7 @@ Teno Android 本地版本管理
 
 允许范围
 app/src、app/build.gradle、gradle wrapper、根 Gradle 配置、tests、许可与说明文件。
-verification/v0.3.0、v0.4.0、v0.4.1 下的 package_release.py 保留为发布工具；其他历史改写脚本、验收产物留在本地。
+verification/v0.3.0、v0.4.0、v0.4.1、v0.4.2 下的 package_release.py 保留为发布工具；其他历史改写脚本、验收产物留在本地。
 dist APK/ZIP、签名、local.properties、缓存、日志、账号、录音和所有 AGENTS.md 均忽略。
 
 常用命令

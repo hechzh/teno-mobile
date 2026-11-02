@@ -1,0 +1,15 @@
+Teno Android 0.4.2 — Recorder-first entry
+2026-11-02 | com.teno.app | versionCode 7
+
+Install dist/Teno-0.4.2.apk over the existing signed release. Do not uninstall.
+
+The main Record with device button opens the recorder connection/control screen and now appears above the recording list. Record with phone is a smaller text link directly below it. Phone setup clearly names the phone microphone and its start button; while capture is active, the link returns to that recording. Add content lists the device first and keeps phone recording as an explicit option.
+
+An unconnected device follows the existing scan, service-verification and key-authorization steps. Opening the device entry does not request microphone permission or start phone capture. No automatic fallback to phone recording was added.
+
+Verification: API 35 emulator, normal text at 411dp and 1.5 text scaling at 360dp; 30 checks per configuration, 20 screenshots, eight visually reviewed. Actual emulator phone capture, return, stop and complete local WAV save passed. Connected/authorizing/recording device states were synthetic UI fixtures, not Bluetooth hardware acceptance. Release signature, 0.4.1 replacement installation and cold launch passed; lint has 0 errors and 60 warnings. Test fixtures and credentials are excluded from the release APK.
+
+Reports and original screenshots: verification/v0.4.2/recording-entry-review.html.
+Checksums: dist/Teno-0.4.2-release-manifest.json and dist/SHA256SUMS.txt.
+
+No shared-backend, voice-profile, Azure or Bluetooth protocol changes. Magic4 Pro / Android 12 and physical JWD acceptance remain separate from emulator evidence. The 0.4.1 bottom-navigation correction is retained; its prior reports were not rerun in full this release.

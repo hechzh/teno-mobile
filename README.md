@@ -1,14 +1,22 @@
-# Teno Android 0.4.1
+# Teno Android 0.4.2
 
-Native Android implementation of the English V2 design, with live transcription and team workspaces. Package: `com.teno.app`; version code: `6`. Release date: 2026-11-02.
+Native Android companion app for the JWD recorder, with live transcription, optional phone recording and team workspaces. Package: `com.teno.app`; version code: `7`. Release date: 2026-11-02.
 
-Install `dist/Teno-0.4.1.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.4.0 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
+Install `dist/Teno-0.4.2.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.4.1 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
+
+## Version 0.4.2 recorder-first entry
+
+The main **Record with device** button is now above the recording library and opens the recorder connection/control screen. An unconnected recorder goes through the existing scan, service verification and authorization flow; an authorized recorder exposes its recording controls. Opening this entry never starts the phone microphone or silently falls back to phone recording.
+
+**Record with phone** is a smaller text link directly beneath the primary button, with a 48dp minimum tap height. Its setup page explicitly identifies the phone microphone and uses **Start phone recording**. During capture, the link becomes **Return to phone recording**. The Add content menu lists device recording first and keeps phone recording as an explicit choice.
+
+Two API 35 emulator runs (411dp normal text; 360dp with 1.5 text scaling) passed 30 checks each and captured 20 screenshots. Checks cover primary/secondary hierarchy, both menu routes, no microphone permission request from the device entry, simulated connected/authorizing/recording device states, and actual emulator PCM capture, return and local WAV save. Eight relevant screenshots were visually inspected. Hardware states are test-only UI fixtures: no real Bluetooth or physical recorder acceptance is claimed. The signed release upgraded from 0.4.1 and cold-started to sign-in. See `verification/v0.4.2/recording-entry-review.html`; source and release checksums are in `dist/Teno-0.4.2-release-manifest.json`. Earlier navigation and cloud reports remain historical evidence.
 
 ## Version 0.4.1 navigation correction
 
 Bottom navigation labels were left-aligned inside full-width views while their icons were centered. The shared personal/team component now centers each label beneath its icon, uses a consistent gap and grows with system text size. Folders, calendar and saved context also retain the appropriate active tab.
 
-The earlier 0.4.0 screenshots covered selected team-audio flows, not a complete visual review of the app. This release adds 14 navigation scenarios at three display settings: 411dp width with normal text, 411dp with 1.5 text scaling and 360dp with 1.5 text scaling. All 42 captures pass glyph alignment, visibility, spacing, selected-tab and click-destination checks. Visual review covers all 14 normal screenshots plus eight enlarged/compact screenshots. Evidence and before/after images are in `verification/v0.4.1/navigation-review.html` and its JSON reports.
+The earlier 0.4.0 screenshots covered selected team-audio flows, not a complete visual review of the app. The 0.4.1 correction added 14 navigation scenarios at three display settings: 411dp width with normal text, 411dp with 1.5 text scaling and 360dp with 1.5 text scaling. All 42 captures pass glyph alignment, visibility, spacing, selected-tab and click-destination checks. Visual review covers all 14 normal screenshots plus eight enlarged/compact screenshots. Evidence and before/after images are in `verification/v0.4.1/navigation-review.html` and its JSON reports.
 
 Tests run against read-only synthetic loopback data in the isolated `com.teno.app.navigationverification` package, using the production view code. No fixture server, synthetic account or test runner is included in the release APK. The actual signed `com.teno.app` package was upgraded from 0.4.0 on the API 35 emulator and cold-started to the sign-in page. Release lint reports 0 errors and 59 warnings. No new backend or physical Magic4 Pro/JWD acceptance is claimed. Existing long content-button labels can still wrap awkwardly at enlarged text sizes; the navigation pass does not certify every dialog or content layout.
 
@@ -41,7 +49,7 @@ Design pages marked as future concepts remain outside this release. These includ
 
 ## Phone recording and Azure Speech
 
-1. Choose **Start recording**, a title and recognition language. Live transcription can be disabled.
+1. Choose the small **Record with phone** link, set a title and recognition language, then choose **Start phone recording**. Live transcription can be disabled.
 2. `AudioRecord` captures 16 kHz mono PCM16. The foreground service writes a WAV file on the phone while `LiveTranscriber` sends PCM frames through the authenticated Teno WebSocket bridge to the server's Azure Speech SDK.
 3. Confirmed segments and the current partial segment are displayed separately. Pause does not add silence or elapsed audio. Stop remains visible below the scrolling transcript.
 4. **Stop and save** finalizes local audio and waits for the last recognition result. **Save and continue** uploads; **Keep on phone** leaves a local recording.
@@ -97,8 +105,10 @@ $env:JAVA_HOME='C:/Program Files/Android/Android Studio/jbr'
 
 For isolated navigation screenshots, build with `-PverificationAppId=com.teno.app.navigationverification -PtestRunner=com.teno.app.NavigationInstrumentation` instead. Install the resulting debug and androidTest APKs only on the development emulator, then run `adb -s emulator-5554 shell am instrument -w com.teno.app.navigationverification.test/com.teno.app.NavigationInstrumentation`. This runner needs no cloud account and rejects other target package names. Set the emulator's display/font configuration before each run and restore it afterward. Always rebuild release without verification properties before packaging.
 
+For recorder-entry checks, use `-PverificationAppId=com.teno.app.recordentryverification -PtestRunner=com.teno.app.RecordingEntryInstrumentation` and run that instrumentation in the corresponding `.test` package. It uses the same loopback fixture helper, starts with microphone permission denied, and later grants microphone access only inside the isolated emulator app for explicit phone capture. Device connection states are simulated inside androidTest; no device command is sent. This test never targets `com.teno.app`.
+
 Release signing reads `~/.android/teno-signing.properties`. Do not copy signing credentials, account files, SSH keys, server `.env`, or the private root `AGENTS.md` into source archives. The source ZIP is created from an explicit allowlist.
 
 Test runners require the existing protected internal test accounts to be copied into the isolated emulator app's private files and removed afterward. `V3Instrumentation` also requires `speech.wav` and `opus.raw` from the synthetic JWD verification fixtures. `V3PolishInstrumentation` reuses that runner's result IDs in the isolated acceptance workspace. Neither runner should target the user's physical installation.
 
-The previous README is retained as `README-0.2.1-history.md` for historical evidence only. Installation notes for this release are in `RELEASE-0.4.1.txt`.
+The previous README is retained as `README-0.2.1-history.md` for historical evidence only. Installation notes for this release are in `RELEASE-0.4.2.txt`.
