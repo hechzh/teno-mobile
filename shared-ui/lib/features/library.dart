@@ -45,7 +45,9 @@ class LibraryBody extends StatelessWidget {
         Icons.phone_android,
         'On this phone',
         () => push(context, LocalListPage(model)),
-        subtitle: model.drafts.length.toString() + ' local files',
+        subtitle:
+            model.drafts.length.toString() +
+            (model.drafts.length == 1 ? ' local file' : ' local files'),
       ),
       const Divider(height: 1),
       for (final folder in model.folders.where(

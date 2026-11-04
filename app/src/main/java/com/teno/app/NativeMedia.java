@@ -116,17 +116,20 @@ final class NativeMedia {
     void releaseIfPlaying(String id){if(mediaId.equals(id))releasePlayer();}
     void releasePlayer(){generation++;ready=false;if(player!=null){player.release();player=null;}mediaId="";}
     void shareExport(String id,String format,VoidResult result){
+        String owner=store.scope();
         runtime.work(new Result<File>(){
             public void error(Throwable e){result.error(e);}
             public void success(File file){runtime.ui(result,()->{
+                if(!owner.equals(store.scope()))throw new IOException("Account changed. Open the export again.");
                 Uri uri=FileProvider.getUriForFile(activity,activity.getPackageName()+".exports",file);
-                Intent send=new Intent(Intent.ACTION_SEND).setType(format.equals("json")?"application/json":"text/plain")
+                Intent send=new Intent(Intent.ACTION_SEND).setType(format.equals("audio")?"audio/wav":format.equals("json")?"application/json":"text/plain")
                     .putExtra(Intent.EXTRA_STREAM,uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                send.setClipData(ClipData.newRawUri("Teno export",uri));activity.startActivity(Intent.createChooser(send,"Share Teno notes"));
+                send.setClipData(ClipData.newRawUri("Teno export",uri));activity.startActivity(Intent.createChooser(send,"Share from Teno"));
             });}
         },()->{
-            runtime.signedIn();if(!id.matches("[A-Za-z0-9_-]{1,128}")||!Arrays.asList("txt","md","json").contains(format))throw new IOException("Unsupported export.");
-            File folder=new File(activity.getCacheDir(),"exports");folder.mkdirs();File file=new File(folder,"Teno-"+UUID.randomUUID()+"."+format);
+            runtime.signedIn();if(!id.matches("[A-Za-z0-9_-]{1,128}")||!Arrays.asList("txt","md","json","audio").contains(format))throw new IOException("Unsupported export.");
+            File folder=new File(activity.getCacheDir(),"exports");folder.mkdirs();File file=new File(folder,"Teno-"+UUID.randomUUID()+"."+(format.equals("audio")?"wav":format));
+            if(format.equals("audio")){api.download("/api/v1/recordings/"+id+"/audio",file);return file;}
             try(FileOutputStream out=new FileOutputStream(file)){out.write(api.bytes("GET","/api/v1/recordings/"+id+"/exports?format="+format,null));}return file;
         });
     }

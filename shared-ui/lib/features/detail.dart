@@ -136,7 +136,7 @@ class LocalPage extends StatelessWidget {
             ),
             AudioPlayerBar(model, id, local: true),
             Text(
-              text(d['status']),
+              recordingStatus(d['status']),
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
@@ -832,6 +832,7 @@ class ExportPage extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         for (final option in [
+          ('Audio', 'audio'),
           ('Markdown', 'md'),
           ('Plain text', 'txt'),
           ('JSON', 'json'),

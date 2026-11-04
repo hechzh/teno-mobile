@@ -294,7 +294,7 @@ class RecordTile extends StatelessWidget {
                       '',
                     ].contains(text(record['status'])))
                       Text(
-                        text(record['status']),
+                        recordingStatus(record['status']),
                         style: const TextStyle(fontSize: 11, color: muted),
                       ),
                   ],

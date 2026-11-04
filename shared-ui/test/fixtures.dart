@@ -8,7 +8,7 @@ final reviewRecordings = <Json>[
     'id': 'record-1',
     'title': 'Product launch review',
     'duration_ms': 1458000,
-    'status': 'ready',
+    'status': 'transcribed',
     'created_at': '2026-11-04T09:00:00Z',
     'revision': 1,
   },
@@ -16,7 +16,7 @@ final reviewRecordings = <Json>[
     'id': 'record-2',
     'title': 'Weekly planning',
     'duration_ms': 1926000,
-    'status': 'ready',
+    'status': 'transcribed',
     'created_at': '2026-11-04T08:15:00Z',
     'revision': 1,
   },
@@ -24,7 +24,7 @@ final reviewRecordings = <Json>[
     'id': 'record-3',
     'title': 'Customer interview — Maya',
     'duration_ms': 2571000,
-    'status': 'ready',
+    'status': 'transcribed',
     'created_at': '2026-11-03T16:30:00Z',
     'revision': 1,
   },
@@ -125,6 +125,7 @@ RuntimeState reviewState({
 
 class FixtureHost extends RuntimeHost {
   RuntimeState state = reviewState();
+  String phoneError = '';
   final calls = <String>[];
   @override
   Future<RuntimeState> snapshot() async => state;
@@ -145,6 +146,7 @@ class FixtureHost extends RuntimeHost {
   @override
   Future<String> startPhone(String title) async {
     calls.add('phone');
+    if (phoneError.isNotEmpty) throw StateError(phoneError);
     return 'local-1';
   }
 

@@ -94,10 +94,10 @@ import UIKit
             media.stop(); source = "device"
         }
         if action == .sync { try signedIn(); source = "device" }
-        try recorder.command(action,id:identifier,name:name)
+        try await recorder.command(action,id:identifier,name:name)
     }
     func bindDevice(identifier: String,name: String,key: String,createNew: Bool) async throws {
-        try recorder.bind(id:identifier,name:name,key:key,createNew:createNew)
+        try await recorder.bind(id:identifier,name:name,key:key,createNew:createNew)
     }
     func showDeviceKey() async throws { try await media.showDeviceKey(recorder.identifier) }
     func saveNotes(localId: String,notes: String) async throws {

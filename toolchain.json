@@ -8,5 +8,7 @@
   "kotlin": "2.2.20",
   "android_compile_sdk": 36,
   "android_min_sdk": 26,
-  "ios_deployment_target": "15.0"
+  "ios_deployment_target": "15.0",
+  "xcode": "16.4",
+  "xcodegen": "2.46.0"
 }

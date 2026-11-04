@@ -162,6 +162,57 @@ class _DevicePageState extends State<DevicePage> {
     builder: (context, _) {
       final device = model.runtime!.device;
       final candidates = jsonRows(device.candidatesJson);
+      if (device.receiving) {
+        return PageFrame(
+          title: 'Saving recording',
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              const SizedBox(height: 60),
+              const Icon(Icons.downloading_outlined, size: 72, color: muted),
+              const SizedBox(height: 32),
+              const Text(
+                'Saving to this phone',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                device.status,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: muted),
+              ),
+              const SizedBox(height: 36),
+              LinearProgressIndicator(
+                value: device.expectedBytes > 0
+                    ? (device.receivedBytes / device.expectedBytes).clamp(0, 1)
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                device.expectedBytes > 0
+                    ? ((device.receivedBytes / device.expectedBytes) * 100)
+                              .clamp(0, 100)
+                              .toStringAsFixed(0) +
+                          '% received'
+                    : 'Waiting for recorder',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 36),
+              const Text(
+                'The complete file is checked before it is saved and uploaded. Originals stay on your recorder.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: muted),
+              ),
+              const SizedBox(height: 32),
+              OutlinedButton(
+                onPressed: () => command(DeviceAction.cancelTransfer),
+                child: const Text('Pause transfer'),
+              ),
+            ],
+          ),
+        );
+      }
       return PageFrame(
         title: device.authorized ? 'Your recorder' : 'Connect a recorder',
         child: ListView(

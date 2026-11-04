@@ -12,6 +12,17 @@ List<Json> rows(Object? value) =>
     value is List ? value.map(object).toList() : [];
 List<Json> jsonRows(String value) => rows(jsonDecode(value));
 String text(Object? value) => value?.toString() ?? '';
+String recordingStatus(Object? value) => switch (text(value)) {
+  'local' => 'Saved on this phone',
+  'queued' => 'Waiting to upload',
+  'uploading' => 'Uploading',
+  'processing' || 'transcribing' => 'Preparing transcript and summary',
+  'transcribed' || 'uploaded' => 'Ready',
+  'recording' => 'Recording',
+  'failed' => 'Upload needs attention',
+  'invalid' => 'Audio could not be verified',
+  _ => text(value),
+};
 String requestId() {
   final random = Random.secure();
   return List.generate(

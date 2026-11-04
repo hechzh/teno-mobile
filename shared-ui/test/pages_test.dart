@@ -93,6 +93,7 @@ void main() {
     '18-ask-history': (m) =>
         PageFrame(title: 'Ask Teno', child: AskHistoryBody(m)),
     '19-ask-chat': (m) => ChatPage(m, chatId: 'chat-1'),
+    '41-new-chat': (m) => ChatPage(m),
     '20-ask-context': (m) => ContextPicker(m, ['record-1']),
     '23-tools': (m) => PageFrame(title: 'Tools', child: TemplatesBody(m)),
     '24-template-picker': (m) => TemplatePicker(m),
@@ -104,6 +105,7 @@ void main() {
     '34-login': (m) => LoginPage(m),
     '35-local-files': (m) => LocalListPage(m),
     '36-local-recording': (m) => LocalPage(m, 'local-1'),
+    '42-summary-editor': (m) => SummaryEditor(m, 'record-1', reviewSummary, 1),
   };
   for (final page in pages.entries) {
     testWidgets('individual page ' + page.key, (tester) async {
@@ -242,6 +244,28 @@ void main() {
     model.changed(state);
     await mount(tester, LocalPage(model, 'local-1'));
     await capture(tester, '40-upload-failed');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  testWidgets('permission denial and offline library remain actionable', (
+    tester,
+  ) async {
+    final host = FixtureHost()
+      ..phoneError =
+          'Microphone permission is required. Allow access in Settings and try again.';
+    final model = TenoModel(host: host);
+    model.changed(host.state);
+    addTearDown(model.dispose);
+    await mount(tester, HomePage(model));
+    await tester.tap(find.byTooltip('Create'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Record with phone'));
+    await tester.pumpAndSettle();
+    await capture(tester, '43-microphone-denied');
+    expect(host.calls.contains('phone'), isTrue);
+    model.error =
+        'Connection unavailable. Your recordings are kept on this phone.';
+    await mount(tester, HomePage(model));
+    await capture(tester, '44-offline-library');
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

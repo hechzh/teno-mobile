@@ -272,7 +272,12 @@ class _ChatPageState extends State<ChatPage> {
           child: OutlinedButton.icon(
             onPressed: sending ? null : contextPicker,
             icon: const Icon(Icons.attach_file, size: 18),
-            label: Text(selected.length.toString() + (selected.length==1?' recording selected':' recordings selected')),
+            label: Text(
+              selected.length.toString() +
+                  (selected.length == 1
+                      ? ' recording selected'
+                      : ' recordings selected'),
+            ),
           ),
         ),
         if (loading) const LinearProgressIndicator(minHeight: 2),
@@ -321,7 +326,9 @@ class _ChatPageState extends State<ChatPage> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Text(
-                          error.isEmpty?'Preparing your answer…':'Your question is saved. Retry when ready.',
+                          error.isEmpty
+                              ? 'Preparing your answer…'
+                              : 'Your question is saved. Retry when ready.',
                           style: const TextStyle(color: muted),
                         ),
                       ),
@@ -472,7 +479,11 @@ class _ContextPickerState extends State<ContextPicker> {
       onPressed: selected.isEmpty
           ? null
           : () => Navigator.pop(context, selected.toList()),
-      child: Text('Use ' + selected.length.toString() + ' recordings'),
+      child: Text(
+        'Use ' +
+            selected.length.toString() +
+            (selected.length == 1 ? ' recording' : ' recordings'),
+      ),
     ),
     child: ListView(
       padding: const EdgeInsets.all(23),
@@ -488,7 +499,9 @@ class _ContextPickerState extends State<ContextPicker> {
             contentPadding: EdgeInsets.zero,
             title: Text(text(item['title'])),
             subtitle: Text(
-              dateLabel(item['created_at']) + ' · ' + text(item['status']),
+              dateLabel(item['created_at']) +
+                  ' · ' +
+                  recordingStatus(item['status']),
             ),
             value: selected.contains(text(item['id'])),
             onChanged: item['status'] != 'transcribed'

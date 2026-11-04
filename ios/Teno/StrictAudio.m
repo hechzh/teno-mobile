@@ -39,11 +39,11 @@ static BOOL fail(NSError **error, NSString *message) {
 }
 + (NSString *)crc32:(NSURL *)input error:(NSError **)error {
     FILE *src = fopen(input.fileSystemRepresentation,"rb");
-    if (!src) { fail(error,@"The downloaded file is unavailable."); return @""; }
+    if (!src) { fail(error,@"The downloaded file is unavailable."); return nil; }
     unsigned char buffer[65536]; size_t count; uLong crc=crc32(0L,Z_NULL,0);
     while ((count=fread(buffer,1,sizeof(buffer),src))>0) crc=crc32(crc,buffer,(uInt)count);
     BOOL ok=!ferror(src); fclose(src);
-    if (!ok) { fail(error,@"The downloaded file could not be read."); return @""; }
+    if (!ok) { fail(error,@"The downloaded file could not be read."); return nil; }
     return [NSString stringWithFormat:@"%08lX",(unsigned long)crc];
 }
 @end

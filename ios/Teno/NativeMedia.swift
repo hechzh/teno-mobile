@@ -97,13 +97,14 @@ import LocalAuthentication
     }
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer,error: Error?) { self.error = "This audio could not be decoded."; self.player = nil }
     func shareExport(id: String,format: String) async throws {
-        guard ["md","txt","json"].contains(format),id.range(of:"^[A-Za-z0-9_-]+$",options:.regularExpression) != nil else { throw RuntimeFailure("EXPORT","Unsupported export format.") }
+        guard ["md","txt","json","audio"].contains(format),id.range(of:"^[A-Za-z0-9_-]+$",options:.regularExpression) != nil else { throw RuntimeFailure("EXPORT","Unsupported export format.") }
         let owner = store.scope
-        let bytes = try await api.data("GET","/api/v1/recordings/" + id + "/exports?format=" + format)
-        guard owner == store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED","The account changed.") }
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("exports/" + UUID().uuidString)
         try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
-        let file = folder.appendingPathComponent("Teno-notes." + format); try bytes.write(to:file,options:.atomic)
+        let file = folder.appendingPathComponent("Teno-" + id + "." + (format == "audio" ? "wav" : format))
+        if format == "audio" { try await api.download("/api/v1/recordings/" + id + "/audio",destination:file) }
+        else { let bytes = try await api.data("GET","/api/v1/recordings/" + id + "/exports?format=" + format); try bytes.write(to:file,options:.atomic) }
+        guard owner == store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED","The account changed.") }
         try share([file])
     }
     func shareText(_ text: String) throws { try share([text]) }

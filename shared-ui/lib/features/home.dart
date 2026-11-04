@@ -17,6 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String section = 'Home';
+  final createAnchor = GlobalKey();
   String lastRoute = '';
   TenoModel get model => widget.model;
   @override
@@ -49,44 +50,63 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> createMenu() async {
-    await showModalBottomSheet<void>(
+    final anchor =
+        createAnchor.currentContext!.findRenderObject()! as RenderBox;
+    final overlay =
+        Overlay.of(context).context.findRenderObject()! as RenderBox;
+    final selected = await showMenu<String>(
       context: context,
-      builder: (sheet) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 0, 22, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MenuRow(Icons.mic_none_outlined, 'Start recording', () {
-                Navigator.pop(sheet);
-                unawaited(push(context, DevicePage(model)));
-              }, subtitle: 'Record with your JWD device'),
-              MenuRow(Icons.file_upload_outlined, 'Import files', () {
-                Navigator.pop(sheet);
-                unawaited(
-                  perform(context, () async {
-                    final id = await model.host.importAudio();
-                    if (id != null && mounted)
-                      await push(context, LocalPage(model, id));
-                  }),
-                );
-              }),
-              MenuRow(Icons.chat_bubble_outline, 'New chat', () {
-                Navigator.pop(sheet);
-                unawaited(push(context, ChatPage(model)));
-              }),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(sheet);
-                  unawaited(startPhone(context, model));
-                },
-                child: const Text('Record with phone'),
-              ),
-            ],
+      position: RelativeRect.fromRect(
+        anchor.localToGlobal(Offset.zero, ancestor: overlay) & anchor.size,
+        Offset.zero & overlay.size,
+      ),
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(26),
+        side: const BorderSide(color: line),
+      ),
+      constraints: BoxConstraints(
+        minWidth: 260,
+        maxWidth: MediaQuery.sizeOf(context).width - 32,
+      ),
+      items: [
+        for (final item in <(String, IconData)>[
+          ('Start recording', Icons.mic_none_outlined),
+          ('Import files', Icons.file_upload_outlined),
+          ('New chat', Icons.chat_bubble_outline),
+        ])
+          PopupMenuItem(
+            value: item.$1,
+            height: 58,
+            child: Row(
+              children: [
+                Icon(item.$2, size: 24),
+                const SizedBox(width: 16),
+                Expanded(child: Text(item.$1)),
+                const Icon(Icons.chevron_right, color: muted, size: 18),
+              ],
+            ),
+          ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          value: 'phone',
+          child: Text(
+            'Record with phone',
+            style: TextStyle(fontSize: 12, color: muted),
           ),
         ),
-      ),
+      ],
     );
+    if (!mounted) return;
+    if (selected == 'Start recording') return push(context, DevicePage(model));
+    if (selected == 'New chat') return push(context, ChatPage(model));
+    if (selected == 'phone') return startPhone(context, model);
+    if (selected == 'Import files')
+      await perform(context, () async {
+        final id = await model.host.importAudio();
+        if (id != null && mounted) await push(context, LocalPage(model, id));
+      });
   }
 
   @override
@@ -134,7 +154,10 @@ class _HomePageState extends State<HomePage> {
               ),
             const SizedBox(width: 8),
             if (['Home', 'Library'].contains(section))
-              CircleAction(Icons.add, 'Create', createMenu),
+              SizedBox(
+                key: createAnchor,
+                child: CircleAction(Icons.add, 'Create', createMenu),
+              ),
             if (section == 'Ask Teno')
               CircleAction(
                 Icons.add_comment_outlined,

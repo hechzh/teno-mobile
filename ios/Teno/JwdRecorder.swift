@@ -45,6 +45,11 @@ import JwdVtrSDK
         sdk.batteryDelegate = self; sdk.fileMgrDelegate = self
         identifier = store.preferences.string(forKey: "recorder.id") ?? ""
         name = store.preferences.string(forKey: "recorder.name") ?? ""
+        if store.preferences.bool(forKey: "recorder.bluetooth_enabled") { initializeBluetooth() }
+    }
+    private func initializeBluetooth() {
+        guard central == nil else { return }
+        store.preferences.set(true, forKey: "recorder.bluetooth_enabled")
         central = CBCentralManager(delegate: self, queue: .main,
             options: [CBCentralManagerOptionRestoreIdentifierKey: "com.teno.recorder"])
     }
@@ -72,7 +77,13 @@ import JwdVtrSDK
             if generation != connectionGeneration { commands.removeAll() }
         }
     }
-    func command(_ action: DeviceAction, id: String, name: String) throws {
+    func command(_ action: DeviceAction, id: String, name: String) async throws {
+        initializeBluetooth()
+        let until = Date().addingTimeInterval(30)
+        while central.state == .unknown || central.state == .resetting {
+            guard Date() < until else { throw RuntimeFailure("BLUETOOTH", "Bluetooth is not ready. Allow access and try again.") }
+            try await Task.sleep(nanoseconds: 100_000_000)
+        }
         if action == .scan || action == .compatibilityScan {
             guard central.state == .poweredOn else { throw RuntimeFailure("BLUETOOTH", "Turn on Bluetooth and allow Teno access in iOS Settings.") }
             guard !connected && !busy else { throw RuntimeFailure("DEVICE_BUSY", "Finish the current device operation first.") }
@@ -123,7 +134,7 @@ import JwdVtrSDK
         default: break
         }
     }
-    func bind(id: String, name: String, key: String, createNew: Bool) throws {
+    func bind(id: String, name: String, key: String, createNew: Bool) async throws {
         guard string(candidates[id]?["gatt_status"]) == "verified" else { throw RuntimeFailure("DEVICE_UNVERIFIED", "Check the recording service first.") }
         var credential = key
         if createNew {
@@ -136,7 +147,7 @@ import JwdVtrSDK
             guard credential.count == 16 else { throw RuntimeFailure("RANDOM", "Please try creating the device key again.") }
         }
         try store.saveDeviceKey(id, credential)
-        try command(.connect, id: id, name: name)
+        try await command(.connect, id: id, name: name)
     }
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state != .poweredOn {
@@ -344,7 +355,7 @@ import JwdVtrSDK
         transferFile = nil; receiving = false; transfer = nil
     }
     func state() -> DeviceState {
-        DeviceState(connected:connected,authorized:authorized,scanning:central.isScanning,busy:busy,receiving:receiving,
+        DeviceState(connected:connected,authorized:authorized,scanning:central?.isScanning ?? false,busy:busy,receiving:receiving,
             receivedBytes:received,expectedBytes:expected,identifier:identifier,name:name,battery:battery,status:status,
             candidatesJson:jsonString(Array(candidates.values).sorted { string($0["name"]) < string($1["name"]) }),filesJson:jsonString(files))
     }

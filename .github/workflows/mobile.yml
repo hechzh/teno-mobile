@@ -48,6 +48,8 @@ jobs:
             app/build/reports/lint-results-release.html
   ios:
     runs-on: macos-15-intel
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +61,7 @@ jobs:
       - name: Prepare native host
         run: |
           brew install xcodegen
+          test "$(xcodegen version)" = "Version: 2.46.0"
           cd shared-ui
           flutter pub get --enforce-lockfile
           flutter build swift-package --platform ios --no-codesign
@@ -69,6 +72,8 @@ jobs:
           DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(v["udid"] for a in d["devices"].values() for v in a if v["name"].startswith("iPhone")))')
           xcodebuild -project ios/Teno.xcodeproj -scheme Teno -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath ios/DerivedData -resultBundlePath ios/build/TestResults.xcresult CODE_SIGNING_ALLOWED=NO test > ios-build.log 2>&1 || { tail -200 ios-build.log; exit 1; }
           mkdir -p ios/build/screenshots
+          xcrun simctl launch "$DEVICE" com.teno.app
+          sleep 3
           xcrun simctl io "$DEVICE" screenshot ios/build/screenshots/01-login.png
       - name: Build unsigned iPhone IPA
         run: |
