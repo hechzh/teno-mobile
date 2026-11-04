@@ -10,6 +10,8 @@ import Network
     private var pumping = false
     private var retry: Task<Void, Never>?
     private var restored = false
+    private var paused = false
+    private var generation = 0
     private var monitor = NWPathMonitor()
     private var hasNetwork = false, hasWifi = false
     private(set) var activeId = "", status = ""
@@ -65,7 +67,7 @@ import Network
             (draft["upload_automatic"] as? Bool != true || store.cloudUpload)
     }
     func resume() {
-        guard restored, !pumping, activeId.isEmpty, store.state().signedIn, hasNetwork,
+        guard restored, !paused, !pumping, activeId.isEmpty, store.state().signedIn, hasNetwork,
               !store.wifiOnly || hasWifi else { return }
         let drafts = store.drafts().reversed().filter(requested)
         guard let next = drafts.first else { return }
@@ -75,30 +77,37 @@ import Network
             retry?.cancel(); retry = Task { try? await Task.sleep(nanoseconds: UInt64(min(after-now, 3600) * 1_000_000_000)); if !Task.isCancelled { resume() } }; return
         }
         pumping = true
+        let attemptGeneration = generation
         Task {
-            defer { pumping = false }
+            defer { pumping = false; resume() }
             let id = string(next["id"]), owner = store.scope
             do {
+                var attempting = try store.draft(id)
+                attempting["upload_attempts"] = (attempting["upload_attempts"] as? Int ?? 0) + 1
+                try store.save(attempting)
                 // Refresh before creating the OS-owned upload task. Refreshes are serialized.
                 let old = try store.token("access_token")
                 try await api.refresh(after: old)
-                guard owner == store.scope else { return }
+                guard owner == store.scope, attemptGeneration == generation, !paused else { return }
                 let payload = try multipart(next)
                 var request = try api.makeRequest("POST", "/api/v1/recordings")
                 request.setValue("multipart/form-data; boundary=" + payload.boundary, forHTTPHeaderField: "Content-Type")
                 request.allowsCellularAccess = !store.wifiOnly
                 request.allowsExpensiveNetworkAccess = !store.wifiOnly
                 var draft = try store.draft(id)
-                draft["status"] = "uploading"; draft["upload_attempts"] = (draft["upload_attempts"] as? Int ?? 0) + 1
+                draft["status"] = "uploading"
                 try store.save(draft)
                 let task = session.uploadTask(with: request, fromFile: payload.file)
                 task.taskDescription = jsonString(["id": id, "scope": owner, "payload": payload.file.lastPathComponent])
                 activeId = id; status = "Uploading · Local copy kept"; task.resume()
-            } catch { failed(id, owner: owner, message: error.localizedDescription, retryable: true) }
+            } catch {
+                if attemptGeneration == generation, !paused { failed(id, owner: owner, message: error.localizedDescription, retryable: true) }
+            }
         }
     }
     /// Called before credentials change; completion from old tasks can never write to a new scope.
     func pauseAccount() async {
+        paused = true; generation += 1
         retry?.cancel()
         for task in await session.allTasks { task.cancel() }
         for var draft in store.drafts() where string(draft["status"]) == "uploading" {
@@ -106,6 +115,7 @@ import Network
         }
         activeId = ""; status = ""
     }
+    func resumeAccount() { paused = false; resume() }
     private func multipart(_ draft: JSONObject) throws -> (file: URL, boundary: String) {
         let boundary = "Teno-" + UUID().uuidString
         let folder = store.root.appendingPathComponent("uploads", isDirectory: true)

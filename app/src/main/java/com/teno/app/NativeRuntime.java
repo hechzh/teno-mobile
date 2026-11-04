@@ -73,7 +73,7 @@ final class NativeRuntime implements RuntimeHost {
     }
     private void accountIdle()throws Exception{
         JSONObject d=device();
-        if(phoneStarting||RecorderService.active||RecorderService.finishing||hardwareCapturing()||UploadQueue.running.get()
+        if(phoneStarting||RecorderService.active||RecorderService.finishing||hardwareCapturing()
             ||d.optBoolean("receiving")||d.optBoolean("converting")||d.optBoolean("syncing"))
             throw new IOException("Finish recording and transfers before changing accounts.");
     }
@@ -125,10 +125,10 @@ final class NativeRuntime implements RuntimeHost {
     @Override public void login(String server,String username,String password,Result<SessionState> result){
         work(result,()->{accountIdle();if(!store.token("access_token").isEmpty())throw new IOException("Sign out before changing accounts.");
             store.base(Api.validateBase(server));try{api.login(username,password);api.ensureNativePreferences();}catch(Exception e){store.logout();throw e;}
-            UploadQueue.resume(activity);return session();});
+            UploadQueue.resumeAccount(activity);return session();});
     }
     @Override public void logout(VoidResult result){
-        work(result,()->{accountIdle();try{api.post("/api/v1/auth/logout",new JSONObject());}catch(IOException ignored){}finally{store.logout();}
+        work(result,()->{accountIdle();UploadQueue.pauseAccount(activity);try{api.post("/api/v1/auth/logout",new JSONObject());}catch(IOException ignored){}finally{store.logout();}
             RecorderService.live=null;RecorderService.draftId="";RecorderService.error="";
             JwdService.live=null;lastSource="phone";pendingPhoneId="";
             main.post(media::releasePlayer);route="";});

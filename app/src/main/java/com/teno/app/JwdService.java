@@ -214,7 +214,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             case "SPA":if(p.length>3)capacity="Available: "+p[2]+" / "+p[3]+" MB";break;
             case "RT":
                 if(p.length==3&&p[2].equals("0")){stopped();}
-                else if(p.length>=4){recording(p[2],Long.parseLong(p[3]));}break;
+                else if(p.length>=4&&!(recordState==2&&p[2].equals(recordName))){recording(p[2],Long.parseLong(p[3]));}break;
             case "STE":if(p.length>2){if(Integer.parseInt(p[2])==1)recordState=1;else stopped();}break;
             case "STA":if(p.length>2){recording(p[2],0);done("start");message="Recorder is recording";log("Recording start confirmed");}break;
             case "PAUSE":

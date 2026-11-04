@@ -12,6 +12,7 @@ Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
     context: context,
     builder: (dialog) => StatefulBuilder(
       builder: (context, update) => AlertDialog(
+        scrollable: true,
         title: const Text('Recording preferences'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -106,6 +107,7 @@ class _DevicePageState extends State<DevicePage> {
     final choice = await showDialog<String>(
       context: context,
       builder: (dialog) => AlertDialog(
+        scrollable: true,
         title: const Text('Connect your recorder'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -197,7 +199,7 @@ class _DevicePageState extends State<DevicePage> {
                 () => perform(context, model.host.showDeviceKey),
               ),
               FilledButton(
-                onPressed: device.busy
+                onPressed: device.busy || !model.signedIn
                     ? null
                     : () => perform(context, () async {
                         if (!await ensureOptions(context, model) || !mounted)
@@ -212,7 +214,11 @@ class _DevicePageState extends State<DevicePage> {
                         if (context.mounted) await showRecorder(context, model);
                       }),
                 child: Text(
-                  model.capturing ? 'Return to recording' : 'Start recording',
+                  !model.signedIn
+                      ? 'Sign in to record'
+                      : model.capturing
+                      ? 'Return to recording'
+                      : 'Start recording',
                 ),
               ),
               const SizedBox(height: 12),
@@ -371,8 +377,9 @@ class _RecorderSheetState extends State<RecorderSheet> {
           (c.source != 'device' || !widget.model.runtime!.device.busy);
       final finished =
           !widget.model.capturing && !widget.model.runtime!.device.receiving;
+      final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
       return SizedBox(
-        height: MediaQuery.sizeOf(context).height * .76,
+        height: MediaQuery.sizeOf(context).height * (keyboardOpen ? .96 : .76),
         child: Padding(
           padding: EdgeInsets.fromLTRB(
             22,
@@ -405,22 +412,24 @@ class _RecorderSheetState extends State<RecorderSheet> {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
-              const Text(
-                'Recording highlights',
-                style: TextStyle(
-                  fontSize: 29,
-                  fontWeight: FontWeight.w300,
-                  color: muted,
-                  height: 1.2,
+              if (!keyboardOpen) ...[
+                const SizedBox(height: 14),
+                const Text(
+                  'Recording highlights',
+                  style: TextStyle(
+                    fontSize: 29,
+                    fontWeight: FontWeight.w300,
+                    color: muted,
+                    height: 1.2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                c.status,
-                style: const TextStyle(fontSize: 12, color: muted),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 10),
+                Text(
+                  c.status,
+                  style: const TextStyle(fontSize: 12, color: muted),
+                ),
+                const SizedBox(height: 16),
+              ],
               Expanded(
                 child: ListView(
                   children: [
@@ -481,7 +490,16 @@ class _RecorderSheetState extends State<RecorderSheet> {
                   ],
                 ),
               ),
-              if (c.phase == 'interrupted')
+              if (keyboardOpen)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () =>
+                        FocusManager.instance.primaryFocus?.unfocus(),
+                    child: const Text('Close keyboard'),
+                  ),
+                )
+              else if (c.phase == 'interrupted')
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(

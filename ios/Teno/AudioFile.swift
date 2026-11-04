@@ -73,7 +73,8 @@ final class PCMFile: @unchecked Sendable {
         }
         recover()
     }
-    private func recover() {
+    func recover() {
+        guard !active else { return }
         for var draft in store.drafts() where string(draft["status"]) == "recording" {
             do {
                 let bytes = try PCMFile.recover(URL(fileURLWithPath: string(draft["path"])))

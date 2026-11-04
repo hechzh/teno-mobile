@@ -72,6 +72,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
         final RuntimeInstrumentation test;Context context;Store store;MainActivity activity;ServerSocket server;
         final AtomicInteger uploadCount=new AtomicInteger();final List<String> clientIds=new CopyOnWriteArrayList<>();
         volatile boolean failUpload;
+        volatile boolean blockUpload, uploadWaiting;
         RuntimeChecks(RuntimeInstrumentation test){this.test=test;context=test.context;store=test.store;}
         interface VoidCall{void call(VoidResult result);}
         void call(VoidCall call)throws Exception {
@@ -84,12 +85,20 @@ public final class RuntimeInstrumentation extends Instrumentation {
             try {
                 JSONObject expected=new JSONObject(new String(Files.readAllBytes(new File(context.getFilesDir(),"upgrade-fixture.json").toPath()),StandardCharsets.UTF_8));
                 String oldId=expected.getString("id"),owner=expected.getString("scope");
+                if(test.mode.equals("regression")){
+                    if(!context.getSharedPreferences("teno",0).getBoolean("runtime_test_fixture",false))throw new IOException("A previously seeded test emulator is required");
+                    store.base("http://127.0.0.1:9");store.identity("Teno upgrade fixture","cross-platform-upgrade");
+                    store.tokens(new JSONObject().put("access_token","upgrade-loopback-fixture").put("refresh_token","refresh-loopback-fixture"));
+                    UploadQueue.resumeAccount(context);
+                }
+                if(!test.mode.equals("regression")){
                 test.check(store.scope().equals(owner)&&store.name().equals("Teno upgrade fixture"),"upgrade_preserves_account_scope");
                 test.check(store.token("access_token").equals("upgrade-loopback-fixture"),"upgrade_decrypts_original_session");
                 test.check(hash(store.deviceKey(expected.getString("address")).getBytes(StandardCharsets.UTF_8)).equals(expected.getString("key_hash")),"upgrade_decrypts_original_device_key");
                 JSONObject old=store.draft(oldId);
                 test.check(hash(Files.readAllBytes(new File(old.getString("path")).toPath())).equals(expected.getString("audio_hash")),"upgrade_keeps_audio_bytes");
                 test.check(old.optBoolean("upload_requested")&&old.optInt("upload_attempts")==1&&old.getString("id").equals(oldId),"upgrade_keeps_pending_queue_and_client_id");
+                }
                 server();store.base("http://127.0.0.1:"+server.getLocalPort());
                 test.getUiAutomation().executeShellCommand("pm grant "+context.getPackageName()+" android.permission.RECORD_AUDIO").close();
                 test.getUiAutomation().executeShellCommand("pm grant "+context.getPackageName()+" android.permission.POST_NOTIFICATIONS").close();
@@ -135,12 +144,18 @@ public final class RuntimeInstrumentation extends Instrumentation {
                     .put("message","Connection interrupted. Recorder may still be recording.").toString();
                 test.check(activity.runtime.state().getCapture().getPhase().equals("interrupted"),"device_disconnect_never_claims_stopped");
                 JwdService.snapshot="{}";
+                JSONObject pending=store.newDraft("Account switch upload fixture",".wav");String pendingId=pending.getString("id");
+                try(FileOutputStream out=new FileOutputStream(new File(pending.getString("path")))){out.write(JwdAudio.wavHeader(32000));out.write(new byte[32000]);}
+                pending.put("status","local").put("duration_ms",1000);store.save(pending);
+                blockUpload=true;call(result->activity.runtime.retryUpload(pendingId,result));test.until(()->uploadWaiting);
                 call(result->activity.runtime.logout(result));
                 test.check(store.scope().isEmpty(),"sign_out_clears_visible_account");
+                test.check(!UploadQueue.running.get(),"sign_out_stops_active_native_upload");
                 store.identity("other fixture","other-account");
                 test.check(store.drafts().length()==0,"other_account_cannot_see_original_drafts");
                 store.base("http://127.0.0.1:9");store.identity("Teno upgrade fixture","cross-platform-upgrade");
                 test.check(store.draft(oldId).getString("id").equals(oldId),"returning_account_keeps_pending_original_recording");
+                test.check(store.draft(pendingId).optBoolean("upload_requested")&&new File(store.draft(pendingId).getString("path")).isFile(),"account_switch_preserves_paused_upload_and_local_audio");
                 store.logout();
                 screenshot("02-runtime-finished");
             } finally {
@@ -175,6 +190,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
                     if(path.equals("/api/v1/recordings")&&request[0].equals("POST")){
                         uploadCount.incrementAndGet();String content=body.toString("ISO-8859-1"),marker="name=\"client_id\"\r\n\r\n";int start=content.indexOf(marker)+marker.length();
                         clientIds.add(content.substring(start,content.indexOf("\r\n",start)));
+                        if(blockUpload){uploadWaiting=true;Thread.sleep(6000);}
                         status=failUpload?503:200;answer=failUpload?new JSONObject().put("message","Temporary fixture outage"):new JSONObject().put("recording_id","cloud-fixture").put("job_id","job-fixture");
                     } else if(path.equals("/api/v1/auth/logout"))answer=new JSONObject().put("ok",true);
                     byte[] bytes=answer.toString().getBytes(StandardCharsets.UTF_8);OutputStream out=socket.getOutputStream();

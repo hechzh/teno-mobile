@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -167,5 +168,80 @@ void main() {
       await capture(tester, 'large-text/$name');
       await tester.pumpWidget(const SizedBox.shrink());
     }
+  });
+  testWidgets('recording keyboard and confirmation fit a narrow screen', (
+    tester,
+  ) async {
+    final model = reviewModel();
+    addTearDown(model.dispose);
+    model.changed(
+      reviewState(sequence: 2, phase: 'recording', connected: true),
+    );
+    await mount(tester, DevicePage(model), width: 360, scale: 1.5);
+    await tester.tap(find.text('Return to recording'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Stop'));
+    await tester.pumpAndSettle();
+    await capture(tester, '11-stop-confirmation');
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(TextField));
+    tester.view.viewInsets = const FakeViewPadding(bottom: 310);
+    await tester.pumpAndSettle();
+    await capture(tester, '37-recording-keyboard');
+    await tester.enterText(find.byType(TextField), 'A note while recording');
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Close keyboard'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  testWidgets(
+    'recording interruption, transfer and preview have distinct states',
+    (tester) async {
+      final model = reviewModel();
+      addTearDown(model.dispose);
+      var state = reviewState(sequence: 2, phase: 'recording', connected: true);
+      model.changed(state);
+      await mount(tester, DevicePage(model));
+      await tester.tap(find.text('Return to recording'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Live transcript'));
+      await tester.pumpAndSettle();
+      await capture(tester, '38-live-preview');
+      state = reviewState(sequence: 3, phase: 'interrupted');
+      state.capture.status =
+          'Connection interrupted. Your recorder may still be recording.';
+      model.changed(state);
+      await tester.pumpAndSettle();
+      expect(find.text('Done'), findsNothing);
+      await capture(tester, '39-device-interrupted');
+      await tester.pumpWidget(const SizedBox.shrink());
+      state = reviewState(sequence: 4);
+      state.device.receiving = true;
+      state.device.busy = true;
+      state.device.expectedBytes = 1000;
+      state.device.receivedBytes = 600;
+      state.device.status = 'Receiving audio · Original stays on your recorder';
+      model.changed(state);
+      await mount(tester, DevicePage(model));
+      await tester.pump(const Duration(milliseconds: 100));
+      await capture(tester, '12-device-transfer');
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+  testWidgets('local upload failure never hides the saved recording', (
+    tester,
+  ) async {
+    final model = reviewModel();
+    addTearDown(model.dispose);
+    final state = reviewState(sequence: 2);
+    final drafts = jsonRows(state.draftsJson);
+    drafts.first['status'] = 'failed';
+    drafts.first['error'] =
+        'Connection unavailable. The original audio is kept.';
+    state.draftsJson = jsonEncode(drafts);
+    model.changed(state);
+    await mount(tester, LocalPage(model, 'local-1'));
+    await capture(tester, '40-upload-failed');
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 }

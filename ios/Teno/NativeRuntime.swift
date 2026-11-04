@@ -55,7 +55,7 @@ import UIKit
         guard !store.state().signedIn else { throw RuntimeFailure("ACCOUNT","Sign out before changing accounts.") }
         switching = true; defer { switching = false }
         try await api.login(server:server,username:username,password:password)
-        uploads.resume(); return store.state()
+        phone.recover(); uploads.resumeAccount(); return store.state()
     }
     func logout() async throws {
         try accountIdle(); switching = true; defer { switching = false }

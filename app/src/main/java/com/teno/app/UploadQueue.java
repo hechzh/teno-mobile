@@ -11,6 +11,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** Persist requests before starting work; retry the same file and client_id. */
 final class UploadQueue {
     static final AtomicBoolean running=new AtomicBoolean();
+    private static volatile boolean accountPaused;
+    private static volatile Api activeApi;
+    private static final Object ACCOUNT_LOCK=new Object();
+    static void pauseAccount(Context context)throws Exception{
+        accountPaused=true;
+        ((JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE)).cancel(JOB_ID);
+        Api api=activeApi;if(api!=null)api.cancel();
+        long until=android.os.SystemClock.elapsedRealtime()+15000;
+        synchronized(ACCOUNT_LOCK){while(running.get()&&android.os.SystemClock.elapsedRealtime()<until)ACCOUNT_LOCK.wait(100);}
+        if(running.get()){accountPaused=false;throw new IOException("Upload is stopping. Try signing out again in a moment.");}
+        TransferService.message="";
+    }
+    static void resumeAccount(Context context){accountPaused=false;resume(context);}
     static final int JOB_ID=4301;
     interface Progress {void update(String message);}
     static void saved(Context context,JSONObject draft)throws Exception{
@@ -42,7 +55,7 @@ final class UploadQueue {
         return "Saved on this phone";
     }
     static void resume(Context context){
-        if(running.get())return;
+        if(accountPaused||running.get())return;
         schedule(context);
         Store store=new Store(context);if(store.scope().isEmpty()||store.token("access_token").isEmpty()||running.get()||!networkAllowed(context,store))return;
         JSONArray ds=store.drafts();for(int i=0;i<ds.length();i++){JSONObject d=ds.optJSONObject(i);if(d!=null&&requested(store,d)&&d.optLong("upload_retry_at")<=System.currentTimeMillis()){
@@ -50,7 +63,7 @@ final class UploadQueue {
         }}
     }
     static void schedule(Context context){
-        if(running.get())return;
+        if(accountPaused||running.get())return;
         Store store=new Store(context);if(store.scope().isEmpty()||store.token("access_token").isEmpty())return;
         long earliest=Long.MAX_VALUE;JSONArray ds=store.drafts();for(int i=0;i<ds.length();i++){JSONObject d=ds.optJSONObject(i);if(d!=null&&requested(store,d))earliest=Math.min(earliest,d.optLong("upload_retry_at"));}
         if(earliest==Long.MAX_VALUE)return;
@@ -62,15 +75,16 @@ final class UploadQueue {
     static void drain(Context context,Progress progress){
         Store store=new Store(context);String owner=store.scope();
         try{
-            while(!Thread.currentThread().isInterrupted()&&owner.equals(store.scope())&&!owner.isEmpty()&&!store.token("access_token").isEmpty()&&networkAllowed(context,store)){
+            while(!accountPaused&&!Thread.currentThread().isInterrupted()&&owner.equals(store.scope())&&!owner.isEmpty()&&!store.token("access_token").isEmpty()&&networkAllowed(context,store)){
                 JSONObject next=null;JSONArray ds=store.drafts();
                 for(int i=ds.length()-1;i>=0;i--){JSONObject d=ds.optJSONObject(i);if(d!=null&&requested(store,d)&&d.optLong("upload_retry_at")<=System.currentTimeMillis()){next=d;break;}}
                 if(next==null)break;upload(context,store,next.optString("id"),owner,progress);
             }
-        }finally{TransferService.draftId="";TransferService.active=false;running.set(false);}
+        }finally{activeApi=null;TransferService.draftId="";TransferService.active=false;running.set(false);synchronized(ACCOUNT_LOCK){ACCOUNT_LOCK.notifyAll();}}
     }
     private static void upload(Context context,Store store,String id,String owner,Progress progress){
         TransferService.draftId=id;TransferService.active=true;Api api=new Api(store);
+        activeApi=api;if(accountPaused){api.cancel();return;}
         try{
             JSONObject draft;
             synchronized(Store.class){draft=store.draft(id);draft.put("status","uploading").put("upload_attempts",draft.optInt("upload_attempts")+1).remove("error");store.save(draft);}
@@ -89,6 +103,7 @@ final class UploadQueue {
         }catch(Exception e){
             TransferService.message="Upload paused · Local copy kept";
             if(owner.equals(store.scope()))try{synchronized(Store.class){JSONObject d=store.draft(id);if(!d.optString("recording_id").isEmpty())return;
+                if(accountPaused){d.put("status","queued").put("upload_requested",true).put("upload_retry_at",0).put("upload_attempts",Math.max(0,d.optInt("upload_attempts")-1)).remove("error");store.save(d);return;}
                 boolean retry=!(e instanceof Api.Failure)||((Api.Failure)e).status==408||((Api.Failure)e).status==429||((Api.Failure)e).status>=500;
                 retry=retry&&d.optInt("upload_attempts")<3;
                 d.put("status",retry?"queued":"failed").put("upload_requested",retry).put("upload_retry_at",System.currentTimeMillis()+30000L*(1L<<Math.min(3,d.optInt("upload_attempts")))).put("error",e.getMessage());store.save(d);

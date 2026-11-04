@@ -8,6 +8,9 @@ import java.nio.charset.StandardCharsets;
 public final class Api {
     public interface Progress {void update(long sent,long total);}
     private final Store store;
+    private volatile HttpURLConnection activeConnection;
+    private volatile boolean cancelled;
+    void cancel(){cancelled=true;HttpURLConnection c=activeConnection;if(c!=null)c.disconnect();}
     private static final Object REFRESH_LOCK=new Object();
     private static final Object PREFERENCES_LOCK=new Object();
     public Api(Store s){store=s;}
@@ -22,7 +25,9 @@ public final class Api {
         return value.trim().replaceAll("/+$","");
     }
     private HttpURLConnection open(String path,String method,String token)throws Exception{
+        if(cancelled)throw new IOException("Upload paused for account change.");
         HttpURLConnection c=(HttpURLConnection)new URL(store.base()+path).openConnection();c.setRequestMethod(method);c.setConnectTimeout(20000);c.setReadTimeout(90000);c.setInstanceFollowRedirects(false);
+        activeConnection=c;if(cancelled){c.disconnect();throw new IOException("Upload paused for account change.");}
         c.setRequestProperty("Accept","application/json");c.setRequestProperty("Origin",store.base());if(!token.isEmpty())c.setRequestProperty("Authorization","Bearer "+token);return c;
     }
     private byte[] read(HttpURLConnection c)throws Exception{
