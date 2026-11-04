@@ -1,5 +1,5 @@
 """Package verified local artifacts from an explicit Git allowlist. Never read signing passwords."""
-import argparse, datetime, hashlib, json, os, pathlib, re, shutil, subprocess, sys, zipfile
+import argparse, datetime, hashlib, json, os, pathlib, plistlib, re, shutil, struct, subprocess, sys, zipfile
 import xml.etree.ElementTree as ET
 import secret_audit
 
@@ -9,6 +9,13 @@ DIST=ROOT/'dist'
 CERT='56291d8fefaf737b522f88b075960ecddfe8f2d1e6794d538d4f46ad2b1d1291'
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def read(path): return json.loads(path.read_text(encoding='utf-8'))
+def macho_cpus(data):
+    if data[:4] == b'\xcf\xfa\xed\xfe': return {struct.unpack('<I',data[4:8])[0]}
+    if data[:4] in (b'\xca\xfe\xba\xbe',b'\xca\xfe\xba\xbf'):
+        count=struct.unpack('>I',data[4:8])[0]; stride=20 if data[3]==0xbe else 32
+        assert 0<count<10
+        return {struct.unpack('>I',data[8+i*stride:12+i*stride])[0] for i in range(count)}
+    raise ValueError('Not a supported Mach-O binary')
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--ipa',type=pathlib.Path)
@@ -60,14 +67,26 @@ def main():
     ios=None
     if options.ipa:
         assert options.ios_run and options.ipa.is_file()
+        ios_report=read(QA/'ios-ci-report.json')
+        assert ios_report['all_passed'] and ios_report['native_login_ocr_pass']
+        assert ios_report['ci_run']==options.ios_run and ios_report['ipa_sha256']==digest(options.ipa)
         secret_audit.archive(options.ipa.name,options.ipa.read_bytes())
         with zipfile.ZipFile(options.ipa) as z:
             names=z.namelist()
             assert 'Payload/Teno.app/Info.plist' in names
             assert not any(n.endswith('embedded.mobileprovision') for n in names)
             assert not any('.xctest/' in n for n in names)
+            assert not any(n.endswith('kernel_blob.bin') for n in names),'Debug Dart kernel entered device IPA'
+            info=plistlib.loads(z.read('Payload/Teno.app/Info.plist'))
+            assert info['CFBundleIdentifier']=='com.teno.app' and info['CFBundleVersion']=='10'
+            assert info['CFBundleShortVersionString']=='0.5.0' and info['MinimumOSVersion']=='15.0'
+            assert {'audio','bluetooth-central'} <= set(info['UIBackgroundModes'])
+            for name in ['Teno','Frameworks/App.framework/App','Frameworks/Flutter.framework/Flutter','Frameworks/JwdVtrSDK.framework/JwdVtrSDK']:
+                assert macho_cpus(z.read('Payload/Teno.app/'+name))=={0x0100000c},'Device IPA must contain arm64 Mach-O binaries'
         ios={'ipa':'Teno-0.5.0-unsigned.ipa','sha256':digest(options.ipa),'bytes':options.ipa.stat().st_size,
-             'unsigned':True,'ci_run':options.ios_run,'minimum_ios':'15.0','physical_iphone_tested':False,'altstore_install_tested':False}
+             'unsigned':True,'ci_run':options.ios_run,'source_commit':ios_report['source_commit'],
+             'native_tests':ios_report['native_tests'],'native_login_ocr_pass':True,'architecture':'arm64',
+             'minimum_ios':'15.0','physical_iphone_tested':False,'altstore_install_tested':False}
     if secret_audit.FINDINGS:
         print(json.dumps({'status':'blocked','findings':[{'path':p,'rule':r} for p,r in sorted(secret_audit.FINDINGS)]})); return 1
     deliverable=DIST/'Teno-0.5.0.apk'; shutil.copyfile(apk,deliverable)

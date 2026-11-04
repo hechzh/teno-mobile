@@ -92,6 +92,9 @@
 **/Pods/
 **/DerivedData/
 **/xcuserdata/
+**/.swiftpm/
+/ios/Teno.xcodeproj/
+/ios/Teno/Info.plist
 **/*.ipa
 **/*.mobileprovision
 **/.flutter-plugins*
