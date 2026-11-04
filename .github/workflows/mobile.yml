@@ -61,7 +61,7 @@ jobs:
           brew install xcodegen
           cd shared-ui
           flutter pub get --enforce-lockfile
-          flutter build swift-package --platform ios
+          flutter build swift-package --platform ios --no-codesign
           cd ../ios
           xcodegen generate
       - name: Compile and test iOS Simulator
