@@ -8,18 +8,22 @@ import Foundation
     private var socket: URLSessionWebSocketTask?
     private var frames: [Data] = []
     private var bytesQueued = 0
-    private var sending = false, ready = false, closed = false
+    private var sending = false, ready = false, closed = false, stopping = false, paused = false
+    private var totalBytes: Int64 = 0, baseOffset: Int64 = 0
+    private var retries = 0
+    private var retryTask: Task<Void,Never>?
     private var generation = 0
     var partial = "", status = "Connecting"
     var segments: [JSONObject] = []
     private var seen = Set<String>()
     init(api: SessionTransport, id: String, title: String) {
-        self.api = api; recordingId = id; self.title = title
+        self.api = api; recordingId = id; self.title = title.isEmpty ? "Recorder recording" : title
         Task { await connect() }
     }
     private func connect() async {
-        guard !closed else { return }
+        guard !closed, !stopping else { return }
         generation += 1; let attempt = generation
+        baseOffset = totalBytes / 32; frames.removeAll(); bytesQueued = 0
         do {
             let session = try await api.json("POST", "/api/v1/realtime/sessions",
                 body: ["title": title, "language": "auto", "preview": true,
@@ -38,12 +42,18 @@ import Foundation
             while !closed, generation == attempt {
                 let message = try await task.receive()
                 guard case .string(let text) = message, let bytes = text.data(using: .utf8) else { continue }
-                let event = try jsonObject(bytes)
+                var event = try jsonObject(bytes)
                 switch string(event["type"]) {
-                case "ready": ready = true; status = "Live"; pump()
+                case "ready":
+                    ready = true; retries = 0; status = "Live"; pump()
+                    if paused { pause(true) }
                 case "partial": partial = string(event["text"])
                 case "final":
-                    if seen.insert(string(event["id"])).inserted { segments.append(event) }
+                    if seen.insert(string(event["id"])).inserted {
+                        event["start_ms"] = (event["start_ms"] as? Int64 ?? 0) + baseOffset
+                        event["end_ms"] = (event["end_ms"] as? Int64 ?? 0) + baseOffset
+                        segments.append(event)
+                    }
                     partial = ""
                 case "completed": status = "Preview complete"; close(); return
                 case "error", "interrupted": throw RuntimeFailure("LIVE_UNAVAILABLE", "Live preview is unavailable. Audio is still saved locally.")
@@ -55,12 +65,14 @@ import Foundation
             status = "Live preview interrupted · Complete audio is kept"
             ready = false; partial = ""; frames.removeAll(); bytesQueued = 0
             socket?.cancel(with: .goingAway, reason: nil)
+            scheduleRetry()
         }
     }
     func feed(_ data: Data) {
-        guard !closed else { return }
+        guard !closed, !stopping, !paused else { return }
+        totalBytes += Int64(data.count)
         guard bytesQueued + data.count <= 320000 else {
-            status = "Preview has gaps · Complete audio is kept"; frames.removeAll(); bytesQueued = 0; return
+            status = "Preview has gaps · Complete audio is kept"; frames.removeAll(); bytesQueued = 0; retry(); return
         }
         frames.append(data); bytesQueued += data.count; pump()
     }
@@ -74,23 +86,40 @@ import Foundation
                     let frame = frames.removeFirst(); bytesQueued -= frame.count
                     try await socket?.send(.data(frame))
                 }
-            } catch { ready = false; status = "Live preview interrupted · Complete audio is kept" }
+            } catch { ready = false; status = "Live preview interrupted · Complete audio is kept"; scheduleRetry() }
         }
     }
     func pause(_ paused: Bool) {
+        self.paused = paused
         partial = ""; status = paused ? "Paused" : ready ? "Live" : "Preview unavailable"
         Task { try? await socket?.send(.string(paused ? "{\"type\":\"pause\"}" : "{\"type\":\"resume\"}")) }
     }
     func retry() {
+        guard !closed,!stopping else { return }
+        retryTask?.cancel()
         socket?.cancel(with: .goingAway, reason: nil); frames.removeAll(); bytesQueued = 0; ready = false
         status = "Reconnecting · Preview may have gaps"; Task { await connect() }
     }
     func finish() {
+        stopping = true; retryTask?.cancel()
         Task {
+            for _ in 0..<40 {
+                if !sending && frames.isEmpty || !ready { break }
+                try? await Task.sleep(nanoseconds:50_000_000)
+            }
             try? await socket?.send(.string("{\"type\":\"stop\"}"))
             try? await Task.sleep(nanoseconds: 22_000_000_000)
             close()
         }
     }
-    func close() { closed = true; ready = false; generation += 1; socket?.cancel(with: .normalClosure, reason: nil); frames.removeAll(); bytesQueued = 0 }
+    private func scheduleRetry() {
+        guard !closed,!stopping else { return }
+        retryTask?.cancel(); retries += 1
+        let delay = min(30,3*retries)
+        retryTask = Task {
+            try? await Task.sleep(nanoseconds:UInt64(delay)*1_000_000_000)
+            if !Task.isCancelled { await connect() }
+        }
+    }
+    func close() { retryTask?.cancel(); closed = true; ready = false; generation += 1; socket?.cancel(with: .normalClosure, reason: nil); frames.removeAll(); bytesQueued = 0 }
 }

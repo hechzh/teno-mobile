@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/core/model.dart';
 import '../lib/main.dart';
 import 'fixtures.dart';
 

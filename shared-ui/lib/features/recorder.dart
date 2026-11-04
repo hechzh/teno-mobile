@@ -233,6 +233,17 @@ class _DevicePageState extends State<DevicePage> {
                 child: const Text('Disconnect'),
               ),
             ] else ...[
+              if (device.identifier.isNotEmpty)
+                OutlinedButton(
+                  onPressed: device.busy
+                      ? null
+                      : () => command(
+                          DeviceAction.connect,
+                          id: device.identifier,
+                          name: device.name,
+                        ),
+                  child: const Text('Reconnect saved recorder'),
+                ),
               FilledButton(
                 onPressed: device.busy || device.scanning
                     ? null
@@ -320,6 +331,13 @@ class _RecorderSheetState extends State<RecorderSheet> {
   }
 
   Future<void> control(bool stop) async => perform(context, () async {
+    if (stop &&
+        !await confirm(
+          context,
+          'Stop recording?',
+          'The complete recording will be saved on this phone. Your cloud processing preference will apply.',
+        ))
+      return;
     debounce?.cancel();
     await save();
     final c = widget.model.runtime!.capture;
@@ -348,7 +366,9 @@ class _RecorderSheetState extends State<RecorderSheet> {
     animation: widget.model,
     builder: (context, _) {
       final c = widget.model.runtime!.capture;
-      final active = ['recording', 'paused'].contains(c.phase);
+      final active =
+          ['recording', 'paused'].contains(c.phase) &&
+          (c.source != 'device' || !widget.model.runtime!.device.busy);
       final finished =
           !widget.model.capturing && !widget.model.runtime!.device.receiving;
       return SizedBox(
@@ -461,17 +481,40 @@ class _RecorderSheetState extends State<RecorderSheet> {
                   ],
                 ),
               ),
-              if (finished)
+              if (c.phase == 'interrupted')
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      final navigator = Navigator.of(context);
+                      navigator.pop();
+                      navigator.push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => DevicePage(widget.model),
+                        ),
+                      );
+                    },
+                    child: const Text('Reconnect recorder'),
+                  ),
+                )
+              else if (finished)
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () async {
                       await perform(context, save);
                       if (!context.mounted) return;
-                      Navigator.pop(context);
+                      final navigator = Navigator.of(context);
+                      navigator.pop();
                       final id = c.localId;
                       if (id.isNotEmpty && !id.startsWith('jwd:'))
-                        unawaited(push(context, LocalPage(widget.model, id)));
+                        unawaited(
+                          navigator.push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => LocalPage(widget.model, id),
+                            ),
+                          ),
+                        );
                     },
                     child: const Text('Done'),
                   ),

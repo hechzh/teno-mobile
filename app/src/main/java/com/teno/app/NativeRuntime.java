@@ -26,7 +26,7 @@ final class NativeRuntime implements RuntimeHost {
     private boolean closed,visible;
     private volatile boolean phoneStarting;
     private long sequence;
-    private String route="";
+    private String route="",lastSource="phone";
     NativeRuntime(MainActivity activity,BinaryMessenger messenger){
         this.activity=activity;this.messenger=messenger;store=new Store(activity);api=new Api(store);
         media=new NativeMedia(this);events=new RuntimeEvents(messenger);RuntimeHost.setUp(messenger,this);
@@ -67,7 +67,9 @@ final class NativeRuntime implements RuntimeHost {
     }
     JSONObject device()throws JSONException{return new JSONObject(JwdService.snapshot);}
     private boolean hardwareCapturing()throws Exception{
-        JSONObject d=device();return d.optInt("record_state",-1)>0||Arrays.asList("start","stop","pause","resume").contains(d.optString("pending"));
+        JSONObject d=device();return d.optInt("record_state",-1)>0
+            ||d.optInt("record_state",-1)<0&&!d.optString("record_name").isEmpty()
+            ||Arrays.asList("start","stop","pause","resume").contains(d.optString("pending"));
     }
     private void accountIdle()throws Exception{
         JSONObject d=device();
@@ -92,14 +94,14 @@ final class NativeRuntime implements RuntimeHost {
         else phoneStarting=false;
         if(!id.isEmpty())try{JSONObject draft=local(id);notes=draft.optString("notes");if(phase.equals("idle")&&status.isEmpty())status="Saved on this phone";}catch(Exception ignored){}
         if(hardwareCapturing()||d.optBoolean("receiving")||d.optBoolean("converting")||d.optBoolean("syncing")){
-            source="device";int rs=d.optInt("record_state",-1);String pending=d.optString("pending");
-            phase=rs==2?"paused":rs==1?"recording":"idle";
+            source="device";lastSource="device";int rs=d.optInt("record_state",-1);String pending=d.optString("pending");
+            phase=rs==2?"paused":rs==1?"recording":rs<0&&!d.optString("record_name").isEmpty()?"interrupted":"idle";
             if(pending.equals("start"))phase="starting";else if(pending.equals("stop"))phase="stopping";
             else if(d.optBoolean("receiving")||d.optBoolean("converting")||d.optBoolean("syncing"))phase="saving";
             elapsed=d.optLong("elapsed_ms");id="jwd:"+d.optString("address")+"|"+d.optString("record_name");
             notes=store.recorderNotes(d.optString("address"),d.optString("record_name"));status=d.optString("message");
             live=JwdService.live==null?null:JwdService.live.transcriber;
-        }else if(!d.optString("last_draft").isEmpty()&&!RecorderService.active&&!RecorderService.finishing&&!phoneStarting){
+        }else if(lastSource.equals("device")&&!d.optString("last_draft").isEmpty()&&!RecorderService.active&&!RecorderService.finishing&&!phoneStarting){
             source="device";id=d.optString("last_draft");
             try{JSONObject draft=local(id);notes=draft.optString("notes");elapsed=draft.optLong("duration_ms");}catch(Exception ignored){}
             status=d.optString("message");live=JwdService.live==null?null:JwdService.live.transcriber;
@@ -113,7 +115,7 @@ final class NativeRuntime implements RuntimeHost {
                 .setStatus(status).setPartial(partial).setSegmentsJson(segments).setNotes(notes).build())
             .setDevice(new DeviceState.Builder().setConnected(d.optBoolean("connected")).setAuthorized(d.optBoolean("authorized"))
                 .setScanning(d.optBoolean("scanning")).setBusy(d.optBoolean("busy")).setReceiving(d.optBoolean("receiving"))
-                .setReceivedBytes(d.optLong("received")).setExpectedBytes(d.optLong("expected")).setIdentifier(d.optString("address"))
+                .setReceivedBytes(d.optLong("received")).setExpectedBytes(d.optLong("expected")).setIdentifier(d.optString("address").isEmpty()?store.recorderAddress():d.optString("address"))
                 .setName(d.optString("name",store.recorderName())).setBattery(d.optString("battery","Not received"))
                 .setStatus(d.optString("message","Connect your recorder to get started.")).setCandidatesJson(candidates.toString())
                 .setFilesJson(d.optJSONArray("files")==null?"[]":d.getJSONArray("files").toString()).build())
@@ -144,7 +146,7 @@ final class NativeRuntime implements RuntimeHost {
         activity.permissions(new String[]{Manifest.permission.RECORD_AUDIO},()->work(result,()->{
             signedIn();if(phoneStarting||RecorderService.active||RecorderService.finishing||hardwareCapturing())throw new IOException("Finish the current recording first.");
             JSONObject draft=store.newDraft(title,".wav");draft.put("live",store.liveDefault());store.save(draft);
-            String id=draft.getString("id");phoneStarting=true;RecorderService.error="";
+            String id=draft.getString("id");lastSource="phone";phoneStarting=true;RecorderService.error="";
             main.post(()->{try{activity.startForegroundService(new Intent(activity,RecorderService.class).setAction("start").putExtra("id",id));}
                 catch(RuntimeException e){phoneStarting=false;RecorderService.error="Recording could not start. Open the app and try again.";}});
             return id;
@@ -160,6 +162,7 @@ final class NativeRuntime implements RuntimeHost {
     void sendDevice(DeviceAction action,String id,String name)throws Exception{
         String command=switch(action){case SCAN->"scan";case COMPATIBILITY_SCAN->"scan_compat";case CANCEL_TRANSFER->"cancel";default->action.name().toLowerCase(Locale.ROOT);};
         if(action==DeviceAction.SYNC)signedIn();
+        if(action==DeviceAction.START){signedIn();if(RecorderService.active||RecorderService.finishing||phoneStarting)throw new IOException("Finish the phone recording first.");lastSource="device";}
         if(action==DeviceAction.CONNECT&&id.isEmpty()){id=store.recorderAddress();name=store.recorderName();}
         activity.startForegroundService(new Intent(activity,JwdService.class).setAction(command).putExtra("address",id)
             .putExtra("name",name).putExtra("live",session().getSignedIn()&&store.liveDefault()));

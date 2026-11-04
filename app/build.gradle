@@ -4,7 +4,7 @@ def tenoSigningFile = new File(System.getProperty('user.home'), '.android/teno-s
 if (tenoSigningFile.exists()) tenoSigningFile.withInputStream { tenoSigning.load(it) }
 android {
     namespace 'com.teno.app'
-    compileSdk 37
+    compileSdk 36
     defaultConfig {
         applicationId project.findProperty('verificationAppId') ?: 'com.teno.app'
         minSdk 26
@@ -30,7 +30,11 @@ android {
         }
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
-    sourceSets { androidTest.java.srcDirs = ['src/crossPlatformTest/java'] }
+    sourceSets {
+        // Historical UI remains in Git for traceability, outside the first-release APK.
+        main.java.exclude '**/TeamActivity.java', '**/TeamAudioActivity.java', '**/TeamAudioUploadService.java', '**/JwdActivity.java'
+        androidTest.java.srcDirs = ['src/crossPlatformTest/java']
+    }
 }
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'

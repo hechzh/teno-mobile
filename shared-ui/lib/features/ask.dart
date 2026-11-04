@@ -20,7 +20,9 @@ class _AskHistoryBodyState extends State<AskHistoryBody> {
   }
 
   void reload() {
-    setState(() => pending = widget.model.list('/api/v1/chats?limit=200'));
+    setState(() {
+      pending = widget.model.list('/api/v1/chats?limit=200');
+    });
   }
 
   @override

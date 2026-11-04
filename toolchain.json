@@ -5,6 +5,8 @@
   "java": "21",
   "gradle": "9.1.0",
   "agp": "9.0.1",
+  "kotlin": "2.2.20",
+  "android_compile_sdk": 36,
   "android_min_sdk": 26,
   "ios_deployment_target": "15.0"
 }

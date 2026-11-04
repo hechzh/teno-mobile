@@ -87,8 +87,8 @@ import LocalAuthentication
                 audio.rate = Float(speed); audio.prepareToPlay(); player = audio
             } catch { self.error = "Audio could not be played. " + error.localizedDescription; throw error }
         }
-        if action == .seek { player?.currentTime = min(player?.duration ?? 0,max(0,Double(position)/1000)) }
-        else { player?.play() }
+        if action == .seek || position > 0 { player?.currentTime = min(player?.duration ?? 0,max(0,Double(position)/1000)) }
+        if action != .seek { player?.play() }
     }
     func stop() { generation += 1; player?.stop(); player = nil; mediaId = ""; error = "" }
     func state() -> PlaybackState {

@@ -54,6 +54,7 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
     'paused',
     'stopping',
     'saving',
+    'interrupted',
   ].contains(runtime?.capture.phase);
 
   Future<void> initialize() async {

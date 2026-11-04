@@ -400,7 +400,9 @@ class _TrashPageState extends State<TrashPage> {
   }
 
   void reload() {
-    setState(() => pending = widget.model.list('/api/v1/trash'));
+    setState(() {
+      pending = widget.model.list('/api/v1/trash');
+    });
   }
 
   @override

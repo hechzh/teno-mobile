@@ -33,6 +33,7 @@ jobs:
         run: |
           flutter pub get --enforce-lockfile
           dart run pigeon --input pigeons/runtime.dart
+          dart format lib/platform/runtime.g.dart
           git diff --exit-code -- lib/platform/runtime.g.dart ../app/src/main/java/com/teno/app/RuntimeMessages.java ../ios/Teno/Generated/RuntimeMessages.g.swift
           flutter analyze --no-pub
           flutter test --no-pub

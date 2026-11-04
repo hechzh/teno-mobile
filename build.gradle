@@ -3,3 +3,7 @@ plugins {
     id 'com.android.library' version '9.0.1' apply false
     id 'org.jetbrains.kotlin.android' version '2.2.20' apply false
 }
+// The host and generated Flutter library use the same stable installed Android API.
+project(':flutter') {
+    afterEvaluate { android.compileSdkVersion 36 }
+}

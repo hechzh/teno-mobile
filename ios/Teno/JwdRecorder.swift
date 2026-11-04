@@ -1,6 +1,7 @@
 import Foundation
 import CoreBluetooth
 import CryptoKit
+import Security
 import AVFoundation
 import JwdVtrSDK
 
@@ -31,6 +32,7 @@ import JwdVtrSDK
     private var directories: [String] = [], files: [JSONObject] = [], transferQueue: [JSONObject] = []
     private var transfer: JSONObject?, transferFile: URL?, transferHandle: FileHandle?
     private var transferOwner = ""
+    private var transferGeneration = 0
     private var expected: Int64 = 0, received: Int64 = 0
     var connected: Bool { peripheral?.state == .connected }
     var active: Bool { ["starting","recording","paused","stopping","saving","interrupted"].contains(phase) }
@@ -53,7 +55,7 @@ import JwdVtrSDK
             guard !Task.isCancelled else { return }
             waiting = ""; busy = false; status = message
             if phase == "starting" || phase == "stopping" { phase = "interrupted" }
-            if receiving { discardTransfer(); phase = "idle" }
+            if receiving || phase == "saving" { discardTransfer(); phase = "idle" }
             if disconnect, let peripheral { central.cancelPeripheralConnection(peripheral) }
         }
     }
@@ -272,6 +274,7 @@ import JwdVtrSDK
     private func nextTransfer() {
         guard authorized, store.state().signedIn else { busy = false; phase = "idle"; return }
         if transferQueue.isEmpty { busy = false; receiving = false; phase = "idle"; recordName = ""; status = "Recordings saved on this phone"; return }
+        transferGeneration += 1
         transfer = transferQueue.removeFirst(); transferOwner = store.scope; expected = 0; received = 0; receiving = true; busy = true
         status = "Downloading " + string(transfer?["name"])
         send { self.sdk.importFile(string(self.transfer?["dir"]),fileName:string(self.transfer?["name"])) }
@@ -301,10 +304,12 @@ import JwdVtrSDK
         do { try transferHandle?.synchronize(); try transferHandle?.close(); transferHandle = nil }
         catch { transferError(error.localizedDescription); return }
         let owner = transferOwner, deviceId = identifier, note = store.notes("jwd:" + identifier + "|" + string(entry["name"]))
+        let generation = transferGeneration
         status = "Verifying complete recording"
         Task {
             do {
-                let crc = try StrictAudio.crc32(input)
+                let crc = try await Task.detached(priority:.userInitiated) { try StrictAudio.crc32(input) }.value
+                guard generation == transferGeneration else { return }
                 if let crc32, !crc32.isEmpty, crc32.uppercased() != crc { throw RuntimeFailure("FILE_CRC","The recorder checksum did not match. No upload was queued.") }
                 let signature = deviceId + "|" + string(entry["dir"]) + "|" + string(entry["name"]) + "|" + crc
                 let stableId = "jwd-" + SHA256.hash(data:Data(signature.utf8)).map { String(format:"%02x",$0) }.joined()
@@ -315,7 +320,8 @@ import JwdVtrSDK
                     var draft = try store.newDraft(string(entry["name"]),ext:isMp3 ? "mp3" : "wav",id:stableId)
                     let output = URL(fileURLWithPath:string(draft["path"]))
                     if isWave || isMp3 { try FileManager.default.copyItem(at:input,to:output) }
-                    else { try StrictAudio.decodeOpus(input,output:output) }
+                    else { try await Task.detached(priority:.userInitiated) { try StrictAudio.decodeOpus(input,output:output) }.value }
+                    guard generation == transferGeneration, owner == store.scope else { try? FileManager.default.removeItem(at:output); return }
                     let duration = try await AVURLAsset(url:output).load(.duration).seconds
                     guard duration.isFinite, duration > 0, duration <= 3600 else {
                         try? FileManager.default.removeItem(at:output); throw RuntimeFailure("INVALID_AUDIO","Recorder audio is invalid or longer than 60 minutes.")
@@ -325,13 +331,14 @@ import JwdVtrSDK
                     try store.save(draft); saved(stableId)
                 }
                 lastDraft = stableId; discardTransfer(); nextTransfer()
-            } catch { transferError(error.localizedDescription) }
+            } catch { if generation == transferGeneration { transferError(error.localizedDescription) } }
         }
     }
     private func transferError(_ message: String) {
         sdk.cancelImport(); discardTransfer(); transferQueue.removeAll(); busy = false; phase = "idle"; status = message
     }
     private func discardTransfer() {
+        transferGeneration += 1
         deadline?.cancel(); try? transferHandle?.close(); transferHandle = nil
         if let transferFile { try? FileManager.default.removeItem(at:transferFile) }
         transferFile = nil; receiving = false; transfer = nil

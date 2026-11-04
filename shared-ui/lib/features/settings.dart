@@ -230,7 +230,9 @@ class _TemplatesBodyState extends State<TemplatesBody> {
   }
 
   void reload() {
-    setState(() => pending = widget.model.list('/api/v1/templates?limit=200'));
+    setState(() {
+      pending = widget.model.list('/api/v1/templates?limit=200');
+    });
   }
 
   Future<void> edit([Json? original]) async {
