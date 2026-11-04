@@ -82,7 +82,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
         }
         void run()throws Exception {
             try {
-                JSONObject expected=new JSONObject(Files.readString(new File(context.getFilesDir(),"upgrade-fixture.json").toPath()));
+                JSONObject expected=new JSONObject(new String(Files.readAllBytes(new File(context.getFilesDir(),"upgrade-fixture.json").toPath()),StandardCharsets.UTF_8));
                 String oldId=expected.getString("id"),owner=expected.getString("scope");
                 test.check(store.scope().equals(owner)&&store.name().equals("Teno upgrade fixture"),"upgrade_preserves_account_scope");
                 test.check(store.token("access_token").equals("upgrade-loopback-fixture"),"upgrade_decrypts_original_session");
