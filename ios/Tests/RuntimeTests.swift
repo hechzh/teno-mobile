@@ -2,6 +2,16 @@ import XCTest
 @testable import Teno
 
 final class RuntimeTests: XCTestCase {
+    @MainActor func testBridgeErrorsKeepTheMessageWithoutStackDetails() async {
+        do {
+            let _: Void = try await bridgeOperation { throw RuntimeFailure("MICROPHONE_PERMISSION", "Allow microphone access in Settings.") }
+            XCTFail("The failed operation must stay failed")
+        } catch let error as PigeonError {
+            XCTAssertEqual(error.code,"MICROPHONE_PERMISSION")
+            XCTAssertEqual(error.message,"Allow microphone access in Settings.")
+            XCTAssertNil(error.details)
+        } catch { XCTFail("Expected a typed bridge error") }
+    }
     func testRecordingRecoveryRepairsHeaderWithoutDroppingCommittedSamples() throws {
         let path = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".wav")
         defer { try? FileManager.default.removeItem(at:path) }

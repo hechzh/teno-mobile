@@ -433,7 +433,8 @@ class _TrashPageState extends State<TrashPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(text(r['title']), style: const TextStyle(fontSize: 16)),
-                  Row(
+                  Wrap(
+                    spacing: 8,
                     children: [
                       TextButton(
                         onPressed: () => perform(context, () async {

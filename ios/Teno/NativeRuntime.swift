@@ -17,7 +17,7 @@ import UIKit
         recorder = JwdRecorder(store:store,api:api,saved:{ queue.saved($0) })
         media = NativeMedia(store:store,api:api,saved:{ queue.saved($0) }); media.presenter = presenter
         events = RuntimeEvents(binaryMessenger:messenger)
-        RuntimeHostSetup.setUp(binaryMessenger:messenger,api:self)
+        RuntimeHostSetup.setUp(binaryMessenger:messenger,api:NativeBridge(self))
         ticker = Task { [weak self] in
             while !Task.isCancelled {
                 if let self, UIApplication.shared.applicationState == .active { try? await self.events.changed(state:self.state()) }

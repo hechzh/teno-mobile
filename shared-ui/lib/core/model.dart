@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import '../platform/runtime.g.dart';
 
 typedef Json = Map<String, dynamic>;
@@ -152,6 +153,8 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
   }
 
   static String friendly(Object error) {
+    if (error is PlatformException)
+      return error.message ?? 'The action could not be completed. Try again.';
     final value = error.toString();
     // Never put arguments, request bodies or authentication headers in UI errors.
     if (value.contains('PlatformException(')) {

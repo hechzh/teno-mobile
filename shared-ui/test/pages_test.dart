@@ -17,6 +17,7 @@ import '../lib/core/model.dart';
 import 'fixtures.dart';
 
 void main() {
+  final ios = Platform.environment['TENO_PLATFORM'] == 'ios';
   final boundary = GlobalKey();
   setUpAll(() async {
     await (FontLoader(
@@ -26,6 +27,16 @@ void main() {
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
+  void pageTest(String description, WidgetTesterCallback callback) {
+    testWidgets(
+      description,
+      callback,
+      variant: TargetPlatformVariant({
+        ios ? TargetPlatform.iOS : TargetPlatform.android,
+      }),
+    );
+  }
+
   Future<void> mount(
     WidgetTester tester,
     Widget page, {
@@ -34,7 +45,9 @@ void main() {
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = Size(width, 844);
-    tester.view.padding = const FakeViewPadding(top: 44, bottom: 34);
+    tester.view.padding = ios
+        ? const FakeViewPadding(top: 44, bottom: 34)
+        : const FakeViewPadding(top: 24, bottom: 24);
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       RepaintBoundary(
@@ -78,7 +91,7 @@ void main() {
 
   final pages = <String, Widget Function(TenoModel)>{
     '01-home': (m) => HomePage(m),
-    '04-library': (m) => PageFrame(title: 'Library', child: LibraryBody(m)),
+    '04-library': (m) => HomePage(m),
     '05-folder': (m) => RecordListPage(
       m,
       title: 'Research',
@@ -90,15 +103,14 @@ void main() {
     '06-search': (m) => SearchPage(m),
     '07-device-connect': (m) => DevicePage(m),
     '14-summary': (m) => DetailPage(m, 'record-1'),
-    '18-ask-history': (m) =>
-        PageFrame(title: 'Ask Teno', child: AskHistoryBody(m)),
+    '18-ask-history': (m) => HomePage(m),
     '19-ask-chat': (m) => ChatPage(m, chatId: 'chat-1'),
     '41-new-chat': (m) => ChatPage(m),
     '20-ask-context': (m) => ContextPicker(m, ['record-1']),
-    '23-tools': (m) => PageFrame(title: 'Tools', child: TemplatesBody(m)),
+    '23-tools': (m) => HomePage(m),
     '24-template-picker': (m) => TemplatePicker(m),
     '25-template-editor': (m) => TemplateEditor(m, null),
-    '29-settings': (m) => PageFrame(title: 'Settings', child: SettingsBody(m)),
+    '29-settings': (m) => HomePage(m),
     '30-preferences': (m) => PreferencesPage(m),
     '32-trash': (m) => TrashPage(m),
     '33-export': (m) => ExportPage(m, 'record-1'),
@@ -108,15 +120,27 @@ void main() {
     '42-summary-editor': (m) => SummaryEditor(m, 'record-1', reviewSummary, 1),
   };
   for (final page in pages.entries) {
-    testWidgets('individual page ' + page.key, (tester) async {
+    pageTest('individual page ' + page.key, (tester) async {
       final model = reviewModel();
       addTearDown(model.dispose);
       await mount(tester, page.value(model));
+      final section = {
+        '04-library': 'Library',
+        '18-ask-history': 'Ask Teno',
+        '23-tools': 'Tools',
+        '29-settings': 'Settings',
+      }[page.key];
+      if (section != null) {
+        await tester.tap(find.byTooltip('Navigation'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(section));
+        await tester.pumpAndSettle();
+      }
       await capture(tester, page.key);
       await tester.pumpWidget(const SizedBox.shrink());
     });
   }
-  testWidgets('navigation and create menu retain separate review pages', (
+  pageTest('navigation and create menu retain separate review pages', (
     tester,
   ) async {
     final model = reviewModel();
@@ -132,7 +156,7 @@ void main() {
     await capture(tester, '03-create-menu');
     await tester.pumpWidget(const SizedBox.shrink());
   });
-  testWidgets('transcript and recording controls have separate evidence', (
+  pageTest('transcript and recording controls have separate evidence', (
     tester,
   ) async {
     final model = reviewModel();
@@ -141,6 +165,16 @@ void main() {
     await tester.tap(find.text('Transcript'));
     await tester.pumpAndSettle();
     await capture(tester, '15-transcript');
+    await tester.tap(find.byTooltip('Edit segment').first);
+    await tester.pumpAndSettle();
+    await capture(tester, '16-transcript-editor');
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    await mount(tester, pages['05-folder']!(model));
+    await tester.tap(find.byTooltip('Folder options'));
+    await tester.pumpAndSettle();
+    await capture(tester, '45-folder-options');
+    await tester.pumpWidget(const SizedBox.shrink());
     await mount(tester, DevicePage(model));
     model.changed(
       reviewState(sequence: 2, phase: 'recording', connected: true),
@@ -155,23 +189,35 @@ void main() {
     await capture(tester, '10-paused');
     await tester.pumpWidget(const SizedBox.shrink());
   });
-  testWidgets('narrow screen and larger text remain operable', (tester) async {
+  pageTest('narrow screen and larger text remain operable', (tester) async {
     final model = reviewModel();
     addTearDown(model.dispose);
     for (final name in [
       '01-home',
+      '07-device-connect',
       '14-summary',
       '19-ask-chat',
+      '20-ask-context',
+      '24-template-picker',
       '29-settings',
       '30-preferences',
+      '32-trash',
+      '33-export',
       '34-login',
+      '36-local-recording',
     ]) {
       await mount(tester, pages[name]!(model), width: 360, scale: 1.5);
+      if (name == '29-settings') {
+        await tester.tap(find.byTooltip('Navigation'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Settings'));
+        await tester.pumpAndSettle();
+      }
       await capture(tester, 'large-text/$name');
       await tester.pumpWidget(const SizedBox.shrink());
     }
   });
-  testWidgets('recording keyboard and confirmation fit a narrow screen', (
+  pageTest('recording keyboard and confirmation fit a narrow screen', (
     tester,
   ) async {
     final model = reviewModel();
@@ -196,7 +242,7 @@ void main() {
     expect(find.text('Close keyboard'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
-  testWidgets(
+  pageTest(
     'recording interruption, transfer and preview have distinct states',
     (tester) async {
       final model = reviewModel();
@@ -230,7 +276,7 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
-  testWidgets('local upload failure never hides the saved recording', (
+  pageTest('local upload failure never hides the saved recording', (
     tester,
   ) async {
     final model = reviewModel();
@@ -246,7 +292,7 @@ void main() {
     await capture(tester, '40-upload-failed');
     await tester.pumpWidget(const SizedBox.shrink());
   });
-  testWidgets('permission denial and offline library remain actionable', (
+  pageTest('permission denial and offline library remain actionable', (
     tester,
   ) async {
     final host = FixtureHost()
@@ -264,6 +310,7 @@ void main() {
     expect(host.calls.contains('phone'), isTrue);
     model.error =
         'Connection unavailable. Your recordings are kept on this phone.';
+    await tester.pumpWidget(const SizedBox.shrink());
     await mount(tester, HomePage(model));
     await capture(tester, '44-offline-library');
     await tester.pumpWidget(const SizedBox.shrink());

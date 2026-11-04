@@ -61,6 +61,7 @@ class _HomePageState extends State<HomePage> {
         Offset.zero & overlay.size,
       ),
       color: Colors.white,
+      elevation: 0,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(26),

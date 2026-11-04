@@ -1,0 +1,1292 @@
+{
+  "product": "Teno",
+  "version": "0.5.0",
+  "reference_manifest_sha256": "6e4ca4be526ddc60c5fe471a7ee0f0717c34c4c68656fec1142bf6e6088bdd2d",
+  "pages": [
+    {
+      "id": "01-home",
+      "title": "01 Home",
+      "reference_id": "01",
+      "screenshot": "screenshots/shared/01-home.png",
+      "screenshot_sha256": "0d47c8e884cf0ae0769afa8a9d0ae8d2d329bbc8bf8e741c11cad2f496f505da",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "首版聚焦录音时间流；日历/Upcoming 不在本期列明范围，不放置虚构日程。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/01-home.png",
+          "sha256": "be88cf86c666e206b9056ae13178b4d9e2c2cbb1ebbac85ebb961a238aa9dd38"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/01-home.png",
+          "sha256": "1bf7d7605ab463f4ed8d912c6409cb9707f982f0c6d507c4ba70d9fd124b208b"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/01-home.png",
+          "sha256": "0031d3a66158eac6c712a8d72784885285c4664f0c551ea92436c81a29540b6c"
+        }
+      ]
+    },
+    {
+      "id": "02-navigation",
+      "title": "02 Navigation",
+      "reference_id": "02",
+      "screenshot": "screenshots/shared/02-navigation.png",
+      "screenshot_sha256": "397972499308952707ca4aaedced21c3e9f35a66412e2c5561f1410839377811",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "Teno / Ask Teno；保留 Home、Library、Ask、Tools、Settings，Tools 只开放模板；不显示虚构分钟额度。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/02-navigation.png",
+          "sha256": "dcc1d19024abb3c436a976f95a4e9aa7015c899bce710e9713e8055a79ae423a"
+        }
+      ]
+    },
+    {
+      "id": "03-create-menu",
+      "title": "03 Create Menu",
+      "reference_id": "03",
+      "screenshot": "screenshots/shared/03-create-menu.png",
+      "screenshot_sha256": "5eda6a3162dbc10f1df50d37df310ac0d02395672183f5e18f7461f6e6e44243",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "右上展开菜单；JWD 为主、手机为小字次级入口。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/03-create-menu.png",
+          "sha256": "39400e79e5942aeee515cc3c002597e58efbc80d840a17e99619090e14682ed0"
+        }
+      ]
+    },
+    {
+      "id": "04-library",
+      "title": "04 Library",
+      "reference_id": "04",
+      "screenshot": "screenshots/shared/04-library.png",
+      "screenshot_sha256": "1248b2e734377f2100188359135dbec03f2316c855f06b893731290fd777f73b",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "录音与文件夹、自动保留的本机文件、回收站；无照片/团队资料。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/04-library.png",
+          "sha256": "afb7d5831e30c825ac709b947e2df0c5167d93683b9a246486ea1b5e391dd63d"
+        }
+      ]
+    },
+    {
+      "id": "05-folder",
+      "title": "05 Folder",
+      "reference_id": "05",
+      "screenshot": "screenshots/shared/05-folder.png",
+      "screenshot_sha256": "a6c59756405ed6a5b94c28f12943e6b379ac3af72f5e3cf24aeffe7cc8a37c64",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "复用现有资料库与文件夹接口；按创建时间分页。首版没有拖拽或批量管理。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/05-folder.png",
+          "sha256": "034b7fc6ce6b3815c9eb07daba052958477037dd6c104466091293679c375d2b"
+        }
+      ]
+    },
+    {
+      "id": "06-search",
+      "title": "06 Search",
+      "reference_id": "06",
+      "screenshot": "screenshots/shared/06-search.png",
+      "screenshot_sha256": "af475581e3436f1040c6fe8866b1bf8ab380586e0484cbeb68d413b997be3cdc",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "复用标题和转写全文检索；没有原版说话人/日期组合筛选。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/06-search.png",
+          "sha256": "dd3f7193cc04389314dc0081a87c871860a7506a0b9de953b5cd95318ae9a235"
+        }
+      ]
+    },
+    {
+      "id": "07-device-connect",
+      "title": "07 Device Connect",
+      "reference_id": "07",
+      "screenshot": "screenshots/shared/07-device-connect.png",
+      "screenshot_sha256": "4de4c11b63d1cf3412f96f7c88196bfcc4e21fda99f4002f0ae990f32af6b170",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "按真实 JWD GATT 服务、独立密钥与现有绑定信息连接。图标为通用录音器符号，非 PLAUD 硬件。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/07-device-connect.png",
+          "sha256": "8f43d3a9de9ef24c83bfe90ed3e5ec589699fbfc2c3e0ca53a01a091bdbe5d80"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/07-device-connect.png",
+          "sha256": "98db24db6a0bc2ccdff831571771c7725fbfc57771aafb6337896b6f62b9a654"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/07-device-connect.png",
+          "sha256": "530a5b00b86f61ea16dc25fbd0f4c2bca7a92cdf47f31f2949a20ab0c9b87b06"
+        }
+      ]
+    },
+    {
+      "id": "08-device-connected",
+      "title": "08 Device Connected",
+      "reference_id": "08",
+      "screenshot": "screenshots/shared/08-device-connected.png",
+      "screenshot_sha256": "4f506fb30feff0b05917fca84cda87a3b4e4c9f2610d7718e5afe73889efb597",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "显示真实连接回调及电量，录音/下载操作等待硬件确认。截图中的设备数据仅来自测试替身。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/08-device-connected.png",
+          "sha256": "5fed6686f3068700180e97963733d2ea3eb1b36607771e4dc6353aee19f14764"
+        }
+      ]
+    },
+    {
+      "id": "09-recording",
+      "title": "09 Recording",
+      "reference_id": "09",
+      "screenshot": "screenshots/shared/09-recording.png",
+      "screenshot_sha256": "b5eeb8bf172ca1e3940b22b3c36258e05654a3c50f28dcba095075d14ada5ad2",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "Pause/Stop/计时、Type/Highlight；照片入口隐藏；实时字幕放在可展开区域。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/09-recording.png",
+          "sha256": "6b619867202a9e4387ffabfe4a695ba8b631c412831a1b0e6932b5e053de0406"
+        }
+      ]
+    },
+    {
+      "id": "10-paused",
+      "title": "10 Paused",
+      "reference_id": "10",
+      "screenshot": "screenshots/shared/10-paused.png",
+      "screenshot_sha256": "9417bbc343881e4f81d7b7bfc86343f803c19b18e4d1390961d97500ebc6c0c9",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "暂停保持同一面板；恢复与停止等待回调。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/10-paused.png",
+          "sha256": "fe6b2dc845d1e7b8d5d8d3702559e66aa255fe8dd3c840e47bdf4b054405b862"
+        }
+      ]
+    },
+    {
+      "id": "11-stop-confirmation",
+      "title": "11 Stop Confirmation",
+      "reference_id": "09",
+      "screenshot": "screenshots/shared/11-stop-confirmation.png",
+      "screenshot_sha256": "f0e227aa00622101601c7b6d535044aaf7117ace27a22d62bf318eb50f206bb1",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "Pause/Stop/计时、Type/Highlight；照片入口隐藏；实时字幕放在可展开区域。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/11-stop-confirmation.png",
+          "sha256": "d99a46b9c726ec6dc1dd15d6f631074b18614dfc354b46d2e963431bd41bac37"
+        }
+      ]
+    },
+    {
+      "id": "12-device-transfer",
+      "title": "12 Device Transfer",
+      "reference_id": "12",
+      "screenshot": "screenshots/shared/12-device-transfer.png",
+      "screenshot_sha256": "e4a09eed046d65939c0774f8fe71ae0b152068c5793036657a5068eb71b834e0",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "下载长度、结束标记、可用 CRC 和严格解码全部通过后才保存到上传队列。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/12-device-transfer.png",
+          "sha256": "63c03d32aa06b16d24840ac304bc45484fb291f85e775073a5270148ff383739"
+        }
+      ]
+    },
+    {
+      "id": "14-summary",
+      "title": "14 Summary",
+      "reference_id": "14",
+      "screenshot": "screenshots/shared/14-summary.png",
+      "screenshot_sha256": "e382a9e122500c30fbcf421b245da1420dfa0d927494db8b8e28c59c223e6a3f",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "摘要、版本、编辑和 Ask；保留原转写。不提供独立新笔记和公开分享链接。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/14-summary.png",
+          "sha256": "6644473f9229600f43050382799e41ffadf3b3fdc44602b84bfe6f582b28d2f1"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/14-summary.png",
+          "sha256": "cfaee24d9592a80589e8093a9a76eadea65710d846d7ba1dd40650b1cbaf7c53"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/14-summary.png",
+          "sha256": "66156396e18f75be929518ebcab99630351dd24e2f0ebf09ccee2042c5e1834e"
+        }
+      ]
+    },
+    {
+      "id": "15-transcript",
+      "title": "15 Transcript",
+      "reference_id": "15",
+      "screenshot": "screenshots/shared/15-transcript.png",
+      "screenshot_sha256": "f47de0ee9fa28f9ef287cfeb4ca65ac73794ba8a85dbdc5c49b0386e6e0fbff7",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "真实原生播放器、时间跳转、倍速、分段转写编辑；不绘制虚构音频波形。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/15-transcript.png",
+          "sha256": "faa9e128be78c2bb38bf28963b17369e83d9f0a0e2dfffe1b492eb35cc9a54c2"
+        }
+      ]
+    },
+    {
+      "id": "16-transcript-editor",
+      "title": "16 Transcript Editor",
+      "reference_id": "16",
+      "screenshot": "screenshots/shared/16-transcript-editor.png",
+      "screenshot_sha256": "0ed58c29d40534fee96fecf51e49964db5c7a3c9bf66e18a8de9c37a2074925c",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "通过段落编辑弹窗和 revision 校验保存，冲突时重新加载。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/16-transcript-editor.png",
+          "sha256": "43bdec4c0ce8ec9a392b3edc0e018dcd023be87f7d13653057519b697cc84a20"
+        }
+      ]
+    },
+    {
+      "id": "18-ask-history",
+      "title": "18 Ask History",
+      "reference_id": "18",
+      "screenshot": "screenshots/shared/18-ask-history.png",
+      "screenshot_sha256": "178273694739f39283d571a54bb6b5aa8caf5a9649b4620dff762515d9eb6325",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "现有问答会话历史；仅 Ask Teno，不带 Work/Tasks/Routines。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/18-ask-history.png",
+          "sha256": "6d1010ead12887e1cf7a64bb4f97b8855ab34ae4fcb7734faf5c1e69ac44aa6c"
+        }
+      ]
+    },
+    {
+      "id": "19-ask-chat",
+      "title": "19 Ask Chat",
+      "reference_id": "20",
+      "screenshot": "screenshots/shared/19-ask-chat.png",
+      "screenshot_sha256": "84b5bb421b5ba67e9a9014590dbef2d8f0809a37e2ba6385e527179d7ec34e8f",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "现有后端问答、引用与时间定位；消息内容为测试数据。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/19-ask-chat.png",
+          "sha256": "645dd780bcdac28bfe0dde8ed77a00748f6e2032ce7aad5970e002c5e3bcf3a6"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/19-ask-chat.png",
+          "sha256": "e80f521305418342a0ffe787c3b5a422a123130bfd8db6bb5810ca10f8b78a8a"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/19-ask-chat.png",
+          "sha256": "3e3c95b386e30117b01a8e66e6e127dee947b688211ffbb7c799d1a3dd7e673e"
+        }
+      ]
+    },
+    {
+      "id": "20-ask-context",
+      "title": "20 Ask Context",
+      "reference_id": "31",
+      "screenshot": "screenshots/shared/20-ask-context.png",
+      "screenshot_sha256": "df2baa88a23fcb0687afe0401e48aea899cf598f7adc033436b8df696acdd994",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "仅选择已有且完成转写的录音，最多 30 条；不带技能/照片/相机。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/20-ask-context.png",
+          "sha256": "96a681e8c4c73aa4bbb1de699051ba9970371e270a34485fe56e0920ba41a399"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/20-ask-context.png",
+          "sha256": "47ac9fd6fc6bc39f706a381ba4747f98caaf7f6d20e03f9491bbf25801b22c5d"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/20-ask-context.png",
+          "sha256": "1d51e429d8c3686027b8b33a8055be5286a4b46bf002381caab9d3213236193e"
+        }
+      ]
+    },
+    {
+      "id": "23-tools",
+      "title": "23 Tools",
+      "reference_id": "25",
+      "screenshot": "screenshots/shared/23-tools.png",
+      "screenshot_sha256": "488743f5deb565cfca7f06a8efe7a8780dae513db57af79509fa1f50a0c102b1",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "只保留 Templates，不显示 Skills/Connectors。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/23-tools.png",
+          "sha256": "da46465bf081291110c8414611b648af26d8d6b807b0598e92109308d243beda"
+        }
+      ]
+    },
+    {
+      "id": "24-template-picker",
+      "title": "24 Template Picker",
+      "reference_id": "13",
+      "screenshot": "screenshots/shared/24-template-picker.png",
+      "screenshot_sha256": "95fe738217c3951bd9288aae6447c343159151e2a52a36664adc5aa7473517de",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "Automatic 固定；使用现有摘要模板，生成语言从 Preferences 设置；没有模型/声纹切换。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/24-template-picker.png",
+          "sha256": "ab19e3b0532ac55c6155f6623d6b3762eb8598f758b5fbde12d4aaaede08547d"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/24-template-picker.png",
+          "sha256": "99c778f5206095cd32452f181d670bbfe631550f111582cebfd18961b0dae2fa"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/24-template-picker.png",
+          "sha256": "737f7666db6ba26b72b41cbedc3b98551912ce62fbb110e040ba18c303e988ef"
+        }
+      ]
+    },
+    {
+      "id": "25-template-editor",
+      "title": "25 Template Editor",
+      "reference_id": "17",
+      "screenshot": "screenshots/shared/25-template-editor.png",
+      "screenshot_sha256": "1f7b0b61d3835632ca06debd8df9be52e70cb7b190bc4558281fe644a797da19",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "使用现有账号模板，支持创建与编辑；不伪造官方/社区模板市场。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/25-template-editor.png",
+          "sha256": "ec146f50b49f52b7eb87917cd5569fc8bb2eebc7e87ca89091aacfde05d17757"
+        }
+      ]
+    },
+    {
+      "id": "29-settings",
+      "title": "29 Settings",
+      "reference_id": "21",
+      "screenshot": "screenshots/shared/29-settings.png",
+      "screenshot_sha256": "c22d74b7a4b96dec2a34e41cbd7a666b853e417a293ac54cbc45834ee82ab997",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "保留设置分组，入口收敛到录音、存储、账号及帮助；无团队/声纹管理。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/29-settings.png",
+          "sha256": "4519bfb2197c2264c1eea45bb7a7c36420b9a05ac3bd7c90c6e309f929f814b9"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/29-settings.png",
+          "sha256": "9741cdb09178dd9777a8e773688ef8560ea350cf72369f540fc4f43d0adacaa2"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/29-settings.png",
+          "sha256": "a62a174706538adfc01b18341d0526465cfe940a5bc836509cddc72504d27118"
+        }
+      ]
+    },
+    {
+      "id": "30-preferences",
+      "title": "30 Preferences",
+      "reference_id": "22",
+      "screenshot": "screenshots/shared/30-preferences.png",
+      "screenshot_sha256": "df4ac44fabca15d87b5e7ac362536130c884a79301c719831dcd193b2fa9dea0",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "Automatic、云处理、Wi-Fi 上传、实时预览、生成语言；本机保留不可自动关闭。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/30-preferences.png",
+          "sha256": "26fec4c6d3677933a5a669350c32df534ac803f2f2c7f9baf74a3b325edc3a6d"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/30-preferences.png",
+          "sha256": "a4458def262e4a9e8032723b4a07a61c7dfc35b102d131c75a45e614be0938a6"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/30-preferences.png",
+          "sha256": "3362350ceeb0c2bc1ae8ca3ebe6f7479a2124ae4eeb8a95820651fb2f787fcad"
+        }
+      ]
+    },
+    {
+      "id": "32-trash",
+      "title": "32 Trash",
+      "reference_id": "24",
+      "screenshot": "screenshots/shared/32-trash.png",
+      "screenshot_sha256": "b4bccc94af67571eb8f0bba99a91f59ec525d852c29618bd7f9110f607cd7c75",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "逐条恢复与二次确认后的永久删除；未提供原版批量选择工具栏。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/32-trash.png",
+          "sha256": "907411a14c90b1a24167efa708517e391ae1c7f02700e7ff972fa54d10801d16"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/32-trash.png",
+          "sha256": "ac7789e21718958bea5266c9f0ffeefb6e6cc8000915d6e0b4bdf18dc444b5a8"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/32-trash.png",
+          "sha256": "e0a3c118448db61dc7436e6d95b36ed73ebd3874f05bd9976d02a738b18b8b55"
+        }
+      ]
+    },
+    {
+      "id": "33-export",
+      "title": "33 Export",
+      "reference_id": "23",
+      "screenshot": "screenshots/shared/33-export.png",
+      "screenshot_sha256": "8fe20fbcd379bc2b2f1df0788b0f321f0027aed1fe83a2a0b95bed648ff0a416",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "音频及文字格式通过 Android/iOS 系统分享面板导出。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/33-export.png",
+          "sha256": "c458380692b015abe4f9fb964e287ba34d838299ffdf162922f973f1c4119903"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/33-export.png",
+          "sha256": "e031b2c5c0093f0d04174fa2485c13a53204abd2a918da7f337019dd95b7d14c"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/33-export.png",
+          "sha256": "93e178f8020403c9922f7fa2c7137d1fa43a6d06e56c841fba5140ceee8a2d93"
+        }
+      ]
+    },
+    {
+      "id": "34-login",
+      "title": "34 Login",
+      "reference_id": null,
+      "screenshot": "screenshots/shared/34-login.png",
+      "screenshot_sha256": "7466490db4600776aac659647c7bb1a4512db260582f8e2c4c263c1f9dc30d1b",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "按首版登录、权限和本机存储要求补充。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/34-login.png",
+          "sha256": "2cf56180cfa83c7e60597bd50ffd4c13f728e6781c78389e6b94a2262f23efb2"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/34-login.png",
+          "sha256": "d6b04549597e05aa0ff5e4bbb6b8f05aaf23255119ad808e8ab18a922dc640dc"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/34-login.png",
+          "sha256": "3a22e21b319094b58dab68e2041404cb2bba9b07d396601044ec2b3098682e09"
+        }
+      ]
+    },
+    {
+      "id": "35-local-files",
+      "title": "35 Local Files",
+      "reference_id": null,
+      "screenshot": "screenshots/shared/35-local-files.png",
+      "screenshot_sha256": "70ab9b5f59f928f2574d34c48568b81dc8e60a26bd16f22a5a9a9820aa2228dc",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "按首版登录、权限和本机存储要求补充。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/35-local-files.png",
+          "sha256": "ab4dfb768c819c59d2fce1ea1121cedb5bb47e9aa1b885ed094fa9abc6207bfc"
+        }
+      ]
+    },
+    {
+      "id": "36-local-recording",
+      "title": "36 Local Recording",
+      "reference_id": "29",
+      "screenshot": "screenshots/shared/36-local-recording.png",
+      "screenshot_sha256": "84f014030678792ea7eb0beeaeed087ee035e18b0bcde7bdb877041f002a4f24",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "本机保存、上传和云处理为不同状态；结果读取既有接口。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/36-local-recording.png",
+          "sha256": "8fe46d8c6354722944e40de25970d530418d51153f69e8079738b21e42b8ccc7"
+        },
+        {
+          "label": "Android · 大字",
+          "screenshot": "screenshots/shared/large-text/36-local-recording.png",
+          "sha256": "f2c25e7572bb252fd7eb7376f46fe4bcbcad60e552c478b66f22cb102119701b"
+        },
+        {
+          "label": "iOS · 大字",
+          "screenshot": "screenshots/ios-shared/large-text/36-local-recording.png",
+          "sha256": "f0d3d19b0648e8d5899b64c1ef493b20744f3e49323775ab96b86a9353212025"
+        }
+      ]
+    },
+    {
+      "id": "37-recording-keyboard",
+      "title": "37 Recording Keyboard",
+      "reference_id": "11",
+      "screenshot": "screenshots/shared/37-recording-keyboard.png",
+      "screenshot_sha256": "d3b32a4e48dd1c5c8ced7f9559213ccb83e1c500492e566c0b2fa74c4b8c7ecc",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "时间高亮保存为带时间标记的文字笔记；不创建独立新笔记。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/37-recording-keyboard.png",
+          "sha256": "f6cf65aa4153d9947572147f4a4df4657a380a81b5c0cbe058d8fc8013242b1f"
+        }
+      ]
+    },
+    {
+      "id": "38-live-preview",
+      "title": "38 Live Preview",
+      "reference_id": "09",
+      "screenshot": "screenshots/shared/38-live-preview.png",
+      "screenshot_sha256": "858b3aeb6e24545ebc50c178fa0b2a523eb4e0e409798a6efd0337b2201723a1",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "Pause/Stop/计时、Type/Highlight；照片入口隐藏；实时字幕放在可展开区域。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/38-live-preview.png",
+          "sha256": "f0f7344c0fbebe182cc4fe691559bb9afb45733d5d6af8970960e48acde58439"
+        }
+      ]
+    },
+    {
+      "id": "39-device-interrupted",
+      "title": "39 Device Interrupted",
+      "reference_id": "30",
+      "screenshot": "screenshots/shared/39-device-interrupted.png",
+      "screenshot_sha256": "aae098eb6be8733abbc5a14763d4c3552eecef41e210375883c906e0dbf5457d",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "断连不等于停止；坏文件不上传；完整本机文件可使用同一 client_id 重试。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/39-device-interrupted.png",
+          "sha256": "ad9367eab43b5565e0adc30753be2890c6ab8ea8aa38b246f8e3c224d95ed55d"
+        }
+      ]
+    },
+    {
+      "id": "40-upload-failed",
+      "title": "40 Upload Failed",
+      "reference_id": "30",
+      "screenshot": "screenshots/shared/40-upload-failed.png",
+      "screenshot_sha256": "3c4d68e5e0fa924178292b16cbaa3162fcd8770a706d0c023f7e60f15185e316",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "断连不等于停止；坏文件不上传；完整本机文件可使用同一 client_id 重试。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/40-upload-failed.png",
+          "sha256": "3c5f580e12cf38e618021551ce06eca4431a397ea7fda4ceb2347ee3a2b555ab"
+        }
+      ]
+    },
+    {
+      "id": "41-new-chat",
+      "title": "41 New Chat",
+      "reference_id": "19",
+      "screenshot": "screenshots/shared/41-new-chat.png",
+      "screenshot_sha256": "bebb139b6eec8708da885551dfaca57bc054ba9e5a626208c1d9f92345bcc76b",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "问答输入与录音上下文选择。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/41-new-chat.png",
+          "sha256": "ee79062f329874c376f592b69705b2e8156976fc44827a553daf15a53bc768c7"
+        }
+      ]
+    },
+    {
+      "id": "42-summary-editor",
+      "title": "42 Summary Editor",
+      "reference_id": "14",
+      "screenshot": "screenshots/shared/42-summary-editor.png",
+      "screenshot_sha256": "69112cf149af8ce7876120f3e22547e45bc63848bfeff34631a6b9c233c98877",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "摘要、版本、编辑和 Ask；保留原转写。不提供独立新笔记和公开分享链接。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/42-summary-editor.png",
+          "sha256": "ca4435f5bc243c3cd84aea65367d97c4d986eaa01544ce3b2c4331cdff9b4098"
+        }
+      ]
+    },
+    {
+      "id": "43-microphone-denied",
+      "title": "43 Microphone Denied",
+      "reference_id": null,
+      "screenshot": "screenshots/shared/43-microphone-denied.png",
+      "screenshot_sha256": "b9417251895eb3b628c1248f436aa14d015a4113e5bfbb638580d3df6cad4477",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "按首版登录、权限和本机存储要求补充。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/43-microphone-denied.png",
+          "sha256": "31b795e0188dd785ebf9f3f9388a2d622892e006576d7912494b51a34c300d24"
+        }
+      ]
+    },
+    {
+      "id": "44-offline-library",
+      "title": "44 Offline Library",
+      "reference_id": "04",
+      "screenshot": "screenshots/shared/44-offline-library.png",
+      "screenshot_sha256": "8a640b61c520b9a29f29d857de8ce23ceb426757e6b5bd818463f756896932ae",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "录音与文件夹、自动保留的本机文件、回收站；无照片/团队资料。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/44-offline-library.png",
+          "sha256": "1ae5caf9a35681e4ece71a9549b0d192653593b3aeafbc05d9d62108cc0c1bae"
+        }
+      ]
+    },
+    {
+      "id": "45-folder-options",
+      "title": "45 Folder Options",
+      "reference_id": "33",
+      "screenshot": "screenshots/shared/45-folder-options.png",
+      "screenshot_sha256": "2174b7a4beac46093e708faeca276e03ac9e3920830e164c298734d610bf46c6",
+      "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
+      "reference_runtime_tested": false,
+      "implementation_note": "通过文件夹菜单及 Trash 入口管理；不提供尚未实现的批量选择/排序选项。",
+      "variants": [
+        {
+          "label": "iOS 样式",
+          "screenshot": "screenshots/ios-shared/45-folder-options.png",
+          "sha256": "b0c96a3ee39c8615918e43f3dcf73d599257a6cddcd29651ea4248bcf7afe543"
+        }
+      ]
+    }
+  ],
+  "reference_coverage": [
+    {
+      "reference_id": "01",
+      "title": "首页 · Home",
+      "reference_html": "pages/01-home.html",
+      "reference_sha256": "8a58dbe36e83627cc76191838844da8b0513f2556a432cb2aa486b82384bc467",
+      "official_refs": [
+        "S50-01.png",
+        "S78-01.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "首版聚焦录音时间流；日历/Upcoming 不在本期列明范围，不放置虚构日程。",
+      "implementation_pages": [
+        "01-home"
+      ]
+    },
+    {
+      "reference_id": "02",
+      "title": "侧边导航 · Navigation",
+      "reference_html": "pages/02-navigation.html",
+      "reference_sha256": "3df9f84f3dc0ba8b5c70f7902d913b48d904d1aff4c2805bf63b7d450f6e4703",
+      "official_refs": [
+        "S44-01.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "Teno / Ask Teno；保留 Home、Library、Ask、Tools、Settings，Tools 只开放模板；不显示虚构分钟额度。",
+      "implementation_pages": [
+        "02-navigation"
+      ]
+    },
+    {
+      "reference_id": "03",
+      "title": "新增菜单 · Create",
+      "reference_html": "pages/03-create-menu.html",
+      "reference_sha256": "b0cdf9bbd99073d6611c08ee850305ebcc6b4636ec55a0c8169a8d80cd299db7",
+      "official_refs": [
+        "S50-02.png",
+        "S40-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "右上展开菜单；JWD 为主、手机为小字次级入口。",
+      "implementation_pages": [
+        "03-create-menu"
+      ]
+    },
+    {
+      "reference_id": "04",
+      "title": "资料库 · Library",
+      "reference_html": "pages/04-library.html",
+      "reference_sha256": "a913b6bb327af6fdca3734e9867be6933f4457cd5c4a8e087c7591d4dbce4cd6",
+      "official_refs": [
+        "S44-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "录音与文件夹、自动保留的本机文件、回收站；无照片/团队资料。",
+      "implementation_pages": [
+        "04-library",
+        "44-offline-library"
+      ]
+    },
+    {
+      "reference_id": "05",
+      "title": "录音目录 · Recordings",
+      "reference_html": "pages/05-recordings.html",
+      "reference_sha256": "5656b3cea12916588056af998fe99ff60e00b60fd6341b61153f4e36ff3f865f",
+      "official_refs": [
+        "S44-02.png",
+        "S65-03.png"
+      ],
+      "reference_inferred": true,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "复用现有资料库与文件夹接口；按创建时间分页。首版没有拖拽或批量管理。",
+      "implementation_pages": [
+        "05-folder"
+      ]
+    },
+    {
+      "reference_id": "06",
+      "title": "搜索结果 · Search",
+      "reference_html": "pages/06-search.html",
+      "reference_sha256": "52f1ffa12ed0a60229d3079376079723de1920df9ed7f730184b7103c69e8f40",
+      "official_refs": [
+        "S75-04.png",
+        "S75-05.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "复用标题和转写全文检索；没有原版说话人/日期组合筛选。",
+      "implementation_pages": [
+        "06-search"
+      ]
+    },
+    {
+      "reference_id": "07",
+      "title": "设备连接 · Connect device",
+      "reference_html": "pages/07-connect-device.html",
+      "reference_sha256": "23e9fc3ba2411453a794ce44b27d1c33f748869228839910f562cd3f353df2c8",
+      "official_refs": [
+        "S78-03.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "按真实 JWD GATT 服务、独立密钥与现有绑定信息连接。图标为通用录音器符号，非 PLAUD 硬件。",
+      "implementation_pages": [
+        "07-device-connect"
+      ]
+    },
+    {
+      "reference_id": "08",
+      "title": "连接成功 · Connected",
+      "reference_html": "pages/08-device-connected.html",
+      "reference_sha256": "c79b751043e94064140282569236a66163b53e364a6d406e8a1ee3d3d1ad4913",
+      "official_refs": [
+        "S78-04.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "显示真实连接回调及电量，录音/下载操作等待硬件确认。截图中的设备数据仅来自测试替身。",
+      "implementation_pages": [
+        "08-device-connected"
+      ]
+    },
+    {
+      "reference_id": "09",
+      "title": "录音中 · Recording",
+      "reference_html": "pages/09-recording.html",
+      "reference_sha256": "0547bce7647f0b2551fc0d5a9e683f768ffc6de613f6bbbe2d28652993704b4a",
+      "official_refs": [
+        "S50-03.png",
+        "S39-01.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "Pause/Stop/计时、Type/Highlight；照片入口隐藏；实时字幕放在可展开区域。",
+      "implementation_pages": [
+        "09-recording",
+        "11-stop-confirmation",
+        "38-live-preview"
+      ]
+    },
+    {
+      "reference_id": "10",
+      "title": "暂停 · Paused",
+      "reference_html": "pages/10-recording-paused.html",
+      "reference_sha256": "f6fdb1e2f8e91b2f51a120f61b29e585650b175954f9de405f896363d63d61c7",
+      "official_refs": [
+        "S50-03.png"
+      ],
+      "reference_inferred": true,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "暂停保持同一面板；恢复与停止等待回调。",
+      "implementation_pages": [
+        "10-paused"
+      ]
+    },
+    {
+      "reference_id": "11",
+      "title": "录音标记 · Highlights",
+      "reference_html": "pages/11-recording-highlights.html",
+      "reference_sha256": "3b000067ffbc93b8a7c1d8ce9437e2506c001fd1d52b0f5ba653f248d70b161b",
+      "official_refs": [
+        "S39-01.png"
+      ],
+      "reference_inferred": true,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "时间高亮保存为带时间标记的文字笔记；不创建独立新笔记。",
+      "implementation_pages": [
+        "37-recording-keyboard"
+      ]
+    },
+    {
+      "reference_id": "12",
+      "title": "传输中 · Transfer",
+      "reference_html": "pages/12-transfer.html",
+      "reference_sha256": "adabf9d70903d2705d90284dcd9598df4c08f27214c50db79d14e54f0f54ba52",
+      "official_refs": [
+        "S50-03.png"
+      ],
+      "reference_inferred": true,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "下载长度、结束标记、可用 CRC 和严格解码全部通过后才保存到上传队列。",
+      "implementation_pages": [
+        "12-device-transfer"
+      ]
+    },
+    {
+      "reference_id": "13",
+      "title": "生成选项 · Generate",
+      "reference_html": "pages/13-generate.html",
+      "reference_sha256": "03654d01e4381ea17e697168187d0a6d05bf92680439378dadafce4f0c456d20",
+      "official_refs": [
+        "S52-01.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "Automatic 固定；使用现有摘要模板，生成语言从 Preferences 设置；没有模型/声纹切换。",
+      "implementation_pages": [
+        "24-template-picker"
+      ]
+    },
+    {
+      "reference_id": "14",
+      "title": "录音摘要 · Summary",
+      "reference_html": "pages/14-summary.html",
+      "reference_sha256": "8f1a2741e1c8785b7b56b3396289bcaa74e32c0e45630e5a330f996b109e5a05",
+      "official_refs": [
+        "S43-01.png",
+        "S55-01.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "摘要、版本、编辑和 Ask；保留原转写。不提供独立新笔记和公开分享链接。",
+      "implementation_pages": [
+        "14-summary",
+        "42-summary-editor"
+      ]
+    },
+    {
+      "reference_id": "15",
+      "title": "音频与转写 · Transcript",
+      "reference_html": "pages/15-transcript.html",
+      "reference_sha256": "e591d2501cc5b89a133212d4f64d326235ff5a9b62cd5e5ff4cb27b32c5f3c14",
+      "official_refs": [
+        "S55-02.png",
+        "S41-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "真实原生播放器、时间跳转、倍速、分段转写编辑；不绘制虚构音频波形。",
+      "implementation_pages": [
+        "15-transcript"
+      ]
+    },
+    {
+      "reference_id": "16",
+      "title": "编辑转写 · Edit transcript",
+      "reference_html": "pages/16-edit-transcript.html",
+      "reference_sha256": "a26742807f9b5b240f477fdd56cbb2f21f9c1ea86e96ab5160f64b4a9d9f82bc",
+      "official_refs": [
+        "S55-03.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "通过段落编辑弹窗和 revision 校验保存，冲突时重新加载。",
+      "implementation_pages": [
+        "16-transcript-editor"
+      ]
+    },
+    {
+      "reference_id": "17",
+      "title": "模板选择 · Select template",
+      "reference_html": "pages/17-select-template.html",
+      "reference_sha256": "da3040422d60b7c906878494a56344076da9b51542d8c7a2a8ac823d8165f3cc",
+      "official_refs": [
+        "S43-03.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "使用现有账号模板，支持创建与编辑；不伪造官方/社区模板市场。",
+      "implementation_pages": [
+        "25-template-editor"
+      ]
+    },
+    {
+      "reference_id": "18",
+      "title": "问答历史入口 · Ask Plaud",
+      "reference_html": "pages/18-ask-history.html",
+      "reference_sha256": "1a23420c21b3600830690c57170a654a3c10bb6722b63231a810fae6aa2d8a66",
+      "official_refs": [
+        "S45-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "现有问答会话历史；仅 Ask Teno，不带 Work/Tasks/Routines。",
+      "implementation_pages": [
+        "18-ask-history"
+      ]
+    },
+    {
+      "reference_id": "19",
+      "title": "新建问答 · Chat",
+      "reference_html": "pages/19-ask-chat.html",
+      "reference_sha256": "0cf9062fd1f343cc5ddc7562bbea30449f99a241b15de8171c050a860f1764a8",
+      "official_refs": [
+        "S45-03.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "问答输入与录音上下文选择。",
+      "implementation_pages": [
+        "41-new-chat"
+      ]
+    },
+    {
+      "reference_id": "20",
+      "title": "问答回答与来源 · Answer",
+      "reference_html": "pages/20-ask-answer.html",
+      "reference_sha256": "84ab1514076b6fb7c0247f682f30a0b7c6fc73f333ee2793bf6977d42228f0a8",
+      "official_refs": [
+        "S45-03.png"
+      ],
+      "reference_inferred": true,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "现有后端问答、引用与时间定位；消息内容为测试数据。",
+      "implementation_pages": [
+        "19-ask-chat"
+      ]
+    },
+    {
+      "reference_id": "21",
+      "title": "设置 · Settings",
+      "reference_html": "pages/21-settings.html",
+      "reference_sha256": "cdeb85faf6d87d1d4582e257568b5f800218c11e7da33f4d28aa0c4acbd48653",
+      "official_refs": [
+        "S52-03.png",
+        "S48-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "保留设置分组，入口收敛到录音、存储、账号及帮助；无团队/声纹管理。",
+      "implementation_pages": [
+        "29-settings"
+      ]
+    },
+    {
+      "reference_id": "22",
+      "title": "偏好设置 · Preferences",
+      "reference_html": "pages/22-preferences.html",
+      "reference_sha256": "ebd23d66ca12f1abbfab4a0d589184fed95db67d8a7f32794d9d39cd9ed7aa13",
+      "official_refs": [
+        "S52-04.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "Automatic、云处理、Wi-Fi 上传、实时预览、生成语言；本机保留不可自动关闭。",
+      "implementation_pages": [
+        "30-preferences"
+      ]
+    },
+    {
+      "reference_id": "23",
+      "title": "导出菜单 · Export",
+      "reference_html": "pages/23-export.html",
+      "reference_sha256": "837314de4d3af68ef663bcd83daff54b6a2f1e807f63fab9f99dbe0496f8adb4",
+      "official_refs": [
+        "S35-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "音频及文字格式通过 Android/iOS 系统分享面板导出。",
+      "implementation_pages": [
+        "33-export"
+      ]
+    },
+    {
+      "reference_id": "24",
+      "title": "回收站选择态 · Trash",
+      "reference_html": "pages/24-trash.html",
+      "reference_sha256": "003fd923e5ab9fe121ef4aa5c3a561264cad6e57eda07f58ee4684b1a9a7b5e5",
+      "official_refs": [
+        "S68-05.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "逐条恢复与二次确认后的永久删除；未提供原版批量选择工具栏。",
+      "implementation_pages": [
+        "32-trash"
+      ]
+    },
+    {
+      "reference_id": "25",
+      "title": "工具与模板 · Tools",
+      "reference_html": "pages/25-tools.html",
+      "reference_sha256": "86155b23b5e046edb1636910f7b8154bd10b0fe1aa8f6305e1c09f920524f353",
+      "official_refs": [
+        "S63-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "只保留 Templates，不显示 Skills/Connectors。",
+      "implementation_pages": [
+        "23-tools"
+      ]
+    },
+    {
+      "reference_id": "26",
+      "title": "导入入口 · Import",
+      "reference_html": "pages/26-import.html",
+      "reference_sha256": "b9220c70093a0ceefa8e04bea000fabe50fa86be34ed156aafa4cf70de397e48",
+      "official_refs": [
+        "S40-03.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "系统音频文件选择器；不显示照片导入或分享扩展。",
+      "implementation_pages": []
+    },
+    {
+      "reference_id": "27",
+      "title": "分享 · Share",
+      "reference_html": "pages/27-share.html",
+      "reference_sha256": "884fec81829c2c04f02ba98afbbd8d7da2841e31d585fbc6a18f47a08bd4b102",
+      "official_refs": [
+        "S72-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "hidden",
+      "note": "公开链接和邀请隐藏；系统分享是首版出口。",
+      "implementation_pages": []
+    },
+    {
+      "reference_id": "28",
+      "title": "日历视图 · Calendar",
+      "reference_html": "pages/28-calendar.html",
+      "reference_sha256": "3fab000ad1c28764226d49980ed647fa7e575368649661aaa0a8f67782e4dd79",
+      "official_refs": [
+        "S64-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "hidden",
+      "note": "本期首版范围不包含日历。",
+      "implementation_pages": []
+    },
+    {
+      "reference_id": "29",
+      "title": "录后处理中 · Processing",
+      "reference_html": "pages/29-processing.html",
+      "reference_sha256": "c8dbc0e8004b1b43fc704cb490b7cf5ffe98b9ee4642c0c78294fe43a035b27d",
+      "official_refs": [
+        "S52-01.png",
+        "S53-01.png"
+      ],
+      "reference_inferred": true,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "本机保存、上传和云处理为不同状态；结果读取既有接口。",
+      "implementation_pages": [
+        "36-local-recording"
+      ]
+    },
+    {
+      "reference_id": "30",
+      "title": "传输中断 · Recovery",
+      "reference_html": "pages/30-transfer-error.html",
+      "reference_sha256": "85e58ab9c13d0e62c9a56f8f61aaa41b0fdb3c58f274fd6a6192894b7c3d1b14",
+      "official_refs": [
+        "S50-03.png"
+      ],
+      "reference_inferred": true,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "断连不等于停止；坏文件不上传；完整本机文件可使用同一 client_id 重试。",
+      "implementation_pages": [
+        "39-device-interrupted",
+        "40-upload-failed"
+      ]
+    },
+    {
+      "reference_id": "31",
+      "title": "问答上下文 · Add content",
+      "reference_html": "pages/31-ask-context.html",
+      "reference_sha256": "f603ccfd16de148f3bbdadbc69a88feeb325a5eab07a262c3b85d5cb3c19a6b6",
+      "official_refs": [
+        "S42-02.png"
+      ],
+      "reference_inferred": true,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "仅选择已有且完成转写的录音，最多 30 条；不带技能/照片/相机。",
+      "implementation_pages": [
+        "20-ask-context"
+      ]
+    },
+    {
+      "reference_id": "32",
+      "title": "新增笔记 · Create note",
+      "reference_html": "pages/32-create-note.html",
+      "reference_sha256": "f02f721eb3023002a283b28b7696076e5fad7f68186eac9ec7a6835200dd937a",
+      "official_refs": [
+        "S43-02.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "hidden",
+      "note": "独立新笔记入口隐藏；录音过程的文字笔记继续保留。",
+      "implementation_pages": []
+    },
+    {
+      "reference_id": "33",
+      "title": "资料库菜单 · Library menu",
+      "reference_html": "pages/33-library-menu.html",
+      "reference_sha256": "752236652223d359e41331231e38717bf01b2861506dedfb5a746acf2782088c",
+      "official_refs": [
+        "S68-04.png"
+      ],
+      "reference_inferred": false,
+      "runtime_tested": false,
+      "scope": "implemented_or_adapted",
+      "note": "通过文件夹菜单及 Trash 入口管理；不提供尚未实现的批量选择/排序选项。",
+      "implementation_pages": [
+        "45-folder-options"
+      ]
+    }
+  ]
+}
