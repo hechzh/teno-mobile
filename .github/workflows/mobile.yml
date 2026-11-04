@@ -47,7 +47,7 @@ jobs:
             app/build/outputs/apk/release/*.apk
             app/build/reports/lint-results-release.html
   ios:
-    runs-on: macos-26
+    runs-on: macos-15-intel
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
