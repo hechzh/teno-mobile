@@ -272,7 +272,7 @@ class _ChatPageState extends State<ChatPage> {
           child: OutlinedButton.icon(
             onPressed: sending ? null : contextPicker,
             icon: const Icon(Icons.attach_file, size: 18),
-            label: Text(selected.length.toString() + ' recordings selected'),
+            label: Text(selected.length.toString() + (selected.length==1?' recording selected':' recordings selected')),
           ),
         ),
         if (loading) const LinearProgressIndicator(minHeight: 2),
@@ -318,11 +318,11 @@ class _ChatPageState extends State<ChatPage> {
                       ...messageWidgets(object(item['data'])),
                     if (pendingQuestion.isNotEmpty) ...[
                       userMessage(pendingQuestion),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Text(
-                          'Preparing your answer…',
-                          style: TextStyle(color: muted),
+                          error.isEmpty?'Preparing your answer…':'Your question is saved. Retry when ready.',
+                          style: const TextStyle(color: muted),
                         ),
                       ),
                     ],

@@ -6,9 +6,6 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-concurrency:
-  group: mobile-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
   shared-and-android:
     runs-on: ubuntu-latest
@@ -50,7 +47,7 @@ jobs:
             app/build/outputs/apk/release/*.apk
             app/build/reports/lint-results-release.html
   ios:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4

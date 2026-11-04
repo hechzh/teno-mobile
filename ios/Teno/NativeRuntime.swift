@@ -36,7 +36,8 @@ import UIKit
     private func state() -> RuntimeState {
         sequence += 1
         let useDevice = recorder.active || source == "device" && !phone.active
-        let id = useDevice ? recorder.localId : phone.id
+        let candidate = useDevice ? recorder.localId : phone.id
+        let id = candidate.hasPrefix("jwd:") || (try? store.draft(candidate)) != nil ? candidate : ""
         let preview = useDevice ? recorder.preview : phone.preview
         var notes = ""
         if id.hasPrefix("jwd:") { notes = store.notes(id) }
@@ -60,7 +61,8 @@ import UIKit
         try accountIdle(); switching = true; defer { switching = false }
         await uploads.pauseAccount()
         _ = try? await api.json("POST","/api/v1/auth/logout",body:[:])
-        media.stop(); try store.logout()
+        media.stop(); phone.preview?.close(); phone.preview=nil; recorder.preview?.close(); recorder.preview=nil
+        try store.logout()
     }
     func request(method: String,path: String,jsonBody: String?) async throws -> String {
         try signedIn()

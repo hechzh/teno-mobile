@@ -29,6 +29,7 @@ android {
             if (tenoSigningFile.exists()) signingConfig signingConfigs.internal
         }
     }
+    testBuildType project.findProperty('testBuildType') ?: 'debug'
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     sourceSets {
         // Historical UI remains in Git for traceability, outside the first-release APK.

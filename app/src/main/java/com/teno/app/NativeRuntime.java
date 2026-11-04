@@ -26,7 +26,7 @@ final class NativeRuntime implements RuntimeHost {
     private boolean closed,visible;
     private volatile boolean phoneStarting;
     private long sequence;
-    private String route="",lastSource="phone";
+    private String route="",lastSource="phone",pendingPhoneId="";
     NativeRuntime(MainActivity activity,BinaryMessenger messenger){
         this.activity=activity;this.messenger=messenger;store=new Store(activity);api=new Api(store);
         media=new NativeMedia(this);events=new RuntimeEvents(messenger);RuntimeHost.setUp(messenger,this);
@@ -86,7 +86,7 @@ final class NativeRuntime implements RuntimeHost {
     RuntimeState state()throws Exception{
         JSONObject d=device();JSONArray candidates=d.optJSONArray("devices");if(candidates==null)candidates=new JSONArray();
         for(int i=0;i<candidates.length();i++){JSONObject item=candidates.getJSONObject(i);item.put("has_key",!store.deviceKey(item.optString("address")).isEmpty());}
-        String phase="idle",source="phone",id=RecorderService.draftId,status=RecorderService.error,notes="",partial="",segments="[]";
+        String phase="idle",source="phone",id=phoneStarting?pendingPhoneId:RecorderService.draftId,status=RecorderService.error,notes="",partial="",segments="[]";
         long elapsed=RecorderService.elapsed();LiveTranscriber live=RecorderService.live;
         if(RecorderService.active){phoneStarting=false;phase=RecorderService.paused?"paused":"recording";}
         else if(RecorderService.finishing)phase="saving";
@@ -129,6 +129,8 @@ final class NativeRuntime implements RuntimeHost {
     }
     @Override public void logout(VoidResult result){
         work(result,()->{accountIdle();try{api.post("/api/v1/auth/logout",new JSONObject());}catch(IOException ignored){}finally{store.logout();}
+            RecorderService.live=null;RecorderService.draftId="";RecorderService.error="";
+            JwdService.live=null;lastSource="phone";pendingPhoneId="";
             main.post(media::releasePlayer);route="";});
     }
     @Override public void request(String method,String path,String json,Result<String> result){
@@ -146,7 +148,7 @@ final class NativeRuntime implements RuntimeHost {
         activity.permissions(new String[]{Manifest.permission.RECORD_AUDIO},()->work(result,()->{
             signedIn();if(phoneStarting||RecorderService.active||RecorderService.finishing||hardwareCapturing())throw new IOException("Finish the current recording first.");
             JSONObject draft=store.newDraft(title,".wav");draft.put("live",store.liveDefault());store.save(draft);
-            String id=draft.getString("id");lastSource="phone";phoneStarting=true;RecorderService.error="";
+            String id=draft.getString("id");pendingPhoneId=id;lastSource="phone";phoneStarting=true;RecorderService.error="";
             main.post(()->{try{activity.startForegroundService(new Intent(activity,RecorderService.class).setAction("start").putExtra("id",id));}
                 catch(RuntimeException e){phoneStarting=false;RecorderService.error="Recording could not start. Open the app and try again.";}});
             return id;
