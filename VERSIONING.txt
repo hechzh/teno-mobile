@@ -1,24 +1,34 @@
-Teno Android 本地版本管理
+Teno 双平台版本管理 — 2026-11-05
 
-本目录为独立 Git 仓库，主分支 main，无远程地址。
-首次提交保存 0.3.0 源码基线，标签 android-v0.3.0。
-网页与共享 API 继续使用 ../teno-v1.1 的原 Git 仓库，两边分别提交。
+唯一移动端仓库：pocket/android
+公开 remote：https://github.com/hechzh/teno-mobile
+本轮实现分支：refactor/teno-cross-platform
+main 保留历史基线，未自动合并、发 GitHub Release 或提交应用商店。
+网页与共享 API 继续使用 ../teno-v1.1 的原仓库，未随移动端重构部署。
 
-允许范围
-app/src、app/build.gradle、gradle wrapper、根 Gradle 配置、tests、许可与说明文件。
-verification/v0.3.0、v0.4.0、v0.4.1、v0.4.2、v0.4.3、v0.4.4 下的 package_release.py 保留为发布工具；其他历史改写脚本、验收产物留在本地。
-dist APK/ZIP、签名、local.properties、缓存、日志、账号、录音和所有 AGENTS.md 均忽略。
+受跟踪范围
+app/ 为原 Android 宿主；shared-ui/ 为 Flutter 模块；ios/ 为 Swift 宿主及授权厂商依赖。
+同时跟踪构建配置、测试、来源/许可、scripts/、CI 和独立页面验收资料。
+厂商源文件和二进制按来源原样保存，见 VENDOR-JWD.md、ios/VENDOR.txt 及哈希清单。
+生成的 Flutter 包装工程、Xcode 工程、构建缓存与产物不作为源码维护。
 
-常用命令
+私密资料与交付
+所有 AGENTS.md、.env、账号文件、设备/签名/SSH 私钥、真实录音、日志、数据库不进 Git。
+dist APK/IPA/ZIP、local.properties、DerivedData、Pods、build/、.dart_tool/ 均忽略。
+正式 Android 内测包在本机沿用原证书；CI APK 不用于覆盖用户安装。
+未签名 iOS IPA 在 macOS CI 构建，由用户通过 AltStore 本地重签。
+
+提交与推送
 git status --short --branch
-git switch -c feature/describe-change
 git add <明确选定的源码或文档路径>
 git diff --cached --stat
-git diff --cached
+python scripts/secret_audit.py --history --private-values ../../AGENTS.md
 git commit -m "Describe the change"
+git push origin refactor/teno-cross-platform
 
-发布要求
-按 README 构建与验收，保留同一签名；更新版本和交付清单，验证后再标记版本标签。
-源码 ZIP 使用显式允许清单，不能直接压缩整个工作目录或把 AGENTS.md 加入发布包。
-Git 提交不构建、不部署、不上传；Git 只备份被跟踪的源码，不包含 dist 和本地验收证据。
-根交接位于 ../../AGENTS.md；可分发的目录说明见 ../docs/handoffs/2026-11-01/。
+发布核验
+新版本同步版本号、签名核验、文件 SHA256、单独页面截图、测试边界与 dist 清单。
+源码 ZIP 只使用明确允许的受跟踪文件，不直接压缩整个工作目录。
+上传前扫描新增文件、全部 Git 历史及交付包；发现密钥即阻断，输出只含路径与规则。
+保留旧版 APK、源码 ZIP、发布清单和历史 Git；覆盖升级不得要求先卸载。
+根交接 ../../AGENTS.md 含私密配置，仅在本机更新，不得复制进本仓库。

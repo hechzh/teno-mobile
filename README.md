@@ -1,136 +1,107 @@
-# Teno Android 0.4.4
+# Teno mobile 0.5.0
 
-Native Android companion app for the JWD recorder, with live transcription, optional phone recording and team workspaces. Package: `com.teno.app`; version code: `9`. Release date: 2026-11-02.
+Teno uses one Flutter interface with Java and Swift runtimes for Android and iOS. The interface follows the approved 33-page reference dated 2026-11-04, with Teno / Ask Teno branding and English copy. It is implemented in Flutter widgets, not a WebView containing the design HTML.
 
-Install `dist/Teno-0.4.4.apk` over the previous signed release. Do not uninstall to upgrade: uninstalling removes local recordings and device keys. This release uses the same signing certificate as 0.4.3 and is not debuggable. It requires Android 8 or newer; the user's target is Magic4 Pro / Magic UI 6.0 / Android 12.
+Android keeps `com.teno.app`, version code `10`, the original signing certificate and existing local data formats. Install the locally signed APK over 0.4.4 without uninstalling. CI APKs are for build verification and cannot replace the originally signed installation. iOS starts at 0.5.0, build 10; its unsigned IPA requires local signing before installation.
 
-## Version 0.4.4 automatic transcription language
+[Architecture](ARCHITECTURE.txt) · [Individual page review](design-baseline/index.html) · [Validation and installation](RELEASE-0.5.0.txt) · [iPhone installation](ios/INSTALL.txt) · [Versioning](VERSIONING.txt)
 
-Phone recording, recorder live preview, personal audio uploads and team audio imports use **Automatic**. Recording preferences and team imports no longer offer Chinese/English recognition choices. Previously saved language preferences and pending uploads also send `auto`. Summary output language remains a separate preference.
+## Current mobile scope
 
-Shared backend 1.2.2 accepts old locale parameters and normalizes them to automatic. Fast uses multilingual file transcription; realtime Speech SDK continuously detects Chinese/English. Realtime text remains a preview, and the saved original is processed by Fast for the final transcript. Live and file recognition each consume Azure usage. Sentence-internal language switches can still be wrong in realtime; this release does not promise unrestricted multilingual live recognition.
+The sidebar contains Home, Library, Ask Teno, Tools and Settings. Tools exposes account templates. The main recording entry uses JWD; phone recording is a separate secondary choice. The app includes:
 
-Two API 35 emulator configurations pass 20 and 21 checks (normal and large text), covering UI, actual PCM/local saving, request parameters, old personal/team upload receipts, and explicit team sharing. Screenshots are in `verification/v0.4.4/automatic-review.html`. Backend verification includes 43 isolated tests, six real Azure provider checks and 12 production HTTPS/WebSocket checks using synthetic Chinese/English/mixed audio. Same-signature release upgrade from 0.4.3 is checked separately. Physical Magic4 Pro/JWD and recognition accuracy on real meetings remain unverified in this release.
+- Existing Teno account sign-in, token refresh and account-isolated local data.
+- Recorder connection, key import/backup, acknowledged start/pause/resume/stop, complete-file sync and live preview.
+- Phone recording, pause/resume, local WAV saving, recording notes and timestamp highlights.
+- System audio import, durable uploads, retry with the same client ID and processing status.
+- Recordings, folders/subfolders, search, native playback, seek and playback speed.
+- Transcript segment editing with revision checks; summary generation, editing, templates and versions.
+- Ask conversations, history, recording context selection and timestamp citations.
+- Preferences, local file management, system audio/text export, trash and restore.
 
-## Historical version 0.4.3 recording flow and Tasks
+Work, Tasks, Routines, Skills, Connectors, photos, independent new notes, public links, team knowledge and voice-profile management have no mobile entry. Historical server data and the existing web application are retained. No backend routes or database migrations are introduced. Earlier Android feature lists remain historical evidence in Git and the versioned RELEASE files.
 
-**Record with device** starts an authorized idle recorder using remembered settings, or reconnects the last successfully authorized recorder. First-time binding still verifies the service and device key. A pending start expires after 45 seconds and is canceled when the screen is left; reconnecting by itself never issues a start command. Phone recording stays a small explicit link and starts directly after its first permission/preferences setup.
+The design review records each reference page, evidence gaps and actual adaptations. Bulk selection/drag sorting, date/speaker filter combinations, calendar/Upcoming and a community template marketplace are not implemented in this first scope. System pickers, permission sheets and share panels use each OS. No device telemetry or transcript is fabricated in production.
 
-The first recording-preferences dialog explains automatic phone copies and optional cloud processing. In 0.4.3, language, live transcription, automatic cloud processing and Wi-Fi-only uploads were remembered; 0.4.4 removes the recognition-language choice. Audio retention is unconditional: stopping phone capture finalizes the local WAV; stopping the recorder automatically lists, verifies and imports the matching device file. The recording detail opens without choosing a folder, pressing Import, naming the file or confirming Keep on phone. Rename remains optional. Recorder-button recordings and unsynced files found on reconnect use the same local sync path.
+## Repository layout
 
-Cloud processing sends a copy to the personal library. Upload requests are persisted and processed serially. Temporary failures/429/5xx retry with backoff, up to three attempts; permanent failures offer manual retry. Android jobs and the next app launch resume pending uploads after connection loss or process termination. Client IDs and the original audio file are reused. Local audio is never removed after upload. Switching automatic cloud processing off leaves queued automatic recordings local; explicit upload remains available. Android force-stop requires reopening the app before its background jobs can run again.
-
-Tasks now measures a multiline personal task title as a single checkbox/text control, preventing descriptions from covering its second line. Task action groups have spacing and stack at enlarged font sizes. Team status filters wrap whole controls, preserve single-line labels and maintain their selection.
-
-Evidence: two isolated API 35 runs at 411dp/normal text and 360dp/1.5 text scaling; 48 checks per run, 26 screenshots. All 26 were visually inspected, along with recording preferences and the signed release cold-start screen. Eight further checks disable emulator connectivity, retain a queue across force-stop, resume it after relaunch and verify recording preferences. The 22 JWD protocol checks pass. Same-signature upgrade from 0.4.2 and cold launch passed; release lint reports 0 errors and 68 warnings. Screenshots and review scope are in `verification/v0.4.3/flow-review.html` and `visual-review.json`; release metadata is in `dist/Teno-0.4.3-release-manifest.json`. Existing Summary/Transcript result tabs still break within words at 360dp/1.5 text scale; this is outside the Tasks overlap fix, and this review does not certify every app page.
-
-The UI tests use actual emulator phone PCM capture and a loopback HTTP server. Recorder service tests feed synthetic protocol replies through a transport substitute; they exercise production file verification and local sync logic, not a physical Bluetooth connection. No production Azure, backend, team publication or task mutations were performed. Magic4 Pro, JWD firmware timing, battery restrictions and long physical transfers still require hardware acceptance. JWD BLE import retains its existing 60-minute/100-MiB limit; general file/team import remains 120 minutes/250 MiB, and phone recording remains 54 minutes.
-
-## Historical version 0.4.2 recorder-first entry
-
-The main **Record with device** button is now above the recording library and opens the recorder connection/control screen. An unconnected recorder goes through the existing scan, service verification and authorization flow; an authorized recorder exposes its recording controls. Opening this entry never starts the phone microphone or silently falls back to phone recording.
-
-**Record with phone** is a smaller text link directly beneath the primary button, with a 48dp minimum tap height. Its setup page explicitly identifies the phone microphone and uses **Start phone recording**. During capture, the link becomes **Return to phone recording**. The Add content menu lists device recording first and keeps phone recording as an explicit choice.
-
-Two API 35 emulator runs (411dp normal text; 360dp with 1.5 text scaling) passed 30 checks each and captured 20 screenshots. Checks cover primary/secondary hierarchy, both menu routes, no microphone permission request from the device entry, simulated connected/authorizing/recording device states, and actual emulator PCM capture, return and local WAV save. Eight relevant screenshots were visually inspected. Hardware states are test-only UI fixtures: no real Bluetooth or physical recorder acceptance is claimed. The signed release upgraded from 0.4.1 and cold-started to sign-in. See `verification/v0.4.2/recording-entry-review.html`; source and release checksums are in `dist/Teno-0.4.2-release-manifest.json`. Earlier navigation and cloud reports remain historical evidence.
-
-## Version 0.4.1 navigation correction
-
-Bottom navigation labels were left-aligned inside full-width views while their icons were centered. The shared personal/team component now centers each label beneath its icon, uses a consistent gap and grows with system text size. Folders, calendar and saved context also retain the appropriate active tab.
-
-The earlier 0.4.0 screenshots covered selected team-audio flows, not a complete visual review of the app. The 0.4.1 correction added 14 navigation scenarios at three display settings: 411dp width with normal text, 411dp with 1.5 text scaling and 360dp with 1.5 text scaling. All 42 captures pass glyph alignment, visibility, spacing, selected-tab and click-destination checks. Visual review covers all 14 normal screenshots plus eight enlarged/compact screenshots. Evidence and before/after images are in `verification/v0.4.1/navigation-review.html` and its JSON reports.
-
-Tests run against read-only synthetic loopback data in the isolated `com.teno.app.navigationverification` package, using the production view code. No fixture server, synthetic account or test runner is included in the release APK. The actual signed `com.teno.app` package was upgraded from 0.4.0 on the API 35 emulator and cold-started to the sign-in page. Release lint reports 0 errors and 59 warnings. No new backend or physical Magic4 Pro/JWD acceptance is claimed. Existing long content-button labels can still wrap awkwardly at enlarged text sizes; the navigation pass does not certify every dialog or content layout.
-
-## Version 0.4 team audio
-
-Open **Team → Meetings → Meeting audio**. Import a file, a saved phone/JWD recording, or an owned library recording; confirm that audio will be shared with the current team. The app retains the original and a private retry receipt. Upload progress uses a foreground service; retry sends the original file with the same client ID.
-
-Processing status, authenticated playback, segment seeking and speaker confirmation use the shared backend. Keep unknown speakers in review, or explicitly confirm an external speaker. Automatic and human matches are distinct. Publication stays disabled until every identity is resolved and notes match the current transcript revision.
-
-**Voice profiles** supports administrator enrollment and calibration and member self-revocation. Samples and embeddings remain on the server. The first historical calibration failed the conservative separation check, so initial profiles remain manual-review-only; Samuel also lacks an independent validation recording. No automatic name attribution is enabled for these profiles.
-
-Historical 0.4.0 evidence: 17 Android flow checks on an API 35 emulator, 22 unchanged JWD protocol checks, signed 0.3 → 0.4 upgrade and cold start, release lint with no errors. See `verification/v0.4.0` and `dist/Teno-0.4.0-release-manifest.json`. These checks were not rerun as part of the 0.4.1 navigation correction. Physical Magic4 Pro/JWD, full English meetings and long microphone recordings are not certified by these checks. Earlier 0.3 reports below remain historical evidence.
-
-## Interface and navigation
-
-The app uses native views, neutral colors, rounded cards, Lucide line icons and plain English copy. There is no bundled mockup WebView, demo device or simulated cloud result. Source transcripts and user-authored content keep their original language. The design reference is `../design-review/20261101-v2-en/`; related design screens are implemented as pages, dialogs or sections rather than separate Android activities.
-
-| Area | Available pages and flows |
+| Directory | Responsibility |
 |---|---|
-| Getting started | Sign in, invitation activation, Android permissions, personal/team workspace selection |
-| Library | Recording list, search, folders/tags, audio import, recording setup, live transcript, save/upload, processing states |
-| Recording details | Audio playback, transcript editing, summary editing with versions, templates, mind map, attachments, export and sharing |
-| Recorder | Service verification, connection and key authorization, live preview, verified file import, playback/upload, settings, key backup and button/reset help |
-| Ask | Personal recording sources, saved context, conversations, citations; team published content and task queries |
-| Tasks | Personal tasks/events, reminders and calendar import/export; team acceptance, progress, submission, independent review and activity |
-| Team knowledge | Meeting/group-chat transcript import, speaker review, editable publication, decisions, opinions, questions, source versions, member invitations |
-| Account | Language preferences, saved context, insights, briefs, message drafts, storage, trash, usage and server settings |
+| `app/` | Existing Android host, Java services, native storage and tests |
+| `shared-ui/lib/` | Flutter pages, state, API repositories and generated Dart bridge |
+| `shared-ui/pigeons/runtime.dart` | Typed host commands, snapshots and state events |
+| `ios/Teno/` | Swift app host, session, recorder, CoreBluetooth, media and upload queue |
+| `ios/Vendor/` | Authorized Objective-C SDK and Opus framework, with provenance/hashes |
+| `design-baseline/` | Separate page captures and traceability to the approved reference |
+| `scripts/` | Secret audit, page review and packaging tools |
+| `.github/workflows/mobile.yml` | Android/Linux and iOS/macOS build/test jobs |
 
-Design pages marked as future concepts remain outside this release. These include Wi-Fi/USB fast transfer, direct device-to-cloud upload, speaker vocabulary, audio editing, subscriptions, connectors and firmware maintenance. There is no automatic sending of messages, automatic speaker identity assignment, or fabricated recorder telemetry.
+Generated Flutter `.android` and `.ios` wrappers are disposable. They are not separate maintained hosts. The existing web and API remain in the sibling `../teno-v1.1` repository.
 
-## Phone recording and Azure Speech
+## Recording and data ownership
 
-1. Choose the small **Record with phone** link. After the first preferences/permission setup, recording starts directly with remembered settings. Live transcription can be disabled in Recording preferences.
-2. `AudioRecord` captures 16 kHz mono PCM16. The foreground service writes a WAV file on the phone while `LiveTranscriber` sends PCM frames through the authenticated Teno WebSocket bridge to the server's Azure Speech SDK.
-3. Confirmed segments and the current partial segment are displayed separately. Pause does not add silence or elapsed audio. Stop remains visible below the scrolling transcript.
-4. **Stop and save** finalizes local audio and waits for the last recognition result. The recording is kept automatically and opens in its detail screen. Cloud upload is queued if enabled; otherwise **Upload and process** remains optional.
-5. Language is detected automatically. Every saved upload goes through final file transcription; a complete live preview is not substituted for the final text. One stable upload client ID prevents duplicate library recordings.
+Native runtimes own audio, Bluetooth, files, authenticated HTTP, WebSocket and upload persistence. Dart receives state and text, never raw audio. Closing a page does not stop recording. Each platform has one session manager and serialized refresh. Account changes stop current uploads before replacing credentials; the original files and client IDs remain under their original account. Active recording or device transfer must finish first.
 
-Azure and model keys remain on the server. The APK contains only business authentication tokens encrypted with Android Keystore. First use of 0.3 initializes generated output to English; **Account → Preferences** can select another summary language. Recognition uses Automatic and is independent of interface/output language.
+Recognition always sends `auto` (Automatic). Azure realtime results are preview only. The complete local file still enters the existing final transcription/summary pipeline. Summary language is separate. Azure and DeepSeek credentials are never client configuration.
 
-Audio remains local if networking fails, the service is busy or recognition cannot finish. Interrupted capture metadata is recovered on return to the library where possible. This does not guarantee recovery from full storage, hardware failure or deletion by Android/the user. Phone WAV recording remains limited to 54 minutes. Imported files are limited to 120 minutes / 250 MiB. The S0 backend supports 2 realtime sessions, 1 Fast file task and 1 voice task independently. When realtime capacity is busy, local recording continues.
+JWD files require the declared length and OFF completion marker; CRC must match when supplied. Missing CRC is explicitly reported as length-only verification. Strict decoding rejects incomplete Opus frames. Device files are not automatically deleted. A Bluetooth disconnect means connection interrupted, not recording stopped. Reconnecting restores actual device state before further commands.
 
-## JWD recorder behavior
+Android retains its SharedPreferences, Keystore aliases, encrypted device keys, file paths, recorder sync ledger and upload receipts. iOS stores device/session secrets in Keychain and private audio under Application Support. Import an existing recorder's original 16-character key when connecting from another phone; the app never silently resets the binding.
 
-Service verification, serial GATT operations, independent encrypted 16-character keys, timeouts, length/end-marker checks and CRC32 checks are retained from 0.2.1. Native vendor decoder files are unchanged. See `VENDOR-JWD.md`.
+Phone PCM recording is limited to 54 minutes; general audio import to 120 minutes/250 MiB. JWD BLE sync retains the existing 60-minute/100-MiB limit. Local copies stay after successful upload. Temporary upload failures retry up to three attempts; manual retry reuses the client ID. Force-stopped apps must be reopened to resume app work; iOS background execution remains subject to OS scheduling.
 
-Live preview accepts fragmented fixed-80-byte Opus packets and decodes each to 320 PCM samples using the supplied vendor decoder. Live and file decoding share a lock because that decoder is a process-wide singleton. An invalid packet is reported rather than silently skipped. BLE file transfer remains unavailable during recording. There is no device pause command in this UI.
+## Pinned tools and builds
 
-Device start/stop state follows acknowledged hardware messages. Disconnecting Bluetooth does not claim to stop the recorder. A live preview does not become an uploadable device recording: after stopping, the complete original is synced automatically through the existing integrity checks before upload. Original device files are never deleted automatically.
+See `toolchain.json` and `shared-ui/pubspec.lock`. Flutter 3.47.9, Pigeon 29.1.0, Java 21, Gradle 9.1.0, AGP 9.0.1, Kotlin 2.2.20; Android min/compile/target = 26/36/35. iOS minimum 15, Xcode 16.4, XcodeGen 2.46.0, Swift 5 mode. Use the pinned Flutter release for generated contracts and native packages.
 
-Viewing a saved key requires Android screen-lock confirmation and uses a secure window. Reset help documents three quick presses followed by an approximately five-second hold, the conflicting completion-light descriptions, and the format/unbind consequence. The app does not issue reset/format commands.
-
-Physical BLE streaming, the user's firmware format and Magic4 Pro behavior remain unverified. Synthetic Opus decoding is not physical-device acceptance.
-
-## Team data and permissions
-
-Native clients use their existing bearer access token with the deployed team API. Cookie clients keep their existing CSRF checks. Workspace membership and all task state transitions are checked server-side. Published records alone enter shared search; conversation histories are account-private.
-
-Personal audio is not shared automatically when importing a transcript to a team. The native import preserves source timestamps when using an unchanged personal transcript. Dated group-chat lines accept `[YYYY-MM-DD HH:mm] Name: message`; structured segment JSON can preserve explicit IDs and timestamps. Editing an imported transcript retains its segment IDs and timestamps and creates a new version.
-
-Task suggestions are editable, checked for duplicates and submitted as an atomic batch with a stable request ID. The assignee accepts and submits their work; a different designated reviewer approves it. Backend source and tests are in **`../teno-v1.1`**, the codebase that was verified against the deployed server. Do not deploy the older `../backend` tree over the current team service.
-
-## Verification
-
-`verification/v0.3.0/` contains reports and native screenshots:
-
-- `backend-tests.txt`: 53 tests passed in the dedicated test database and Redis database, including live preview reuse, silent audio, ownership boundaries, summary-version conflicts and existing team regression checks.
-- `v3-report.json`: 29 checks passed on an Android API 35 emulator. Real Azure partial/final recognition, a pause longer than 30 seconds, busy-state handling, exact-audio transcript reuse, upload deduplication, real summary generation, synthetic fragmented Opus decoding, team import and task review were exercised.
-- `v3-polish-report.json`: 11 checks passed, covering English generated output, native summary editing, local message drafts, encrypted device keys, offline capture/save, fixed recording controls and reset help without device commands.
-- Protocol tests: 22 checks passed for candidate names, independent keys, CRC32, framing, completeness and malformed input.
-- Signed release installation over 0.2.1 and cold launch passed. Lint has zero errors; remaining warnings are recorded in the release manifest.
-
-The microphone test captured emulator input. Speech-content acceptance used a clearly labeled synthetic English WAV, not the user's phone microphone. Device decoding used a synthetic Opus fixture on the emulator's ARM translation. The physical recorder, Magic4 Pro, Mandarin recognition quality, long sessions and manufacturer power management still require user testing.
-
-Test APKs use `com.teno.app.v3verification` and are not included in the distributable APK. Existing test fixtures are not bundled in the release. Historical 0.2.x test reports and old UI test runners are not evidence for new layouts.
-
-## Build
-
-JDK 21, Gradle 8.11.1, Android Gradle Plugin 8.9.3, compile/target SDK 35. OkHttp 4.12.0 provides authenticated WebSocket transport; no GMS dependency is required.
+Windows Android build:
 
 ```powershell
 $env:JAVA_HOME='C:/Program Files/Android/Android Studio/jbr'
-./gradlew.bat :app:assembleRelease :app:lintRelease
-./gradlew.bat :app:assembleDebug :app:assembleDebugAndroidTest '-PverificationAppId=com.teno.app.v3verification' '-PtestRunner=com.teno.app.V3Instrumentation'
+$env:Path='C:/Users/lexia/AppData/Local/teno-tools/flutter/bin;'+$env:Path
+Push-Location shared-ui
+flutter pub get --enforce-lockfile
+dart run pigeon --input pigeons/runtime.dart
+dart format lib/platform/runtime.g.dart
+flutter analyze --no-pub
+flutter test --no-pub
+Pop-Location
+./gradlew.bat :app:assembleDebug :app:assembleRelease :app:lintRelease
 ```
 
-For isolated navigation screenshots, build with `-PverificationAppId=com.teno.app.navigationverification -PtestRunner=com.teno.app.NavigationInstrumentation` instead. Install the resulting debug and androidTest APKs only on the development emulator, then run `adb -s emulator-5554 shell am instrument -w com.teno.app.navigationverification.test/com.teno.app.NavigationInstrumentation`. This runner needs no cloud account and rejects other target package names. Set the emulator's display/font configuration before each run and restore it afterward. Always rebuild release without verification properties before packaging.
+Set the local Android SDK location in ignored `local.properties`. The existing private signing properties stay outside this repository. With no signing file, CI release builds are unsigned. Never copy signing credentials into source or CI.
 
-For recorder-entry checks, use `-PverificationAppId=com.teno.app.recordentryverification -PtestRunner=com.teno.app.RecordingEntryInstrumentation` and run that instrumentation in the corresponding `.test` package. It uses the same loopback fixture helper, starts with microphone permission denied, and later grants microphone access only inside the isolated emulator app for explicit phone capture. Device connection states are simulated inside androidTest; no device command is sent. This test never targets `com.teno.app`.
+macOS iOS build:
 
-Release signing reads `~/.android/teno-signing.properties`. Do not copy signing credentials, account files, SSH keys, server `.env`, or the private root `AGENTS.md` into source archives. The source ZIP is created from an explicit allowlist.
+```sh
+export DEVELOPER_DIR=/Applications/Xcode_16.4.app/Contents/Developer
+cd shared-ui
+flutter pub get --enforce-lockfile
+flutter build swift-package --platform ios --no-codesign
+cd ../ios
+xcodegen generate
+xcodebuild -project Teno.xcodeproj -scheme Teno -configuration Release \
+  -destination 'generic/platform=iOS' -derivedDataPath DerivedData \
+  CODE_SIGNING_ALLOWED=NO build
+```
 
-Test runners require the existing protected internal test accounts to be copied into the isolated emulator app's private files and removed afterward. `V3Instrumentation` also requires `speech.wav` and `opus.raw` from the synthetic JWD verification fixtures. `V3PolishInstrumentation` reuses that runner's result IDs in the isolated acceptance workspace. Neither runner should target the user's physical installation.
+The workflow additionally runs simulator XCTest and packages `Payload/Teno.app` as an unsigned IPA. No Apple account, provisioning profile or store submission is configured in CI. Windows installation is documented in `ios/INSTALL.txt`.
 
-The previous README is retained as `README-0.2.1-history.md` for historical evidence only. Installation notes for this release are in `RELEASE-0.4.2.txt`.
+## Verification boundaries
+
+`shared-ui/test` uses test-only fixtures. Set `TENO_SCREENSHOTS` to an output directory and `TENO_PLATFORM=ios` for the iOS widget variant; the default variant is Android. Each screenshot is one page. These renders verify layout/state and are not hardware screenshots. Large-text checks use 360 logical pixels at 1.5 text scale; standard checks use 390 × 844 with platform safe areas.
+
+`app/src/crossPlatformTest` exercises upgrade/data retention and actual emulator phone capture using synthetic accounts/audio and a loopback service. The seed mode is only for a dedicated emulator running 0.4.4. It is never a user-device migration tool. The test APK is separate from the deliverable.
+
+`ios/Tests` checks native WAV recovery, strict corrupt-file rejection, CRC, server URL validation and typed bridge errors. CI also launches the actual iOS host. Actual Magic4 Pro, iPhone, JWD firmware, long recordings, physical lock-screen behavior and AltStore signing require device acceptance. See the release record for completed checks; compilation does not certify hardware operation.
+
+## Publication safeguards
+
+Before pushing, scan the current files and all Git history. Local known provider credentials can be loaded privately for exact-value checks; the report emits only paths/rules, never values.
+
+```powershell
+python scripts/secret_audit.py --history --private-values ../../AGENTS.md
+python scripts/secret_audit.py --artifact dist/Teno-0.5.0.apk
+```
+
+AGENTS files, environment files, accounts, private signing/SSH material, actual recordings, logs, databases and generated build folders are excluded. Source archives use Git's explicit tracked-file allowlist and are scanned again. Vendor files are unchanged, authorized dependencies: see `VENDOR-JWD.md`, `ios/VENDOR.txt` and their hash records. The software is an independent implementation; it does not call PLAUD or Pocket private services.

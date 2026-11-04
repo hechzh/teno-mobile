@@ -1,0 +1,75 @@
+Teno 0.5.0 双平台首版内测记录
+日期：2026-11-05
+
+本轮交付
+按 20261104 的逐页基准实现 Flutter 共享页面，Android Java / iOS Swift 承担原生运行服务。
+产品统一 Teno / Ask Teno、英文界面。Android 包名 com.teno.app，versionCode 10。
+Android 唯一宿主仍为 app/，共享模块 shared-ui/，新增 iOS 宿主 ios/，都位于 pocket/android。
+现有网页、共享后端、数据库和历史数据未迁移或部署；没有新增后端业务接口。
+
+文件入口
+- design-baseline/index.html：37 个独立页面/状态，可切换 Android / iOS 样式及当前参考。
+- design-baseline/pages.json：33 页设计依据、适配范围、证据缺口和图片 SHA256。
+- ARCHITECTURE.txt：架构、组件边界、存储兼容、账号切换与录音/上传状态。
+- dist/Teno-0.5.0.apk：本机沿用原证书签名的 Android 内测包。
+- dist/Teno-0.5.0-unsigned.ipa：macOS CI 生成的 iOS Release 包，需本地重签。
+- dist/Teno-0.5.0-source.zip：Android、Flutter、iOS 及授权 SDK 源码包。
+- dist/Teno-0.5.0-release-manifest.json：产物哈希、签名与验证边界。
+- ios/INSTALL.txt：Windows / AltStore Classic 安装、刷新及实机核对步骤。
+
+首版功能
+登录；JWD 为主、手机为次的录音入口；暂停、继续、停止确认；文字笔记/时间高亮；
+可展开的实时字幕；完整文件校验和自动本机保存；音频导入、持久化上传与失败重试；
+资料库、文件夹、搜索、播放/倍速；分段转写编辑；摘要编辑、模板及版本；Ask 与历史；
+设置、系统分享导出、回收站。识别固定 Automatic。
+
+Work、Tasks、Routines、Skills、Connectors、照片、独立新笔记、公开链接、团队知识库、
+任务认领审核及声纹管理不作为新 APK / iOS 入口。原服务器数据和网页仍保留。
+本期没有批量文件管理、拖拽排序、日期/说话人组合筛选、日历/Upcoming 或社区模板市场；
+这些差异在各页对照中列出，不能称作原版所有细节已完整复刻。
+
+已完成的验证
+1. Flutter analyze：无问题。共享层 33 项测试通过；iOS 平台样式另运行 28 项页面测试通过。
+   共 37 个页面/状态，各输出 Android / iOS 样式独立 PNG；另有每平台 12 张大字/窄屏图。
+   常规画布 390×844，窄屏 360、文字 1.5 倍，分别设置两平台安全区；录音输入另模拟键盘。
+   图片来自实际页面代码及测试替身，不是硬件实录。原版宣传版本/设计推定继续明确标注。
+2. Android：本机 assembleRelease / lintRelease 通过，Lint 0 errors / 54 warnings。
+   保留原签名，release 非 debuggable。最终包覆盖安装、冷启动、Activity 状态及崩溃缓冲检查通过。
+3. Android 0.4.4 覆盖升级：在专用 API 35 模拟器旧包中保存合成账号、设备密钥、文件和队列，
+   不卸载地安装新包。20 项检查通过，包括旧会话解密、密钥解密、音频字节、client_id 与待上传队列。
+4. Android 原生回归：17 项检查通过，包括真实模拟器手机 PCM 采集、暂停不累计、离开 Flutter 后继续、
+   停止后本机 WAV/笔记保留、播放、503 重试与去重、设备断连状态、账号隔离及退出时取消上传。
+   后端传输为 loopback 测试替身；此报告不证明实体录音卡、真实手机麦克风或 Azure 准确率。
+5. JWD 现有协议自动检查：22 项通过。厂商 SDK 来源与文件哈希保留；没有宣称实机 BLE 验收通过。
+6. 现有线上 API：15 项只读/临时会话检查通过，包含令牌刷新、账号、录音详情、文件夹、搜索、
+   转写 revision、摘要版本、模板、Ask 历史、回收站与退出。无内容写入、音频上传或 AI 工作请求。
+7. iOS：原生宿主、厂商 SDK 与 Flutter 已在 Xcode 16.4 / iOS Simulator 编译。
+   最终 CI 结果和 IPA 来源以 dist 清单中的 ios.ci_run 及本目录验证文件为准。
+8. 发布前检查源码、完整 Git 历史和交付包；未检出本机已知 Azure / DeepSeek 密钥及测试密码。
+   APK 不含验收 runner/模拟设备代码；源码包不含 AGENTS、环境配置、真实录音、签名/SSH 私钥。
+
+本地详细证据（不上传真实日志）
+verification/v0.5.0/full-runtime-report.json
+verification/v0.5.0/regression-runtime-report.json
+verification/v0.5.0/final-install-report.json
+verification/v0.5.0/backend-readonly-report.json
+verification/v0.5.0/flutter-tests.log、flutter-ios-pages.log、final-android-build.log
+verification/v0.5.0/04-final-login-android.png 为最终原生 Android 模拟器截图。
+01-home-upgrade.png 曾捕获模拟器 System UI 无响应提示，02-runtime-finished.png 为结束测试后的空画面，
+两张不计入页面验收证据，不放入交付页面图库。
+
+仍需设备验收
+Magic4 Pro / Android 12 的权限、长录音、锁屏及厂商省电；真实 JWD 固件的暂停/恢复、断连、
+完整文件传输/CRC；iPhone 的麦克风、CoreBluetooth、后台 URLSession、系统导入/分享与 AltStore 重签。
+新 iOS 设备实测尚未完成；云端编译和 XCTest 不等于实体 iPhone 或录音卡通过。
+本轮未重复调用 Azure / DeepSeek 全链路，未评估真实会议的中文/混合语言识别准确率。
+
+Android 安装
+使用 dist/Teno-0.5.0.apk 覆盖已有原签名 Teno。不要先卸载、清除数据或改用 CI debug APK。
+JWD 已绑定设备继续使用原密钥。连接中断时设备可能仍在录音，先重新连接确认状态。
+录音和完整同步期间需完成操作后再切换账号；上传期间切换账号会暂停原账号任务并保留文件。
+
+iPhone 安装
+按 ios/INSTALL.txt 通过 AltStore Classic 本地重签未签名 IPA，Apple 账号不进入 CI。
+免费签名需要约每 7 天刷新。保留同一账号和安装标识，避免卸载造成本机文件丢失。
+未向 App Store / TestFlight 自动提交，也未将此次改动合并至 main 或替换网页后端。
