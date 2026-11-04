@@ -1,0 +1,69 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "login_token_pair",
+      "passed": true
+    },
+    {
+      "name": "account_settings_and_automatic",
+      "passed": true
+    },
+    {
+      "name": "recording_list",
+      "passed": true
+    },
+    {
+      "name": "folders_list",
+      "passed": true
+    },
+    {
+      "name": "templates_list",
+      "passed": true
+    },
+    {
+      "name": "chats_list",
+      "passed": true
+    },
+    {
+      "name": "chat_messages",
+      "passed": true
+    },
+    {
+      "name": "trash_list",
+      "passed": true
+    },
+    {
+      "name": "full_text_search",
+      "passed": true
+    },
+    {
+      "name": "recording_detail",
+      "passed": true
+    },
+    {
+      "name": "revisioned_transcript",
+      "passed": true
+    },
+    {
+      "name": "summary_versions",
+      "passed": true
+    },
+    {
+      "name": "refresh_replaces_pair",
+      "passed": true
+    },
+    {
+      "name": "refreshed_session",
+      "passed": true
+    },
+    {
+      "name": "logout_test_session",
+      "passed": true
+    }
+  ],
+  "content_mutated": false,
+  "audio_uploaded": false,
+  "azure_or_model_work_requested": false,
+  "evidence": "Existing backend response-shape checks with a private internal test account; no audio or user content written to this report."
+}

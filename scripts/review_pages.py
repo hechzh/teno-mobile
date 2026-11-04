@@ -31,7 +31,7 @@ notes={
  '11':'时间高亮保存为带时间标记的文字笔记；不创建独立新笔记。',
  '12':'下载长度、结束标记、可用 CRC 和严格解码全部通过后才保存到上传队列。',
  '13':'Automatic 固定；使用现有摘要模板，生成语言从 Preferences 设置；没有模型/声纹切换。',
- '14':'摘要、版本、编辑和 Ask；保留原转写。不提供独立新笔记和公开分享链接。',
+ '14':'摘要页通过 Audio & transcript 进入独立转写页；版本、编辑和 Ask 保留。不提供独立新笔记和公开分享链接。',
  '15':'真实原生播放器、时间跳转、倍速、分段转写编辑；不绘制虚构音频波形。',
  '16':'通过段落编辑弹窗和 revision 校验保存，冲突时重新加载。',
  '17':'使用现有账号模板，支持创建与编辑；不伪造官方/社区模板市场。',
@@ -87,5 +87,15 @@ for ref in manifest:
 links=''.join(f'<li><a href="pages/{p["id"]}.html">{p["title"]}</a></li>' for p in records)
 table=''.join(f'<tr><td>{p["reference_id"]} {html.escape(p["title"])}</td><td>{html.escape(p["note"])}</td></tr>' for p in coverage)
 index=f'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teno · 逐页实现核对</title><style>{css}</style><main><h1>Teno · 逐页实现核对</h1><p>每个链接只展示一个页面，可切换查看当前参考设计；没有拼成长图。产品品牌为 Teno / Ask Teno。</p><article><p>设计源：20261104 的 33 页。官方宣传图确切版本并非全部可确定；静态拆解、设计推定不代表实机流程。原始参考保持原样。</p><p>本目录图片由实际 Flutter 页面代码渲染，使用合成测试内容。Android/iOS 原生运行和硬件验收另见 RELEASE-0.5.0.txt。系统文件选择器、系统分享面板、蓝牙授权由各平台呈现。</p><a href="../ARCHITECTURE.txt">架构</a> · <a href="pages.json">逐页追溯清单与文件哈希</a> · <a href="../RELEASE-0.5.0.txt">验证记录</a></article><ol>{links}</ol><h2>33 页基准的首版处理</h2><table><tr><th>原页面</th><th>首版范围</th></tr>{table}</table></main></html>'''
+index=index.replace('<ol>','<p><a href="native.html">原生模拟器截图与测试记录</a></p><ol>',1)
 (output/'index.html').write_text(index,encoding='utf-8')
+native=[]
+for platform in ['android','ios']:
+    file=output/'screenshots/native'/('01-login-'+platform+'.png')
+    if file.is_file():
+        native.append((platform,'screenshots/native/'+file.name))
+if native:
+    buttons=''.join('<button onclick="document.getElementById(\'native\').src='+html.escape(json.dumps(p),quote=True)+'">'+k.title()+'</button>' for k,p in native)
+    body=f'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teno · 原生模拟器</title><style>{css}</style><main><a href="index.html">返回逐页核对</a><h1>Teno · 原生模拟器</h1><article><p>以下图片来自原生宿主实际启动后的模拟器截屏，每次展示一张。Android 为本机 API 35，iOS 为 GitHub macOS runner 上的 iOS Simulator。均不是实体设备验收。</p><p>详细验证及已知边界：<a href="../RELEASE-0.5.0.txt">内测记录</a>。页面代码测试渲染在主索引单独展示。</p></article><p>{buttons}</p><img id="native" src="{native[0][1]}" alt="Teno 原生模拟器登录页"></main></html>'''
+    (output/'native.html').write_text(body,encoding='utf-8')
 print(f'{len(records)} separate review pages; {len(coverage)} baseline pages accounted for.')

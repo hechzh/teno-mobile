@@ -232,10 +232,17 @@ class LocalPage extends StatelessWidget {
 }
 
 class DetailPage extends StatefulWidget {
-  const DetailPage(this.model, this.id, {super.key, this.seekMs});
+  const DetailPage(
+    this.model,
+    this.id, {
+    super.key,
+    this.seekMs,
+    this.showTranscript = false,
+  });
   final TenoModel model;
   final String id;
   final int? seekMs;
+  final bool showTranscript;
   @override
   State<DetailPage> createState() => _DetailPageState();
 }
@@ -251,7 +258,7 @@ class _DetailPageState extends State<DetailPage> {
   @override
   void initState() {
     super.initState();
-    transcribing = widget.seekMs != null;
+    transcribing = widget.showTranscript || widget.seekMs != null;
     unawaited(load());
     if (widget.seekMs != null) {
       unawaited(
@@ -449,7 +456,7 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) => PageFrame(
-    title: 'Recording',
+    title: transcribing ? 'Audio & transcript' : '',
     actions: [CircleAction(Icons.more_horiz, 'Recording options', menu)],
     bottom: OutlinedButton.icon(
       onPressed: () =>
@@ -476,52 +483,61 @@ class _DetailPageState extends State<DetailPage> {
                 duration(record['duration_ms']),
             style: const TextStyle(color: muted, fontSize: 12),
           ),
-          AudioPlayerBar(widget.model, widget.id),
-          Row(
-            children: [
-              TextButton(
-                onPressed: () => setState(() => transcribing = false),
-                child: Text(
-                  'Summary',
-                  style: TextStyle(
-                    color: transcribing ? muted : ink,
-                    fontWeight: transcribing
-                        ? FontWeight.normal
-                        : FontWeight.w600,
-                  ),
+          if (transcribing)
+            AudioPlayerBar(widget.model, widget.id)
+          else ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 22),
+              child: Material(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(color: line),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: ListTile(
+                  leading: const Icon(Icons.graphic_eq),
+                  title: const Text('Audio & transcript'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    await push(
+                      context,
+                      DetailPage(widget.model, widget.id, showTranscript: true),
+                    );
+                    if (mounted) await load();
+                  },
                 ),
               ),
-              TextButton(
-                onPressed: () => setState(() => transcribing = true),
-                child: Text(
-                  'Transcript',
-                  style: TextStyle(
-                    color: transcribing ? ink : muted,
-                    fontWeight: transcribing
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              if (!transcribing && summaries.isNotEmpty)
-                PopupMenuButton<int>(
-                  tooltip: 'Summary versions',
-                  onSelected: (v) => setState(() => selected = v),
-                  itemBuilder: (_) => [
-                    for (var i = 0; i < summaries.length; i++)
-                      PopupMenuItem(
-                        value: i,
-                        child: Text(
-                          (i == 0 ? 'Latest · ' : '') +
-                              dateLabel(summaries[i]['created_at']),
-                        ),
+            ),
+            if (summaries.isNotEmpty)
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Summary',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
-                  ],
-                ),
-            ],
-          ),
-          const Divider(),
+                    ),
+                  ),
+                  PopupMenuButton<int>(
+                    tooltip: 'Summary versions',
+                    onSelected: (v) => setState(() => selected = v),
+                    itemBuilder: (_) => [
+                      for (var i = 0; i < summaries.length; i++)
+                        PopupMenuItem(
+                          value: i,
+                          child: Text(
+                            (i == 0 ? 'Latest · ' : '') +
+                                dateLabel(summaries[i]['created_at']),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+          ],
           if (transcribing) ...[
             if (rows(transcript['segments']).isEmpty)
               EmptyState(
@@ -544,11 +560,13 @@ class _DetailPageState extends State<DetailPage> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          text(s['speaker']).isEmpty
-                              ? 'Speaker'
-                              : text(s['speaker']),
-                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        Expanded(
+                          child: Text(
+                            text(s['speaker']).isEmpty
+                                ? 'Speaker'
+                                : text(s['speaker']),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
                         ),
                         TextButton(
                           onPressed: () => perform(
@@ -566,7 +584,6 @@ class _DetailPageState extends State<DetailPage> {
                             style: const TextStyle(color: muted, fontSize: 12),
                           ),
                         ),
-                        const Spacer(),
                         IconButton(
                           tooltip: 'Edit segment',
                           onPressed: () => editSegment(s),

@@ -232,25 +232,25 @@
       "title": "14 Summary",
       "reference_id": "14",
       "screenshot": "screenshots/shared/14-summary.png",
-      "screenshot_sha256": "e382a9e122500c30fbcf421b245da1420dfa0d927494db8b8e28c59c223e6a3f",
+      "screenshot_sha256": "6f33342c2b2d35cc18e3a41e1e7b107b5dd35d8ce97764ee2c2bfdff99b548f9",
       "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
       "reference_runtime_tested": false,
-      "implementation_note": "摘要、版本、编辑和 Ask；保留原转写。不提供独立新笔记和公开分享链接。",
+      "implementation_note": "摘要页通过 Audio & transcript 进入独立转写页；版本、编辑和 Ask 保留。不提供独立新笔记和公开分享链接。",
       "variants": [
         {
           "label": "iOS 样式",
           "screenshot": "screenshots/ios-shared/14-summary.png",
-          "sha256": "6644473f9229600f43050382799e41ffadf3b3fdc44602b84bfe6f582b28d2f1"
+          "sha256": "f92bd618f71328f50f6b0f5a7fb3ff59eb81656598496c06406b7a52c1f50068"
         },
         {
           "label": "Android · 大字",
           "screenshot": "screenshots/shared/large-text/14-summary.png",
-          "sha256": "cfaee24d9592a80589e8093a9a76eadea65710d846d7ba1dd40650b1cbaf7c53"
+          "sha256": "b379fdb4ba498b59b8b693baaf76f93b4db0aae213f7ea6472853dbb1e6c3c4f"
         },
         {
           "label": "iOS · 大字",
           "screenshot": "screenshots/ios-shared/large-text/14-summary.png",
-          "sha256": "66156396e18f75be929518ebcab99630351dd24e2f0ebf09ccee2042c5e1834e"
+          "sha256": "45d43b113305a33aa0d1a460a3cf23d452d8592109fd67210d6400d7864a5f9f"
         }
       ]
     },
@@ -259,7 +259,7 @@
       "title": "15 Transcript",
       "reference_id": "15",
       "screenshot": "screenshots/shared/15-transcript.png",
-      "screenshot_sha256": "f47de0ee9fa28f9ef287cfeb4ca65ac73794ba8a85dbdc5c49b0386e6e0fbff7",
+      "screenshot_sha256": "d88132bfb2fceea516e7b01ecac551f42a7e07d1e22cd456d5ccb09fc02fb51f",
       "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
       "reference_runtime_tested": false,
       "implementation_note": "真实原生播放器、时间跳转、倍速、分段转写编辑；不绘制虚构音频波形。",
@@ -267,7 +267,7 @@
         {
           "label": "iOS 样式",
           "screenshot": "screenshots/ios-shared/15-transcript.png",
-          "sha256": "faa9e128be78c2bb38bf28963b17369e83d9f0a0e2dfffe1b492eb35cc9a54c2"
+          "sha256": "588db6d52c8ead6aff6a83231919c3547482249b632a183370e1f1b8bad60595"
         }
       ]
     },
@@ -276,7 +276,7 @@
       "title": "16 Transcript Editor",
       "reference_id": "16",
       "screenshot": "screenshots/shared/16-transcript-editor.png",
-      "screenshot_sha256": "0ed58c29d40534fee96fecf51e49964db5c7a3c9bf66e18a8de9c37a2074925c",
+      "screenshot_sha256": "3ba7523ad51e5d566cfc9b60348f610cd1bfaed5fc918799e02af3b2d2540714",
       "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
       "reference_runtime_tested": false,
       "implementation_note": "通过段落编辑弹窗和 revision 校验保存，冲突时重新加载。",
@@ -284,7 +284,7 @@
         {
           "label": "iOS 样式",
           "screenshot": "screenshots/ios-shared/16-transcript-editor.png",
-          "sha256": "43bdec4c0ce8ec9a392b3edc0e018dcd023be87f7d13653057519b697cc84a20"
+          "sha256": "bf5020a3083166d2eadb96a75835dc7230eb5032478084e4c182b437dcb61dc6"
         }
       ]
     },
@@ -692,7 +692,7 @@
       "screenshot_sha256": "69112cf149af8ce7876120f3e22547e45bc63848bfeff34631a6b9c233c98877",
       "evidence": "Flutter widget-test render with synthetic data; not a device screenshot",
       "reference_runtime_tested": false,
-      "implementation_note": "摘要、版本、编辑和 Ask；保留原转写。不提供独立新笔记和公开分享链接。",
+      "implementation_note": "摘要页通过 Audio & transcript 进入独立转写页；版本、编辑和 Ask 保留。不提供独立新笔记和公开分享链接。",
       "variants": [
         {
           "label": "iOS 样式",
@@ -982,7 +982,7 @@
       "reference_inferred": false,
       "runtime_tested": false,
       "scope": "implemented_or_adapted",
-      "note": "摘要、版本、编辑和 Ask；保留原转写。不提供独立新笔记和公开分享链接。",
+      "note": "摘要页通过 Audio & transcript 进入独立转写页；版本、编辑和 Ask 保留。不提供独立新笔记和公开分享链接。",
       "implementation_pages": [
         "14-summary",
         "42-summary-editor"

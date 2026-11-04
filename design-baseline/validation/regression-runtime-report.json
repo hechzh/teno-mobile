@@ -1,0 +1,74 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "flutter_host_reads_native_session",
+      "passed": true
+    },
+    {
+      "name": "bridge_does_not_expose_private_file_paths",
+      "passed": true
+    },
+    {
+      "name": "pause_does_not_append_audio",
+      "passed": true
+    },
+    {
+      "name": "recording_continues_when_flutter_is_backgrounded",
+      "passed": true
+    },
+    {
+      "name": "stop_retains_complete_local_wave_without_cloud",
+      "passed": true
+    },
+    {
+      "name": "timestamped_note_saved_with_draft",
+      "passed": true
+    },
+    {
+      "name": "local_wave_is_playable",
+      "passed": true
+    },
+    {
+      "name": "temporary_upload_failure_is_durable_and_keeps_audio",
+      "passed": true
+    },
+    {
+      "name": "retry_reuses_original_client_id",
+      "passed": true
+    },
+    {
+      "name": "successful_upload_preserves_local_original",
+      "passed": true
+    },
+    {
+      "name": "completed_upload_is_not_enqueued_again",
+      "passed": true
+    },
+    {
+      "name": "device_disconnect_never_claims_stopped",
+      "passed": true
+    },
+    {
+      "name": "sign_out_clears_visible_account",
+      "passed": true
+    },
+    {
+      "name": "sign_out_stops_active_native_upload",
+      "passed": true
+    },
+    {
+      "name": "other_account_cannot_see_original_drafts",
+      "passed": true
+    },
+    {
+      "name": "returning_account_keeps_pending_original_recording",
+      "passed": true
+    },
+    {
+      "name": "account_switch_preserves_paused_upload_and_local_audio",
+      "passed": true
+    }
+  ],
+  "evidence": "Dedicated API 35 emulator; synthetic account and loopback backend. No physical JWD, iPhone or Azure accuracy claims."
+}

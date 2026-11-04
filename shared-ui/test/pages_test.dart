@@ -162,7 +162,7 @@ void main() {
     final model = reviewModel();
     addTearDown(model.dispose);
     await mount(tester, DetailPage(model, 'record-1'));
-    await tester.tap(find.text('Transcript'));
+    await tester.tap(find.text('Audio & transcript'));
     await tester.pumpAndSettle();
     await capture(tester, '15-transcript');
     await tester.tap(find.byTooltip('Edit segment').first);
@@ -170,6 +170,11 @@ void main() {
     await capture(tester, '16-transcript-editor');
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    expect(find.text('Summary'), findsOneWidget);
+    expect(find.byTooltip('Edit segment'), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
     await mount(tester, pages['05-folder']!(model));
     await tester.tap(find.byTooltip('Folder options'));
     await tester.pumpAndSettle();
