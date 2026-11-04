@@ -85,7 +85,7 @@ xcodebuild -project Teno.xcodeproj -scheme Teno -configuration Release \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
-The workflow additionally runs simulator XCTest and packages `Payload/Teno.app` as an unsigned IPA. No Apple account, provisioning profile or store submission is configured in CI. Windows installation is documented in `ios/INSTALL.txt`.
+The workflow additionally runs simulator XCTest and packages `Payload/Teno.app` as an unsigned IPA. After launching the actual host, it waits for a screenshot containing Teno and Sign in; a successful process launch alone does not pass the screen check. No Apple account, provisioning profile or store submission is configured in CI. Windows installation is documented in `ios/INSTALL.txt`.
 
 ## Verification boundaries
 

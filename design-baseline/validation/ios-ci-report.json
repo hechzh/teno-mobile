@@ -1,0 +1,27 @@
+{
+  "all_passed": true,
+  "ci_run": "https://github.com/hechzh/teno-mobile/actions/runs/41880839030",
+  "source_commit": "42f9fa4c78279c8b736251f0cab1a84580f776ed",
+  "artifact_id": 13352817075,
+  "artifact_archive_sha256": "c5cb0ca45145ea8cec17385e8549d7c8d7dffbbee8812c9c94a4a8960a877600",
+  "ipa_sha256": "9a48ac562e00e82ad316db9585f5cc0566509d1b09b9855586ce70c3e74e2edb",
+  "ipa_bytes": 8619377,
+  "native_tests": 5,
+  "native_test_failures": 0,
+  "native_login_ocr_pass": true,
+  "native_login_visually_reviewed": true,
+  "screenshot_sha256": "b658f0cedd329955e643f564849ec6866a65642879e73962715e5be38144224c",
+  "screenshot_size": [
+    1206,
+    2622
+  ],
+  "xcode": "16.4",
+  "minimum_ios": "15.0",
+  "runner": "macos-15-intel",
+  "device_release_build": true,
+  "unsigned": true,
+  "physical_iphone_tested": false,
+  "physical_jwd_tested": false,
+  "altstore_install_tested": false,
+  "test_boundary": "Native simulator launch/XCTest and unsigned ARM64 device compile; no hardware acceptance."
+}

@@ -43,8 +43,11 @@ Work、Tasks、Routines、Skills、Connectors、照片、独立新笔记、公�
 5. JWD 现有协议自动检查：22 项通过。厂商 SDK 来源与文件哈希保留；没有宣称实机 BLE 验收通过。
 6. 现有线上 API：15 项只读/临时会话检查通过，包含令牌刷新、账号、录音详情、文件夹、搜索、
    转写 revision、摘要版本、模板、Ask 历史、回收站与退出。无内容写入、音频上传或 AI 工作请求。
-7. iOS：原生宿主、厂商 SDK 与 Flutter 已在 Xcode 16.4 / iOS Simulator 编译。
-   最终 CI 结果和 IPA 来源以 dist 清单中的 ios.ci_run 及本目录验证文件为准。
+7. iOS：原生宿主、厂商 SDK 与 Flutter 在 Xcode 16.4 编译，5 项原生 XCTest 通过（0 失败）。
+   实际启动 iOS Simulator 后，OCR 检测 Teno / Sign in 通过；下载的原生截图也已逐张查看。
+   Release 设备构建与安装包密钥扫描通过。IPA 为 ARM64、最低 iOS 15，无测试包或调试 Dart 文件。
+   CI：https://github.com/hechzh/teno-mobile/actions/runs/41880839030
+   源码提交、IPA 与截图 SHA256 见 ios-ci-report.json；交付包来源见 dist 清单的 ios.ci_run。
 8. 发布前检查源码、完整 Git 历史和交付包；未检出本机已知 Azure / DeepSeek 密钥及测试密码。
    APK 不含验收 runner/模拟设备代码；源码包不含 AGENTS、环境配置、真实录音、签名/SSH 私钥。
 
@@ -53,8 +56,11 @@ verification/v0.5.0/full-runtime-report.json
 verification/v0.5.0/regression-runtime-report.json
 verification/v0.5.0/final-install-report.json
 verification/v0.5.0/backend-readonly-report.json
+verification/v0.5.0/ios-ci-report.json
 verification/v0.5.0/flutter-tests.log、flutter-ios-pages.log、final-android-build.log
 verification/v0.5.0/04-final-login-android.png 为最终原生 Android 模拟器截图。
+verification/v0.5.0/05-final-login-ios.png 为最终原生 iOS 模拟器截图。
+design-baseline/native.html 可逐张切换两平台原生截图；validation/ 保留不含私密信息的验收摘要。
 01-home-upgrade.png 曾捕获模拟器 System UI 无响应提示，02-runtime-finished.png 为结束测试后的空画面，
 两张不计入页面验收证据，不放入交付页面图库。
 

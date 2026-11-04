@@ -116,6 +116,7 @@ Kotlin 2.2.20 are pinned for Flutter 3.47.9 add-to-app integration. iOS minimum 
 Xcode 16.4 / XcodeGen 2.46.0, Swift 5. The generated Swift package and Xcode project
 are rebuilt by CI; ios/project.yml is the source of host configuration.
 The Linux job verifies generated bridges, analysis, tests and Android lint/build.
-The macOS job tests the native host, launches it for a simulator screenshot, then
-builds a Release device app and unsigned IPA. App Store distribution is a separate
+The macOS job tests the native host and launches it for a simulator screenshot.
+OCR must confirm the Teno / Sign in screen before the job builds a Release device
+app and unsigned IPA. App Store distribution is a separate
 future signing/review configuration, not a consequence of these internal builds.
