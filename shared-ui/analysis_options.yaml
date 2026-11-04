@@ -1,0 +1,15 @@
+analyzer:
+  exclude:
+    - lib/platform/runtime.g.dart
+    - build/**
+    - android/**
+    - ios/**
+  errors:
+    invalid_use_of_protected_member: error
+linter:
+  rules:
+    - avoid_print
+    - cancel_subscriptions
+    - close_sinks
+    - unawaited_futures
+    - use_build_context_synchronously

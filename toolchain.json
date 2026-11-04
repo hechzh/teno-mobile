@@ -1,0 +1,10 @@
+{
+  "flutter": "3.47.9",
+  "flutter_revision": "c197ca5199e9ee5661e865596c9c07294dfab51c",
+  "pigeon": "29.1.0",
+  "java": "21",
+  "gradle": "9.1.0",
+  "agp": "9.0.1",
+  "android_min_sdk": 26,
+  "ios_deployment_target": "15.0"
+}

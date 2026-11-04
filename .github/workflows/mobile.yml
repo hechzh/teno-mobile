@@ -1,0 +1,94 @@
+name: Teno mobile
+on:
+  push:
+    branches: [main, "refactor/**"]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  shared-and-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.9"
+          channel: stable
+          cache: true
+      - name: Scan source and full history
+        run: python3 scripts/secret_audit.py --history
+      - name: Shared dependencies, generated contract, analysis and tests
+        working-directory: shared-ui
+        run: |
+          flutter pub get --enforce-lockfile
+          dart run pigeon --input pigeons/runtime.dart
+          git diff --exit-code -- lib/platform/runtime.g.dart ../app/src/main/java/com/teno/app/RuntimeMessages.java ../ios/Teno/Generated/RuntimeMessages.g.swift
+          flutter analyze --no-pub
+          flutter test --no-pub
+      - name: Android build and lint
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug :app:assembleRelease :app:lintRelease --console=plain
+          python3 scripts/secret_audit.py --artifact app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Teno-Android-CI
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
+            app/build/reports/lint-results-release.html
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.9"
+          channel: stable
+          cache: true
+      - name: Prepare native host
+        run: |
+          brew install xcodegen
+          cd shared-ui
+          flutter pub get --enforce-lockfile
+          flutter build swift-package --platform ios
+          cd ../ios
+          xcodegen generate
+      - name: Compile and test iOS Simulator
+        run: |
+          DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(v["udid"] for a in d["devices"].values() for v in a if v["name"].startswith("iPhone")))')
+          xcodebuild -project ios/Teno.xcodeproj -scheme Teno -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath ios/DerivedData -resultBundlePath ios/build/TestResults.xcresult CODE_SIGNING_ALLOWED=NO test > ios-build.log 2>&1 || { tail -200 ios-build.log; exit 1; }
+          mkdir -p ios/build/screenshots
+          xcrun simctl io "$DEVICE" screenshot ios/build/screenshots/01-login.png
+      - name: Build unsigned iPhone IPA
+        run: |
+          xcodebuild -project ios/Teno.xcodeproj -scheme Teno -configuration Release -destination "generic/platform=iOS" -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO build > ios-release.log 2>&1 || { tail -200 ios-release.log; exit 1; }
+          mkdir -p ios/build/Payload
+          cp -R ios/DerivedData/Build/Products/Release-iphoneos/Teno.app ios/build/Payload/
+          cd ios/build
+          zip -qr Teno-0.5.0-unsigned.ipa Payload
+      - name: Scan unsigned IPA
+        run: python3 scripts/secret_audit.py --artifact ios/build/Teno-0.5.0-unsigned.ipa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Teno-iOS
+          path: |
+            ios/build/Teno-0.5.0-unsigned.ipa
+            ios/build/screenshots
+            ios/build/TestResults.xcresult
+            ios/Teno.xcodeproj
+            ios-build.log
+            ios-release.log

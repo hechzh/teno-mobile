@@ -4,14 +4,14 @@ def tenoSigningFile = new File(System.getProperty('user.home'), '.android/teno-s
 if (tenoSigningFile.exists()) tenoSigningFile.withInputStream { tenoSigning.load(it) }
 android {
     namespace 'com.teno.app'
-    compileSdk 35
+    compileSdk 37
     defaultConfig {
         applicationId project.findProperty('verificationAppId') ?: 'com.teno.app'
         minSdk 26
         targetSdk 35
-        versionCode 9
-        versionName '0.4.4'
-        testInstrumentationRunner project.findProperty('testRunner') ?: 'com.teno.app.SmokeInstrumentation'
+        versionCode 10
+        versionName '0.5.0'
+        testInstrumentationRunner project.findProperty('testRunner') ?: 'com.teno.app.RuntimeInstrumentation'
     }
     signingConfigs {
         if (tenoSigningFile.exists()) {
@@ -30,5 +30,10 @@ android {
         }
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    sourceSets { androidTest.java.srcDirs = ['src/crossPlatformTest/java'] }
 }
-dependencies { implementation 'com.squareup.okhttp3:okhttp:4.12.0' }
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation project(':flutter')
+    implementation 'androidx.core:core:1.17.0'
+}

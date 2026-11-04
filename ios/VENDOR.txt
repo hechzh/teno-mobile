@@ -1,0 +1,19 @@
+JWD iOS vendor sources
+
+Source supplied locally by the repository owner:
+JWD-VTR recording-card protocol & SDK 20261027 / iOS JwdVtrSdkIOS-jli.
+Only JwdVtrSDK source and its libopus.xcframework dependency are included.
+The example app, example device-binding key and developer signing settings are excluded.
+Redistribution of the necessary vendor SDK in this public repository was explicitly
+authorized by the repository owner on 2026-11-04. Original vendor copyrights apply;
+this file does not relicense the vendor implementation.
+
+Vendor/file-hashes.json records the copied files' SHA-256 values. Vendor sources
+are unmodified. The Teno host has its own CoreBluetooth owner and strict final-file
+validator. The SDK's concealment decoder is used only for live preview. It is not
+used to accept a damaged final recording.
+
+No Wi-Fi transfer, OTA, unbind, format or factory-reset operation is exposed by Teno.
+The included SDK has those methods, but their presence is not a released feature.
+Actual iPhone and JWD hardware acceptance must be recorded separately from simulator
+or cloud compiler results.

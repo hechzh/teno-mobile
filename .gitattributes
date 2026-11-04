@@ -9,3 +9,10 @@
 *.bat text eol=crlf
 *.jar binary
 *.so binary
+*.dart text eol=lf
+*.swift text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+# Preserve supplied vendor files byte-for-byte, including their original whitespace.
+ios/Vendor/** -text -whitespace
+app/src/main/java/com/teno/app/RuntimeMessages.java -whitespace

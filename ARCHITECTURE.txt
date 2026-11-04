@@ -1,0 +1,53 @@
+Teno mobile architecture — approved 2026-11-04
+
+Design: the 33 individual pages in design-review/plaud-rebuild/20261104.
+Product text is Teno / Ask Teno, in English. The reference contains official
+4.0-series screenshots and inferred states; it is not an Android runtime capture.
+Current scope: authentication, device/phone recording, imports, local retention,
+upload/processing, library/folders/search, playback, transcript editing, summaries,
+templates, Ask, settings, export and trash. Work, Tasks, Routines, Skills,
+Connectors, photos, independent notes and public share links have no mobile entry.
+
+One repository, three components:
+  app/          Existing Android host and Java runtime. Same package and signing.
+  shared-ui/    Flutter module: presentation, view models, API repositories.
+  ios/          Swift host, native runtime, and the supplied Objective-C JWD SDK.
+The generated .android/.ios Flutter wrappers are never maintained or committed.
+
+Pigeon defines the host API and typed runtime notifications. Native runtimes own
+capture, file persistence, Bluetooth, decoder, authenticated HTTP, WebSocket,
+token refresh, playback and durable uploads. No raw audio crosses Dart channels.
+The UI reconstructs state from a snapshot after attach; events are UI updates,
+not the durable source of truth. Platform services do not depend on a Flutter UI.
+
+Server contracts stay at /api/v1. The existing web and backend are not modified.
+Each platform owns one serialized session refresh. No Azure/DeepSeek credentials
+are client configuration. Recognition always uses auto; live text is only preview.
+Complete recordings still go through post-record processing on the server.
+
+Android compatibility: SharedPreferences teno; AndroidKeyStore teno.session;
+drafts/<scope>; original encrypted device keys, recorder identity, sync ledger,
+recording options, file paths and client_id are retained. Existing team data is
+left in place without starting any team sharing or exposing team management.
+An in-place update, not an uninstall, is required for migration verification.
+
+iOS: CoreBluetooth owns scanning/connection/restoration. The supplied JWDClient
+receives discovered peripherals and confirmation callbacks. Keychain stores
+session/device secrets. Imported media is copied into private Application Support.
+Device keys from an existing binding must be imported; no automatic reset/rebind.
+
+Recording: connect -> confirmed start/pause/resume/stop -> download -> length and
+OFF completion -> available CRC match -> strict decode -> durable local draft ->
+durable upload -> processing -> result. Disconnection never proves stopped state.
+Preview concealment cannot qualify a damaged final file for upload. Retries keep
+the original client_id. Account changes cannot reassign another account's draft.
+
+Delivery: public hechzh/teno-mobile, necessary vendor dependencies authorized by
+the user. API keys, signing keys, accounts, AGENTS, recordings and logs excluded.
+Android signed builds use the existing local keystore. GitHub macOS builds an
+unsigned iOS IPA; AltStore Classic signs locally with the user's Apple account.
+Free provisioning expires after about seven days. No automatic store submission.
+
+Evidence: distinguish compile/unit/simulator tests from actual iPhone, Magic4 Pro
+and JWD tests. A mock transport is allowed only in test targets. Production has
+no synthetic devices, fake battery values, fake transcripts or demo account.

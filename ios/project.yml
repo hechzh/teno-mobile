@@ -1,0 +1,112 @@
+name: Teno
+options:
+  deploymentTarget:
+    iOS: "15.0"
+  xcodeVersion: "16.4"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+    CODE_SIGNING_ALLOWED: NO
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    CLANG_ENABLE_MODULES: YES
+packages:
+  FlutterNativeIntegration:
+    path: ../shared-ui/build/ios/SwiftPackages/FlutterNativeIntegration
+targets:
+  JwdVtrSDK:
+    type: framework
+    platform: iOS
+    sources:
+      - path: Vendor/JwdVtrSDK
+        headerVisibility: public
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.teno.vendor.jwd
+        GENERATE_INFOPLIST_FILE: YES
+        DEFINES_MODULE: YES
+        SKIP_INSTALL: YES
+        HEADER_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(SRCROOT)/Vendor/JwdVtrSDK/**"
+          - "$(SRCROOT)/Vendor/ThirdParty/libopus.xcframework/ios-arm64/Headers"
+        CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER: NO
+    dependencies:
+      - framework: Vendor/ThirdParty/libopus.xcframework
+        embed: false
+      - sdk: Foundation.framework
+      - sdk: CoreBluetooth.framework
+      - sdk: AVFoundation.framework
+      - sdk: AudioToolbox.framework
+      - sdk: NetworkExtension.framework
+  Teno:
+    type: application
+    platform: iOS
+    sources:
+      - path: Teno
+        excludes: ["Info.plist"]
+    info:
+      path: Teno/Info.plist
+      properties:
+        CFBundleDisplayName: Teno
+        CFBundleShortVersionString: "0.5.0"
+        CFBundleVersion: "10"
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UIUserInterfaceStyle: Light
+        UIViewControllerBasedStatusBarAppearance: true
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        NSMicrophoneUsageDescription: Record audio on your phone and save a local copy.
+        NSBluetoothAlwaysUsageDescription: Connect your recorder, control recording, and sync complete audio files.
+        NSFaceIDUsageDescription: Authenticate before viewing your recorder's private device key.
+        UIBackgroundModes: [audio, bluetooth-central]
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.teno.app
+        TARGETED_DEVICE_FAMILY: "1,2"
+        MARKETING_VERSION: "0.5.0"
+        CURRENT_PROJECT_VERSION: "10"
+        SWIFT_OBJC_BRIDGING_HEADER: Teno/Teno-Bridging-Header.h
+        FLUTTER_SWIFT_PACKAGE_OUTPUT: "$(SRCROOT)/../shared-ui/build/ios/SwiftPackages"
+        FLUTTER_APPLICATION_PATH: "$(SRCROOT)/../shared-ui"
+        HEADER_SEARCH_PATHS: ["$(inherited)", "$(SRCROOT)/Vendor/ThirdParty/libopus.xcframework/ios-arm64/Headers"]
+    dependencies:
+      - package: FlutterNativeIntegration
+      - target: JwdVtrSDK
+        embed: true
+      - framework: Vendor/ThirdParty/libopus.xcframework
+        embed: false
+      - sdk: libz.tbd
+    postBuildScripts:
+      - name: Assemble Flutter
+        script: '/bin/sh "$FLUTTER_SWIFT_PACKAGE_OUTPUT/Scripts/flutter_integration.sh" assemble'
+        basedOnDependencyAnalysis: false
+        inputFileLists: ["$(FLUTTER_SWIFT_PACKAGE_OUTPUT)/Scripts/FlutterAssembleInputs.xcfilelist"]
+  TenoTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests]
+    dependencies:
+      - target: Teno
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.teno.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Teno:
+    build:
+      targets:
+        Teno: all
+        TenoTests: [test]
+      preActions:
+        - script: '/bin/sh "$FLUTTER_SWIFT_PACKAGE_OUTPUT/Scripts/flutter_integration.sh" prebuild'
+          settingsTarget: Teno
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets: [TenoTests]
+    archive:
+      config: Release

@@ -49,6 +49,20 @@ public final class Api {
         return new JSONObject(new String(bytes(method,path,body),StandardCharsets.UTF_8));
     }
     public JSONObject get(String path)throws Exception{return request("GET",path,null);}
+    /** Stream large audio to disk; never buffer a complete recording in Java heap. */
+    public void download(String path,File destination)throws Exception{
+        for(int attempt=0;attempt<2;attempt++){
+            String token=store.token("access_token");HttpURLConnection c=open(path,"GET",token);
+            try{
+                int status=c.getResponseCode();
+                if(status>=300){read(c);return;}
+                try(InputStream in=c.getInputStream();FileOutputStream out=new FileOutputStream(destination)){
+                    byte[] buffer=new byte[65536];int n;while((n=in.read(buffer))!=-1)out.write(buffer,0,n);out.getFD().sync();
+                }return;
+            }catch(Failure e){destination.delete();if(e.status!=401||attempt>0)throw e;refresh(token);}
+            catch(Exception e){destination.delete();throw e;}finally{c.disconnect();}
+        }
+    }
     public JSONObject post(String path,JSONObject body)throws Exception{return request("POST",path,body);}
     public byte[] bytes(String method,String path,JSONObject body)throws Exception{
         for(int attempt=0;attempt<2;attempt++){

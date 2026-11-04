@@ -77,6 +77,8 @@ public final class Store {
         if(!prefs.edit().putString("jwd.key."+address,encoded).commit())throw new IOException("The key could not be saved. No binding command was sent.");
     }
     public void logout(){prefs.edit().remove("session").remove("scope").remove("username").commit();}
+    public String recorderNotes(String address,String name){return prefs.getString("jwd.notes."+scope()+"."+address+"."+name,"");}
+    public void recorderNotes(String address,String name,String notes){prefs.edit().putString("jwd.notes."+scope()+"."+address+"."+name,notes).commit();}
     public File folder(){File f=new File(context.getFilesDir(),"drafts/"+scope());f.mkdirs();return f;}
     public static synchronized void save(File folder,JSONObject draft)throws Exception{
         File out=new File(folder,draft.getString("id")+".json");File tmp=new File(folder,draft.getString("id")+".tmp");

@@ -1,0 +1,222 @@
+[
+  {
+    "path": "JwdVtrSDK/JWDClient.h",
+    "sha256": "aadd5465bd0040ced9d667cdbe6897859cccdb07a07649b4a3d304c6a6a2b0d7"
+  },
+  {
+    "path": "JwdVtrSDK/JWDClient.m",
+    "sha256": "f25e9317957f231eb6d9985e38fddae0428b2856a2b89c39a2735dfa296f183f"
+  },
+  {
+    "path": "JwdVtrSDK/JwdVtrSDK.h",
+    "sha256": "998c068c1b71072e57f6ffaa07a35d4e5b23b211482778cb37814ca7be692d6e"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDAuthDelegate.h",
+    "sha256": "c6452f24d5b6f24ce99b135c966d3cd0f5f75978de4b315842d9eaadce1e17c4"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDBatteryDelegate.h",
+    "sha256": "4c317ef47e1b00ec3a44653f2f584b186525370da9b613cbc816f73230f51766"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDBleConnectDelegate.h",
+    "sha256": "3c506012063191cc3dbebe66b15efff3e8861be294cd59ef726437c916d275e5"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDDeviceInfoDelegate.h",
+    "sha256": "c7b715595be43c19ec96274385bb15a1407b606bf4b6651e6b44bc2aa8ba2dbd"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDDeviceSettingDelegate.h",
+    "sha256": "ee826f6bdd582e834f8a09e65915e77e6cdee62db5a233b8a4081062f0927aee"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDFileBkDelegate.h",
+    "sha256": "ba9af0feab1f7b49f5cb6c424e1dc2107a23aed756bc7fc11af00800e99ab8d3"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDFileMgrDelegate.h",
+    "sha256": "337aa9268a0437c7346db6b8f5fdb9a36b1536e458dca40d48c00f237da7e57e"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDOtaDelegate.h",
+    "sha256": "8d242ac98b91132b26b532e85b4bf58ad4984bab32d3ecf1607fedd9fdc895b9"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDRecordStateDelegate.h",
+    "sha256": "e117c463c6a62389d13356d72ec3102502b86382d9a080ae2155e4d2b13e721e"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDSocketStatusDelegate.h",
+    "sha256": "949193755c7c926579717323f5f69a5a47ff381b1d281f8a7fec33d7f3ef90cc"
+  },
+  {
+    "path": "JwdVtrSDK/Listener/JWDWifiStatusDelegate.h",
+    "sha256": "2c2ef18752ddd2e989d2078fbf35057a1f5df97aa47d00f3c1f0e2337e9d6ba3"
+  },
+  {
+    "path": "JwdVtrSDK/Model/JWDFileInfo.h",
+    "sha256": "72da9c5db71f16fd9f8038253657a63edf4d508f3558bc399b785ab0110badee"
+  },
+  {
+    "path": "JwdVtrSDK/Model/JWDFileInfo.m",
+    "sha256": "3466f757aaebfdce98e19ce3ac688b15f8e1a6ba2648d1164046ceb9cb93db97"
+  },
+  {
+    "path": "JwdVtrSDK/Model/JWDRecordState.h",
+    "sha256": "3a9d772f5a4df8242f6f107f145174fcb3cbbc23a3491eb934c483597533cb2e"
+  },
+  {
+    "path": "JwdVtrSDK/Model/JWDRecordState.m",
+    "sha256": "542d54bbd120f3428c024bb06fccc49953e7aaece89d808dcc383c3337873546"
+  },
+  {
+    "path": "JwdVtrSDK/Model/JWDWifiInfo.h",
+    "sha256": "3c8030645e415aa1f668cdcc6cabe688e1cb32dd6771342e27ef7c82f04d091a"
+  },
+  {
+    "path": "JwdVtrSDK/Model/JWDWifiInfo.m",
+    "sha256": "042e5c2b47933f30e331072ee49a5729058e9195bb1bbdcad52e9b8e7ac04f77"
+  },
+  {
+    "path": "JwdVtrSDK/Protocol/JWDProtocolClient.h",
+    "sha256": "9e8347fd596e94ac2fef6b3ca0f5c979d47c0470fe41c228f52abbd60db0cf0e"
+  },
+  {
+    "path": "JwdVtrSDK/Protocol/JWDProtocolClient.m",
+    "sha256": "69bfb6498f32509971596af0af10845eb833cac19c73ec70d7c4d2954b9fe370"
+  },
+  {
+    "path": "JwdVtrSDK/Protocol/JWDReplyParser.h",
+    "sha256": "e43988aa5a8d062599a1b7bcdaf15240d2ad44a5ed609907f21e3a1fc75d625b"
+  },
+  {
+    "path": "JwdVtrSDK/Protocol/JWDReplyParser.m",
+    "sha256": "1bc28edd2d1c1280acf8279d5528456c9f522ed0f10525145a4f4714ba2bb85b"
+  },
+  {
+    "path": "JwdVtrSDK/Socket/JWDSocketClient.h",
+    "sha256": "545570057991beb27d39b69794931899cd19fa368c3fc98a3eb7f37eb4c4cc35"
+  },
+  {
+    "path": "JwdVtrSDK/Socket/JWDSocketClient.m",
+    "sha256": "bf4fd04ada0fee2667e435e6f299bc01cd2956305a6992074debc433c3312881"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDAudioDecoder.h",
+    "sha256": "56d569c027d6eaf84f96c70730a5a36ad503a7ed190479c19bfe661942d1f0e1"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDAudioDecoder.m",
+    "sha256": "a7313ade8f4f405c0ff2f216965d6efa7f8f1985de80594883fb11a8082b1b69"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDMp3Decoder.h",
+    "sha256": "dfbf6ba1d903adbf29706b959187e928a500148dde0497b9062c49c6b78baeff"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDMp3Decoder.m",
+    "sha256": "0ecb0915e282709d02dee76c2151d8a5cc711a4c7b2e0e7265e523957070b6d6"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDOpusDecoder.h",
+    "sha256": "374dc50c2b9a929c6f76c77dc262d03400f1b7dde72808058506589b5f26881c"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDOpusDecoder.m",
+    "sha256": "be23ea3b04624d0645a88e850c5e5f8fa61a4f4d83b01e88f7e54d1f432e8dbe"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDSdkLogger.h",
+    "sha256": "d0ffacb28d1a483d8d6b1e4f5490732fd16bde28571984ab2d52a6ab6c2ff6d1"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDSdkLogger.m",
+    "sha256": "8499698aaa1b310fdec65a38544a20af0b9fe36875c9e0fd57150e03636261d6"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDTool.h",
+    "sha256": "9d8cd5b275673124f537b89d36155d1ca8c8a24a7c60f7ebc96b0f31f6913cc4"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDTool.m",
+    "sha256": "83ece1dd19e4bd88743b2d0293946c1da20e049b2644e91a185c0e91264e6750"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDWifiConnector.h",
+    "sha256": "a37f077912f738f8ca68ba7ee465f194d0622939eb94806c65951bafd26d18ac"
+  },
+  {
+    "path": "JwdVtrSDK/Util/JWDWifiConnector.m",
+    "sha256": "9444af740ca23b772efece1582cdb1919848f800bd2ceb9324a9ad2dd84b57fd"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/Info.plist",
+    "sha256": "6ff803d7be588ab68dffdb535d40744158932c86345765c643e01533f17b43e6"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64/libopus-device.a",
+    "sha256": "85cf9bddf1acc261a1cbaa49650786a0a9a1550096b5672f656d6160b266c7f3"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64_x86_64-simulator/libopus-sim-fat.a",
+    "sha256": "0ec1a616f161fa2d5e91dc49021bb78408892b511e7094515923d1611fd1c51c"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64_x86_64-simulator/Headers/meson.build",
+    "sha256": "9c14127570dd2598ef506fb7f75e8f1963457bbc93f2f1088ea0045a6d39167a"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64_x86_64-simulator/Headers/opus.h",
+    "sha256": "036f6a6e83a20e943505743e113e90d6278cbe8240f7d5bb90b3f86261e783e3"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64_x86_64-simulator/Headers/opus_custom.h",
+    "sha256": "3b67a36b36eac7d712f712a4e57d602a7ff9df753d184b0743bbca8628ccff4b"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64_x86_64-simulator/Headers/opus_defines.h",
+    "sha256": "bbd4d4e3ba99f6982b1c8d8f5541814ad77d8e8babf3cc788cf23d517b2ca9d6"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64_x86_64-simulator/Headers/opus_multistream.h",
+    "sha256": "fd99c4594b4b57e406e9cab45a777895dd1b4c8de067088aa54ed7ae100b13f0"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64_x86_64-simulator/Headers/opus_projection.h",
+    "sha256": "11b3427e9ca342308a93adc9a081e2479685e5b7811a3a53540609f1bbc488ad"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64_x86_64-simulator/Headers/opus_types.h",
+    "sha256": "19cb301ea1eedbcbdbb5049363de061893bf11c20e505a657b69ce6ffa5b11fa"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64/Headers/meson.build",
+    "sha256": "9c14127570dd2598ef506fb7f75e8f1963457bbc93f2f1088ea0045a6d39167a"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64/Headers/opus.h",
+    "sha256": "036f6a6e83a20e943505743e113e90d6278cbe8240f7d5bb90b3f86261e783e3"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64/Headers/opus_custom.h",
+    "sha256": "3b67a36b36eac7d712f712a4e57d602a7ff9df753d184b0743bbca8628ccff4b"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64/Headers/opus_defines.h",
+    "sha256": "bbd4d4e3ba99f6982b1c8d8f5541814ad77d8e8babf3cc788cf23d517b2ca9d6"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64/Headers/opus_multistream.h",
+    "sha256": "fd99c4594b4b57e406e9cab45a777895dd1b4c8de067088aa54ed7ae100b13f0"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64/Headers/opus_projection.h",
+    "sha256": "11b3427e9ca342308a93adc9a081e2479685e5b7811a3a53540609f1bbc488ad"
+  },
+  {
+    "path": "ThirdParty/libopus.xcframework/ios-arm64/Headers/opus_types.h",
+    "sha256": "19cb301ea1eedbcbdbb5049363de061893bf11c20e505a657b69ce6ffa5b11fa"
+  }
+]

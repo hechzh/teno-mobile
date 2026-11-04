@@ -27,7 +27,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private boolean pairingRequested,gattVerified;private int pairingVariant=-1;
     private String connectionStage="",pairingStage="";
     private String address="",deviceName="",message="Not connected",firmware="",capacity="",battery="Not received",directory="",pending="",recordName="",lastDraft="";
-    private int recordState=-1;private long recordStart,operation,lastData,lastPublish;
+    private int recordState=-1;private long recordStart,recordPausedAt,recordPausedTotal,operation,lastData,lastPublish;
     private final LinkedHashMap<String,JSONObject> found=new LinkedHashMap<>();
     private final ArrayList<String> dirs=new ArrayList<>(),logs=new ArrayList<>();
     private final ArrayList<JSONObject> files=new ArrayList<>();
@@ -67,7 +67,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         handler.post(()->{try{handle(intent);}catch(Exception e){problem(e.getMessage());}});return START_NOT_STICKY;
     }
     private Notification notification(String text){
-        PendingIntent open=PendingIntent.getActivity(this,13,new Intent(this,JwdActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent open=PendingIntent.getActivity(this,13,new Intent(this,MainActivity.class).putExtra("open_device",true),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         PendingIntent stop=PendingIntent.getService(this,14,new Intent(this,JwdService.class).setAction("disconnect"),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(this,"jwd").setSmallIcon(R.drawable.ic_app).setContentTitle("Teno · Recorder").setContentText(text).setContentIntent(open).setOngoing(true).addAction(new Notification.Action.Builder(null,"Disconnect",stop).build()).build();
     }
@@ -117,8 +117,14 @@ public final class JwdService extends Service implements JwdBle.Listener {
                 resetSync();deferSync=false;lastDraft="";syncTarget="";store.pendingDeviceRecord(address,"");
                 begin("start","Waiting for recording to start",15000);ble.send("APP&STA");break;
             case "stop":
-                if(recordState!=1)throw new IOException("Recording has not been confirmed. Refresh device status.");
+                if(recordState!=1&&recordState!=2)throw new IOException("Recording has not been confirmed. Refresh device status.");
                 begin("stop","Waiting for the recorder to stop and save",15000);ble.send("APP&STO");break;
+            case "pause":
+                if(recordState!=1)throw new IOException("Recording has not been confirmed. Refresh device status.");
+                begin("pause","Waiting for the recorder to pause",15000);ble.send("APP&PAU");break;
+            case "resume":
+                if(recordState!=2)throw new IOException("A paused recording has not been confirmed.");
+                begin("resume","Waiting for the recorder to resume",15000);ble.send("APP&RESU");break;
             case "download": download(i);break;
         }
         publish();
@@ -211,6 +217,12 @@ public final class JwdService extends Service implements JwdBle.Listener {
                 else if(p.length>=4){recording(p[2],Long.parseLong(p[3]));}break;
             case "STE":if(p.length>2){if(Integer.parseInt(p[2])==1)recordState=1;else stopped();}break;
             case "STA":if(p.length>2){recording(p[2],0);done("start");message="Recorder is recording";log("Recording start confirmed");}break;
+            case "PAUSE":
+                if(recordState==1){recordState=2;recordPausedAt=SystemClock.elapsedRealtime();if(live!=null)live.transcriber.pause(true);}
+                done("pause");message="Recording paused";break;
+            case "RESUME":
+                if(recordState==2){recordPausedTotal+=SystemClock.elapsedRealtime()-recordPausedAt;recordPausedAt=0;recordState=1;if(live!=null)live.transcriber.pause(false);}
+                done("resume");message="Recorder is recording";break;
             case "STO":stopped();done("stop");message="Saved on recorder · Syncing to this phone";log("Recording stop confirmed");scheduleSync();break;
             case "AUTO":if(p.length>2&&p[2].equals("STO")){stopped();scheduleSync();}else if(p.length>3&&p[2].equals("STA"))recording(p[3],0);break;
             case "DISK":case "REC":if(value.endsWith("&ERR")){pending="";operation++;recordState=-1;problem(type.equals("DISK")?"Recorder storage is full":"The recorder reported an audio error");}break;
@@ -235,10 +247,10 @@ public final class JwdService extends Service implements JwdBle.Listener {
         if(!name.equals(recordName)){lastDraft="";syncTarget=name;store.pendingDeviceRecord(address,name);syncError="";}
         syncing=false;syncFiles.clear();
         if(requestLive&&(live==null||live.finished)&&!store.token("access_token").isEmpty()){live=new JwdLiveSession(store,name);wake.acquire(65*60*1000L);}
-        recordState=1;recordName=name;recordStart=SystemClock.elapsedRealtime()-Math.max(0,seconds)*1000;
+        recordState=1;recordName=name;recordStart=SystemClock.elapsedRealtime()-Math.max(0,seconds)*1000;recordPausedAt=0;recordPausedTotal=0;
     }
     private void stopped(){
-        boolean wasRecording=recordState==1;
+        boolean wasRecording=recordState==1||recordState==2;
         if(!recordName.isEmpty()){syncTarget=recordName;store.pendingDeviceRecord(address,recordName);}
         stopLive(true);recordState=0;recordName="";
         if(wasRecording)scheduleSync();
@@ -311,6 +323,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             try{
                 if(!identity.equals(store.scope()))throw new IOException("The account changed. The original file was kept without adding it to another account.");
                 JSONObject draft=JwdAudio.importVerified(store,source,mac,dir,name,seconds,verification,percent->handler.post(()->{if(!destroyed){message="Decoding audio "+percent+"%";publish();}}));
+                String notes=store.recorderNotes(mac,name);if(!notes.isEmpty()){draft.put("notes",notes);store.save(draft);}
                 store.deviceRecordSynced(mac,dir,name,seconds,draft.optString("id"));
                 try{UploadQueue.saved(this,draft);}catch(Exception ignored){/* The verified local draft remains available for manual retry. */}
                 source.delete();handler.post(()->{converting=false;releaseWake();if(syncTarget.isEmpty()&&lastDraft.isEmpty()||matchesTarget(name)){lastDraft=draft.optString("id");syncTarget="";store.pendingDeviceRecord(mac,"");}message="Saved on this phone"+(verification.equals("length_only")?" · Device checksum unavailable":" · Checksum verified");log(message);publish();if(syncing)try{nextSyncFile();}catch(Exception e){syncFailed(e.getMessage());problem(e.getMessage());}});
@@ -329,6 +342,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         if(destroyed)return;try{
             JSONObject s=new JSONObject().put("message",message).put("connection_stage",connectionStage).put("jwd_service_verified",gattVerified).put("system_pairing_requested",pairingRequested).put("system_pairing_variant",pairingVariant).put("system_pairing_stage",pairingStage).put("scanning",scanning).put("compatibility_scan",compatibilityScanning).put("connected",connected).put("authorized",authorized).put("name",deviceName).put("address",address).put("battery",battery).put("firmware",firmware).put("capacity",capacity).put("record_state",recordState).put("record_name",recordName).put("record_start",recordStart).put("directory",directory).put("pending",pending).put("converting",converting).put("last_draft",lastDraft).put("busy",converting||receiver!=null||!pending.isEmpty()).put("receiving",receiver!=null||pending.equals("download")).put("received",receiver==null?0:receiver.received()).put("expected",receiver==null?0:receiver.expected).put("devices",new JSONArray(found.values())).put("dirs",new JSONArray(dirs)).put("files",new JSONArray(files)).put("log",new JSONArray(logs));
             s.put("syncing",syncing).put("sync_target",syncTarget).put("sync_error",syncError).put("busy",syncing||converting||receiver!=null||!pending.isEmpty());
+            s.put("elapsed_ms",recordState>0?Math.max(0,(recordState==2?recordPausedAt:SystemClock.elapsedRealtime())-recordStart-recordPausedTotal):0);
             snapshot=s.toString();long now=SystemClock.elapsedRealtime();if(now-lastPublish>500){((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(13,notification(message));}lastPublish=now;
         }catch(Exception ignored){}
     }
