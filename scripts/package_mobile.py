@@ -111,5 +111,17 @@ def main():
     (QA/'release-badging.txt').write_text(badging,encoding='utf-8')
     (DIST/'SHA256SUMS.txt').write_text(''.join(digest(p)+'  '+p.name+'\n' for p in sorted(DIST.iterdir()) if p.suffix in ('.apk','.ipa','.zip')),encoding='utf-8')
     print(json.dumps({'status':'pass','apk_sha256':digest(deliverable),'source_files':len(files),'lint_errors':errors,'lint_warnings':warnings,'ios':ios}))
+    # Reporting does not rebuild the App or promote a new baseline automatically.
+    credential=pathlib.Path.home()/'.ssh/teno-development-local.json'
+    if credential.is_file() or os.environ.get('TENO_DEVELOPMENT_TOKEN'):
+        from publish_development_release import normalize
+        from report_development import configuration, send
+        outbox=pathlib.Path.home()/'.teno/development-outbox'
+        try:
+            for envelope in normalize(DIST/'Teno-0.5.0-release-manifest.json',pathlib.Path.home()/'.teno/development-releases'):
+                send(envelope,configuration(credential if credential.is_file() else None),outbox)
+        except Exception:
+            print('Development sync failed; verified local release is preserved. Retry the saved reporting outbox.')
+            return 2
     return 0
 if __name__=='__main__': sys.exit(main())

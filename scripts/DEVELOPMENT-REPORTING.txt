@@ -1,0 +1,40 @@
+Teno private development reporting
+
+The team website reads build evidence at /team/#/development/mobile.
+This reporting pipeline does not request Azure/DeepSeek work or change App features.
+
+Local release
+- package_mobile.py reports its verified manifest after packaging when a credential
+  exists at ~/.ssh/teno-development-local.json (or TENO_DEVELOPMENT_TOKEN is set).
+- Reports do not automatically promote a new internal baseline. The maintainer can
+  explicitly pass --baseline to publish_development_release.py for a confirmed delivery.
+- First import: python scripts/publish_development_release.py --manifest dist/Teno-0.5.0-release-manifest.json --baseline
+- The initial normalizer has reviewed scopes for 0.4.4 and 0.5.0. Future versions
+  require their own evidence catalog; they never inherit old hardware acceptance.
+
+Local build/test commands
+Use the reporting wrapper so both successful and failed checks are recorded:
+python scripts/run_and_report.py --platform android --name "Android release build and lint" --environment static -- ./gradlew.bat :app:assembleRelease :app:lintRelease
+python scripts/run_and_report.py --platform android --name "JWD protocol checks" --environment unit -- python tests/test_jwd_protocol.py
+The wrapper records only the chosen name, environment and exit status. It uploads
+no command output. Uncommitted source is marked as not bound to an exact commit.
+An arbitrary build command run outside this wrapper is not automatically observed.
+
+GitHub CI
+- mobile.yml reports Android and iOS outcomes after their steps, including failures.
+- A separate repository secret TENO_DEVELOPMENT_TOKEN is scoped to CI reporting.
+- No reporting secret is used for pull_request jobs. The token cannot read team
+  meetings, chats, tasks or private assets, promote baselines, or assert device acceptance.
+- CI debug APKs stay in CI artifacts as evidence, not as same-signer installation links.
+- Successful audited unsigned iOS device builds and login screenshots may be uploaded.
+- Reports bind platform, source commit, run ID, run attempt and timestamp.
+
+Recovery
+python scripts/report_development.py --credential ~/.ssh/teno-development-local.json --retry
+The default durable outbox is ~/.teno/development-outbox. Preserve referenced files
+until the receipt says published. A retry keeps the original build ID and timestamp.
+GitHub also preserves reporting receipts as artifacts; rerun a failed workflow to
+rebuild ephemeral runner files. Failed synchronization never replaces valid server data.
+
+Never commit credentials, AGENTS, real audio, account data or raw debug logs.
+Only reviewed summaries, selected screenshots and checked installation packages are sent.

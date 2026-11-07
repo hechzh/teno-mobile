@@ -26,6 +26,7 @@ jobs:
       - name: Scan source and full history
         run: python3 scripts/secret_audit.py --history
       - name: Shared dependencies, generated contract, analysis and tests
+        id: shared
         working-directory: shared-ui
         run: |
           flutter pub get --enforce-lockfile
@@ -35,6 +36,7 @@ jobs:
           flutter analyze --no-pub
           flutter test --no-pub
       - name: Android build and lint
+        id: android
         run: |
           chmod +x gradlew
           ./gradlew :app:assembleDebug :app:assembleRelease :app:lintRelease --console=plain
@@ -46,6 +48,19 @@ jobs:
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/release/*.apk
             app/build/reports/lint-results-release.html
+      - name: Report Android development result
+        if: always() && github.event_name != 'pull_request' && github.repository == 'hechzh/teno-mobile'
+        env:
+          TENO_DEVELOPMENT_TOKEN: ${{ secrets.TENO_DEVELOPMENT_TOKEN }}
+          TENO_DEVELOPMENT_STEPS: '{"shared":"${{ steps.shared.outcome }}","android":"${{ steps.android.outcome }}"}'
+          TENO_JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/report_development.py --ci android --status "$TENO_JOB_STATUS" --outbox development-outbox
+      - name: Preserve reporting receipt for retry
+        if: always() && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Teno-Android-reporting-receipt
+          path: development-outbox
   ios:
     runs-on: macos-15-intel
     env:
@@ -68,6 +83,7 @@ jobs:
           cd ../ios
           xcodegen generate
       - name: Compile and test iOS Simulator
+        id: simulator
         run: |
           DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(v["udid"] for a in d["devices"].values() for v in a if v["name"].startswith("iPhone")))')
           xcodebuild -project ios/Teno.xcodeproj -scheme Teno -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath ios/DerivedData -resultBundlePath ios/build/TestResults.xcresult CODE_SIGNING_ALLOWED=NO test > ios-build.log 2>&1 || { tail -200 ios-build.log; exit 1; }
@@ -79,6 +95,7 @@ jobs:
           xcrun simctl launch "$DEVICE" com.teno.app
           swift scripts/capture_ios.swift "$DEVICE" ios/build/screenshots/01-login.png
       - name: Build unsigned iPhone IPA
+        id: device
         run: |
           xcodebuild -project ios/Teno.xcodeproj -scheme Teno -configuration Release -destination "generic/platform=iOS" -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO build > ios-release.log 2>&1 || { tail -200 ios-release.log; exit 1; }
           mkdir -p ios/build/Payload
@@ -98,3 +115,16 @@ jobs:
             ios/Teno.xcodeproj
             ios-build.log
             ios-release.log
+      - name: Report iOS development result
+        if: always() && github.event_name != 'pull_request' && github.repository == 'hechzh/teno-mobile'
+        env:
+          TENO_DEVELOPMENT_TOKEN: ${{ secrets.TENO_DEVELOPMENT_TOKEN }}
+          TENO_DEVELOPMENT_STEPS: '{"simulator":"${{ steps.simulator.outcome }}","device":"${{ steps.device.outcome }}"}'
+          TENO_JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/report_development.py --ci ios --status "$TENO_JOB_STATUS" --outbox development-outbox
+      - name: Preserve reporting receipt for retry
+        if: always() && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Teno-iOS-reporting-receipt
+          path: development-outbox

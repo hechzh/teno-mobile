@@ -10,6 +10,7 @@ import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 RULES = {
+    "development-reporter-token": re.compile(rb"\btenodev_[A-Za-z0-9_-]{40,}"),
     "provider-token": re.compile(rb"\bsk-[A-Za-z0-9_-]{24,}"),
     "github-token": re.compile(rb"\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,})"),
     "private-key": re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH |ENCRYPTED )?PRIVATE KEY-----"),

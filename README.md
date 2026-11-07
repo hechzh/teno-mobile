@@ -105,3 +105,6 @@ python scripts/secret_audit.py --artifact dist/Teno-0.5.0.apk
 ```
 
 AGENTS files, environment files, accounts, private signing/SSH material, actual recordings, logs, databases and generated build folders are excluded. Source archives use Git's explicit tracked-file allowlist and are scanned again. Vendor files are unchanged, authorized dependencies: see `VENDOR-JWD.md`, `ios/VENDOR.txt` and their hash records. The software is an independent implementation; it does not call PLAUD or Pocket private services.
+
+
+Private development roadmap and build reporting: [scripts/DEVELOPMENT-REPORTING.txt](scripts/DEVELOPMENT-REPORTING.txt).
