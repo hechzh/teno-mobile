@@ -95,7 +95,7 @@ class CircleAction extends StatelessWidget {
       tooltip: label,
       style: IconButton.styleFrom(
         side: const BorderSide(color: line),
-        backgroundColor: Colors.white.withValues(alpha: .5),
+        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: .5),
       ),
       icon: Icon(icon, size: 22),
     ),
@@ -187,8 +187,8 @@ class ErrorNotice extends StatelessWidget {
     margin: const EdgeInsets.symmetric(vertical: 10),
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Colors.white,
-      border: Border.all(color: line),
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
+      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       borderRadius: BorderRadius.circular(14),
     ),
     child: Row(

@@ -1,3 +1,31 @@
+Teno0.6.0 Android personal core — current
+
+Android host app/ keeps recording, JWD SDK, encryption, durable upload queue,
+URI staging/permissions, camera, calendar, audio playback/export and App lock.
+shared-ui/lib/features/personal_* contains the current Android presentation.
+The Pigeon platformCommand bridge exposes structured results, never private file
+paths or provider keys. Themes and personal preferences are cached per account.
+
+Shared backend1.4.0 adds migration007 without rewriting old business records.
+The personal pipeline is explicitly selected on uploads and manual reprocessing;
+old clients retain their original behavior. Files, notes/revisions, variants,
+speaker names, recording metadata and share snapshots have separate owner-scoped
+tables. Word/PPTX rendering and OCR run locally on the server. New personal jobs
+and prompts remain independent of team meeting/profile/task generation.
+
+Personal exports and public links resolve current ownership and source availability.
+The latter copy a fixed content version and default to no audio, summary only,
+seven days. Deleting/trashing the source or revoking/expiring the link invalidates it.
+
+UI evidence: design-baseline/v0.6.0, one independent page/state per canvas and
+three display variants. Runtime evidence: verification/v0.6.0 only. Historical
+0.5.0/iOS/hardware results are not inherited. Physical Magic4 Pro/JWD and a paid
+near-120-minute provider call remain unverified. The split/time-axis boundary is
+covered by synthetic tests. iOS host signature changes are bridge compatibility
+stubs; this release builds Android only.
+
+Historical0.5.0 architecture follows.
+
 Teno mobile architecture — approved 2026-11-04
 
 Design: the 33 individual pages in design-review/plaud-rebuild/20261104.

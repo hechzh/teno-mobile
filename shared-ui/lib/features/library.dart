@@ -322,7 +322,16 @@ class _SearchPageState extends State<SearchPage> {
         final next = await widget.model.list(
           '/api/v1/search?q=' + Uri.encodeQueryComponent(value.trim()),
         );
-        if (mounted && version == generation) setState(() => results = next);
+        if (mounted && version == generation) {
+          setState(
+            () => results = next.map((item) {
+              final record = object(item['recording']);
+              return record.isEmpty
+                  ? item
+                  : {...record, 'matches': item['matches']};
+            }).toList(),
+          );
+        }
       } catch (e) {
         if (mounted && version == generation)
           setState(() => error = TenoModel.friendly(e));
@@ -367,7 +376,15 @@ class _SearchPageState extends State<SearchPage> {
                           r,
                           () => push(
                             context,
-                            DetailPage(widget.model, text(r['id'])),
+                            DetailPage(
+                              widget.model,
+                              text(r['id']),
+                              seekMs: rows(r['matches']).isEmpty
+                                  ? null
+                                  : (rows(r['matches']).first['start_ms']
+                                            as num?)
+                                        ?.toInt(),
+                            ),
                           ),
                         ),
                     ],

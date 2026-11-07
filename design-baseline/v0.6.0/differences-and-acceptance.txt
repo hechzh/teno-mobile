@@ -1,0 +1,366 @@
+Teno0.6.0 · Android逐页差异与验收
+
+版本：Android0.6.0 / versionCode11；共享后端1.4.0 / 增量迁移007。
+范围：本轮个人核心。JWD、Automatic、Azure/DeepSeek、账号隔离和完整本机保留沿用。
+保留差异：音视频120分钟/250MiB；无本人声纹、Agent、Work、Tasks、Skills、Routines、Connectors、支付、团队或第三方登录。
+证据边界：Flutter测试截图使用合成资料。官方截图含iOS系统栏；Android系统栏/键盘/选择器按系统规范。缺少对应原图的状态明确标为推定，不称像素级复刻或原版运行验收。
+验证：本轮Android分析和213项Flutter回归通过；后端198项隔离回归、34张旧业务表迁移前后哈希、旧端11项/新端16项恢复库兼容、21项正式HTTPS检查通过。
+真实供应商：75.263秒中英合成语音、2个返回说话人标签、18项检查、4条Usage；结果在隔离恢复库，非客户录音质量/实机验证。
+边界：120分钟分段和完整时间轴已做合成/隔离验证；未进行接近120分钟的付费供应商调用。Magic4 Pro和真实JWD仍待人工验收。
+Cloud processing：未配置默认开启，明确关闭保持；先完整保存再排队。Wi-Fi限制和重启恢复沿用持久队列；旧未申请文件不自动补传。
+文档/OCR：本地处理，Word渲染页码；200页/10分钟/一百万提取字符保护，超过限制明确报错并保留原文件。
+交付不自动提升0.5.0已确认基线，不合并main，不发布应用商店，本轮不构建iOS。
+
+01-home · Home
+原图：https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later
+改动：恢复 Upcoming、日期分组、排序入口和底部 Ask；本机未上传文件单独标明状态。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/01-home.png, screenshots/android/dark/01-home.png, screenshots/android/large/01-home.png
+
+02-navigation · Navigation
+原图：https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later
+改动：侧栏分组与选中样式对齐；品牌为 Teno / Ask Teno，本期不显示 Work、会员和团队。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/02-navigation.png, screenshots/android/dark/02-navigation.png, screenshots/android/large/02-navigation.png
+
+03-create-menu · Create Menu
+原图：https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later
+改动：新增菜单包含设备录音、导入和新 Chat；手机录音保留次级入口。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/03-create-menu.png, screenshots/android/dark/03-create-menu.png, screenshots/android/large/03-create-menu.png
+
+04-library · Library
+原图：https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later
+改动：系统目录、嵌套文件夹、排序、批量移动/删除/恢复和拖拽归档。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/04-library.png, screenshots/android/dark/04-library.png, screenshots/android/large/04-library.png
+
+05-recordings · Recordings
+原图：https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429952453657-Create-rename-and-delete-folders-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/05-recordings.png, screenshots/android/dark/05-recordings.png, screenshots/android/large/05-recordings.png
+
+06-search · Search
+原图：https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later
+改动：解析旧 recording + matches 契约；新检索覆盖笔记、文件夹、文档和说话人，支持高亮和匹配定位。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/06-search.png, screenshots/android/dark/06-search.png, screenshots/android/large/06-search.png
+
+07-device-connect · Device Connect
+原图：https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later
+改动：展示真实 JWD 服务核实、连接、电量、录音与传输状态；使用 Teno/JWD 通用设备图标。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/07-device-connect.png, screenshots/android/dark/07-device-connect.png, screenshots/android/large/07-device-connect.png
+
+09-recording · Recording
+原图：https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429919023385-Highlight-a-moment-while-recording-for-v4-0-x-or-later
+改动：保留暂停/停止、文字与时间高亮，并增加录音照片；设备断连不声称已停止。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/09-recording.png, screenshots/android/dark/09-recording.png, screenshots/android/large/09-recording.png
+
+10-paused · Paused
+原图：https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/10-paused.png, screenshots/android/dark/10-paused.png, screenshots/android/large/10-paused.png
+
+14-recording-notes · Recording Notes
+原图：https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later
+改动：补 New note、多笔记列表、封面、独立编辑与版本；旧摘要保留并投射到新界面。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/14-recording-notes.png, screenshots/android/dark/14-recording-notes.png, screenshots/android/large/14-recording-notes.png
+
+15-transcript · Transcript
+原图：https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429920002201-Play-back-audio-for-v4-0-x-or-later
+改动：真实波形、章节、跟随播放和前后跳转；原稿/编辑稿/清理稿分开，姓名按录音版本保存。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/15-transcript.png, screenshots/android/dark/15-transcript.png, screenshots/android/large/15-transcript.png
+
+17-templates · Templates
+原图：https://support.plaud.ai/hc/en-us/articles/63429951493401-Summary-templates-for-v4-0-x-or-later
+改动：Teno 自有推荐模板、分类/搜索、收藏/最近使用和自建编辑；不伪造官方社区内容。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/17-templates.png, screenshots/android/dark/17-templates.png, screenshots/android/large/17-templates.png
+
+18-chat-history · Chat History
+原图：https://support.plaud.ai/hc/en-us/articles/63429926029593-Ask-Plaud-Chat-and-Work-modes-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/18-chat-history.png, screenshots/android/dark/18-chat-history.png, screenshots/android/large/18-chat-history.png
+
+19-new-chat · New Chat
+原图：https://support.plaud.ai/hc/en-us/articles/63429926029593-Ask-Plaud-Chat-and-Work-modes-for-v4-0-x-or-later
+改动：Chat 支持录音、笔记、文件夹和文档上下文；语音识别结果先显示为可编辑文字。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/19-new-chat.png, screenshots/android/dark/19-new-chat.png, screenshots/android/large/19-new-chat.png
+
+20-chat-context · Chat Context
+原图：https://support.plaud.ai/hc/en-us/articles/63429922328217-Choose-the-right-context-for-an-Agent-task-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/20-chat-context.png, screenshots/android/dark/20-chat-context.png, screenshots/android/large/20-chat-context.png
+
+21-settings · Settings
+原图：https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429932825881-Adjust-your-profile-details-for-v4-0-x-or-later
+改动：设置分组包含通知、主题、缓存和默认关闭的系统凭据应用锁。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/21-settings.png, screenshots/android/dark/21-settings.png, screenshots/android/large/21-settings.png
+
+22-preferences · Preferences
+原图：https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later
+改动：Cloud processing 缺省开启，显式 false 保留；不因首次录音设置而阻止自动处理，不补传历史未申请文件。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/22-preferences.png, screenshots/android/dark/22-preferences.png, screenshots/android/large/22-preferences.png
+
+23-export · Export
+原图：https://support.plaud.ai/hc/en-us/articles/63429911054617-Export-transcripts-notes-and-audio-for-v4-0-x-or-later
+改动：按内容/格式/选项导出真实 MP3/WAV/TXT/MD/SRT/DOCX/PDF/JSON；时间、姓名、标记和封面可选。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/23-export.png, screenshots/android/dark/23-export.png, screenshots/android/large/23-export.png
+
+24-trash · Trash
+原图：https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/24-trash.png, screenshots/android/dark/24-trash.png, screenshots/android/large/24-trash.png
+
+25-login · Login
+原图：无同页官方原图，按已确认范围推定
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/25-login.png, screenshots/android/dark/25-login.png, screenshots/android/large/25-login.png
+
+26-import · Import
+原图：https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later
+改动：From Files / From Photos / From other apps；多文件先完整保存，再按账号设置进入持久队列。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/26-import.png, screenshots/android/dark/26-import.png, screenshots/android/large/26-import.png
+
+27-share · Share
+原图：https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later
+改动：用户显式创建固定版本链接；默认仅摘要、7天、不带音频，支持撤销，来源删除后失效。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/27-share.png, screenshots/android/dark/27-share.png, screenshots/android/large/27-share.png
+
+28-calendar · Calendar
+原图：https://support.plaud.ai/hc/en-us/articles/63429952262041-Calendar-events-link-recordings-to-your-meetings-for-v4-0-x-or-later
+改动：手机日历、手动和 ICS 导入；可关联录音，不接入第三方 OAuth。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/28-calendar.png, screenshots/android/dark/28-calendar.png, screenshots/android/large/28-calendar.png
+
+29-photos · Photos
+原图：https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later
+改动：系统目录、嵌套文件夹、排序、批量移动/删除/恢复和拖拽归档。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/29-photos.png, screenshots/android/dark/29-photos.png, screenshots/android/large/29-photos.png
+
+30-notes · Notes
+原图：https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later
+改动：独立文字笔记与引用来源；编辑/重新生成保存为修订，原版本保留。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/30-notes.png, screenshots/android/dark/30-notes.png, screenshots/android/large/30-notes.png
+
+31-imports · Imports
+原图：https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later
+改动：From Files / From Photos / From other apps；多文件先完整保存，再按账号设置进入持久队列。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/31-imports.png, screenshots/android/dark/31-imports.png, screenshots/android/large/31-imports.png
+
+32-note · Note
+原图：https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later
+改动：独立文字笔记与引用来源；编辑/重新生成保存为修订，原版本保留。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/32-note.png, screenshots/android/dark/32-note.png, screenshots/android/large/32-note.png
+
+33-note-editor · Note Editor
+原图：https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later
+改动：独立文字笔记与引用来源；编辑/重新生成保存为修订，原版本保留。
+状态：Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/33-note-editor.png, screenshots/android/dark/33-note-editor.png, screenshots/android/large/33-note-editor.png
+
+34-document · Document
+原图：无同页官方原图，按已确认范围推定
+改动：服务端本地提取/OCR，保存页码与来源；Word 渲染后定位实际页，损坏/加密/超限明确报错。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/34-document.png, screenshots/android/dark/34-document.png, screenshots/android/large/34-document.png
+
+35-local-files · Local Files
+原图：https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429935495065-Automatic-transcription-and-summaries-for-v4-0-x-or-later
+改动：完整本机副本、手动/批量上传和状态；失败保留原文件及稳定 client_id。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/35-local-files.png, screenshots/android/dark/35-local-files.png, screenshots/android/large/35-local-files.png
+
+36-local-recording · Local Recording
+原图：https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429935495065-Automatic-transcription-and-summaries-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/36-local-recording.png, screenshots/android/dark/36-local-recording.png, screenshots/android/large/36-local-recording.png
+
+37-storage · Storage
+原图：https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later
+改动：查看本机副本与缓存用量；清缓存不删除录音原文件。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/37-storage.png, screenshots/android/dark/37-storage.png, screenshots/android/large/37-storage.png
+
+38-links · Links
+原图：https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later
+改动：用户显式创建固定版本链接；默认仅摘要、7天、不带音频，支持撤销，来源删除后失效。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/38-links.png, screenshots/android/dark/38-links.png, screenshots/android/large/38-links.png
+
+39-home-empty · Home Empty
+原图：https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later
+改动：空态保持原页面结构，提供已实现的录音和导入路径。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/39-home-empty.png, screenshots/android/dark/39-home-empty.png, screenshots/android/large/39-home-empty.png
+
+40-library-empty · Library Empty
+原图：https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later
+改动：系统目录、嵌套文件夹、排序、批量移动/删除/恢复和拖拽归档。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/40-library-empty.png, screenshots/android/dark/40-library-empty.png, screenshots/android/large/40-library-empty.png
+
+41-library-offline · Library Offline
+原图：https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later
+改动：连接失败仍可访问本机文件，显示原因和重试。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/41-library-offline.png, screenshots/android/dark/41-library-offline.png, screenshots/android/large/41-library-offline.png
+
+42-home-loading · Home Loading
+原图：https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later
+改动：恢复 Upcoming、日期分组、排序入口和底部 Ask；本机未上传文件单独标明状态。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/42-home-loading.png, screenshots/android/dark/42-home-loading.png, screenshots/android/large/42-home-loading.png
+
+43-search-matches · Search Matches
+原图：https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later
+改动：结果高亮，录音定位时间、文档定位页码，笔记打开对应内容。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/43-search-matches.png, screenshots/android/dark/43-search-matches.png, screenshots/android/large/43-search-matches.png
+
+44-library-sort · Library Sort
+原图：https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/44-library-sort.png, screenshots/android/dark/44-library-sort.png, screenshots/android/large/44-library-sort.png
+
+45-library-select · Library Select
+原图：https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later
+改动：多选管理；合并只对多条录音开放，生成新记录并保留原文件。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/45-library-select.png, screenshots/android/dark/45-library-select.png, screenshots/android/large/45-library-select.png
+
+46-library-create · Library Create
+原图：https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/46-library-create.png, screenshots/android/dark/46-library-create.png, screenshots/android/large/46-library-create.png
+
+47-folder-menu · Folder Menu
+原图：https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/47-folder-menu.png, screenshots/android/dark/47-folder-menu.png, screenshots/android/large/47-folder-menu.png
+
+48-recording-options · Recording Options
+原图：https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later
+改动：补 New note、多笔记列表、封面、独立编辑与版本；旧摘要保留并投射到新界面。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/48-recording-options.png, screenshots/android/dark/48-recording-options.png, screenshots/android/large/48-recording-options.png
+
+49-speaker-names · Speaker Names
+原图：https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429920002201-Play-back-audio-for-v4-0-x-or-later
+改动：手动命名限定当前录音和转写版本；重新转写后重新核对，不跨录音猜身份。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/49-speaker-names.png, screenshots/android/dark/49-speaker-names.png, screenshots/android/large/49-speaker-names.png
+
+50-find-replace · Find Replace
+原图：https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later
+改动：查找替换保存编辑修订，原始 ASR 内容完整保留。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/50-find-replace.png, screenshots/android/dark/50-find-replace.png, screenshots/android/large/50-find-replace.png
+
+51-trim-audio · Trim Audio
+原图：无同页官方原图，按已确认范围推定
+改动：按秒选取裁剪范围，异步生成新录音；合并同样保留原始文件。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/51-trim-audio.png, screenshots/android/dark/51-trim-audio.png, screenshots/android/large/51-trim-audio.png
+
+52-transcript-variants · Transcript Variants
+原图：https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429920002201-Play-back-audio-for-v4-0-x-or-later
+改动：真实波形、章节、跟随播放和前后跳转；原稿/编辑稿/清理稿分开，姓名按录音版本保存。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/52-transcript-variants.png, screenshots/android/dark/52-transcript-variants.png, screenshots/android/large/52-transcript-variants.png
+
+53-template-picker · Template Picker
+原图：https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/53-template-picker.png, screenshots/android/dark/53-template-picker.png, screenshots/android/large/53-template-picker.png
+
+54-note-versions · Note Versions
+原图：https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later
+改动：独立笔记版本可追溯；重新生成保留原文和原摘要。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/54-note-versions.png, screenshots/android/dark/54-note-versions.png, screenshots/android/large/54-note-versions.png
+
+55-export-audio · Export Audio
+原图：https://support.plaud.ai/hc/en-us/articles/63429911054617-Export-transcripts-notes-and-audio-for-v4-0-x-or-later
+改动：按内容/格式/选项导出真实 MP3/WAV/TXT/MD/SRT/DOCX/PDF/JSON；时间、姓名、标记和封面可选。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/55-export-audio.png, screenshots/android/dark/55-export-audio.png, screenshots/android/large/55-export-audio.png
+
+56-calendar-permission · Calendar Permission
+原图：https://support.plaud.ai/hc/en-us/articles/63429952262041-Calendar-events-link-recordings-to-your-meetings-for-v4-0-x-or-later
+改动：系统权限拒绝时明确提示，可使用手动/ICS 日历路径。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/56-calendar-permission.png, screenshots/android/dark/56-calendar-permission.png, screenshots/android/large/56-calendar-permission.png
+
+57-document-failed · Document Failed
+原图：无同页官方原图，按已确认范围推定
+改动：解析失败显示原因并保留原文件，可重试。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/57-document-failed.png, screenshots/android/dark/57-document-failed.png, screenshots/android/large/57-document-failed.png
+
+58-document-processing · Document Processing
+原图：无同页官方原图，按已确认范围推定
+改动：沿用对应核心页面布局，并补齐本状态的操作与错误反馈。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/58-document-processing.png, screenshots/android/dark/58-document-processing.png, screenshots/android/large/58-document-processing.png
+
+59-import-pending · Import Pending
+原图：https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later
+改动：外部分享先暂存，用户登录后明确接受到当前账号。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/59-import-pending.png, screenshots/android/dark/59-import-pending.png, screenshots/android/large/59-import-pending.png
+
+60-import-error · Import Error
+原图：https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later
+改动：From Files / From Photos / From other apps；多文件先完整保存，再按账号设置进入持久队列。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/60-import-error.png, screenshots/android/dark/60-import-error.png, screenshots/android/large/60-import-error.png
+
+61-note-keyboard · Note Keyboard
+原图：https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later
+改动：长标题可编辑；系统键盘区域下保留保存入口。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/61-note-keyboard.png, screenshots/android/dark/61-note-keyboard.png, screenshots/android/large/61-note-keyboard.png
+
+62-processing-failed · Processing Failed
+原图：https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later
+改动：转写/摘要失败停止无限等待，提供原因与重试；静音文件保留音频。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/62-processing-failed.png, screenshots/android/dark/62-processing-failed.png, screenshots/android/large/62-processing-failed.png
+
+63-calendar-upcoming · Calendar Upcoming
+原图：https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later；https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later
+改动：恢复 Upcoming、日期分组、排序入口和底部 Ask；本机未上传文件单独标明状态。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/63-calendar-upcoming.png, screenshots/android/dark/63-calendar-upcoming.png, screenshots/android/large/63-calendar-upcoming.png
+
+64-share-created · Share Created
+原图：https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later
+改动：用户显式创建固定版本链接；默认仅摘要、7天、不带音频，支持撤销，来源删除后失效。
+状态：含推定；Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.
+截图：screenshots/android/light/64-share-created.png, screenshots/android/dark/64-share-created.png, screenshots/android/large/64-share-created.png

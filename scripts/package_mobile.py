@@ -21,7 +21,15 @@ def main():
     parser.add_argument('--ipa',type=pathlib.Path)
     parser.add_argument('--ios-run')
     parser.add_argument('--private-values',action='append',default=[])
+    parser.add_argument('--android-only',action='store_true')
+    parser.add_argument('--version')
+    parser.add_argument('--evidence-dir',type=pathlib.Path)
     options=parser.parse_args()
+    version=re.search(r"versionName\s+['\"]([^'\"]+)",(ROOT/'app/build.gradle').read_text())[1]
+    if options.android_only or version!='0.5.0':
+        assert not options.ipa,'This release packages Android independently'
+        from package_android_release import package
+        return package(options.version or version, options.evidence_dir, options.private_values)
     assert subprocess.run(['git','diff','--quiet','HEAD','--'],cwd=ROOT).returncode==0,'Commit reviewed source before packaging'
     secret_audit.load_private(options.private_values)
     accounts=pathlib.Path.home()/'.ssh/pocket-test-accounts.json'

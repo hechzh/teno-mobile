@@ -4,6 +4,9 @@ import 'core/model.dart';
 import 'ui/widgets.dart';
 import 'features/home.dart';
 import 'features/login.dart';
+import 'features/personal_home.dart';
+import 'ui/personal_widgets.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +34,15 @@ class _TenoAppState extends State<TenoApp> {
     builder: (context, _) => MaterialApp(
       title: 'Teno',
       debugShowCheckedModeBanner: false,
-      theme: tenoTheme(),
+      theme: widget.model.personalCore ? personalTheme(false) : tenoTheme(),
+      darkTheme: personalTheme(true),
+      themeMode: !widget.model.personalCore
+          ? ThemeMode.light
+          : switch (widget.model.personalSettings['theme']) {
+              'light' => ThemeMode.light,
+              'dark' => ThemeMode.dark,
+              _ => ThemeMode.system,
+            },
       // Reset the complete route stack when the account changes.
       key: ValueKey(widget.model.runtime?.session.scope ?? 'initializing'),
       home: widget.model.runtime == null
@@ -46,7 +57,10 @@ class _TenoAppState extends State<TenoApp> {
               ),
             )
           : widget.model.signedIn
-          ? HomePage(widget.model)
+          ? widget.model.personalCore &&
+                    defaultTargetPlatform == TargetPlatform.android
+                ? PersonalHome(widget.model)
+                : HomePage(widget.model)
           : LoginPage(widget.model),
     ),
   );

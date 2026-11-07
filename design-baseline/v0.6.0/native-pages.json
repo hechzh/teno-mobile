@@ -1,0 +1,20 @@
+[
+  {
+    "id": "03-import-entry-android",
+    "path": "screenshots/native/03-import-entry-android.png",
+    "sha256": "6cf3c1f7b8b8308f0b1f7f163e13170b2412dfb36961de62b2f8ae5b2bf13e59",
+    "evidence": "Actual API35 emulator capture, synthetic account; no physical phone claim."
+  },
+  {
+    "id": "05-system-files-android",
+    "path": "screenshots/native/05-system-files-android.png",
+    "sha256": "53b1b80a3a0ddfe5f80f7a1dc70d7b3e3cba042023e4e32d8e7fcb24b6bdf898",
+    "evidence": "Actual API35 emulator capture, synthetic account; no physical phone claim."
+  },
+  {
+    "id": "06-system-photos-android",
+    "path": "screenshots/native/06-system-photos-android.png",
+    "sha256": "f1bcdff0abbdc68dde0a424098a92c46835820265afa6d068c8fd8d027dfeb37",
+    "evidence": "Actual API35 emulator capture, synthetic account; no physical phone claim."
+  }
+]

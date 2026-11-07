@@ -1,4 +1,13 @@
-Teno 双平台版本管理 — 2026-11-05
+Teno 版本管理 — 2026-11-08
+
+当前交付 Android 0.6.0 / versionCode 11；分支 feature/teno-0.6.0-plaud-core-android。
+共享后端 1.4.0 / 迁移 007 在独立共享仓库中发布；本轮不构建 iOS。
+0.6.0 自有验证目录 verification/v0.6.0，逐页目录 design-baseline/v0.6.0。
+打包使用 scripts/package_mobile.py --android-only --version 0.6.0；不得继承旧端验证。
+CI 按移动端版本读元数据，本功能分支只执行 Android；原签名交付仍由本机保护的签名配置生成。
+构建只进入开发历史，0.5.0 Android/iOS 已确认基线不自动提升；main、商店和 GitHub Release 不自动发布。
+
+以下为 0.5.0 双平台历史规则和仍适用的仓库保护：
 
 唯一移动端仓库：pocket/android
 公开 remote：https://github.com/hechzh/teno-mobile

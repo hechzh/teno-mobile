@@ -71,7 +71,7 @@ final class JwdAudio {
             try{reader.setDataSource(target.getAbsolutePath());duration=Long.parseLong(reader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));}finally{reader.release();}
             if(duration<=0||duration>3600000)throw new IOException("Audio duration is invalid or exceeds 60 minutes");
             if(seconds>0&&Math.abs(duration-seconds*1000)>Math.max(3000,seconds*50))throw new IOException("Audio duration does not match the device file. The original file was kept.");
-            draft.put("source","jwd_ble").put("jwd_directory",dir).put("jwd_file",name).put("jwd_crc32",crc).put("jwd_verification",verification).put("duration_ms",duration).put("source_bytes",raw.length());
+            draft.put("source","jwd_ble").put("jwd_device",address).put("jwd_directory",dir).put("jwd_file",name).put("jwd_crc32",crc).put("jwd_verification",verification).put("duration_ms",duration).put("source_bytes",raw.length());
             store.save(draft);return draft;
         }catch(Exception e){target.delete();throw e;}
     }

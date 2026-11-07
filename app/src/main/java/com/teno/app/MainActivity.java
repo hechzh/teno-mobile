@@ -41,7 +41,7 @@ public class MainActivity extends FlutterActivity {
         if(allowed)granted.run();else denied.accept(new SecurityException("Permission was not granted. Enable it in Android Settings to use this feature."));
     }
     @Override protected void onActivityResult(int request,int result,Intent data){
-        super.onActivityResult(request,result,data);if(runtime!=null)runtime.media.activityResult(request,result,data);
+        super.onActivityResult(request,result,data);if(runtime!=null&&!runtime.personal.activityResult(request,result,data))runtime.media.activityResult(request,result,data);
     }
     @Override protected void onDestroy(){if(runtime!=null)runtime.close();super.onDestroy();}
     static String clock(long ms){long seconds=Math.max(0,ms)/1000;return String.format(Locale.ROOT,"%02d:%02d",seconds/60,seconds%60);}

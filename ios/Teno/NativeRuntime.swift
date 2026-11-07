@@ -118,6 +118,9 @@ import UIKit
         try FileManager.default.removeItem(at:directory.appendingPathComponent(localId + ".json"))
     }
     func importAudio() async throws -> String? { try signedIn(); return try await media.importAudio() }
+    func platformCommand(command: String,jsonBody: String?) async throws -> String {
+        throw RuntimeFailure("PLATFORM_UNAVAILABLE","This feature is available in the Android 0.6.0 release.")
+    }
     func playback(action: PlaybackAction,mediaId: String,local: Bool,positionMs: Int64,speed: Double) async throws {
         try signedIn()
         guard !phone.active else { throw RuntimeFailure("RECORDING_ACTIVE","Finish the phone recording before playing audio.") }

@@ -21,6 +21,7 @@ final class NativeRuntime implements RuntimeHost {
     final Handler main=new Handler(Looper.getMainLooper());
     final ExecutorService io=Executors.newSingleThreadExecutor();
     final NativeMedia media;
+    final PersonalRuntime personal;
     private final BinaryMessenger messenger;
     private final RuntimeEvents events;
     private boolean closed,visible;
@@ -29,7 +30,7 @@ final class NativeRuntime implements RuntimeHost {
     private String route="",lastSource="phone",pendingPhoneId="";
     NativeRuntime(MainActivity activity,BinaryMessenger messenger){
         this.activity=activity;this.messenger=messenger;store=new Store(activity);api=new Api(store);
-        media=new NativeMedia(this);events=new RuntimeEvents(messenger);RuntimeHost.setUp(messenger,this);
+        media=new NativeMedia(this);personal=new PersonalRuntime(this);events=new RuntimeEvents(messenger);RuntimeHost.setUp(messenger,this);
     }
     interface Work<T>{T run()throws Exception;}
     interface Action{void run()throws Exception;}
@@ -46,8 +47,8 @@ final class NativeRuntime implements RuntimeHost {
             ()->{action.run();return true;});
     }
     void ui(VoidResult result,Action action){main.post(()->{try{action.run();result.success();}catch(Exception e){result.error(failure(e));}});}
-    void resume(){visible=true;main.removeCallbacks(tick);main.post(tick);}
-    void suspendUi(){visible=false;main.removeCallbacks(tick);}
+    void resume(){visible=true;personal.resume();ProcessingJobService.schedule(activity);main.removeCallbacks(tick);main.post(tick);}
+    void suspendUi(){visible=false;personal.pause();main.removeCallbacks(tick);}
     private final Runnable tick=new Runnable(){public void run(){
         if(closed||!visible)return;
         try{events.changed(state(),new VoidResult(){public void success(){}public void error(Throwable e){}});}
@@ -56,10 +57,13 @@ final class NativeRuntime implements RuntimeHost {
     }};
     void acceptIntent(Intent intent){
         if(intent==null)return;
+        if(personal.acceptIntent(intent))return;
         if(intent.hasExtra("recording_id")){route="recording:"+intent.getStringExtra("recording_id");intent.removeExtra("recording_id");}
         else if(intent.hasExtra("open_recording")){route="capture:"+SystemClock.elapsedRealtime();intent.removeExtra("open_recording");}
         else if(intent.hasExtra("open_device")){route="device:"+SystemClock.elapsedRealtime();intent.removeExtra("open_device");}
     }
+    void openPersonal(String name){route=name+":"+SystemClock.elapsedRealtime();}
+    @Override public void platformCommand(String command,String json,Result<String> result){personal.command(command,json,result);}
     private SessionState session(){
         return new SessionState.Builder().setSignedIn(!store.scope().isEmpty()&&!store.token("access_token").isEmpty())
             .setUsername(store.name()).setScope(store.scope()).setServer(store.base()).setCloudUpload(store.autoUpload())
@@ -139,7 +143,9 @@ final class NativeRuntime implements RuntimeHost {
                 ||!Arrays.asList("GET","POST","PATCH","DELETE").contains(method))throw new IOException("Unsupported API request.");
             String owner=store.scope();JSONObject body=json==null?null:new JSONObject(json);
             JSONObject answer=path.equals("/api/v1/me")&&method.equals("PATCH")?api.savePreferences(body):api.request(method,path,body);
-            if(!owner.equals(store.scope()))throw new IOException("Account changed. Reload this page.");return answer.toString();});
+            if(!owner.equals(store.scope()))throw new IOException("Account changed. Reload this page.");
+            if(method.equals("POST"))personal.processingRetry(path,answer);
+            return answer.toString();});
     }
     @Override public void configure(Boolean cloud,Boolean wifi,Boolean live,VoidResult result){
         work(result,()->{signedIn();store.recordingOptions(cloud,wifi,live);UploadQueue.resume(activity);});
@@ -203,5 +209,5 @@ final class NativeRuntime implements RuntimeHost {
     @Override public void shareExport(String id,String format,VoidResult result){media.shareExport(id,format,result);}
     @Override public void shareText(String text,VoidResult result){ui(result,()->activity.startActivity(Intent.createChooser(
         new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT,text),"Share Teno notes")));}
-    void close(){closed=true;visible=false;main.removeCallbacks(tick);RuntimeHost.setUp(messenger,null);media.releasePlayer();io.shutdown();}
+    void close(){closed=true;visible=false;main.removeCallbacks(tick);RuntimeHost.setUp(messenger,null);personal.close();media.releasePlayer();io.shutdown();}
 }

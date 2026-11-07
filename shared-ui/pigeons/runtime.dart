@@ -152,6 +152,8 @@ abstract class RuntimeHost {
   @async
   String request(String method, String path, String? jsonBody);
   @async
+  String platformCommand(String command, String? jsonBody);
+  @async
   void configure(bool cloudUpload, bool wifiOnly, bool livePreview);
   @async
   String startPhone(String title);

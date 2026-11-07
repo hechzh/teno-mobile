@@ -54,6 +54,8 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
   final RuntimeHost host;
   RuntimeState? runtime;
   List<Json> recordings = [], folders = [];
+  Json capabilities = {}, personalSettings = {};
+  bool personalCore = false;
   String error = '';
   bool loading = false, moreAvailable = true;
   Timer? _processingTimer;
@@ -73,7 +75,10 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
     RuntimeEvents.setUp(this);
     try {
       changed(await host.snapshot());
-      if (signedIn) await refresh();
+      if (signedIn) {
+        await loadPersonal();
+        await refresh();
+      }
     } catch (e) {
       error = friendly(e);
       notifyListeners();
@@ -99,6 +104,9 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
       recordings = [];
       folders = [];
       error = '';
+      personalSettings = {};
+      capabilities = {};
+      personalCore = false;
     }
     runtime = state;
     notifyListeners();
@@ -118,6 +126,45 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
 
   Future<List<Json>> list(String path) async =>
       rows((await api('GET', path))['items']);
+
+  Future<Json> command(String action, [Json? args]) async => object(
+    jsonDecode(
+      await host.platformCommand(
+        action,
+        args == null ? null : jsonEncode(args),
+      ),
+    ),
+  );
+
+  Future<void> loadPersonal() async {
+    try {
+      final native = await command('preferences');
+      personalCore = native['personal_core'] == true;
+      personalSettings = object(native['settings']);
+      if (!_disposed) notifyListeners();
+    } catch (_) {}
+    try {
+      capabilities = await api('GET', '/api/v1/capabilities');
+      personalCore = personalCore || capabilities['personal_core'] == 1;
+      if (personalCore) {
+        personalSettings = await api('GET', '/api/v1/personal/preferences');
+        await command('cache_preferences', personalSettings);
+      }
+    } catch (_) {
+      /* Local recording remains available offline. */
+    }
+    if (!_disposed) notifyListeners();
+  }
+
+  Future<void> updatePersonal(Json values) async {
+    personalSettings = await api(
+      'PATCH',
+      '/api/v1/personal/preferences',
+      values,
+    );
+    await command('cache_preferences', personalSettings);
+    if (!_disposed) notifyListeners();
+  }
 
   Future<void> refresh({bool append = false}) async {
     if (!signedIn || loading) return;
@@ -144,6 +191,7 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
   Future<void> signIn(String server, String username, String password) async {
     await host.login(server, username.trim(), password);
     changed(await host.snapshot());
+    await loadPersonal();
     await refresh();
   }
 

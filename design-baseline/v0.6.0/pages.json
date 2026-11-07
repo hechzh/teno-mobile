@@ -1,0 +1,2152 @@
+[
+  {
+    "id": "01-home",
+    "title": "Home",
+    "reference_id": "01",
+    "official_sources": [
+      {
+        "file": "S50-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527397273",
+        "alt": "",
+        "sha256": "54d23959ab434830a00eab3587f85e0b9dfe9016425133f5391b94d72a99464b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S78-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63439087979161",
+        "alt": "",
+        "sha256": "0eddf24db7e66860adb56c7c630c96c68badadf119219a5ff7648462c92aff6b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "恢复 Upcoming、日期分组、排序入口和底部 Ask；本机未上传文件单独标明状态。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/01-home.png",
+        "sha256": "f8689de2dc0e52b5d1144192539a2448b63e516f7e7fbaf687b44ffb5fa69fac"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/01-home.png",
+        "sha256": "c72e2eb6b9dc8f2411461288b852d9586dde80fcde11509f2b0d281230d2e341"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/01-home.png",
+        "sha256": "ee8cdfe3bdbda119cb09880e82b5c2b80ea14a9f79333c61ae5c56bc487a73c6"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "02-navigation",
+    "title": "Navigation",
+    "reference_id": "02",
+    "official_sources": [
+      {
+        "file": "S44-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430604799897",
+        "alt": "",
+        "sha256": "37a3e961ef5beb4a3fcbd14143a3276ce568864e84b62a132b08875979b2b410",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "侧栏分组与选中样式对齐；品牌为 Teno / Ask Teno，本期不显示 Work、会员和团队。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/02-navigation.png",
+        "sha256": "820b3c9f5b918df8460b5ca79da646bf03850a7558acdb16aa7c533299506c86"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/02-navigation.png",
+        "sha256": "75c408dbea7d7528f30dd90ffcc74d08bdc154543f094d3a481ffe91effbd344"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/02-navigation.png",
+        "sha256": "9eddd9018b6b571a8c4fcd0e900f13a0d8355c5473c62bb5b4e4c7747b9013cf"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "03-create-menu",
+    "title": "Create Menu",
+    "reference_id": "03",
+    "official_sources": [
+      {
+        "file": "S50-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430571356057",
+        "alt": "",
+        "sha256": "b2169996123804a8c8b8ff4d279dd868bd65b5efedc4d7bb9cea09f62dd42ee4",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S40-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430540697369",
+        "alt": "",
+        "sha256": "aa9ffaafc5aef71d1774be82e3beab27d157bfeff827ae3f8c1e3983004eadfd",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "新增菜单包含设备录音、导入和新 Chat；手机录音保留次级入口。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/03-create-menu.png",
+        "sha256": "e1b763f139c9c337a75f4ecf36379cab79d5a6611b3c0bdb24b638295fbe1ebb"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/03-create-menu.png",
+        "sha256": "c4e1c1f8a40e6e53f1a872c39bcf56dbb7c3d40eae1ceaef43170b808ca07677"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/03-create-menu.png",
+        "sha256": "bff129fea3b08c375d00d4984e485fe77e06b235ff5e145eb0bb51e5d1f92aa8"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "04-library",
+    "title": "Library",
+    "reference_id": "04",
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "系统目录、嵌套文件夹、排序、批量移动/删除/恢复和拖拽归档。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/04-library.png",
+        "sha256": "0a352bb0526bf95021dc7856717d45f290c58027945e5adde661e7a8c0cf5f49"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/04-library.png",
+        "sha256": "19c80c9304675a6d870685853b5a80b40e64df76c0cfcdbf340fc30f528c6bb2"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/04-library.png",
+        "sha256": "2825aea552d48feb9200630d899ecc44d3339aabed7036d4a9685e4522f3b6b7"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "05-recordings",
+    "title": "Recordings",
+    "reference_id": "05",
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S65-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430568230553",
+        "alt": "",
+        "sha256": "a9ccf7567a3388bccef00d8dd082fb6cc49e90a65c68857d70114d5ad0283b53",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952453657-Create-rename-and-delete-folders-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/05-recordings.png",
+        "sha256": "93d68276cc15f6ed40f8b9fd5450d9ed73875659ed7c1581d1042565ac3ade2b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/05-recordings.png",
+        "sha256": "130181a217135671f51c7459afe7bae1ea6c439a127e09383e640c9b13208ac7"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/05-recordings.png",
+        "sha256": "cf9edb1fc2762a1d01fdb87fcc3f2d3dd32b048d722ed3563f2d29af78c3feca"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "06-search",
+    "title": "Search",
+    "reference_id": "06",
+    "official_sources": [
+      {
+        "file": "S75-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430598825241",
+        "alt": "",
+        "sha256": "426a164ff8284425d52ff561f6f382c891d756b82fc005a26908eae56ada1017",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S75-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430605902489",
+        "alt": "",
+        "sha256": "12f35a11a6fe11b1c28c62564b34bd9c5142bcd48c0e24799c044a33e3f11fa0",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "解析旧 recording + matches 契约；新检索覆盖笔记、文件夹、文档和说话人，支持高亮和匹配定位。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/06-search.png",
+        "sha256": "88acb8d59ae8ec9fe260ff63efb92cd2e4ee227b39f5cb33432ed91d9fab1dde"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/06-search.png",
+        "sha256": "6e256d56730f96e8ce956bb0a09ad502e6b11a474a661093048a4a6b74a16bb6"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/06-search.png",
+        "sha256": "8f54c3dcce27c274f97d9577797e5e74b1e3416705206ca7f6af79daa933dcd4"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "07-device-connect",
+    "title": "Device Connect",
+    "reference_id": "07",
+    "official_sources": [
+      {
+        "file": "S78-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63439088186393",
+        "alt": "",
+        "sha256": "12a15d100f784c48335bf10232592d92ee91aaea67850cdd386864db36a880a2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "展示真实 JWD 服务核实、连接、电量、录音与传输状态；使用 Teno/JWD 通用设备图标。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/07-device-connect.png",
+        "sha256": "38b024f503b358a5c440eb70d816286bbea653da5566257609cc407db26cb70a"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/07-device-connect.png",
+        "sha256": "eb68193b1db52f7cc58feb7fe7d072cd6e527d1c261db632a51d4a0223bfebd0"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/07-device-connect.png",
+        "sha256": "37ae6c97c78e919962e6c923d2f3823c2233705d515e3b4eafed9f5069d6a898"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "09-recording",
+    "title": "Recording",
+    "reference_id": "09",
+    "official_sources": [
+      {
+        "file": "S50-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430543796761",
+        "alt": "",
+        "sha256": "8de1b6f7e0d5d99f18ced66c9a3acc6447da7a711728ace8fedaafad83a2d574",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S39-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527862297",
+        "alt": "",
+        "sha256": "6a51b9592ce9a46d2b32de66cf6cb7ebfe3cf6a469f8a46ba565a5073dfc0ce2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919023385-Highlight-a-moment-while-recording-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "保留暂停/停止、文字与时间高亮，并增加录音照片；设备断连不声称已停止。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/09-recording.png",
+        "sha256": "5253314771cf6949b42f87de1cc2462de8372af6d6c71848f51282c1dd919169"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/09-recording.png",
+        "sha256": "71832c17ec5e85bc221f49d3f7e36ce928528f4237b658fc6d87434d70f9790a"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/09-recording.png",
+        "sha256": "bfeb9ee652b0b02dd2b0b60c2ffd50bc2cbfb05ed5b9d9f0155f8b0a6be2c7d5"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "10-paused",
+    "title": "Paused",
+    "reference_id": "10",
+    "official_sources": [
+      {
+        "file": "S50-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430543796761",
+        "alt": "",
+        "sha256": "8de1b6f7e0d5d99f18ced66c9a3acc6447da7a711728ace8fedaafad83a2d574",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/10-paused.png",
+        "sha256": "63c2d7c3fb5db3840c9220a129ed39de0cf6910cbed81f15b56b3fe812d40217"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/10-paused.png",
+        "sha256": "ae973192dd11be6a3a6da92631ac9371e748e593b5bad1d0fbedc6f0e68353cf"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/10-paused.png",
+        "sha256": "f23410f8d122d1e7f2771a69a21521d945f989cfcb3f68481a71bbec8117238f"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "14-recording-notes",
+    "title": "Recording Notes",
+    "reference_id": "14",
+    "official_sources": [
+      {
+        "file": "S43-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430620644377",
+        "alt": "",
+        "sha256": "b65c8cf507ed21fa9ef14185206c7aafd7de519d136ef18817e993de5ae630ab",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S55-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582216985",
+        "alt": "",
+        "sha256": "bfc8f9a76d8ea604cc12a86d1e799c5f81ec635935ca239411524ecd74746ebb",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "补 New note、多笔记列表、封面、独立编辑与版本；旧摘要保留并投射到新界面。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/14-recording-notes.png",
+        "sha256": "61b54337fb9ad338f06b10c96aaae1a516a547e38e3c1c14e021a6503bc765b2"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/14-recording-notes.png",
+        "sha256": "254d3ee150182b60377ab879c136cdf16e393949c1bacdf3576813dcbef43ebd"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/14-recording-notes.png",
+        "sha256": "e1771f7f561cf04378ec3908efe837a08da68a072311cef45b00cc9b32539214"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "15-transcript",
+    "title": "Transcript",
+    "reference_id": "15",
+    "official_sources": [
+      {
+        "file": "S55-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582388121",
+        "alt": "",
+        "sha256": "4aedc38ff704cbb0ad2e0233e95a6a8b56ed0a5027a1c0e23c81d8ffc5fedb77",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S41-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63666686936473",
+        "alt": "",
+        "sha256": "69cdaf5151e8fe53afe2f63aa113f700134a53ad93e3ca294957a64ca26c1683",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429920002201-Play-back-audio-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "真实波形、章节、跟随播放和前后跳转；原稿/编辑稿/清理稿分开，姓名按录音版本保存。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/15-transcript.png",
+        "sha256": "4b31c9fe3cc6728a37118488caa83eabee4bc99d001af790d7ff6b12537b6a22"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/15-transcript.png",
+        "sha256": "49150cec56dd95d6c0873420a7b33c115b4013c03bb744666dd28b475af19af4"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/15-transcript.png",
+        "sha256": "8909a9e2a10fce2b10b7f0bf2f99c2217a245bf9b71ea3fd87dec79411d6def9"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "17-templates",
+    "title": "Templates",
+    "reference_id": "25",
+    "official_sources": [
+      {
+        "file": "S63-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430588876441",
+        "alt": "",
+        "sha256": "fd0d1a9f060e2ebdf06fbdc148ab0b4c99bbc8b836140ba9e19a3a4a7b4b04ff",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429951493401-Summary-templates-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "Teno 自有推荐模板、分类/搜索、收藏/最近使用和自建编辑；不伪造官方社区内容。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/17-templates.png",
+        "sha256": "ed2b5774772d324d2cd1cbb96784a02e9ef5d1ea14513846268fb0be91a4e180"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/17-templates.png",
+        "sha256": "e617296f9ea6bcfa661de97134e953ff6ce85369b0a15f669996aea9a9ad9756"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/17-templates.png",
+        "sha256": "d295632c1049df737dda2b7f56c8f6cde129b1b61e39a033fef1d9f7c4d884f5"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "18-chat-history",
+    "title": "Chat History",
+    "reference_id": "18",
+    "official_sources": [
+      {
+        "file": "S45-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430606867737",
+        "alt": "",
+        "sha256": "e791640d5d424becd9f0fa60148ab7c148e7faccf0ed672029c12ba1ca447331",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429926029593-Ask-Plaud-Chat-and-Work-modes-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/18-chat-history.png",
+        "sha256": "d0f2b6340f7658ac7ae1e92a960cf9a90ac5b63ed47202a75f8c2533f8bf3ca3"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/18-chat-history.png",
+        "sha256": "fb44230d961638db8d2662b41fab3ae70174b050c5b6a5b2cd9054b89edc14d2"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/18-chat-history.png",
+        "sha256": "c4998459ac20b2f54d011d2e2de1ac8d0dec81d6ef68c5d1bd522e3f64ada82c"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "19-new-chat",
+    "title": "New Chat",
+    "reference_id": "19",
+    "official_sources": [
+      {
+        "file": "S45-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430607136665",
+        "alt": "",
+        "sha256": "33c2cfaedfe58d09adb8d1c5cc9c03e05136acd4a5826b626045fc0cfb96f794",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429926029593-Ask-Plaud-Chat-and-Work-modes-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "Chat 支持录音、笔记、文件夹和文档上下文；语音识别结果先显示为可编辑文字。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/19-new-chat.png",
+        "sha256": "37fe1ccc69d18bcebf8e354b779b5438f6fe653b9da3182ac4ec56eb8216d7ee"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/19-new-chat.png",
+        "sha256": "53ae9fa4349120e107fffd7ac6e02062a5dbdec1057ebdbb7e0082dcd7b9a569"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/19-new-chat.png",
+        "sha256": "340a0290bfd95dd74e2e731c26b3aeea5e72c1ee39c85aa68a1c2c195371ce0b"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "20-chat-context",
+    "title": "Chat Context",
+    "reference_id": "31",
+    "official_sources": [
+      {
+        "file": "S42-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430600417561",
+        "sha256": "5099fe676316646a5ff631772800b6d7f8fb547b2ecd9edaf9e90dee585b8c20",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429922328217-Choose-the-right-context-for-an-Agent-task-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/20-chat-context.png",
+        "sha256": "438b59dddf4d5ac73685a79986aacad54eaed68de254ecdc16968e538cb0c7c4"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/20-chat-context.png",
+        "sha256": "701e613de555a801745cebcf6435bcda31983ba7c7de68b0bdd083fadce34bc1"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/20-chat-context.png",
+        "sha256": "5a529414196728972548bf6bf0e66df64bfdc97814f5adf153d9045daa8ce664"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "21-settings",
+    "title": "Settings",
+    "reference_id": "21",
+    "official_sources": [
+      {
+        "file": "S52-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430544782233",
+        "alt": "",
+        "sha256": "3fd00fa4c7e181c806aef247519c87b01de84167edcc949d1547dfdc087ab2c2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S48-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430553071257",
+        "alt": "",
+        "sha256": "e6ef383a0abe7464362430a60734915da8b7231bb6584e9c685e133bc3a68429",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429932825881-Adjust-your-profile-details-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "设置分组包含通知、主题、缓存和默认关闭的系统凭据应用锁。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/21-settings.png",
+        "sha256": "b8e13e77ad3d74f30f67cc04231f2cb0427d282f1b96bdd5bf1c7dd7f7d20d46"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/21-settings.png",
+        "sha256": "ed34022209694b7763f5f07b8795d043aa5f3f5924025802a6da16f4ae0ddbc2"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/21-settings.png",
+        "sha256": "54b81dec0cfcbc031cf6f25f1aded02450104f049d8b3b2cddfe1c7dd56fbf86"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "22-preferences",
+    "title": "Preferences",
+    "reference_id": "22",
+    "official_sources": [
+      {
+        "file": "S52-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430529049369",
+        "alt": "",
+        "sha256": "f24221449adbc6f6fca014eca8b9ec2ef58542fe43307a2a4abb6ba233744cdf",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "Cloud processing 缺省开启，显式 false 保留；不因首次录音设置而阻止自动处理，不补传历史未申请文件。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/22-preferences.png",
+        "sha256": "0cf6d0515c4958fb75f2312dc747288ab2f3be86b2a76683dc613ac958ec8679"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/22-preferences.png",
+        "sha256": "41ed6f58eeec9dcd68047c19eea043277ba53f1510437cd41710e10aea791b84"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/22-preferences.png",
+        "sha256": "502876d67f1b14079ad95144bde93f2964691c9e4f0b1865e448759bfaba6d6e"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "23-export",
+    "title": "Export",
+    "reference_id": "23",
+    "official_sources": [
+      {
+        "file": "S35-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430655101337",
+        "alt": "",
+        "sha256": "bbcd0a0af04aa2ec9bcb241bd33d8ee688679e5037bcdceff79de2d6f6c6dbc1",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429911054617-Export-transcripts-notes-and-audio-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "按内容/格式/选项导出真实 MP3/WAV/TXT/MD/SRT/DOCX/PDF/JSON；时间、姓名、标记和封面可选。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/23-export.png",
+        "sha256": "167cc83e36b59ba543fa68ae084df2dfb0f94da30ab7b163dddeabf0147aaf2d"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/23-export.png",
+        "sha256": "1ddd05a5f385d5fd141e0fae721b04f962701dc388aaee785b8c67da95b20c13"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/23-export.png",
+        "sha256": "0e77584a8c690bcb526f02c5767f6a7b13562883db7b13b209683cf932018e29"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "24-trash",
+    "title": "Trash",
+    "reference_id": "24",
+    "official_sources": [
+      {
+        "file": "S68-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430591250329",
+        "alt": "",
+        "sha256": "a00a6ad19d6b9ab7580e343bac347b3d9b71fee457252b5e85b5e1cbe864b892",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/24-trash.png",
+        "sha256": "a6b956cab585acc6e39e1db2f50fdac1667eabeaa682f052d09114dee6d1735f"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/24-trash.png",
+        "sha256": "a405d38f44509a47c4e11930def1514d9cb4572a6f081b614016fe8bbee2afb7"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/24-trash.png",
+        "sha256": "9d21b81be0ebb6d3495efdf5773842c81f20d864893ae40b29361ebddb92d012"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "25-login",
+    "title": "Login",
+    "reference_id": null,
+    "official_sources": [],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/25-login.png",
+        "sha256": "09415d5f473b1d4860c35d635f42deb9c028eed5aa9f010cfbc4ecd024b72cfc"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/25-login.png",
+        "sha256": "2ac7947f99eb36f83063f0b57492cc9c030da99a9c66b1a79e3a1f8dd3112c8d"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/25-login.png",
+        "sha256": "571fd6b7711ade674f317aedaf4c9aceb7d085999360c749665391d91cab9a64"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "26-import",
+    "title": "Import",
+    "reference_id": "26",
+    "official_sources": [
+      {
+        "file": "S40-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430557152281",
+        "alt": "",
+        "sha256": "a10ea10aea10d396b1f006f9fb8fb46d670f277d8a0246b4fd12e1fdd4b17e4e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "From Files / From Photos / From other apps；多文件先完整保存，再按账号设置进入持久队列。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/26-import.png",
+        "sha256": "e95865d5c7d23fccc7500145edf446c15f16fe408bf376d67e0cd2898bce0fc7"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/26-import.png",
+        "sha256": "fd66ac2e5c7e94486f72b5e881f0357388b39d134be254c2bf79530734fe2a7d"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/26-import.png",
+        "sha256": "c04bd9bc0285004dfe6300e6bb62fd573771e1ebed61f8bbdc7fc48db11e3137"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "27-share",
+    "title": "Share",
+    "reference_id": "27",
+    "official_sources": [
+      {
+        "file": "S72-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430610693145",
+        "alt": "",
+        "sha256": "e4a88bd47ff45b482e0bd1ae3f304e8514213e2c8394ffd35ca4d68c0820ed69",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "用户显式创建固定版本链接；默认仅摘要、7天、不带音频，支持撤销，来源删除后失效。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/27-share.png",
+        "sha256": "3453c2441b8fab98c14cb28b40d8d6b934a68880a1c32d30a8e4b624937962e5"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/27-share.png",
+        "sha256": "9b565ac923f50daa00e3f53d6b06fa2b022738a41c7ab01752b508069b303c6f"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/27-share.png",
+        "sha256": "2e8be18e63f086f6032ed9d381e2cfe75ea2f8d407784b22080b16ea5b1b56b5"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "28-calendar",
+    "title": "Calendar",
+    "reference_id": "28",
+    "official_sources": [
+      {
+        "file": "S64-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567740825",
+        "alt": "",
+        "sha256": "78ce467c380f9848e269f2147cd72c666c67ecb9a3fc00c4487a0315acb82d3d",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952262041-Calendar-events-link-recordings-to-your-meetings-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "手机日历、手动和 ICS 导入；可关联录音，不接入第三方 OAuth。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/28-calendar.png",
+        "sha256": "9c4ea04711cd6b3b68c479714060787564dc4151d85891af686d86be146a3091"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/28-calendar.png",
+        "sha256": "8b58481b4d7aa212b5452e9414fd321f888ce83e0aafc0cbb9cb5530289006b5"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/28-calendar.png",
+        "sha256": "35e250de4529385db263dee4136254cdf9ad23ba4fe1beaa48ded691c2fea020"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "29-photos",
+    "title": "Photos",
+    "reference_id": "04",
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "系统目录、嵌套文件夹、排序、批量移动/删除/恢复和拖拽归档。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/29-photos.png",
+        "sha256": "1f96523a21aef82888ed57fee81f3659abd737b9d0519d691be1a33012b17946"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/29-photos.png",
+        "sha256": "d1d5fd8b44b470bc7cdf9e060fd62d86f2c9410982f7c0fa3a182c0d4b84ff41"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/29-photos.png",
+        "sha256": "049d5913148de0e1700f8938339f65ffe793023ef95233e626941a07933b8781"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "30-notes",
+    "title": "Notes",
+    "reference_id": "32",
+    "official_sources": [
+      {
+        "file": "S43-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567588633",
+        "alt": "",
+        "sha256": "70c208f69503f0e97b399d21ce041924eee684676e2ef48955da0742e67d8b3c",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "独立文字笔记与引用来源；编辑/重新生成保存为修订，原版本保留。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/30-notes.png",
+        "sha256": "915b435a00937399195782f0be8b984eea488280ae38d67aa437cd6ce7e722e1"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/30-notes.png",
+        "sha256": "af23a2b0336702f300a407ecc920efb303119d27554c5e468595680950a68f36"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/30-notes.png",
+        "sha256": "67028c15984fd597ecd3153a40c0b8359f819f005de5ba7b0c78a887a2a6f22c"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "31-imports",
+    "title": "Imports",
+    "reference_id": "26",
+    "official_sources": [
+      {
+        "file": "S40-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430557152281",
+        "alt": "",
+        "sha256": "a10ea10aea10d396b1f006f9fb8fb46d670f277d8a0246b4fd12e1fdd4b17e4e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "From Files / From Photos / From other apps；多文件先完整保存，再按账号设置进入持久队列。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/31-imports.png",
+        "sha256": "30ecf919f1ad2ae07457bab766e0101157051e912673b42045b22940ce9f0ea3"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/31-imports.png",
+        "sha256": "cd4a3e0518b62e829638eaebe5dd2783afd0e06917381faebf142e6ff06aa2fb"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/31-imports.png",
+        "sha256": "6d6747647819ae6ab38fbea16a303e315dac569e41f2ede01459eeec62f9440b"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "32-note",
+    "title": "Note",
+    "reference_id": "32",
+    "official_sources": [
+      {
+        "file": "S43-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567588633",
+        "alt": "",
+        "sha256": "70c208f69503f0e97b399d21ce041924eee684676e2ef48955da0742e67d8b3c",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "独立文字笔记与引用来源；编辑/重新生成保存为修订，原版本保留。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/32-note.png",
+        "sha256": "1b182b796fcf194b7392f3e0169c277a2eab1e63a82388950b8322370de78dbe"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/32-note.png",
+        "sha256": "da232204091a3fa8db173659e1296f3884074b22ea8a72b2478210f2794700e1"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/32-note.png",
+        "sha256": "4d680d6ed13dacc5993afb21be351a3c7ec434045dec5760fc066b549d5c9a45"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "33-note-editor",
+    "title": "Note Editor",
+    "reference_id": "32",
+    "official_sources": [
+      {
+        "file": "S43-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567588633",
+        "alt": "",
+        "sha256": "70c208f69503f0e97b399d21ce041924eee684676e2ef48955da0742e67d8b3c",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": false,
+    "change": "独立文字笔记与引用来源；编辑/重新生成保存为修订，原版本保留。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/33-note-editor.png",
+        "sha256": "5442a34f00d38c7fbb0775aab520ad12873f9b9dec394cccc0c278792693290a"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/33-note-editor.png",
+        "sha256": "3a578556512ad833346acc338ba057967d7acb537cb51e854f0bb4a72151233d"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/33-note-editor.png",
+        "sha256": "4b6151204191324450947b70cb46c284ee7f2c2c297e2d386d5dcbcad7852345"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "34-document",
+    "title": "Document",
+    "reference_id": null,
+    "official_sources": [],
+    "inferred_state": true,
+    "change": "服务端本地提取/OCR，保存页码与来源；Word 渲染后定位实际页，损坏/加密/超限明确报错。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/34-document.png",
+        "sha256": "1da0bd0eb59da8562bde802c30b98b3a39f6408578dec1139245c6a623af071b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/34-document.png",
+        "sha256": "a5016dd8e31c9b977292da027b52f8d38f3e709804707f604faff4921e7e9b8e"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/34-document.png",
+        "sha256": "1b888eb5d9c33de23837aa4ca3d393ebab11279dfbf9f181285eef4785dbf03f"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "35-local-files",
+    "title": "Local Files",
+    "reference_id": "29",
+    "official_sources": [
+      {
+        "file": "S52-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430541125273",
+        "alt": "",
+        "sha256": "e02fb67c4a05525789ccb77fec629db8a5d4fabeeb3409116fa7e23660ab6e45",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S53-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430572369049",
+        "alt": "",
+        "sha256": "de7cc274635df390d2339fde74bc7e91eea7f9545cb3e7809e6460f4c7f708fc",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935495065-Automatic-transcription-and-summaries-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "完整本机副本、手动/批量上传和状态；失败保留原文件及稳定 client_id。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/35-local-files.png",
+        "sha256": "f77e8f0740b987d41bd0a57b64804b2531c9562bb971c69fc1adc9f85d9c156f"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/35-local-files.png",
+        "sha256": "9d0be36d7fa7e0ec6480be2f6abf9adb5f5c6f07eeff9a095180f06d3acced4a"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/35-local-files.png",
+        "sha256": "3f59472a82201799e737abf160fd935608f7acad7b3460215bcf89b020763494"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "36-local-recording",
+    "title": "Local Recording",
+    "reference_id": "29",
+    "official_sources": [
+      {
+        "file": "S52-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430541125273",
+        "alt": "",
+        "sha256": "e02fb67c4a05525789ccb77fec629db8a5d4fabeeb3409116fa7e23660ab6e45",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S53-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430572369049",
+        "alt": "",
+        "sha256": "de7cc274635df390d2339fde74bc7e91eea7f9545cb3e7809e6460f4c7f708fc",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935495065-Automatic-transcription-and-summaries-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/36-local-recording.png",
+        "sha256": "8e9a2b2f69dd8da4559293a83fde1c78370b00b43acb6132c8b02413a5df1d9a"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/36-local-recording.png",
+        "sha256": "c7ad5eefabf4acfe59cfb667dc0e9f7a7a56322bf8bbcbf844161f42f08c68ec"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/36-local-recording.png",
+        "sha256": "c477e81e1ba44d8d34499b17981fa184ba10fc18b0ef5925d265de9883209d29"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "37-storage",
+    "title": "Storage",
+    "reference_id": "22",
+    "official_sources": [
+      {
+        "file": "S52-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430529049369",
+        "alt": "",
+        "sha256": "f24221449adbc6f6fca014eca8b9ec2ef58542fe43307a2a4abb6ba233744cdf",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "查看本机副本与缓存用量；清缓存不删除录音原文件。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/37-storage.png",
+        "sha256": "14479383b20ca8fdc22a8c8f5711dd2645b19ff8771c107d55da1748c0ed63e0"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/37-storage.png",
+        "sha256": "8a5c25efadee83895d8c8fb14956e8938f792651ee7aac5b5621831354fbfbf6"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/37-storage.png",
+        "sha256": "edfa40fcaf224750610c44485c33c280ac5ab9a1540c756ccb01b917183e9110"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "38-links",
+    "title": "Links",
+    "reference_id": "27",
+    "official_sources": [
+      {
+        "file": "S72-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430610693145",
+        "alt": "",
+        "sha256": "e4a88bd47ff45b482e0bd1ae3f304e8514213e2c8394ffd35ca4d68c0820ed69",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "用户显式创建固定版本链接；默认仅摘要、7天、不带音频，支持撤销，来源删除后失效。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/38-links.png",
+        "sha256": "39fe980091fb3bf84e5883c7320ef39c46b194068538b301a82896ba5f44fd82"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/38-links.png",
+        "sha256": "1570bc5a1358b4a4631b25a7cbac6b06002cd4a6ce1683810d6f0c10966be139"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/38-links.png",
+        "sha256": "b1e080ee09ccfc04f903d89b079ba687a0bafc07f0cd990977520a44b3017b90"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "39-home-empty",
+    "title": "Home Empty",
+    "reference_id": "01",
+    "official_sources": [
+      {
+        "file": "S50-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527397273",
+        "alt": "",
+        "sha256": "54d23959ab434830a00eab3587f85e0b9dfe9016425133f5391b94d72a99464b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S78-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63439087979161",
+        "alt": "",
+        "sha256": "0eddf24db7e66860adb56c7c630c96c68badadf119219a5ff7648462c92aff6b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "空态保持原页面结构，提供已实现的录音和导入路径。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/39-home-empty.png",
+        "sha256": "92ef55e7a3f7e455e9b9e264234a6b2032ecdb11daa3fba5be0dfb3cdec890a3"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/39-home-empty.png",
+        "sha256": "60b5e8becc16ce3ef4d15f9e7abdcb35822cca080730275c8c542bb85862721c"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/39-home-empty.png",
+        "sha256": "d3c165d2632854cfc489f14be557b444d5968bed9a97bfe8de6b6eed87058e67"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "40-library-empty",
+    "title": "Library Empty",
+    "reference_id": "04",
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "系统目录、嵌套文件夹、排序、批量移动/删除/恢复和拖拽归档。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/40-library-empty.png",
+        "sha256": "5a53030b93c6da6c8f7b5317ab466674890428f61b9988585a35a36e5e879d70"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/40-library-empty.png",
+        "sha256": "e2be806f0a527dccb9c2a91d78040db4682a030d52c363a245a7c5fd0a6c288e"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/40-library-empty.png",
+        "sha256": "b2827f67c43ef1515dd08b63ad611042efd8f6f9e64f26c83385547b0adb689f"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "41-library-offline",
+    "title": "Library Offline",
+    "reference_id": "04",
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "连接失败仍可访问本机文件，显示原因和重试。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/41-library-offline.png",
+        "sha256": "22d6596e02ebfde3194cb0b5a9df84f2e2522a6a640a5494e71e16a3ab3374fd"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/41-library-offline.png",
+        "sha256": "3baffdb7acd7a9e8b251aa701706f109d6f17177525338d3d0c4cbdc7be29115"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/41-library-offline.png",
+        "sha256": "43fb279b34b9dbbfef76daa15969955d31d50c796719a022c0a282b66dcd721a"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "42-home-loading",
+    "title": "Home Loading",
+    "reference_id": "01",
+    "official_sources": [
+      {
+        "file": "S50-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527397273",
+        "alt": "",
+        "sha256": "54d23959ab434830a00eab3587f85e0b9dfe9016425133f5391b94d72a99464b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S78-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63439087979161",
+        "alt": "",
+        "sha256": "0eddf24db7e66860adb56c7c630c96c68badadf119219a5ff7648462c92aff6b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "恢复 Upcoming、日期分组、排序入口和底部 Ask；本机未上传文件单独标明状态。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/42-home-loading.png",
+        "sha256": "14b22460f72449ced89fff8f78c521ed361101154c36154e8dff36523bbbcec7"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/42-home-loading.png",
+        "sha256": "2a12ea54befbd7ea80340c97af97fe3fe463c4808cadfca2cb225c0cc76915a1"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/42-home-loading.png",
+        "sha256": "2d8b00750113f583bc4325c6f6385c316d4a702d0e8c1435f33240872038ff54"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "43-search-matches",
+    "title": "Search Matches",
+    "reference_id": "06",
+    "official_sources": [
+      {
+        "file": "S75-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430598825241",
+        "alt": "",
+        "sha256": "426a164ff8284425d52ff561f6f382c891d756b82fc005a26908eae56ada1017",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S75-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430605902489",
+        "alt": "",
+        "sha256": "12f35a11a6fe11b1c28c62564b34bd9c5142bcd48c0e24799c044a33e3f11fa0",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "结果高亮，录音定位时间、文档定位页码，笔记打开对应内容。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/43-search-matches.png",
+        "sha256": "8c07ce82624a78e9529fe00465d8c9c0c7ee0fd1b46aa0660ba977eefdaf8695"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/43-search-matches.png",
+        "sha256": "c9f0b094356d053555f867fd6c40cd6bfd58b92388d769fe8df523ba8e94dbd7"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/43-search-matches.png",
+        "sha256": "5f2bcaf3f621a64976f4fb5dbbbcb1471dd9288314ec7044650498e2fc4c9ee8"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "44-library-sort",
+    "title": "Library Sort",
+    "reference_id": "33",
+    "official_sources": [
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/44-library-sort.png",
+        "sha256": "c3ff0e40d488d0573c31064d3998fc0553ad6dca44883b56dfef0f18b86993ce"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/44-library-sort.png",
+        "sha256": "cd47f78d1ff9fb19e0a16de6e4a3417867d39bf26080f6dcdfb4066af95f664b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/44-library-sort.png",
+        "sha256": "e9ace024c80972f84f6866efa2f923124c92fae21a8ab8c74822f1cb972a9bed"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "45-library-select",
+    "title": "Library Select",
+    "reference_id": "33",
+    "official_sources": [
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "多选管理；合并只对多条录音开放，生成新记录并保留原文件。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/45-library-select.png",
+        "sha256": "ba56fafc8e215553989f5cb1e452270726bb80e0a7d05918d017bdd7e1130002"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/45-library-select.png",
+        "sha256": "fc16307fd9fb80221e4d857187ce9a682bdd9fef0c669e6916b8e881cd53416a"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/45-library-select.png",
+        "sha256": "72030cdeef01272c55885224647348183fc8b085810c9bd70f00d330228d7756"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "46-library-create",
+    "title": "Library Create",
+    "reference_id": "33",
+    "official_sources": [
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/46-library-create.png",
+        "sha256": "317e4226d543aae758e1b7ac5feffdb62e57fb4b65668aa9c2308c6fd6cb341c"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/46-library-create.png",
+        "sha256": "4c0a6fc98f035823b56cbbe90308b6f1171b7667c8f63ed308b65ec580c797d2"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/46-library-create.png",
+        "sha256": "f4e4a7ea475ce0b9346b136c4590184f6d727166323ac00e8995288bd5565722"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "47-folder-menu",
+    "title": "Folder Menu",
+    "reference_id": "33",
+    "official_sources": [
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/47-folder-menu.png",
+        "sha256": "497dd52ad89a34e7256c4c8986d14e8b5af6702f4407a882fc4dbebf93147971"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/47-folder-menu.png",
+        "sha256": "ae0c893ba7801a512baef12195bb39602e051815cbd036affcc78d04be78cef3"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/47-folder-menu.png",
+        "sha256": "6e1b23b6c8814ce7c7e3eb1e6203de6f003edf11799b70bde37a5c19570bdd43"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "48-recording-options",
+    "title": "Recording Options",
+    "reference_id": "14",
+    "official_sources": [
+      {
+        "file": "S43-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430620644377",
+        "alt": "",
+        "sha256": "b65c8cf507ed21fa9ef14185206c7aafd7de519d136ef18817e993de5ae630ab",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S55-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582216985",
+        "alt": "",
+        "sha256": "bfc8f9a76d8ea604cc12a86d1e799c5f81ec635935ca239411524ecd74746ebb",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "补 New note、多笔记列表、封面、独立编辑与版本；旧摘要保留并投射到新界面。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/48-recording-options.png",
+        "sha256": "d01eb45848d8ceecf1f65389fe7c0124c705bf5be6418debe5b7932d5d9a83ee"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/48-recording-options.png",
+        "sha256": "0ef40f64f51ea45e6483e67db779388096b8d77be6915e047654bb6a610f0015"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/48-recording-options.png",
+        "sha256": "3eea05a46afc6992b1f29bc76e2e1e7881317e83fd7541a22005d5f43c3edd47"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "49-speaker-names",
+    "title": "Speaker Names",
+    "reference_id": "15",
+    "official_sources": [
+      {
+        "file": "S55-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582388121",
+        "alt": "",
+        "sha256": "4aedc38ff704cbb0ad2e0233e95a6a8b56ed0a5027a1c0e23c81d8ffc5fedb77",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S41-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63666686936473",
+        "alt": "",
+        "sha256": "69cdaf5151e8fe53afe2f63aa113f700134a53ad93e3ca294957a64ca26c1683",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429920002201-Play-back-audio-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "手动命名限定当前录音和转写版本；重新转写后重新核对，不跨录音猜身份。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/49-speaker-names.png",
+        "sha256": "ff5ae4603cacb9f42a842958362b68740987c623fe9ba76c91d53bcfc6fa1c24"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/49-speaker-names.png",
+        "sha256": "9418928f0ae9de4f6f1f6659026006731b31be102e79b96b4c69d56b622273dc"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/49-speaker-names.png",
+        "sha256": "8b8687de29c72b9a4e3c53e6bfc082a44f5bee8c78064436d39b59256d27ee1f"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "50-find-replace",
+    "title": "Find Replace",
+    "reference_id": "16",
+    "official_sources": [
+      {
+        "file": "S55-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430566569241",
+        "alt": "",
+        "sha256": "b7e1a43cfc6121b0f985ab6990840b5c54d29477877a761de31c42d0256e0308",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "查找替换保存编辑修订，原始 ASR 内容完整保留。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/50-find-replace.png",
+        "sha256": "7b196079ee9173c1735a096b6d5faa2fa7508f581cddb2427c31e9b5c05e774d"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/50-find-replace.png",
+        "sha256": "820bbe82c5054a9c411f32a7c07e731f16409e60e799101423c8c2f3afc8f65c"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/50-find-replace.png",
+        "sha256": "3a4b7833e7d8d75c82d102f4a0f9d6bca7de19ab8c6a9535b4564c1c54e0cce3"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "51-trim-audio",
+    "title": "Trim Audio",
+    "reference_id": null,
+    "official_sources": [],
+    "inferred_state": true,
+    "change": "按秒选取裁剪范围，异步生成新录音；合并同样保留原始文件。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/51-trim-audio.png",
+        "sha256": "80ad0e4afc82bb6c9fc6373856947b07ec74ad748badbbe67d5b7d716df1f72c"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/51-trim-audio.png",
+        "sha256": "71463a8711a1619bec69414675922bd01b5bc35bc129411700d1d5c1473e7042"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/51-trim-audio.png",
+        "sha256": "efa011a1ccdd8732811de732bedc28c1054a85ddeb3e1cbd0d9f913d3bc69c68"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "52-transcript-variants",
+    "title": "Transcript Variants",
+    "reference_id": "15",
+    "official_sources": [
+      {
+        "file": "S55-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582388121",
+        "alt": "",
+        "sha256": "4aedc38ff704cbb0ad2e0233e95a6a8b56ed0a5027a1c0e23c81d8ffc5fedb77",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S41-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63666686936473",
+        "alt": "",
+        "sha256": "69cdaf5151e8fe53afe2f63aa113f700134a53ad93e3ca294957a64ca26c1683",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429920002201-Play-back-audio-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "真实波形、章节、跟随播放和前后跳转；原稿/编辑稿/清理稿分开，姓名按录音版本保存。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/52-transcript-variants.png",
+        "sha256": "d8d5de56864a4f351956343c5370e8fb646a8771270a1510528461dcf5c4cc3d"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/52-transcript-variants.png",
+        "sha256": "90dcf17096ee4103c4895ca86cc2de397064807969a1cd17ea0ff453d8f21142"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/52-transcript-variants.png",
+        "sha256": "426d36c9533fe72b40d85506e57eb8d38faa43903b540a0933ebab3c0a5f6a8d"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "53-template-picker",
+    "title": "Template Picker",
+    "reference_id": "13",
+    "official_sources": [
+      {
+        "file": "S52-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430541125273",
+        "alt": "",
+        "sha256": "e02fb67c4a05525789ccb77fec629db8a5d4fabeeb3409116fa7e23660ab6e45",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/53-template-picker.png",
+        "sha256": "9e5a7e90881cbb330bc5e9baf7fbaba9662bf90cb465ceb10f619fb49d23501c"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/53-template-picker.png",
+        "sha256": "b514f326eaf3dc174ce6528a2a5abd9a325ff005d6d4fece6a7c85f872441919"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/53-template-picker.png",
+        "sha256": "4c0c92d8686962db44fd307caf0023fd7e1380ccb94f7a654466af8c2825e269"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "54-note-versions",
+    "title": "Note Versions",
+    "reference_id": "14",
+    "official_sources": [
+      {
+        "file": "S43-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430620644377",
+        "alt": "",
+        "sha256": "b65c8cf507ed21fa9ef14185206c7aafd7de519d136ef18817e993de5ae630ab",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S55-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582216985",
+        "alt": "",
+        "sha256": "bfc8f9a76d8ea604cc12a86d1e799c5f81ec635935ca239411524ecd74746ebb",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "独立笔记版本可追溯；重新生成保留原文和原摘要。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/54-note-versions.png",
+        "sha256": "af0e03da482aa1a258a66a633ab97101566aad56bcb352c42151b33f9f05df0a"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/54-note-versions.png",
+        "sha256": "0ea115fdac36d171270b68e8788d74c07861ec08ae6ebcee8f1508cba099a277"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/54-note-versions.png",
+        "sha256": "967740691a3fee6e8584234921fe3b97e741f42be8bbf44bf38054238c5e83c1"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "55-export-audio",
+    "title": "Export Audio",
+    "reference_id": "23",
+    "official_sources": [
+      {
+        "file": "S35-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430655101337",
+        "alt": "",
+        "sha256": "bbcd0a0af04aa2ec9bcb241bd33d8ee688679e5037bcdceff79de2d6f6c6dbc1",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429911054617-Export-transcripts-notes-and-audio-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "按内容/格式/选项导出真实 MP3/WAV/TXT/MD/SRT/DOCX/PDF/JSON；时间、姓名、标记和封面可选。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/55-export-audio.png",
+        "sha256": "2c22ee400b61e57146ed07e1d36fca4af0859c777000d01987d4f68e93512198"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/55-export-audio.png",
+        "sha256": "5c3880b3a4f57a38e0cecbf45f8f625c472666a325e18641cc9bae4c0695157a"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/55-export-audio.png",
+        "sha256": "631cb665d9cf85153661c9032c21b39facbe92b4311d4ff310a6a7de0bdff9fb"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "56-calendar-permission",
+    "title": "Calendar Permission",
+    "reference_id": "28",
+    "official_sources": [
+      {
+        "file": "S64-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567740825",
+        "alt": "",
+        "sha256": "78ce467c380f9848e269f2147cd72c666c67ecb9a3fc00c4487a0315acb82d3d",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952262041-Calendar-events-link-recordings-to-your-meetings-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "系统权限拒绝时明确提示，可使用手动/ICS 日历路径。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/56-calendar-permission.png",
+        "sha256": "19e3fb906acc9a58248e4337993cab0a0f7a7e00f8ab2f3d97704be8a462b826"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/56-calendar-permission.png",
+        "sha256": "557167ddec0cce861e67668b7ef43d61264e9d4dee4f78ad92e5cbc281ebd31d"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/56-calendar-permission.png",
+        "sha256": "37ebc5bb99370104a651c43327aaa43347199e9e520e7910a858cfb1d16a0f10"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "57-document-failed",
+    "title": "Document Failed",
+    "reference_id": null,
+    "official_sources": [],
+    "inferred_state": true,
+    "change": "解析失败显示原因并保留原文件，可重试。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/57-document-failed.png",
+        "sha256": "7b56b4852533e3430a04274474f4b41355320964f5a2a8ec20df7277e57258ec"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/57-document-failed.png",
+        "sha256": "ba2fac80cf1a6a33c95e7ce7157e7445b21ca029c1ea4980f6809b774367dabf"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/57-document-failed.png",
+        "sha256": "8bdec59900973b540848c26324f74e787e0b33b5e93f1410842510b200e1b38f"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "58-document-processing",
+    "title": "Document Processing",
+    "reference_id": null,
+    "official_sources": [],
+    "inferred_state": true,
+    "change": "沿用对应核心页面布局，并补齐本状态的操作与错误反馈。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/58-document-processing.png",
+        "sha256": "e4d50e6681ebe378154bba5f39c15afc202cd496838d1a0f77965880939c3b58"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/58-document-processing.png",
+        "sha256": "04de1782e130c62f7de622d3512c07478891c1bcdf34d9a68478795392c5b8d1"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/58-document-processing.png",
+        "sha256": "e32150b5542973da7b2f271d7433198aa88929c9daedfcd3948b59ae9d8f0745"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "59-import-pending",
+    "title": "Import Pending",
+    "reference_id": "26",
+    "official_sources": [
+      {
+        "file": "S40-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430557152281",
+        "alt": "",
+        "sha256": "a10ea10aea10d396b1f006f9fb8fb46d670f277d8a0246b4fd12e1fdd4b17e4e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "外部分享先暂存，用户登录后明确接受到当前账号。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/59-import-pending.png",
+        "sha256": "a38473610c02b3d66a59b048c34fa5af4696cdfe045a5b7a94e1e750380e1f2c"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/59-import-pending.png",
+        "sha256": "e4873417fdb687f79ede6784154be566a6c6b67ba2588c100b71924d3a742285"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/59-import-pending.png",
+        "sha256": "035273b039c3f1c6e91f468e4789fbed3a5e0d474f72ddcaa680755a0f429227"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "60-import-error",
+    "title": "Import Error",
+    "reference_id": "26",
+    "official_sources": [
+      {
+        "file": "S40-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430557152281",
+        "alt": "",
+        "sha256": "a10ea10aea10d396b1f006f9fb8fb46d670f277d8a0246b4fd12e1fdd4b17e4e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "From Files / From Photos / From other apps；多文件先完整保存，再按账号设置进入持久队列。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/60-import-error.png",
+        "sha256": "67ac2fc48773fe6fc738124a0dd1eaf4d500bf4c103a8f59801ad43701181bc1"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/60-import-error.png",
+        "sha256": "4832ac4813e84da84583dc8e6e22cc4da5507c575ac3620c8c6b88de5210a986"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/60-import-error.png",
+        "sha256": "3b5d2045ad83995269dd19e2f8801fb1c5b359c5215f45fe6425b7002c4ae109"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "61-note-keyboard",
+    "title": "Note Keyboard",
+    "reference_id": "32",
+    "official_sources": [
+      {
+        "file": "S43-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567588633",
+        "alt": "",
+        "sha256": "70c208f69503f0e97b399d21ce041924eee684676e2ef48955da0742e67d8b3c",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "长标题可编辑；系统键盘区域下保留保存入口。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/61-note-keyboard.png",
+        "sha256": "73a70bc3143245ac0be89665157673952e536c2739976b7215e2afb2fb4a8e74"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/61-note-keyboard.png",
+        "sha256": "2bd4c18e487217ff9f239da76a90b97adff8c087dca10ff502ee630fa072ce48"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/61-note-keyboard.png",
+        "sha256": "25074d55b34f06adbe5734394541c9eecfc8443db91dd70c5d45daa8d3d50f70"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "62-processing-failed",
+    "title": "Processing Failed",
+    "reference_id": "30",
+    "official_sources": [
+      {
+        "file": "S50-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430543796761",
+        "alt": "",
+        "sha256": "8de1b6f7e0d5d99f18ced66c9a3acc6447da7a711728ace8fedaafad83a2d574",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "转写/摘要失败停止无限等待，提供原因与重试；静音文件保留音频。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/62-processing-failed.png",
+        "sha256": "61697407571e83a129e3661c37429d17bd2794115a95263da5a7a79afd4acbf3"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/62-processing-failed.png",
+        "sha256": "7e846ac4eb8ee7824a3aa2b74301523fe44fc93b894f69caf2c827de9807f0da"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/62-processing-failed.png",
+        "sha256": "d77758ac8d9f79d5f5151f5c46fb523315ee9515515dda291b15c4881cb8509d"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "63-calendar-upcoming",
+    "title": "Calendar Upcoming",
+    "reference_id": "01",
+    "official_sources": [
+      {
+        "file": "S50-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527397273",
+        "alt": "",
+        "sha256": "54d23959ab434830a00eab3587f85e0b9dfe9016425133f5391b94d72a99464b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later"
+      },
+      {
+        "file": "S78-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63439087979161",
+        "alt": "",
+        "sha256": "0eddf24db7e66860adb56c7c630c96c68badadf119219a5ff7648462c92aff6b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "恢复 Upcoming、日期分组、排序入口和底部 Ask；本机未上传文件单独标明状态。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/63-calendar-upcoming.png",
+        "sha256": "fe0e8f1bfd336a49e84cebbe720e1b479bc0903cd3adc25792208fbc3a3c25fa"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/63-calendar-upcoming.png",
+        "sha256": "68e347ab2dc705940788fcfb17c77f74709197804273e3e7e70da0337ae44ca1"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/63-calendar-upcoming.png",
+        "sha256": "27f495f1c9b5d429f73c47c1d269ba3c176d866b3afb0cb41e2a7eff42ac69f7"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  },
+  {
+    "id": "64-share-created",
+    "title": "Share Created",
+    "reference_id": "27",
+    "official_sources": [
+      {
+        "file": "S72-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430610693145",
+        "alt": "",
+        "sha256": "e4a88bd47ff45b482e0bd1ae3f304e8514213e2c8394ffd35ca4d68c0820ed69",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later"
+      }
+    ],
+    "inferred_state": true,
+    "change": "用户显式创建固定版本链接；默认仅摘要、7天、不带音频，支持撤销，来源删除后失效。",
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/64-share-created.png",
+        "sha256": "eb8a6d6b3505b4c23873a3f60805e9f4565993ee8211ece987e19858b5437422"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/64-share-created.png",
+        "sha256": "49db6ed831e0bac4d1e45efb937e0f0f068e08bc5869e15a91bfdcadbc27dc90"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/64-share-created.png",
+        "sha256": "7710574ac17aeaba18310c458ceb66f90a834360d982d4f51726a02581757193"
+      }
+    ],
+    "evidence": "Current Flutter code rendered with synthetic data; no physical-device claim.",
+    "acceptance": "Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending."
+  }
+]

@@ -1,7 +1,7 @@
 name: Teno mobile
 on:
   push:
-    branches: [main, "refactor/**"]
+    branches: [main, "refactor/**", "feature/teno-0.6.0-*"]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -25,6 +25,9 @@ jobs:
           cache: true
       - name: Scan source and full history
         run: python3 scripts/secret_audit.py --history
+      - name: Read Android version
+        id: release
+        run: python3 scripts/ci_metadata.py >> "$GITHUB_OUTPUT"
       - name: Shared dependencies, generated contract, analysis and tests
         id: shared
         working-directory: shared-ui
@@ -34,7 +37,7 @@ jobs:
           dart format lib/platform/runtime.g.dart
           git diff --exit-code -- lib/platform/runtime.g.dart ../app/src/main/java/com/teno/app/RuntimeMessages.java ../ios/Teno/Generated/RuntimeMessages.g.swift
           flutter analyze --no-pub
-          flutter test --no-pub
+          TENO_PERSONAL_SCREENSHOTS="$GITHUB_WORKSPACE/design-baseline/v0.6.0/screenshots/android" flutter test --no-pub
       - name: Android build and lint
         id: android
         run: |
@@ -43,11 +46,12 @@ jobs:
           python3 scripts/secret_audit.py --artifact app/build/outputs/apk/debug/app-debug.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Teno-Android-CI
+          name: Teno-Android-CI-${{ steps.release.outputs.version }}
           path: |
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/release/*.apk
             app/build/reports/lint-results-release.html
+            design-baseline/v0.6.0/screenshots/android
       - name: Report Android development result
         if: always() && github.event_name != 'pull_request' && github.repository == 'hechzh/teno-mobile'
         env:
@@ -62,6 +66,8 @@ jobs:
           name: Teno-Android-reporting-receipt
           path: development-outbox
   ios:
+    # 0.6.0 is Android-only. The previously confirmed iOS branch stays independent.
+    if: github.ref == 'refs/heads/refactor/teno-cross-platform'
     runs-on: macos-15-intel
     env:
       DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer

@@ -30,6 +30,7 @@
 !/tests/**
 !/ARCHITECTURE.txt
 !/RELEASE-0.5.0.txt
+!/RELEASE-0.6.0.txt
 !/toolchain.json
 !/.github/
 !/.github/**

@@ -678,6 +678,7 @@ protocol RuntimeHost {
   func login(server: String, username: String, password: String) async throws -> SessionState
   func logout() async throws
   func request(method: String, path: String, jsonBody: String?) async throws -> String
+  func platformCommand(command: String, jsonBody: String?) async throws -> String
   func configure(cloudUpload: Bool, wifiOnly: Bool, livePreview: Bool) async throws
   func startPhone(title: String) async throws -> String
   func controlPhone(action: PhoneAction) async throws
@@ -766,6 +767,24 @@ class RuntimeHostSetup {
       }
     } else {
       requestChannel.setMessageHandler(nil)
+    }
+    let platformCommandChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.teno_mobile.RuntimeHost.platformCommand\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      platformCommandChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let commandArg = args[0] as! String
+        let jsonBodyArg: String? = nilOrValue(args[1])
+        Task { @MainActor in
+          do {
+            let result = try await api.platformCommand(command: commandArg, jsonBody: jsonBodyArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      platformCommandChannel.setMessageHandler(nil)
     }
     let configureChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.teno_mobile.RuntimeHost.configure\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

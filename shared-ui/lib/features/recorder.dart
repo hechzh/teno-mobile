@@ -6,6 +6,7 @@ import '../ui/widgets.dart';
 import 'detail.dart';
 
 Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
+  if (model.personalCore) return true;
   if (!model.signedIn || model.runtime!.session.optionsSet) return true;
   bool cloud = true, wifi = false, live = true;
   final chosen = await showDialog<bool>(
@@ -607,6 +608,29 @@ class _RecorderSheetState extends State<RecorderSheet> {
                         ),
                       ],
                     ),
+                    if (widget.model.personalCore)
+                      Column(
+                        children: [
+                          CircleAction(
+                            Icons.camera_alt_outlined,
+                            'Photo',
+                            active
+                                ? () => perform(context, () async {
+                                    await widget.model.command('photo', {
+                                      'local_id': c.localId,
+                                      'at_ms': c.elapsedMs,
+                                    });
+                                  })
+                                : null,
+                            size: 60,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Photo',
+                            style: TextStyle(color: muted, fontSize: 12),
+                          ),
+                        ],
+                      ),
                     Column(
                       children: [
                         CircleAction(

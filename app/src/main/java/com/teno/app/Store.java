@@ -26,7 +26,9 @@ public final class Store {
     public String language(){return "auto";}
     public void language(String v){prefs.edit().putString("language","auto").apply();}
     public boolean recordingOptionsSet(){return prefs.getBoolean("recording_options."+scope(),false);}
-    public boolean autoUpload(){return recordingOptionsSet()&&prefs.getBoolean("auto_upload."+scope(),false);}
+    // A missing account preference means automatic processing. Never overwrite an
+    // explicit opt-out, and never use the first-recording dialog as an upload gate.
+    public boolean autoUpload(){return prefs.getBoolean("auto_upload."+scope(),true);}
     public boolean wifiUpload(){return prefs.getBoolean("wifi_upload."+scope(),false);}
     public boolean liveDefault(){return prefs.getBoolean("live_default",true);}
     public void recordingOptions(boolean cloud,boolean wifi,boolean live){prefs.edit().putBoolean("recording_options."+scope(),true).putBoolean("auto_upload."+scope(),cloud).putBoolean("wifi_upload."+scope(),wifi).putBoolean("live_default",live).commit();}

@@ -34,12 +34,24 @@ def normalize(manifest_path, output, baseline=False):
       ('ask','基于录音资料提问、引用与对话历史','Recording-grounded questions, citations and conversation history','真实手机上的提问与来源跳转验收','Validate questions and source navigation on physical phones'),
       ('distribution','原签名覆盖更新，保留账号、密钥与本机文件','Same-signer update retaining accounts, device keys and local files','Magic4 Pro、iPhone 与 AltStore 安装验收','Validate Magic4 Pro, iPhone and AltStore installation'),
     ]
-    modules=[{'key':key,'scope':words(zh,en),'implementation':'implemented','verification':'partial','pending':words(pzh,pen)} for key,zh,en,pzh,pen in catalog] if version in ('0.4.4','0.5.0') else []
+    if version=='0.6.0':
+        catalog=[
+          ('recording','录音、照片、高亮、完整本机保留与默认云处理','Recording, photos, highlights, local originals and default cloud processing','Magic4 Pro / JWD 长录音与后台验收','Validate Magic4 Pro / JWD long recordings and background behavior'),
+          ('library','音视频、文档与图片导入，文件夹、批量管理和搜索定位','Media, document and image imports; folders, batch management and search navigation','实机系统分享、照片、日历与文件权限验收','Validate system sharing, photos, calendar and file permissions on physical phones'),
+          ('summary','转写清理、说话人命名、多笔记、模板与来源','Transcript cleanup, speaker naming, multiple notes, templates and sources','真实客户录音质量与接近120分钟供应商实测待验收','Customer-audio quality and near-120-minute provider acceptance remain pending'),
+          ('ask','录音、笔记、文档和文件夹问答，语音问题预览与引用','Recording, note, document and folder Chat; editable voice questions and citations','真实手机语音问题、引用定位和保存回答验收','Validate voice questions, citations and saved answers on physical phones'),
+          ('sync','音频和文档导出、7天默认分享链接、撤销、主题与应用锁','Audio/document exports, seven-day default share links, revocation, themes and App lock','实机生物识别/锁屏、导出阅读器与分享行为验收','Validate device authentication, export readers and sharing on physical phones'),
+          ('distribution','Android0.6.0原签名覆盖更新；共享后端1.4.0兼容扩展','Same-signer Android0.6.0 update and compatible backend1.4.0 extension','保留0.5.0已确认交付基线，真实手机验收待完成','Keep the confirmed0.5.0 baseline; physical phone acceptance remains pending'),
+        ]
+    modules=[{'key':key,'scope':words(zh,en),'implementation':'implemented','verification':'partial','pending':words(pzh,pen)} for key,zh,en,pzh,pen in catalog] if version in ('0.4.4','0.5.0','0.6.0') else []
     if version=='0.4.4':
         modules[-1]['pending']=words('Magic4 Pro 原签名覆盖更新与权限验收','Validate same-signer update and permissions on Magic4 Pro')
     changes = [words('录音与导入统一 Automatic，摘要语言独立配置。','Recording and import use Automatic recognition; summary language is configured independently.')]
     if version=='0.5.0':
         changes=[words('Flutter 共享页面与 Android / iOS 原生宿主接入，保持原账号、密钥、录音和上传队列。','Flutter UI integrated with Android and iOS native hosts, preserving accounts, keys, recordings and upload queues.'),words('保留录音、资料库、转写摘要、Ask、设置与分享；团队协作继续在网页使用。','Recording, library, summaries, Ask, settings and sharing remain in the App; team collaboration remains on the web.')]
+    if version=='0.6.0':
+        changes=[words('按PLAUD4.x官方资料对齐Android个人核心；独立逐页截图与差异清单。','Android personal core aligned to official PLAUD4.x references, with independent page captures and differences.'),
+            words('默认云处理保留显式关闭；补全文档/OCR、多笔记、说话人、Ask、日历、导出与可撤销分享。','Default cloud processing preserves opt-outs; adds files/OCR, multiple notes, speakers, Ask, calendar, exports and revocable sharing.')]
     sources=[{'label':f'Teno {version} release manifest','reference':f'dist/{manifest_path.name}','sha256':sha(manifest_path)}]
     if release.exists(): sources.append({'label':f'Teno {version} release notes','reference':release.name,'sha256':sha(release)})
     tests=[]; summaries=[]
@@ -66,6 +78,13 @@ def normalize(manifest_path, output, baseline=False):
         assert installed['apk_sha256']==manifest['sha256'] and not installed['uninstalled']
         for key,zh,en in [('flutter_tests','Flutter 自动测试','Flutter automated tests'),('jwd_protocol_checks','JWD 协议测试（合成数据）','JWD protocol tests (synthetic data)')]:
             tests.append({'name':words(zh,en),'status':'passed','environment':'unit','count':manifest[key],'source':release.name})
+    elif version=='0.6.0':
+        evidence(qa/'full-runtime-report.json','0.5.0至0.6.0候选包覆盖保留检查','0.5.0 to0.6.0 candidate upgrade retention','emulator',manifest['upgrade_runtime_checks'])
+        evidence(qa/'regression-runtime-report.json','最终Android录音、导入、系统选择器与账号隔离','Final Android recording, imports, system pickers and account isolation','emulator',manifest['regression_runtime_checks'])
+        installed=evidence(qa/'final-install-report.json','最终原签名包安装与冷启动','Final signed APK installation and cold launch','emulator')
+        assert installed['apk_sha256']==manifest['sha256'] and not installed['uninstalled']
+        evidence(qa/'backend-acceptance.json','后端迁移、旧端兼容及真实供应商验收','Backend migration, legacy compatibility and real-provider acceptance','server')
+        tests.append({'name':words('本轮Flutter页面与交互回归','Current Flutter page and interaction regression'),'status':'passed','environment':'unit','count':manifest['flutter_tests'],'source':release.name})
     tests.append({'name':words(f"Lint：0 错误 / {manifest['lint_warnings']} 警告",f"Lint: 0 errors / {manifest['lint_warnings']} warnings"),'status':'passed','environment':'static','source':f'dist/{manifest_path.name}'})
     report={'platform':'android','version':version,'commit':commit,'build_number':f"release-{version}-{sha(manifest_path)[:12]}-android",
             'occurred_at':source_time,'outcome':'passed','implementation':'implemented' if modules else 'unknown','physical':'pending','distribution':'internal',
@@ -76,10 +95,16 @@ def normalize(manifest_path, output, baseline=False):
             'dependency':words('复用现有账号、Azure 转写、DeepSeek 摘要与 Ask 接口。此处展示历史验证，不重新调用模型。','Uses existing accounts, Azure transcription, DeepSeek summaries and Ask APIs. This page displays historical evidence without invoking models.')}
     if version=='0.4.4':
         report['installation']=words('历史内测包，仅供版本回溯。当时用于从 0.4.3 覆盖升级至 0.4.4；若已安装 0.5.0 或更高版本，不要用旧包降级，也不要卸载当前 App。原签名、账号、设备密钥和本机文件须保留。', 'Historical internal package for traceability. Originally used to upgrade 0.4.3 to 0.4.4. If 0.5.0 or newer is already installed, do not downgrade or uninstall the current App. Preserve the original signer, account, device key and local files.')
+    if version=='0.6.0':
+        report['title']=words('Android个人核心与UI对齐','Android personal core and UI alignment')
+        report['dependency']=words('共享后端1.4.0／迁移007；复用Azure和DeepSeek。真实合成验收与用量单独记录，团队网页流程保留。','Backend1.4.0 / migration007; uses Azure and DeepSeek. Synthetic real-provider acceptance and usage are recorded separately; team web workflows are retained.')
+        report['pending'].append(words('本轮不构建iOS；120分钟边界已做分段/时间轴测试，未进行2小时付费语音调用。','No iOS build in this release. Near-limit splitting/timeline tests passed; a paid two-hour provider call was not performed.'))
     def asset(path,kind,zh,en):return {'path':str(path.resolve()),'kind':kind,'sha256':sha(path),'label':words(zh,en)}
     summary_path=output/f'Teno-{version}-android-evidence.txt'
     summary_path.write_text(json.dumps({'version':version,'platform':'android','source_commit':commit,'apk_sha256':manifest['sha256'],'physical_device_tested':False,'verification':summaries},ensure_ascii=False,indent=2),encoding='utf-8')
     files=[asset(apk,'apk','Android 原签名内测包','Original-signer Android release'),asset(summary_path,'evidence','Android 验证摘要与检查项','Android validation summary and checks')]
+    if version=='0.6.0':
+        files.append(asset(qa/'03-import-entry-android.png','screenshot','Android导入入口（模拟器）','Android import entry (emulator)'))
     screen=qa/('release-cold-start.png' if version=='0.4.4' else '04-final-login-android.png')
     if screen.exists(): files.append(asset(screen,'screenshot','Android 模拟器登录页','Android emulator login screen'))
     envelopes=[{'report':report,'files':files}]

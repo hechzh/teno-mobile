@@ -1,3 +1,21 @@
+# Teno Android 0.6.0
+
+This release extends the existing Flutter/Java Android app with the approved PLAUD 4.x personal core. It keeps Teno / Ask Teno branding, English UI, the original `com.teno.app` signer and account/device/local-file isolation. Version code is 11. iOS remains at the separately confirmed 0.5.0 baseline; no iOS package is built here.
+
+[0.6.0 page-by-page review](design-baseline/v0.6.0/index.html) · [Differences and acceptance](design-baseline/v0.6.0/differences-and-acceptance.txt) · [Release and installation](RELEASE-0.6.0.txt) · [Architecture](ARCHITECTURE.txt)
+
+Import entry: Home → ＋ → Import files → From Files / From Photos. Android Share also accepts one or multiple files; sign in and explicitly accept pending shares into the current account. Each file is copied completely before queueing. Cloud processing defaults on only when its account key is missing; explicit off is retained. Historical unrequested local files do not upload automatically. Wi-Fi-only and durable retry policies apply.
+
+Audio/video imports support MP3/M4A/WAV/AAC/FLAC/OGG/MP4/MOV/3GP/WEBM with real decoder validation, up to 120 minutes / 250 MiB. PDF/DOC/DOCX/PPTX/MSG documents are limited to 15 MB, UTF-8 TXT/MD to 2 MB, PNG/JPEG to 20 MB / 25MP. The compatible backend 1.4.0 performs local text extraction/OCR, preserves page/source references and exposes errors without deleting originals. Local processing protection limits are 200 pages / ten minutes / one million extracted characters.
+
+The personal UI adds Upcoming/calendar association, typed library/search with matched timestamps/pages, nested folders, batch operations and drag destinations; original-preserving trim/merge; raw/edited/cleaned transcripts, per-recording speaker naming, real waveform/chapters/playback; multiple independent versioned notes and Teno templates; Chat with typed contexts, editable voice input, citations and saved answers; system calendar/manual/ICS import, themes, notifications, cache and optional system-credential App lock. Exports are content/format specific. Share links are explicit snapshots, default to summary only / seven days / no audio, and can be revoked.
+
+The backend opt-in flag keeps old upload clients on their original pipeline. Explicit re-transcription from 0.6.0 opts an old recording into the personal pipeline; old summaries and transcript revisions remain. Team web, team prompts, profiles/tasks and daily automations are retained. Personal voiceprints, Agent/Work/Tasks/Skills/Routines/Connectors, billing/team/SSO are outside this release.
+
+Packaging: `python scripts/package_mobile.py --android-only --version 0.6.0`. Version and evidence are independent of 0.5.0/iOS. Run checks through `scripts/run_and_report.py`. The private development build report does not promote a confirmed baseline. No store release or main-branch merge is performed. Physical Magic4 Pro/JWD acceptance remains pending; screenshots and emulator checks are identified separately.
+
+The 0.5.0 implementation and evidence below are historical.
+
 # Teno mobile 0.5.0
 
 Teno uses one Flutter interface with Java and Swift runtimes for Android and iOS. The interface follows the approved 33-page reference dated 2026-11-04, with Teno / Ask Teno branding and English copy. It is implemented in Flutter widgets, not a WebView containing the design HTML.

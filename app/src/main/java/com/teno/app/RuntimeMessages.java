@@ -1691,6 +1691,8 @@ public class RuntimeMessages {
 
     void request(@NonNull String method, @NonNull String path, @Nullable String jsonBody, @NonNull Result<String> result);
 
+    void platformCommand(@NonNull String command, @Nullable String jsonBody, @NonNull Result<String> result);
+
     void configure(@NonNull Boolean cloudUpload, @NonNull Boolean wifiOnly, @NonNull Boolean livePreview, @NonNull VoidResult result);
 
     void startPhone(@NonNull String title, @NonNull Result<String> result);
@@ -1838,6 +1840,36 @@ public class RuntimeMessages {
                     };
 
                 api.request(methodArg, pathArg, jsonBodyArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.teno_mobile.RuntimeHost.platformCommand" + messageChannelSuffix, getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String commandArg = (String) args.get(0);
+                String jsonBodyArg = (String) args.get(1);
+                Result<String> resultCallback =
+                    new Result<String>() {
+                      public void success(String result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.platformCommand(commandArg, jsonBodyArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

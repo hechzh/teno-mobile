@@ -8,6 +8,7 @@ import argparse
 import json
 import re
 import subprocess
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from report_development import ROOT, words, configuration, send, sha
@@ -20,6 +21,10 @@ def main():
     p.add_argument('--outbox',type=Path,default=Path.home()/'.teno/development-outbox');p.add_argument('command',nargs=argparse.REMAINDER);args=p.parse_args()
     command=args.command[1:] if args.command and args.command[0]=='--' else args.command
     if not command:raise SystemExit('A build/test command is required')
+    if os.name=='nt' and command[0].lower().endswith(('.bat','.cmd')):
+        batch=Path(command[0])
+        if not batch.is_absolute():batch=ROOT/batch
+        command=[os.environ.get('COMSPEC','cmd.exe'),'/d','/c',str(batch.resolve()),*command[1:]]
     before=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     dirty=bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT))
     result=subprocess.run(command,cwd=ROOT)
