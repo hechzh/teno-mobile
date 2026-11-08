@@ -1,3 +1,17 @@
+# Teno Android 0.6.2
+
+Version **0.6.2 / 13** fixes the JWD recording timer freezing between Bluetooth replies. Discovery starts on entry, puts saved recorders and supported JWD name/service candidates first, and keeps other Bluetooth devices expandable. A selected new device is checked before the existing key/binding flow; saved keys are reused. Reconnecting never starts a recording.
+
+The recording sheet shows live-preview connection, waiting-for-audio, decoder and service errors even when the transcript is collapsed. Live preview remains optional; its failure does not stop the recorder or replace the verified complete-file sync and final transcription. The reported HQ-10_P family was already recognized by the native SDK-name list; this release restores its priority in the Flutter discovery screen.
+
+[0.6.2 page review](design-baseline/v0.6.2/index.html) · [Changes, evidence and hardware limits](design-baseline/v0.6.2/differences-and-acceptance.txt) · [Installation and validation](RELEASE-0.6.2.txt)
+
+Install `dist/Teno-0.6.2.apk` over 0.6.1 without uninstalling or clearing data. The original signer, accounts, keys, files, queue and explicit preferences remain. Backend 1.4.1 is unchanged. Real Magic4 Pro / JWD validation remains pending; the specific cause of the reported missing subtitles is not inferred from synthetic tests. No iOS build, main merge, store release or baseline promotion.
+
+Checks: `python scripts/flutter_check.py release-checks --version 0.6.2`. Native JWD decoding on the dedicated API35 emulator requires `--abi arm64-v8a` with `scripts/verify_android.py`; ordinary x86 execution cannot load the vendor ARM-only libraries. Use a 0.6.1 fixture for upgrade validation and retain versioned evidence. Package with `python scripts/package_mobile.py --android-only --version 0.6.2` after the checks and source review.
+
+The previous releases and their artifacts remain available below.
+
 # Teno Android 0.6.1
 
 Version **0.6.1 / 12** aligns existing features to verified PLAUD 4.x official references: Home and shifted sidebar, expandable Library, real statistics, combined search filters, recording/import/share sheets, transcript controls, templates, calendar, Chat and settings. Teno / Ask Teno, English, JWD priority, the original Android signer and existing accounts remain.

@@ -43,7 +43,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
             passed=true;
         } catch(Throwable e){try{report.put("failure",e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}
         try {
-            report.put("all_passed",passed).put("checks",checks).put("evidence","Dedicated API 35 emulator; synthetic account and loopback backend. No physical JWD, iPhone or Azure accuracy claims.");
+            report.put("all_passed",passed).put("checks",checks).put("process_arch",System.getProperty("os.arch")).put("evidence","Dedicated API 35 emulator; synthetic account and loopback backend. JWD vendor decoder uses ARM translation. No physical JWD, iPhone or Azure accuracy claims.");
             Files.write(new File(context.getExternalFilesDir(null),mode+"-runtime-report.json").toPath(),report.toString(2).getBytes(StandardCharsets.UTF_8));
         } catch(Exception ignored){}
         Bundle result=new Bundle();result.putString("stream",report.toString());finish(passed?Activity.RESULT_OK:Activity.RESULT_CANCELED,result);
@@ -158,6 +158,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
                 test.check(file.isFile(),"successful_upload_preserves_local_original");
                 call(result->activity.runtime.retryUpload(id.get(),result));Thread.sleep(200);
                 test.check(uploadCount.get()==2,"completed_upload_is_not_enqueued_again");
+                new JwdRuntimeChecks(test,activity).run();
                 JwdService.snapshot=new JSONObject().put("record_state",-1).put("record_name","unconfirmed.opus").put("address","00:00:00:00:05:00")
                     .put("message","Connection interrupted. Recorder may still be recording.").toString();
                 test.check(activity.runtime.state().getCapture().getPhase().equals("interrupted"),"device_disconnect_never_claims_stopped");

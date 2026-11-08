@@ -1,5 +1,12 @@
 Teno 版本管理 — 2026-11-08
 
+0.6.2 / versionCode 13：JWD 发现排序、计时连续刷新与实时预览状态修复。
+分支 feature/teno-0.6.2-jwd-recording-fix；后台 1.4.1 不变；只交付 Android。
+验证目录 verification/v0.6.2；图册 design-baseline/v0.6.2；原 0.6.1 包和证据保留。
+覆盖安装沿用原签名，不提升已确认基线。原生 JWD 合成音频验证使用 ARM64 模拟器转译，不能作为实机通过。
+
+以下为历史版本规则：
+
 当前交付 Android 0.6.0 / versionCode 11；分支 feature/teno-0.6.0-plaud-core-android。
 共享后端 1.4.0 / 迁移 007 在独立共享仓库中发布；本轮不构建 iOS。
 0.6.0 自有验证目录 verification/v0.6.0，逐页目录 design-baseline/v0.6.0。

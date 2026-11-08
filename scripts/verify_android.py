@@ -3,6 +3,7 @@ import argparse, hashlib, json, os, pathlib, re, subprocess, time
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 p = argparse.ArgumentParser(); p.add_argument('mode', choices=['upgrade','regression','final'])
 p.add_argument('--device', default='emulator-5554'); p.add_argument('--baseline', default='0.5.0')
+p.add_argument('--abi', choices=['arm64-v8a','x86_64'], help='Explicit emulator process ABI; ARM is required for the vendor decoder')
 args = p.parse_args()
 version = re.search(r"versionName '([^']+)'", (ROOT/'app/build.gradle').read_text())[1]
 qa = ROOT/'verification'/('v'+version); qa.mkdir(parents=True, exist_ok=True)
@@ -15,7 +16,7 @@ assert metadata['elements'][0]['versionName'] == version, 'Build the new release
 package = 'com.teno.app'
 external = '/sdcard/Android/data/'+package+'/files/'
 def install(file):
-    assert 'Success' in run('install','-r',str(file))
+    assert 'Success' in run('install','-r',*(['--abi',args.abi] if args.abi else []),str(file))
 def instrument(mode):
     output = run('shell','am','instrument','-w','-e','mode',mode,'-e','baseline',args.baseline,
         package+'.test/com.teno.app.RuntimeInstrumentation')

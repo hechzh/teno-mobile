@@ -102,7 +102,7 @@ final class NativeRuntime implements RuntimeHost {
             phase=rs==2?"paused":rs==1?"recording":rs<0&&!d.optString("record_name").isEmpty()?"interrupted":"idle";
             if(pending.equals("start"))phase="starting";else if(pending.equals("stop"))phase="stopping";
             else if(d.optBoolean("receiving")||d.optBoolean("converting")||d.optBoolean("syncing"))phase="saving";
-            elapsed=d.optLong("elapsed_ms");id="jwd:"+d.optString("address")+"|"+d.optString("record_name");
+            elapsed=JwdService.elapsed(d,SystemClock.elapsedRealtime());id="jwd:"+d.optString("address")+"|"+d.optString("record_name");
             notes=store.recorderNotes(d.optString("address"),d.optString("record_name"));status=d.optString("message");
             live=JwdService.live==null?null:JwdService.live.transcriber;
         }else if(lastSource.equals("device")&&!d.optString("last_draft").isEmpty()&&!RecorderService.active&&!RecorderService.finishing&&!phoneStarting){
@@ -111,16 +111,18 @@ final class NativeRuntime implements RuntimeHost {
             status=d.optString("message");live=JwdService.live==null?null:JwdService.live.transcriber;
         }
         if(live!=null){partial=live.partial;segments=live.segments().toString();if(status.isEmpty())status=live.status;}
+        String previewStatus=live==null?(store.liveDefault()?"Live preview is not active for this recording":"Live preview is off · Settings > Recorder")
+            :source.equals("device")&&JwdService.live!=null?JwdService.live.previewStatus(phase.equals("paused")):live.status;
         if(status.isEmpty())status=phase.equals("paused")?"Recording paused":phase.equals("recording")?"Recording · Audio saved locally":"Ready";
         JSONArray drafts=session().getSignedIn()?store.drafts():new JSONArray();
         for(int i=0;i<drafts.length();i++)drafts.getJSONObject(i).remove("path");
         return new RuntimeState.Builder().setSequence(++sequence).setSession(session())
             .setCapture(new CaptureState.Builder().setSource(source).setPhase(phase).setElapsedMs(elapsed).setLocalId(id)
-                .setStatus(status).setPartial(partial).setSegmentsJson(segments).setNotes(notes).build())
+                .setStatus(status).setPartial(partial).setSegmentsJson(segments).setNotes(notes).setPreviewStatus(previewStatus).build())
             .setDevice(new DeviceState.Builder().setConnected(d.optBoolean("connected")).setAuthorized(d.optBoolean("authorized"))
                 .setScanning(d.optBoolean("scanning")).setBusy(d.optBoolean("busy")).setReceiving(d.optBoolean("receiving"))
-                .setReceivedBytes(d.optLong("received")).setExpectedBytes(d.optLong("expected")).setIdentifier(d.optString("address").isEmpty()?store.recorderAddress():d.optString("address"))
-                .setName(d.optString("name",store.recorderName())).setBattery(d.optString("battery","Not received"))
+                .setReceivedBytes(d.optLong("received")).setExpectedBytes(d.optLong("expected")).setIdentifier(d.optBoolean("connected")?d.optString("address"):store.recorderAddress())
+                .setName(d.optBoolean("connected")?d.optString("name"):store.recorderName()).setBattery(d.optString("battery","Not received"))
                 .setStatus(d.optString("message","Connect your recorder to get started.")).setCandidatesJson(candidates.toString())
                 .setFilesJson(d.optJSONArray("files")==null?"[]":d.getJSONArray("files").toString()).build())
             .setPlayback(media.state()).setDraftsJson(drafts.toString()).setUploadStatus(TransferService.message==null?"":TransferService.message).setOpenRoute(route).build();

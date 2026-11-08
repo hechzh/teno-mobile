@@ -1,0 +1,32 @@
+[
+  {
+    "id": "03-import-entry-android",
+    "path": "native/03-import-entry-android.png",
+    "sha256": "9e52aa29d1723038f3cf9c9c2ee180d38c6d5fe5c0bb956292225de8127c3287",
+    "environment": "Dedicated API35 emulator, ARM64 translation; synthetic account; not physical hardware"
+  },
+  {
+    "id": "04-final-login-android",
+    "path": "native/04-final-login-android.png",
+    "sha256": "5ad5d184d9a1cf101c558c98bedb1cdeffcdc3c8d97ddeefd773c00fbfc5b8d4",
+    "environment": "Dedicated API35 emulator, ARM64 translation; synthetic account; not physical hardware"
+  },
+  {
+    "id": "05-system-files-android",
+    "path": "native/05-system-files-android.png",
+    "sha256": "37d29ddea1dcd4e8c593b6cd8972500354215eb2072ea45dce5c9cbfc9dfd24a",
+    "environment": "Dedicated API35 emulator, ARM64 translation; synthetic account; not physical hardware"
+  },
+  {
+    "id": "06-system-photos-android",
+    "path": "native/06-system-photos-android.png",
+    "sha256": "b7fff645030a96e2887ddb9dd5d6fc9f1a78b5c7e7b5dee451fbad45edef1150",
+    "environment": "Dedicated API35 emulator, ARM64 translation; synthetic account; not physical hardware"
+  },
+  {
+    "id": "07-system-keyboard-android",
+    "path": "native/07-system-keyboard-android.png",
+    "sha256": "54eb51b45186ef28905d33bcd5e2adca3a5763b60f9a39ff52e0e12e28c5a49d",
+    "environment": "Dedicated API35 emulator, ARM64 translation; synthetic account; not physical hardware"
+  }
+]

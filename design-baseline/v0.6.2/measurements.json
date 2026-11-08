@@ -1,0 +1,283 @@
+{
+  "version": "0.6.2",
+  "width_dp": 390,
+  "reference_method": "Manual edge readings in original screenshots, normalized by 390 / original width; approximate uncertainty +/- 1dp. Teaching outlines and system bars excluded.",
+  "scope": "Sampled horizontal anchors and shared control dimensions only; not a full-page pixel certification. Data-dependent vertical flow excluded.",
+  "measurements": [
+    {
+      "state": "01-home",
+      "reference": "S50-01.png",
+      "measure": "内容左对齐线",
+      "reference_original_pixels": 72,
+      "reference_image_width": 1206,
+      "reference_dp": 23.28,
+      "current_dp": 24.0,
+      "absolute_difference_dp": 0.72,
+      "target_met": true,
+      "current_method": "当前 RenderBox"
+    },
+    {
+      "state": "01-home",
+      "reference": "S50-01.png",
+      "measure": "圆形按钮直径",
+      "reference_original_pixels": 132,
+      "reference_image_width": 1206,
+      "reference_dp": 42.69,
+      "current_dp": 44,
+      "absolute_difference_dp": 1.31,
+      "target_met": true,
+      "current_method": "CoreAction 实际圆形表面"
+    },
+    {
+      "state": "01-home",
+      "reference": "S50-01.png",
+      "measure": "Ask 输入条宽度",
+      "reference_original_pixels": 1086,
+      "reference_image_width": 1206,
+      "reference_dp": 351.19,
+      "current_dp": 350,
+      "absolute_difference_dp": 1.19,
+      "target_met": true,
+      "current_method": "AskBar RenderBox"
+    },
+    {
+      "state": "01-home",
+      "reference": "S50-01.png",
+      "measure": "Ask 输入条高度",
+      "reference_original_pixels": 186,
+      "reference_image_width": 1206,
+      "reference_dp": 60.15,
+      "current_dp": 58.4,
+      "absolute_difference_dp": 1.75,
+      "target_met": true,
+      "current_method": "AskBar RenderBox"
+    },
+    {
+      "state": "04-library",
+      "reference": "S44-02.png",
+      "measure": "My files 左对齐线",
+      "reference_original_pixels": 72,
+      "reference_image_width": 1206,
+      "reference_dp": 23.28,
+      "current_dp": 24.0,
+      "absolute_difference_dp": 0.72,
+      "target_met": true,
+      "current_method": "当前 RenderBox"
+    },
+    {
+      "state": "04-library",
+      "reference": "S44-02.png",
+      "measure": "目录分隔线左端",
+      "reference_original_pixels": 240,
+      "reference_image_width": 1206,
+      "reference_dp": 77.61,
+      "current_dp": 76,
+      "absolute_difference_dp": 1.61,
+      "target_met": true,
+      "current_method": "24dp 列表内边距 + 52dp Divider indent"
+    },
+    {
+      "state": "06-search",
+      "reference": "S75-04.png",
+      "measure": "搜索文字左边缘",
+      "reference_original_pixels": 348,
+      "reference_image_width": 1206,
+      "reference_dp": 112.54,
+      "current_dp": 112.14,
+      "absolute_difference_dp": 0.4,
+      "target_met": true,
+      "current_method": "当前 RenderBox"
+    },
+    {
+      "state": "06-search",
+      "reference": "S75-04.png",
+      "measure": "历史区左对齐线",
+      "reference_original_pixels": 72,
+      "reference_image_width": 1206,
+      "reference_dp": 23.28,
+      "current_dp": 24.14,
+      "absolute_difference_dp": 0.86,
+      "target_met": true,
+      "current_method": "当前 RenderBox"
+    },
+    {
+      "state": "14-recording-notes",
+      "reference": "S43-01.png",
+      "measure": "主标题左对齐线",
+      "reference_original_pixels": 48,
+      "reference_image_width": 1206,
+      "reference_dp": 15.52,
+      "current_dp": 16.14,
+      "absolute_difference_dp": 0.62,
+      "target_met": true,
+      "current_method": "当前 RenderBox"
+    },
+    {
+      "state": "14-recording-notes",
+      "reference": "S43-01.png",
+      "measure": "分享/更多胶囊宽度",
+      "reference_original_pixels": 324,
+      "reference_image_width": 1206,
+      "reference_dp": 104.78,
+      "current_dp": 103.4,
+      "absolute_difference_dp": 1.38,
+      "target_met": true,
+      "current_method": "CoreSurface RenderBox"
+    },
+    {
+      "state": "14-recording-notes",
+      "reference": "S43-01.png",
+      "measure": "分享/更多胶囊高度",
+      "reference_original_pixels": 132,
+      "reference_image_width": 1206,
+      "reference_dp": 42.69,
+      "current_dp": 43.4,
+      "absolute_difference_dp": 0.71,
+      "target_met": true,
+      "current_method": "CoreSurface RenderBox"
+    },
+    {
+      "state": "14-recording-notes",
+      "reference": "S43-01.png",
+      "measure": "音频入口高度",
+      "reference_original_pixels": 192,
+      "reference_image_width": 1206,
+      "reference_dp": 62.09,
+      "current_dp": 62,
+      "absolute_difference_dp": 0.09,
+      "target_met": true,
+      "current_method": "46dp 波形 + 上下 8dp padding；正常字号"
+    },
+    {
+      "state": "17-templates",
+      "reference": "S63-02.png",
+      "measure": "My templates 左对齐线",
+      "reference_original_pixels": 72,
+      "reference_image_width": 1206,
+      "reference_dp": 23.28,
+      "current_dp": 24.0,
+      "absolute_difference_dp": 0.72,
+      "target_met": true,
+      "current_method": "当前 RenderBox"
+    },
+    {
+      "state": "17-templates",
+      "reference": "S63-02.png",
+      "measure": "横向卡片宽度",
+      "reference_original_pixels": 600,
+      "reference_image_width": 1206,
+      "reference_dp": 194.03,
+      "current_dp": 196,
+      "absolute_difference_dp": 1.97,
+      "target_met": true,
+      "current_method": "templateCard 宽度；正常字号"
+    },
+    {
+      "state": "17-templates",
+      "reference": "S63-02.png",
+      "measure": "横向卡片高度",
+      "reference_original_pixels": 660,
+      "reference_image_width": 1206,
+      "reference_dp": 213.43,
+      "current_dp": 216,
+      "absolute_difference_dp": 2.57,
+      "target_met": true,
+      "current_method": "templateShelf 高度；正常字号"
+    },
+    {
+      "state": "27-share",
+      "reference": "S72-02.png",
+      "measure": "内容左对齐线",
+      "reference_original_pixels": 72,
+      "reference_image_width": 1206,
+      "reference_dp": 23.28,
+      "current_dp": 24.0,
+      "absolute_difference_dp": 0.72,
+      "target_met": true,
+      "current_method": "当前 RenderBox"
+    },
+    {
+      "state": "27-share",
+      "reference": "S72-02.png",
+      "measure": "预览标题左对齐线",
+      "reference_original_pixels": 144,
+      "reference_image_width": 1206,
+      "reference_dp": 46.57,
+      "current_dp": 49.0,
+      "absolute_difference_dp": 2.43,
+      "target_met": true,
+      "current_method": "当前 RenderBox"
+    },
+    {
+      "state": "27-share",
+      "reference": "S72-02.png",
+      "measure": "Done 胶囊宽度",
+      "reference_original_pixels": 210,
+      "reference_image_width": 1206,
+      "reference_dp": 67.91,
+      "current_dp": 68,
+      "absolute_difference_dp": 0.09,
+      "target_met": true,
+      "current_method": "最小宽 68；文字 35.6 + 32dp padding"
+    }
+  ],
+  "typography": [
+    [
+      "顶部标题",
+      17,
+      600,
+      "由默认行度量决定"
+    ],
+    [
+      "正文/列表标题",
+      16,
+      400,
+      "1.4 / 22dp 行框"
+    ],
+    [
+      "分区标题",
+      19,
+      600,
+      "1.25 / 24dp 行框"
+    ],
+    [
+      "录音与笔记主标题",
+      28,
+      700,
+      "1.2–1.25 / 34–35dp 行框"
+    ],
+    [
+      "元信息",
+      11,
+      400,
+      "默认行度量；Chip 内"
+    ],
+    [
+      "次要文字",
+      12,
+      400,
+      "1.35–1.4"
+    ],
+    [
+      "底部 Ask",
+      14,
+      400,
+      "1.4 / 20dp 行框"
+    ],
+    [
+      "搜索输入",
+      15,
+      400,
+      "默认 21dp 行框"
+    ]
+  ],
+  "reference_hashes": {
+    "S43-01.png": "b65c8cf507ed21fa9ef14185206c7aafd7de519d136ef18817e993de5ae630ab",
+    "S63-02.png": "fd0d1a9f060e2ebdf06fbdc148ab0b4c99bbc8b836140ba9e19a3a4a7b4b04ff",
+    "S44-02.png": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+    "S50-01.png": "54d23959ab434830a00eab3587f85e0b9dfe9016425133f5391b94d72a99464b",
+    "S72-02.png": "e4a88bd47ff45b482e0bd1ae3f304e8514213e2c8394ffd35ca4d68c0820ed69",
+    "S75-04.png": "426a164ff8284425d52ff561f6f382c891d756b82fc005a26908eae56ada1017"
+  },
+  "revalidation": "All six current RenderBox geometry files are identical to 0.6.1. Official edge readings and measured values retained; no universal pixel claim."
+}

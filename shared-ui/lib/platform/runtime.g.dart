@@ -228,6 +228,7 @@ class CaptureState {
     required this.partial,
     required this.segmentsJson,
     required this.notes,
+    this.previewStatus,
   });
 
   String source;
@@ -246,6 +247,8 @@ class CaptureState {
 
   String notes;
 
+  String? previewStatus;
+
   List<Object?> _toList() {
     return <Object?>[
       source,
@@ -256,6 +259,7 @@ class CaptureState {
       partial,
       segmentsJson,
       notes,
+      previewStatus,
     ];
   }
 
@@ -274,6 +278,7 @@ class CaptureState {
       partial: result[5]! as String,
       segmentsJson: result[6]! as String,
       notes: result[7]! as String,
+      previewStatus: result[8] as String?,
     );
   }
 
@@ -293,7 +298,8 @@ class CaptureState {
         _deepEquals(status, other.status) &&
         _deepEquals(partial, other.partial) &&
         _deepEquals(segmentsJson, other.segmentsJson) &&
-        _deepEquals(notes, other.notes);
+        _deepEquals(notes, other.notes) &&
+        _deepEquals(previewStatus, other.previewStatus);
   }
 
   @override
@@ -302,7 +308,7 @@ class CaptureState {
 
   @override
   String toString() {
-    return 'CaptureState(source: $source, phase: $phase, elapsedMs: $elapsedMs, localId: $localId, status: $status, partial: $partial, segmentsJson: $segmentsJson, notes: $notes)';
+    return 'CaptureState(source: $source, phase: $phase, elapsedMs: $elapsedMs, localId: $localId, status: $status, partial: $partial, segmentsJson: $segmentsJson, notes: $notes, previewStatus: $previewStatus)';
   }
 }
 

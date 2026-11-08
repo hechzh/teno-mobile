@@ -1,0 +1,42 @@
+{
+  "version": "0.6.2",
+  "manual_review_scope": "Selected changed states across light, dark and 360dp/1.5; not every screenshot manually certified.",
+  "reviewed": [
+    {
+      "image": "screenshots/android/light/09-recording.png",
+      "sha256": "737225e96415bc72a5d3fc5b5940a2416e9fd624e4ffb9ef3cd9fc6d24751965"
+    },
+    {
+      "image": "screenshots/android/light/90-jwd-matches.png",
+      "sha256": "b9fa7c2786911c2940f7c50c37200a1a16932e1ff8312675ff7b421d1a95bbbe"
+    },
+    {
+      "image": "screenshots/android/large/92-jwd-binding.png",
+      "sha256": "fb0cd1703ff6195e69303b6fd42681b05636b09f072eba587e35484ccf6b83ca"
+    },
+    {
+      "image": "screenshots/android/dark/93-jwd-preview-waiting.png",
+      "sha256": "68ce19f0f80388f198031b1aac04d28f21e55ed221fb6104622071d9eac14104"
+    },
+    {
+      "image": "screenshots/android/large/94-jwd-preview-error.png",
+      "sha256": "51497a4f0da38e31c6abb58ec7c589ec7f60d71d9ce19cb2dbea907262665dba"
+    },
+    {
+      "image": "screenshots/android/large/96-jwd-preview-text.png",
+      "sha256": "e9b3fb81d8f994abb4f0b9f752a7b7350d498c365d5cb1019811198b84c3e0ba"
+    },
+    {
+      "image": "screenshots/android/light/85-calendar-events.png",
+      "sha256": "5594382d86c21e3797b1a45e3eee4035111783c2f7455c3cb81a7f32e63e88bb"
+    }
+  ],
+  "automated_layout_checks": "All 87 states in three modes; real route navigation; 302 Flutter tests passed.",
+  "reference_limits": "New JWD states are missing-original extensions, not PLAUD reproductions. Native hardware is pending.",
+  "findings": [
+    "Preview status remains visible while collapsed; text is readable when expanded; pause/stop remain reachable at large text.",
+    "Device name remains a candidate until service verification; original/new-key confirmation remains explicit.",
+    "Connected device icon uses theme foreground in dark mode.",
+    "Calendar event time changed with synthetic current-time fixture; no product calendar code was modified."
+  ]
+}

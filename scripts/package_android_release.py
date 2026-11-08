@@ -50,9 +50,10 @@ def package(version,evidence_dir=None,private_values=()):
             bundle.write(path,f'Teno-{version}/'+name)
     for artifact in (apk,archive):secret_audit.archive(artifact.name,artifact.read_bytes())
     with zipfile.ZipFile(apk) as bundle:
+        assert not any(name.endswith('jwd-synthetic-opus.bin') for name in bundle.namelist()), 'Synthetic test audio entered the application APK'
         for name in bundle.namelist():
             if name.endswith(('.dex','.so')):
-                assert not any(v in bundle.read(name) for v in (b'RuntimeInstrumentation',b'FixtureHost',b'CoreHost',b'teno-cross-platform-fixture'))
+                assert not any(v in bundle.read(name) for v in (b'RuntimeInstrumentation',b'JwdRuntimeChecks',b'FixtureHost',b'CoreHost',b'teno-cross-platform-fixture'))
     assert not secret_audit.FINDINGS,sorted((path,rule) for path,rule in secret_audit.FINDINGS)
     deliverable=dist/f'Teno-{version}.apk';shutil.copyfile(apk,deliverable)
     manifest={'application':'Teno','platform':'android','version':version,'version_code':code,'package':'com.teno.app',

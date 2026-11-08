@@ -618,6 +618,16 @@ public class RuntimeMessages {
       this.notes = setterArg;
     }
 
+    private @Nullable String previewStatus;
+
+    public @Nullable String getPreviewStatus() {
+      return previewStatus;
+    }
+
+    public void setPreviewStatus(@Nullable String setterArg) {
+      this.previewStatus = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     CaptureState() {}
 
@@ -626,18 +636,18 @@ public class RuntimeMessages {
       if (this == o) { return true; }
       if (o == null || getClass() != o.getClass()) { return false; }
       CaptureState that = (CaptureState) o;
-      return pigeonDeepEquals(source, that.source) && pigeonDeepEquals(phase, that.phase) && pigeonDeepEquals(elapsedMs, that.elapsedMs) && pigeonDeepEquals(localId, that.localId) && pigeonDeepEquals(status, that.status) && pigeonDeepEquals(partial, that.partial) && pigeonDeepEquals(segmentsJson, that.segmentsJson) && pigeonDeepEquals(notes, that.notes);
+      return pigeonDeepEquals(source, that.source) && pigeonDeepEquals(phase, that.phase) && pigeonDeepEquals(elapsedMs, that.elapsedMs) && pigeonDeepEquals(localId, that.localId) && pigeonDeepEquals(status, that.status) && pigeonDeepEquals(partial, that.partial) && pigeonDeepEquals(segmentsJson, that.segmentsJson) && pigeonDeepEquals(notes, that.notes) && pigeonDeepEquals(previewStatus, that.previewStatus);
     }
 
     @Override
     public int hashCode() {
-      Object[] fields = new Object[] {getClass(), source, phase, elapsedMs, localId, status, partial, segmentsJson, notes};
+      Object[] fields = new Object[] {getClass(), source, phase, elapsedMs, localId, status, partial, segmentsJson, notes, previewStatus};
       return pigeonDeepHashCode(fields);
     }
 
     @Override
     public String toString() {
-      return "CaptureState{" + "source=" + source + ", " + "phase=" + phase + ", " + "elapsedMs=" + elapsedMs + ", " + "localId=" + localId + ", " + "status=" + status + ", " + "partial=" + partial + ", " + "segmentsJson=" + segmentsJson + ", " + "notes=" + notes + "}";
+      return "CaptureState{" + "source=" + source + ", " + "phase=" + phase + ", " + "elapsedMs=" + elapsedMs + ", " + "localId=" + localId + ", " + "status=" + status + ", " + "partial=" + partial + ", " + "segmentsJson=" + segmentsJson + ", " + "notes=" + notes + ", " + "previewStatus=" + previewStatus + "}";
     }
 
     public static final class Builder {
@@ -706,6 +716,14 @@ public class RuntimeMessages {
         return this;
       }
 
+      private @Nullable String previewStatus;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setPreviewStatus(@Nullable String setterArg) {
+        this.previewStatus = setterArg;
+        return this;
+      }
+
       public @NonNull CaptureState build() {
         CaptureState pigeonReturn = new CaptureState();
         pigeonReturn.setSource(source);
@@ -716,13 +734,14 @@ public class RuntimeMessages {
         pigeonReturn.setPartial(partial);
         pigeonReturn.setSegmentsJson(segmentsJson);
         pigeonReturn.setNotes(notes);
+        pigeonReturn.setPreviewStatus(previewStatus);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(8);
+      ArrayList<Object> toListResult = new ArrayList<>(9);
       toListResult.add(source);
       toListResult.add(phase);
       toListResult.add(elapsedMs);
@@ -731,6 +750,7 @@ public class RuntimeMessages {
       toListResult.add(partial);
       toListResult.add(segmentsJson);
       toListResult.add(notes);
+      toListResult.add(previewStatus);
       return toListResult;
     }
 
@@ -752,6 +772,8 @@ public class RuntimeMessages {
       pigeonResult.setSegmentsJson((String) segmentsJson);
       Object notes = pigeonVar_list.get(7);
       pigeonResult.setNotes((String) notes);
+      Object previewStatus = pigeonVar_list.get(8);
+      pigeonResult.setPreviewStatus((String) previewStatus);
       return pigeonResult;
     }
   }

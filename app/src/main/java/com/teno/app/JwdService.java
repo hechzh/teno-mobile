@@ -338,12 +338,22 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private void releaseWake(){if(wake!=null&&wake.isHeld())wake.release();}
     private void log(String s){logs.add(new SimpleDateFormat("HH:mm:ss",Locale.CHINA).format(new Date())+" "+s);while(logs.size()>60)logs.remove(0);}
     private void problem(String reason){message=reason==null?"Action failed. Try again.":reason;log(message);publish();}
+    /** A device event anchors the clock; UI ticks must not depend on further BLE replies. */
+    static long elapsed(JSONObject state,long now){
+        long value=state.optLong("elapsed_ms");
+        if(state.optInt("record_state",-1)==1&&state.optBoolean("connected")&&state.optBoolean("authorized")&&state.has("elapsed_at"))
+            value+=Math.max(0,now-state.optLong("elapsed_at"));
+        return Math.max(0,value);
+    }
     private void publish(){
         if(destroyed)return;try{
             JSONObject s=new JSONObject().put("message",message).put("connection_stage",connectionStage).put("jwd_service_verified",gattVerified).put("system_pairing_requested",pairingRequested).put("system_pairing_variant",pairingVariant).put("system_pairing_stage",pairingStage).put("scanning",scanning).put("compatibility_scan",compatibilityScanning).put("connected",connected).put("authorized",authorized).put("name",deviceName).put("address",address).put("battery",battery).put("firmware",firmware).put("capacity",capacity).put("record_state",recordState).put("record_name",recordName).put("record_start",recordStart).put("directory",directory).put("pending",pending).put("converting",converting).put("last_draft",lastDraft).put("busy",converting||receiver!=null||!pending.isEmpty()).put("receiving",receiver!=null||pending.equals("download")).put("received",receiver==null?0:receiver.received()).put("expected",receiver==null?0:receiver.expected).put("devices",new JSONArray(found.values())).put("dirs",new JSONArray(dirs)).put("files",new JSONArray(files)).put("log",new JSONArray(logs));
             s.put("syncing",syncing).put("sync_target",syncTarget).put("sync_error",syncError).put("busy",syncing||converting||receiver!=null||!pending.isEmpty());
-            s.put("elapsed_ms",recordState>0?Math.max(0,(recordState==2?recordPausedAt:SystemClock.elapsedRealtime())-recordStart-recordPausedTotal):0);
-            snapshot=s.toString();long now=SystemClock.elapsedRealtime();if(now-lastPublish>500){((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(13,notification(message));}lastPublish=now;
+            long now=SystemClock.elapsedRealtime();
+            long elapsed=recordState>0?Math.max(0,(recordState==2?recordPausedAt:now)-recordStart-recordPausedTotal)
+                :recordName.isEmpty()?0:elapsed(new JSONObject(snapshot),now);
+            s.put("elapsed_ms",elapsed).put("elapsed_at",now);
+            snapshot=s.toString();if(now-lastPublish>500){((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(13,notification(message));}lastPublish=now;
         }catch(Exception ignored){}
     }
     @Override public void onDestroy(){

@@ -111,6 +111,61 @@ class DevicePage extends StatefulWidget {
 
 class _DevicePageState extends State<DevicePage> {
   TenoModel get model => widget.model;
+  bool showOtherDevices = false, probeWasBusy = false;
+  String? pendingProbe;
+  Timer? probeTimeout;
+
+  @override
+  void initState() {
+    super.initState();
+    model.addListener(deviceChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final device = model.runtime!.device;
+      if (!device.connected && !device.busy && !device.scanning) {
+        command(DeviceAction.scan);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    model.removeListener(deviceChanged);
+    probeTimeout?.cancel();
+    super.dispose();
+  }
+
+  void deviceChanged() {
+    if (pendingProbe == null || !mounted) return;
+    final device = model.runtime!.device;
+    probeWasBusy = probeWasBusy || device.busy;
+    final matches = jsonRows(
+      device.candidatesJson,
+    ).where((row) => row['address'] == pendingProbe);
+    if (matches.isNotEmpty && matches.first['gatt_status'] == 'verified') {
+      final candidate = matches.first;
+      pendingProbe = null;
+      probeTimeout?.cancel();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) connect(candidate);
+      });
+    } else if ((matches.isNotEmpty &&
+            matches.first['gatt_status'] == 'unsupported') ||
+        (probeWasBusy && !device.busy)) {
+      setState(() => pendingProbe = null);
+      probeTimeout?.cancel();
+    }
+  }
+
+  int candidateRank(Json candidate) {
+    if (candidate['gatt_status'] == 'unsupported') return 4;
+    if (candidate['gatt_status'] == 'verified') return 0;
+    if (candidate['has_key'] == true) return 1;
+    if (candidate['jwd'] == true) return 2;
+    if (candidate['name_match'] == true) return 3;
+    return 4;
+  }
+
   Future<void> command(
     DeviceAction action, {
     String id = '',
@@ -119,12 +174,28 @@ class _DevicePageState extends State<DevicePage> {
 
   Future<void> connect(Json candidate) async {
     final id = text(candidate['address']), name = text(candidate['name']);
-    if (candidate['gatt_status'] != 'verified') {
-      await command(DeviceAction.probe, id: id, name: name);
-      return;
-    }
     if (candidate['has_key'] == true) {
       await command(DeviceAction.connect, id: id, name: name);
+      return;
+    }
+    if (candidate['gatt_status'] != 'verified') {
+      setState(() {
+        pendingProbe = id;
+        probeWasBusy = false;
+      });
+      probeTimeout?.cancel();
+      probeTimeout = Timer(const Duration(seconds: 30), () {
+        if (mounted) setState(() => pendingProbe = null);
+      });
+      await perform(context, () async {
+        try {
+          await model.host.controlDevice(DeviceAction.probe, id, name);
+        } catch (_) {
+          probeTimeout?.cancel();
+          if (mounted) setState(() => pendingProbe = null);
+          rethrow;
+        }
+      });
       return;
     }
     final key = TextEditingController();
@@ -185,7 +256,18 @@ class _DevicePageState extends State<DevicePage> {
     animation: model,
     builder: (context, _) {
       final device = model.runtime!.device;
-      final candidates = jsonRows(device.candidatesJson);
+      final candidates = jsonRows(device.candidatesJson)
+        ..sort((a, b) {
+          final rank = candidateRank(a).compareTo(candidateRank(b));
+          if (rank != 0) return rank;
+          return ((b['rssi'] as num?) ?? -127).compareTo(
+            (a['rssi'] as num?) ?? -127,
+          );
+        });
+      final otherCount = candidates
+          .where((row) => candidateRank(row) == 4)
+          .length;
+      final selecting = device.busy || pendingProbe != null;
       if (device.receiving) {
         return PageFrame(
           title: 'Saving recording',
@@ -246,11 +328,15 @@ class _DevicePageState extends State<DevicePage> {
             Icon(
               Icons.speaker_phone_outlined,
               size: 100,
-              color: device.authorized ? ink : muted,
+              color: device.authorized
+                  ? Theme.of(context).colorScheme.onSurface
+                  : muted,
             ),
             const SizedBox(height: 28),
             Text(
-              device.authorized ? device.name : 'Bring your recorder closer',
+              device.authorized
+                  ? device.name
+                  : 'Bring your JWD recorder closer',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
             ),
@@ -316,7 +402,7 @@ class _DevicePageState extends State<DevicePage> {
             ] else ...[
               if (device.identifier.isNotEmpty)
                 OutlinedButton(
-                  onPressed: device.busy
+                  onPressed: selecting
                       ? null
                       : () => command(
                           DeviceAction.connect,
@@ -326,27 +412,53 @@ class _DevicePageState extends State<DevicePage> {
                   child: const Text('Reconnect saved recorder'),
                 ),
               FilledButton(
-                onPressed: device.busy || device.scanning
+                onPressed: selecting || device.scanning
                     ? null
                     : () => command(DeviceAction.scan),
                 child: Text(device.scanning ? 'Scanning…' : 'Find my recorder'),
               ),
               TextButton(
-                onPressed: device.busy || device.scanning
+                onPressed: selecting || device.scanning
                     ? null
                     : () => command(DeviceAction.compatibilityScan),
                 child: const Text('Compatibility scan'),
               ),
-              for (final candidate in candidates)
+              if (candidates.any((row) => candidateRank(row) < 4))
+                const Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: Text(
+                    'Matching recorders',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              for (final candidate in candidates.where(
+                (row) => showOtherDevices || candidateRank(row) < 4,
+              ))
                 MenuRow(
                   Icons.bluetooth,
                   text(candidate['name']),
-                  device.busy ? null : () => connect(candidate),
-                  subtitle: candidate['gatt_status'] == 'verified'
+                  selecting ? null : () => connect(candidate),
+                  subtitle: pendingProbe == candidate['address']
+                      ? 'Checking recording service…'
+                      : candidate['has_key'] == true
+                      ? 'Saved recorder · Connect'
+                      : candidate['gatt_status'] == 'verified'
                       ? 'Recording service verified · Connect'
                       : candidate['gatt_status'] == 'unsupported'
                       ? 'Recording service unavailable'
-                      : 'Check recording service',
+                      : candidateRank(candidate) < 4
+                      ? 'JWD candidate · Tap to verify and connect'
+                      : 'Unrecognized device · Check recording service',
+                ),
+              if (otherCount > 0)
+                TextButton(
+                  onPressed: () =>
+                      setState(() => showOtherDevices = !showOtherDevices),
+                  child: Text(
+                    showOtherDevices
+                        ? 'Hide other devices'
+                        : 'Other Bluetooth devices ($otherCount)',
+                  ),
                 ),
             ],
             if (device.receiving) ...[
@@ -545,6 +657,46 @@ class _RecorderSheetState extends State<RecorderSheet> {
               Expanded(
                 child: ListView(
                   children: [
+                    ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      title: const Text(
+                        'Live transcript',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      subtitle: Text(
+                        c.previewStatus ??
+                            (widget.model.runtime!.session.livePreview
+                                ? 'Preview · Final transcript follows processing'
+                                : 'Live preview is off · Settings > Recorder'),
+                        style: const TextStyle(fontSize: 11, color: muted),
+                      ),
+                      initiallyExpanded: preview,
+                      onExpansionChanged: (v) => preview = v,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            'Live text is a preview. The complete recording is processed after it is saved and uploaded.',
+                            style: TextStyle(fontSize: 12, color: muted),
+                          ),
+                        ),
+                        for (final segment in jsonRows(c.segmentsJson))
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(text(segment['text'])),
+                            ),
+                          ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            c.partial,
+                            style: const TextStyle(color: muted),
+                          ),
+                        ),
+                      ],
+                    ),
                     if (writing || notes.text.isNotEmpty)
                       TextField(
                         controller: notes,
@@ -609,36 +761,6 @@ class _RecorderSheetState extends State<RecorderSheet> {
                             ),
                         ],
                       ),
-                    ExpansionTile(
-                      tilePadding: EdgeInsets.zero,
-                      title: const Text(
-                        'Live transcript',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      subtitle: const Text(
-                        'Preview · Final transcript follows processing',
-                        style: TextStyle(fontSize: 11, color: muted),
-                      ),
-                      initiallyExpanded: preview,
-                      onExpansionChanged: (v) => preview = v,
-                      children: [
-                        for (final segment in jsonRows(c.segmentsJson))
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(text(segment['text'])),
-                            ),
-                          ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            c.partial,
-                            style: const TextStyle(color: muted),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),

@@ -9,8 +9,8 @@ android {
         applicationId project.findProperty('verificationAppId') ?: 'com.teno.app'
         minSdk 26
         targetSdk 35
-        versionCode 12
-        versionName '0.6.1'
+        versionCode 13
+        versionName '0.6.2'
         testInstrumentationRunner project.findProperty('testRunner') ?: 'com.teno.app.RuntimeInstrumentation'
     }
     signingConfigs {
@@ -35,6 +35,7 @@ android {
         // Historical UI remains in Git for traceability, outside the first-release APK.
         main.java.exclude '**/TeamActivity.java', '**/TeamAudioActivity.java', '**/TeamAudioUploadService.java', '**/JwdActivity.java'
         androidTest.java.srcDirs = ['src/crossPlatformTest/java']
+        androidTest.assets.srcDirs = ['src/crossPlatformTest/assets']
     }
 }
 dependencies {

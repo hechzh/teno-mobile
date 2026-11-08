@@ -1,5 +1,7 @@
 # JWD SDK 接入记录
 
+0.6.2 adds an 80-byte synthetic Opus test frame at `app/src/crossPlatformTest/assets/jwd-synthetic-opus.bin`, taken from the existing synthetic 0.2.0 acceptance fixture. It is packaged only in the instrumentation APK, never the application APK. The runtime tests feed fragmented repeats through the unchanged vendor decoder and a loopback WebSocket; this is not a real-recorder or speech-recognition accuracy claim.
+
 来源：用户提供的 `JWD-VTR录音卡协议&SDK_20261027/JwdVTRSample`，SDK 文档 v1.1.3；命令基线为 `JWD-VTR录音笔&app通信协议_20261022.xlsx` V1.1。
 
 厂商原资料目录未修改。以下文件按原样复制到当前工程，原始代码与二进制归属厂商：

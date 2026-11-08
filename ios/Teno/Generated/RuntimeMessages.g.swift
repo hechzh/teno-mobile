@@ -298,6 +298,7 @@ struct CaptureState: Hashable, CustomStringConvertible {
   var partial: String
   var segmentsJson: String
   var notes: String
+  var previewStatus: String? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -310,6 +311,7 @@ struct CaptureState: Hashable, CustomStringConvertible {
     let partial = pigeonVar_list[5] as! String
     let segmentsJson = pigeonVar_list[6] as! String
     let notes = pigeonVar_list[7] as! String
+    let previewStatus: String? = nilOrValue(pigeonVar_list[8])
 
     return CaptureState(
       source: source,
@@ -319,7 +321,8 @@ struct CaptureState: Hashable, CustomStringConvertible {
       status: status,
       partial: partial,
       segmentsJson: segmentsJson,
-      notes: notes
+      notes: notes,
+      previewStatus: previewStatus
     )
   }
   func toList() -> [Any?] {
@@ -332,13 +335,14 @@ struct CaptureState: Hashable, CustomStringConvertible {
       partial,
       segmentsJson,
       notes,
+      previewStatus,
     ]
   }
   static func == (lhs: CaptureState, rhs: CaptureState) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return RuntimeMessagesPigeonInternal.deepEquals(lhs.source, rhs.source) && RuntimeMessagesPigeonInternal.deepEquals(lhs.phase, rhs.phase) && RuntimeMessagesPigeonInternal.deepEquals(lhs.elapsedMs, rhs.elapsedMs) && RuntimeMessagesPigeonInternal.deepEquals(lhs.localId, rhs.localId) && RuntimeMessagesPigeonInternal.deepEquals(lhs.status, rhs.status) && RuntimeMessagesPigeonInternal.deepEquals(lhs.partial, rhs.partial) && RuntimeMessagesPigeonInternal.deepEquals(lhs.segmentsJson, rhs.segmentsJson) && RuntimeMessagesPigeonInternal.deepEquals(lhs.notes, rhs.notes)
+    return RuntimeMessagesPigeonInternal.deepEquals(lhs.source, rhs.source) && RuntimeMessagesPigeonInternal.deepEquals(lhs.phase, rhs.phase) && RuntimeMessagesPigeonInternal.deepEquals(lhs.elapsedMs, rhs.elapsedMs) && RuntimeMessagesPigeonInternal.deepEquals(lhs.localId, rhs.localId) && RuntimeMessagesPigeonInternal.deepEquals(lhs.status, rhs.status) && RuntimeMessagesPigeonInternal.deepEquals(lhs.partial, rhs.partial) && RuntimeMessagesPigeonInternal.deepEquals(lhs.segmentsJson, rhs.segmentsJson) && RuntimeMessagesPigeonInternal.deepEquals(lhs.notes, rhs.notes) && RuntimeMessagesPigeonInternal.deepEquals(lhs.previewStatus, rhs.previewStatus)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -351,10 +355,11 @@ struct CaptureState: Hashable, CustomStringConvertible {
     RuntimeMessagesPigeonInternal.deepHash(value: partial, hasher: &hasher)
     RuntimeMessagesPigeonInternal.deepHash(value: segmentsJson, hasher: &hasher)
     RuntimeMessagesPigeonInternal.deepHash(value: notes, hasher: &hasher)
+    RuntimeMessagesPigeonInternal.deepHash(value: previewStatus, hasher: &hasher)
   }
 
   public var description: String {
-    return "CaptureState(source: \(String(describing: source)), phase: \(String(describing: phase)), elapsedMs: \(String(describing: elapsedMs)), localId: \(String(describing: localId)), status: \(String(describing: status)), partial: \(String(describing: partial)), segmentsJson: \(String(describing: segmentsJson)), notes: \(String(describing: notes)))"
+    return "CaptureState(source: \(String(describing: source)), phase: \(String(describing: phase)), elapsedMs: \(String(describing: elapsedMs)), localId: \(String(describing: localId)), status: \(String(describing: status)), partial: \(String(describing: partial)), segmentsJson: \(String(describing: segmentsJson)), notes: \(String(describing: notes)), previewStatus: \(String(describing: previewStatus)))"
   }
 }
 

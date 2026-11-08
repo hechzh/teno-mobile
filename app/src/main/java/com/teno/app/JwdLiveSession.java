@@ -1,6 +1,7 @@
 package com.teno.app;
 
 import com.actions.asc.jni.ASCDecoder;
+import android.os.SystemClock;
 import java.io.*;
 import java.nio.*;
 import java.util.*;
@@ -15,6 +16,8 @@ final class JwdLiveSession {
     volatile boolean finished;
     volatile String problem="";
     volatile long samples;
+    volatile long receivedBytes,lastAudioAt;
+    private final long startedAt=SystemClock.elapsedRealtime();
     final LiveTranscriber transcriber;
     JwdLiveSession(Store store,String name){
         transcriber=new LiveTranscriber(store,"jwd-preview-"+UUID.randomUUID(),name,store.language());
@@ -22,10 +25,22 @@ final class JwdLiveSession {
     }
     synchronized void feed(byte[] data){
         if(!accepting||data.length==0)return;
+        receivedBytes+=data.length;lastAudioAt=SystemClock.elapsedRealtime();
         if(data.length>65536||queuedBytes+data.length>320000||!queue.offer(data.clone())){
             problem="Audio stream interrupted. Import the complete recording after stopping.";accepting=false;transcriber.gap=true;return;
         }
         queuedBytes+=data.length;
+    }
+    String previewStatus(boolean paused){
+        if(!problem.isEmpty())return problem;
+        if(finished||!accepting)return transcriber.status;
+        if(paused)return "Preview paused";
+        long now=SystemClock.elapsedRealtime();
+        String connection=transcriber.status.startsWith("Live")?"Transcription connected":transcriber.status;
+        if(receivedBytes==0)return (now-startedAt>=10000?"No live audio received from recorder":"Waiting for recorder audio")+" · "+connection;
+        if(now-lastAudioAt>=10000)return "Recorder audio interrupted · "+transcriber.status;
+        if(samples==0)return "Decoding recorder audio · "+transcriber.status;
+        return transcriber.status;
     }
     void stop(boolean confirmed){
         if(!confirmed){problem="Connection ended. Check the recorder before importing the complete file.";transcriber.gap=true;}
@@ -56,7 +71,8 @@ final class JwdLiveSession {
                     if(remainder.length>0){problem="The live stream ended with an incomplete packet. Import the complete recording.";transcriber.gap=true;}
                 }finally{if(initialized)ASCDecoder.destroy();}
             }
-        }catch(Exception|LinkageError e){problem=e.getMessage()==null?"Live audio is unavailable on this phone.":e.getMessage();transcriber.gap=true;}
+        }catch(LinkageError e){problem="Live preview is unavailable on this phone. Sync the recording after stopping.";transcriber.gap=true;}
+        catch(Exception e){problem=e.getMessage()==null?"Live audio is unavailable on this phone.":e.getMessage();transcriber.gap=true;}
         finally{accepting=false;queue.clear();transcriber.finish();finished=true;}
     }
 }

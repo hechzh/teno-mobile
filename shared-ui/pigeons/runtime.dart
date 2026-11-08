@@ -40,6 +40,7 @@ class CaptureState {
     required this.partial,
     required this.segmentsJson,
     required this.notes,
+    this.previewStatus,
   });
   String source;
   String phase;
@@ -49,6 +50,7 @@ class CaptureState {
   String partial;
   String segmentsJson;
   String notes;
+  String? previewStatus;
 }
 
 class DeviceState {
