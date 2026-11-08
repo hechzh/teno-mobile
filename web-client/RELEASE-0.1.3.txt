@@ -11,9 +11,11 @@ layout; incomplete structured content falls back to the saved full body.
 Copy and edit retain the overview, full prose, key points and next steps. Saved versions
 keep their own overview and source-era text; no newer transcript is substituted. The
 client does not invent generated content, source IDs, quotations or playback times.
+Narrative edits identify the submitted text as the complete note, allowing compatible
+backends to distinguish them from older clients that edit only the body.
 
 Validation
-341 shared Flutter tests and 30 browser runtime tests passed. The shared UI and Web
+341 shared Flutter tests and 31 browser runtime tests passed. The shared UI and Web
 static analyses and release compilation are checked before distribution packaging.
 Synthetic UI tests cover narrative reading and navigation, source playback, complete
 copy/edit text, saved versions, incomplete-structure fallback, unchanged manual-note

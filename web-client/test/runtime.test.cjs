@@ -36,6 +36,18 @@ test('credentials can only be sent to the same-origin API', async () => {
     await assert.rejects(r.request({method: 'GET', path}));
   assert.equal(calls, 0);
 });
+test('complete narrative edits retain their scope and text through the browser runtime', async () => {
+  let sent;
+  const r = host(async (url, options) => {
+    sent = {url, method: options.method, body: JSON.parse(options.body)};
+    return response({id: 'note-1', revision: 2});
+  });
+  const body = {title: 'Synthetic review', body: 'Overview\n\nFull prose\n\nNext steps', revision: 1, body_scope: 'complete'};
+  await r.call('request', {method: 'PATCH', path: '/api/v1/notes/note-1', body});
+  assert.equal(sent.url, 'https://teno.example/api/v1/notes/note-1');
+  assert.equal(sent.method, 'PATCH');
+  assert.deepEqual(sent.body, body);
+});
 test('concurrent expired requests rotate the session once, both retry', async () => {
   let refreshes = 0;
   const r = host(async (url, options) => {

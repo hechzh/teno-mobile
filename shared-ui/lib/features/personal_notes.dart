@@ -308,6 +308,9 @@ class _PersonalNoteEditorState extends State<PersonalNoteEditor> {
                         ? 'Untitled note'
                         : title.text.trim(),
                     'body': body.text,
+                    if (object(widget.note?['data'])['schema_version'] ==
+                        'personal-notes-v2')
+                      'body_scope': 'complete',
                     if (widget.folderId != null) 'folder_id': widget.folderId,
                     if (widget.note != null)
                       'revision': widget.note!['revision'],

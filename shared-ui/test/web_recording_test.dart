@@ -191,6 +191,12 @@ void main() {
       final fields = tester.widgetList<TextField>(find.byType(TextField));
       expect(fields.last.controller!.text, copied);
       expect(host.requests.where((r) => r.startsWith('PATCH ')), isEmpty);
+      host.overrides.remove('/api/v1/notes/note-1');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      final saved = host.bodies['PATCH /api/v1/notes/note-1'];
+      expect(saved?['body_scope'], 'complete');
+      expect(saved?['body'], copied);
     },
   );
 
