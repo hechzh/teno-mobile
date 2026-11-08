@@ -1,4 +1,4 @@
-# Teno Web preview 0.1.2
+# Teno Web preview 0.1.3
 
 The browser application reuses `../shared-ui` from Android 0.6.2. It has its own
 entry point, browser runtime, build, CI job and deployment. Android's package,
@@ -15,6 +15,18 @@ Hardware recording, phone microphone recording, dictation, system calendar,
 Android app lock/notifications and incoming native share intents are omitted.
 
 ## Recording notes
+
+Web 0.1.3 supports evidence-linked narrative notes (`personal-notes-v2`). The short
+overview stays above the topic directory; each topic opens its complete saved prose,
+including proposal, confirmation and uncertainty labels. The compatibility body and
+transcript excerpts are not repeated below those chapters. Copy and edit preserve
+the overview, full prose, key points and next steps. Saved versions retain their
+original wording and overview. Legacy notes keep their existing presentation; an
+incomplete chapter structure falls back to the saved full body.
+
+This client does not generate or infer note content. The separately deployed personal
+Notes pipeline supplies the new structure. Android 0.6.2 remains the UI base, and this
+release does not replace an installed Android or iOS package.
 
 Web 0.1.1 applies the approved Notes V1 design to recording details: Notes and
 Transcript tabs, a sage overview, a real chapter directory, note selection,
@@ -84,8 +96,9 @@ The shared `webExperience` flag defaults to false. It is set only by this entry 
 
 Static assets (including Inter and Noto Sans SC) are self-hosted. No generated
 service worker caches account/API responses. There is no provider key, recorder key,
-test account or test recording in the build. Existing API contracts and generation
-prompts are unchanged. Backend 1.4.2 adds an owner-checked, read-only personal chat
+test account or test recording in the build. Existing API contracts remain compatible;
+personal generation changes are released separately on the backend. Backend 1.4.2
+adds an owner-checked, read-only personal chat
 history endpoint for typed sources; only Web uses this new read path. Android keeps
 its existing endpoint. The gateway routes only `/app/` to a separate static container.
 

@@ -1,0 +1,32 @@
+Teno Web preview 0.1.3 / 4
+2026-11-09
+
+Readable narrative notes
+Evidence-linked personal notes now show a short overview and complete topic chapters.
+The directory jumps to the actual chapter prose. Proposal, confirmation and uncertainty
+labels from the saved note remain visible. The full compatibility body and transcript
+excerpts are not duplicated beneath narrative chapters. Legacy notes keep their previous
+layout; incomplete structured content falls back to the saved full body.
+
+Copy and edit retain the overview, full prose, key points and next steps. Saved versions
+keep their own overview and source-era text; no newer transcript is substituted. The
+client does not invent generated content, source IDs, quotations or playback times.
+
+Validation
+341 shared Flutter tests and 30 browser runtime tests passed. The shared UI and Web
+static analyses and release compilation are checked before distribution packaging.
+Synthetic UI tests cover narrative reading and navigation, source playback, complete
+copy/edit text, saved versions, incomplete-structure fallback, unchanged manual-note
+behavior, and 360dp large-font light/dark layouts. Existing account-scoped recording
+cache and browser runtime checks remain required. Actual iPhone Safari remains a
+separate device acceptance item.
+
+Delivery
+Web version 0.1.3 / build 4; app_ui_base remains Android 0.6.2. Existing accounts, API
+paths, read cache, import queue and playback runtime are retained. Older backend notes
+remain readable; the new narrative structure comes from the separately delivered
+personal Notes backend change. No Android/iOS package, main merge, store publication
+or Android baseline change is included.
+
+Source and artifact SHA256 details are in dist/Teno-Web-0.1.3-manifest.json and
+dist/Teno-Web-0.1.3-SHA256SUMS.txt. Previous Web distributions remain retained.

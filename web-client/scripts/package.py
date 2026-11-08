@@ -14,7 +14,7 @@ repo = root.parent
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', type=Path, default=repo/'dist')
 args = parser.parse_args()
-version = re.search(r'^version:\s*([^+\s]+)', (root/'pubspec.yaml').read_text(), re.M)[1]
+version, build_number = re.search(r'^version:\s*([^+\s]+)\+(\d+)', (root/'pubspec.yaml').read_text(), re.M).groups()
 commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True).strip()
 assert not subprocess.check_output(['git', 'status', '--porcelain', '--', 'shared-ui', 'web-client'], cwd=repo), 'Commit Web sources before packaging'
 build = root/'build/web'
@@ -22,7 +22,7 @@ assert (build/'main.dart.js').is_file(), 'Run flutter build web first'
 shutil.copytree(root/'deploy', build/'deploy', dirs_exist_ok=True)
 files = {p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
          for p in sorted(build.rglob('*')) if p.is_file() and p.name != 'release.json'}
-manifest = {'version': version, 'source_commit': commit, 'app_ui_base': '0.6.2',
+manifest = {'version': version, 'build_number': int(build_number), 'source_commit': commit, 'app_ui_base': '0.6.2',
             'backend_minimum': '1.4.2', 'files': files}
 (build/'release.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
 args.output.mkdir(parents=True, exist_ok=True)
