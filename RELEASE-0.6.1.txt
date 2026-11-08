@@ -1,0 +1,46 @@
+Teno Android 0.6.1 / versionCode 12
+2026-11-08 · Existing-feature PLAUD 4.x UI alignment
+
+DELIVERY
+Original-signer non-debuggable APK: dist/Teno-0.6.1.apk, com.teno.app.
+Reviewed source: dist/Teno-0.6.1-source.zip.
+Independent hashes and source commit: dist/Teno-0.6.1-release-manifest.json and dist/SHA256SUMS.txt.
+Review: design-baseline/v0.6.1/index.html; each state has its own complete canvas, reference classification, source and retained differences.
+Install with Android's update flow over existing Teno. Do not uninstall or clear data. CI APKs are build evidence and must not replace this original-signer update.
+
+IMPLEMENTATION
+Home uses circular actions, a JWD capsule, Upcoming, date groups and a bottom Ask entry. Navigation shifts Home aside; the account replaces quota content.
+Library uses expandable system collections and nested folders, real complete counts, updated times, right-side selection and a unified batch toolbar. Photos, Notes and On this phone remain under My files; Trash is in the more menu.
+Search combines Folder, Type, Speaker and Date range, with explicit selection, sort direction and pagination. Unsupported new controls are hidden on old backends.
+Recording/pause and import open from Home as real bottom sheets. Transcript playback, chapters, timecodes, current speaker names, text variants and context menus use shared controls.
+Templates retain Teno's content in My templates, categories and category shelves. Favorites, recent and created templates live in the My templates subpage.
+Calendar uses month/week/Today navigation and event cards grouped by local date. Calendar connection, ICS import and manual events are in its menu.
+Sharing is a bottom panel with preview and a content child panel; fixed versions, expiry and revocation remain. Export starts with Audio/Transcript/Summary and then format/options. Ask contains Chat only; settings use grouped subpages.
+No Work, Tasks, Skills, Routines, Connectors, payment, teams, third-party sign-in or voiceprint entries were added. No unusable placeholders.
+
+VERIFICATION
+Flutter analysis: no issues. Final automated suite: 288 passed, including 240 page renders (80 states x light/dark/360dp with 1.5 text scale) and interaction checks. Reporting-tool tests: 5 passed.
+Original 0.6.0 -> 0.6.1 candidate upgrade: 48 checks, including accounts, local audio/documents, device keys, upload queue and explicitly disabled cloud processing. The candidate SHA is recorded separately; it is not relabeled as the final APK SHA.
+Final signed APK: 42 native regression checks, update install and cold launch on a dedicated API35 emulator. Final report and regression report must match the final APK SHA before packaging.
+Native screenshots separately capture the import entry, Android files picker, photos picker, login keyboard and cold start. Flutter renders do not claim actual system keyboard coverage.
+Android release build and lint: 0 errors; warning count in the signed release manifest. Test runners and synthetic fixture providers are excluded from the delivered APK.
+Full source/history and recursive artifact credential scans are mandatory before upload. No provider key, signing/SSH private key, account password, real recording or private log belongs in source distribution.
+
+BACKEND 1.4.1
+Compatible read-query increment deployed on feature/teno-1.4.1-ui-support. No new migration; migration 007 and all data volumes retained.
+211 isolated tests passed. Restored production backup: old client 17 checks, new client 21 checks; 15 legacy response bodies equal after excluding only overview.as_of. 41 business table hashes unchanged.
+Actual HTTPS: 26 checks passed. Production before/after: 41 business table hashes and Usage unchanged. No Azure/DeepSeek call in this release.
+Existing generation behavior and prompts, team web, profiles/tasks and daily automations remain unchanged. Existing confirmed Android/iOS 0.5.0 baselines remain.
+
+VISUAL BOUNDARIES
+The reference is official PLAUD 4.x help imagery, not a verified 5.0.0 run or an Android 4.0.2 runtime capture. Reference images contain iOS system bars and teaching outlines, excluded from geometry comparisons.
+80 states start from the existing 59 plus 21 added states. Same-state, related and missing references are classified independently of visual review. Photos/Notes/Imports are no longer paired with unrelated originals as if exact matches.
+Six benchmark pages include sampled measurements normalized to 390dp. The 4dp target is applied only to the measured shared anchors; the release does not assert every pixel or every state meets that target. Inter is retained; iOS font rasterization, system bars, sample data and permitted functional omissions are documented differences.
+Dark mode without an official reference and pages without the exact state remain inferred. Large text can wrap/scroll; all controls remain reachable. See differences-and-acceptance.txt for the complete state lists and specific residual differences.
+
+PHYSICAL ACCEPTANCE / DISTRIBUTION
+Magic4 Pro, real JWD BLE, device calendar/credential lock, microphone quality, vendor background behavior and long recording remain pending. No hardware pass is inferred from CI, widget rendering or emulator checks.
+No iOS delivery, no main merge, no store release and no confirmed-baseline promotion.
+Source feature branch: feature/teno-0.6.1-plaud-ui-alignment. Actual CI status is associated with the source commit in GitHub Actions and the private development build history.
+0.6.0 original APK/evidence and 0.5.0 confirmed baselines are retained.
+Protected backend pre-deploy backup: /var/backups/teno-ui-061-20261108. Rollback retains data volumes and migration 007; never use down -v or a destructive downgrade.

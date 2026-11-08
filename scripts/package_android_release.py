@@ -40,6 +40,8 @@ def package(version,evidence_dir=None,private_values=()):
     errors=sum(v.get('severity') in ('Error','Fatal') for v in issues);warnings=sum(v.get('severity')=='Warning' for v in issues);assert errors==0
     dist=ROOT/'dist';dist.mkdir(exist_ok=True)
     files=sorted(set(v.decode() for v in subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).split(b'\0') if v))
+    assert f'RELEASE-{version}.txt' in files, 'Track the versioned release notes before packaging'
+    assert f'design-baseline/v{version}/differences-and-acceptance.txt' in files, 'Track the review acceptance notes before packaging'
     archive=dist/f'Teno-{version}-source.zip'
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as bundle:
         for name in files:
