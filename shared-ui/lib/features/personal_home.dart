@@ -23,7 +23,10 @@ class PersonalHome extends StatefulWidget {
 class _PersonalHomeState extends State<PersonalHome> {
   String section = 'Home', error = '', sort = 'created', lastRoute = '';
   List<Json> items = [], events = [];
-  bool loading = true;
+  bool loading = true, navigationOpen = false;
+  int? selectedCount;
+  int commandSequence = 0;
+  final libraryCommands = ValueNotifier<String>('');
   Timer? timer;
   @override
   void initState() {
@@ -51,9 +54,7 @@ class _PersonalHomeState extends State<PersonalHome> {
           ),
         );
       else if (value.startsWith('imports:'))
-        unawaited(
-          push(context, PersonalImportPage(widget.model, pending: true)),
-        );
+        unawaited(showPersonalImport(context, widget.model, pending: true));
       else if (value.startsWith('capture:'))
         unawaited(showRecorder(context, widget.model));
       else if (value.startsWith('device:'))
@@ -65,7 +66,9 @@ class _PersonalHomeState extends State<PersonalHome> {
     if (!silent && mounted) setState(() => loading = true);
     try {
       final value = await Future.wait([
-        widget.model.list('/api/v1/library/items?sort=$sort&limit=100'),
+        widget.model.list(
+          '/api/v1/library/items?sort=$sort&limit=100&include_stats=${widget.model.capabilities['library_stats'] == 1}',
+        ),
         widget.model.list('/api/v1/events?limit=200'),
       ]);
       if (mounted)
@@ -126,168 +129,379 @@ class _PersonalHomeState extends State<PersonalHome> {
       case 'phone':
         await startPhone(context, widget.model);
       case 'import':
-        await push(context, PersonalImportPage(widget.model));
+        await showPersonalImport(context, widget.model);
       case 'chat':
         await push(context, PersonalChatPage(widget.model));
     }
     await load();
   }
 
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      leadingWidth: 60,
-      leading: Builder(
-        builder: (c) => Padding(
-          padding: const EdgeInsets.all(7),
-          child: CircleAction(
-            Icons.menu_rounded,
-            'Navigation',
-            () => Scaffold.of(c).openDrawer(),
-          ),
-        ),
+  void navigate(String value) => setState(() {
+    section = value;
+    navigationOpen = false;
+    selectedCount = null;
+  });
+  void search() => unawaited(
+    push(
+      context,
+      PersonalSearchPage(
+        widget.model,
+        onNavigation: () {
+          if (mounted) setState(() => navigationOpen = true);
+        },
       ),
-      title: section == 'Home' ? null : Text(section),
-      actions: [
-        if (section == 'Home')
-          OutlinedButton(
-            onPressed: () => widget.model.capturing
-                ? showRecorder(context, widget.model)
-                : push(context, DevicePage(widget.model)),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.speaker_phone_outlined,
-                  size: 20,
-                  color: widget.model.runtime!.device.authorized
-                      ? const Color(0xFF609770)
-                      : null,
-                ),
-                const SizedBox(width: 7),
-                const Icon(Icons.keyboard_arrow_down, size: 17),
-              ],
-            ),
-          ),
-        if (['Home', 'Library'].contains(section))
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: CircleAction(Icons.add, 'Create', create),
-          ),
-        if (section == 'Ask Teno')
-          CircleAction(
-            Icons.add_comment_outlined,
-            'New chat',
-            () => push(context, PersonalChatPage(widget.model)),
-          ),
-        const SizedBox(width: 8),
-      ],
     ),
-    drawer: Drawer(
-      width: 310,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
-          child: Column(
+  );
+
+  Widget sidebar(double width) => SizedBox(
+    width: width,
+    child: SafeArea(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: null,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          widget.model.runtime!.session.username,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: InkWell(
+                    onTap: () => navigate('Settings'),
+                    borderRadius: BorderRadius.circular(28),
+                    child: CoreSurface(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.person_outline, size: 20),
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: Text(
+                              widget.model.runtime!.session.username,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  CircleAction(Icons.search, 'Search', () {
-                    Navigator.pop(context);
-                    unawaited(push(context, PersonalSearchPage(widget.model)));
-                  }),
-                ],
-              ),
-              const SizedBox(height: 24),
-              for (final row in [
-                ('Home', Icons.home_outlined),
-                ('Library', Icons.folder_outlined),
-                ('Ask Teno', Icons.auto_awesome_outlined),
-                ('Tools', Icons.extension_outlined),
-              ])
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 5),
-                  child: ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(9),
-                    ),
-                    selected: section == row.$1,
-                    selectedTileColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                    selectedColor: Theme.of(context).colorScheme.onSurface,
-                    leading: Icon(row.$2, size: 23),
-                    title: Text(row.$1, style: const TextStyle(fontSize: 15)),
-                    onTap: () {
-                      Navigator.pop(context);
-                      setState(() => section = row.$1);
-                    },
-                  ),
-                ),
-              const Divider(height: 30),
-              ListTile(
-                leading: const Icon(Icons.settings_outlined),
-                title: const Text('Settings'),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() => section = 'Settings');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.help_outline),
-                title: const Text('Help center'),
-                onTap: () {
-                  Navigator.pop(context);
-                  unawaited(push(context, const PersonalHelpPage()));
-                },
-              ),
-              const Spacer(),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Teno',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
               ),
+              const SizedBox(width: 12),
+              CoreAction(Icons.search, 'Search', () {
+                setState(() => navigationOpen = false);
+                search();
+              }),
             ],
           ),
-        ),
-      ),
-    ),
-    body: SafeArea(
-      top: false,
-      child: switch (section) {
-        'Library' => PersonalListBody(widget.model, root: true),
-        'Ask Teno' => PersonalChatHistory(widget.model),
-        'Tools' => PersonalTemplates(widget.model),
-        'Settings' => PersonalSettings(widget.model),
-        _ => home(),
-      },
-    ),
-    bottomNavigationBar: ['Home', 'Library'].contains(section)
-        ? SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-              child: AskBar(
-                () => push(context, PersonalChatPage(widget.model)),
+          const SizedBox(height: 16),
+          for (final row in [
+            ('Home', Icons.home_outlined),
+            ('Library', Icons.folder_outlined),
+            ('Ask Teno', Icons.auto_awesome_outlined),
+            ('Tools', Icons.extension_outlined),
+          ])
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                minVerticalPadding: 16,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                selected: section == row.$1,
+                selectedTileColor: Theme.of(
+                  context,
+                ).colorScheme.secondaryContainer,
+                selectedColor: Theme.of(context).colorScheme.onSurface,
+                leading: Icon(row.$2, size: 26),
+                title: Text(
+                  row.$1,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                onTap: () => navigate(row.$1),
               ),
             ),
-          )
-        : null,
+          const Divider(height: 30),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            minVerticalPadding: 16,
+            leading: const Icon(Icons.settings_outlined, size: 26),
+            title: const Text(
+              'Settings',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
+            onTap: () => navigate('Settings'),
+          ),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            minVerticalPadding: 16,
+            leading: const Icon(Icons.help_outline, size: 26),
+            title: const Text(
+              'Help center',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
+            onTap: () {
+              setState(() => navigationOpen = false);
+              unawaited(push(context, const PersonalHelpPage()));
+            },
+          ),
+        ],
+      ),
+    ),
   );
+
+  @override
+  Widget build(BuildContext context) {
+    final drawerWidth = MediaQuery.sizeOf(context).width * .82;
+    return PopScope(
+      canPop: !navigationOpen,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && navigationOpen) setState(() => navigationOpen = false);
+      },
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Material(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Offstage(
+                  offstage: !navigationOpen,
+                  child: sidebar(drawerWidth),
+                ),
+              ),
+            ),
+          ),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 230),
+            curve: Curves.easeOutCubic,
+            transform: Matrix4.translationValues(
+              navigationOpen ? drawerWidth : 0,
+              0,
+              0,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(navigationOpen ? 42 : 0),
+              boxShadow: navigationOpen
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .08),
+                        blurRadius: 26,
+                        offset: const Offset(-8, 0),
+                      ),
+                    ]
+                  : [],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(navigationOpen ? 42 : 0),
+              child: Stack(
+                children: [
+                  ExcludeSemantics(
+                    excluding: navigationOpen,
+                    child: Scaffold(
+                      appBar: AppBar(
+                        leadingWidth: 68,
+                        leading: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: CoreAction(
+                            Icons.menu_rounded,
+                            'Navigation',
+                            () => setState(() => navigationOpen = true),
+                          ),
+                        ),
+                        title: section == 'Home'
+                            ? null
+                            : Text(
+                                selectedCount == null
+                                    ? section
+                                    : '$selectedCount selected',
+                              ),
+                        actions: [
+                          if (section == 'Home') ...[
+                            InkWell(
+                              borderRadius: BorderRadius.circular(28),
+                              onTap: () => widget.model.capturing
+                                  ? showRecorder(context, widget.model)
+                                  : push(context, DevicePage(widget.model)),
+                              child: CoreSurface(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 3,
+                                      height: 25,
+                                      decoration: BoxDecoration(
+                                        color:
+                                            widget
+                                                .model
+                                                .runtime!
+                                                .device
+                                                .authorized
+                                            ? const Color(0xFF65B477)
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.outlineVariant,
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    const Icon(
+                                      Icons.speaker_phone_outlined,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 20),
+                                    const Icon(
+                                      Icons.keyboard_arrow_down,
+                                      size: 18,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            CoreAction(Icons.add, 'Create', create),
+                          ],
+                          if (section == 'Library' &&
+                              selectedCount == null) ...[
+                            CoreAction(Icons.search, 'Search', search),
+                            const SizedBox(width: 10),
+                            CoreSurface(
+                              radius: 24,
+                              child: PopupMenuButton<String>(
+                                tooltip: 'Library options',
+                                onSelected: (value) {
+                                  if (value == 'trash') {
+                                    unawaited(
+                                      push(
+                                        context,
+                                        PersonalListPage(
+                                          widget.model,
+                                          title: 'Trash',
+                                          trash: true,
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  libraryCommands.value =
+                                      '$value:${++commandSequence}';
+                                },
+                                itemBuilder: (_) => [
+                                  for (final v in [
+                                    ('select', 'Select'),
+                                    ('created:desc', 'Date created · newest'),
+                                    ('modified:desc', 'Date modified · newest'),
+                                    ('name:asc', 'Name'),
+                                    ('trash', 'Trash'),
+                                  ])
+                                    PopupMenuItem(
+                                      value: v.$1,
+                                      child: Text(v.$2),
+                                    ),
+                                ],
+                                icon: const Icon(Icons.more_horiz, size: 23),
+                                constraints: const BoxConstraints(
+                                  minWidth: 230,
+                                ),
+                              ),
+                            ),
+                          ],
+                          if (section == 'Library' && selectedCount != null)
+                            TextButton(
+                              onPressed: () => libraryCommands.value =
+                                  'done:${++commandSequence}',
+                              child: const Text('Done'),
+                            ),
+                          if (section == 'Ask Teno')
+                            CoreAction(
+                              Icons.add,
+                              'New chat',
+                              () =>
+                                  push(context, PersonalChatPage(widget.model)),
+                            ),
+                          const SizedBox(width: 16),
+                        ],
+                      ),
+                      body: SafeArea(
+                        top: false,
+                        child: switch (section) {
+                          'Library' => PersonalListBody(
+                            widget.model,
+                            root: true,
+                            commands: libraryCommands,
+                            onSelectionChanged: (count) {
+                              if (mounted)
+                                setState(() => selectedCount = count);
+                            },
+                          ),
+                          'Ask Teno' => PersonalChatHistory(widget.model),
+                          'Tools' => PersonalTemplates(widget.model),
+                          'Settings' => PersonalSettings(widget.model),
+                          _ => home(),
+                        },
+                      ),
+                      bottomNavigationBar:
+                          ['Home', 'Library'].contains(section) &&
+                              selectedCount == null
+                          ? SafeArea(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  8,
+                                  20,
+                                  20,
+                                ),
+                                child: AskBar(
+                                  () => push(
+                                    context,
+                                    PersonalChatPage(widget.model),
+                                  ),
+                                  label: section == 'Home'
+                                      ? 'Ask Teno'
+                                      : 'Ask me anything about your recordings',
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                  if (navigationOpen)
+                    Positioned.fill(
+                      child: Semantics(
+                        button: true,
+                        label: 'Close navigation',
+                        child: GestureDetector(
+                          onTap: () => setState(() => navigationOpen = false),
+                          child: ColoredBox(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surface.withValues(alpha: .55),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget home() {
     final upcoming =
         events
@@ -318,7 +532,7 @@ class _PersonalHomeState extends State<PersonalHome> {
     return RefreshIndicator(
       onRefresh: load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(21, 8, 21, 20),
+        padding: const EdgeInsets.fromLTRB(coreInset, 4, coreInset, 20),
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
           Row(
@@ -377,7 +591,7 @@ class _PersonalHomeState extends State<PersonalHome> {
               const Expanded(
                 child: Text(
                   'Meeting notes',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
                 ),
               ),
               PopupMenuButton<String>(
@@ -420,14 +634,14 @@ class _PersonalHomeState extends State<PersonalHome> {
               Padding(
                 padding: const EdgeInsets.only(top: 18, bottom: 2),
                 child: Text(
-                  dateLabel(visible[i]['created_at']),
-                  style: TextStyle(fontSize: 11, color: subtle(context)),
+                  coreDate(visible[i]['created_at'], weekday: true),
+                  style: TextStyle(fontSize: 13, color: subtle(context)),
                 ),
               ),
             CoreTile(visible[i], () async {
               await openPersonalItem(context, widget.model, visible[i]);
               await load();
-            }),
+            }, showFolder: true),
           ],
           if (!loading && visible.isEmpty && local.isEmpty && error.isEmpty)
             const EmptyState(
@@ -442,6 +656,7 @@ class _PersonalHomeState extends State<PersonalHome> {
   @override
   void dispose() {
     timer?.cancel();
+    libraryCommands.dispose();
     widget.model.removeListener(route);
     super.dispose();
   }

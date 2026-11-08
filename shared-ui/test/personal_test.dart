@@ -12,12 +12,8 @@ import '../lib/ui/personal_widgets.dart';
 import '../lib/features/personal_home.dart';
 import '../lib/features/personal_library.dart';
 import '../lib/features/personal_import.dart';
-import '../lib/features/personal_notes.dart';
-import '../lib/features/personal_recording.dart';
 import '../lib/features/personal_ask.dart';
 import '../lib/features/personal_actions.dart';
-import '../lib/features/personal_settings.dart';
-import '../lib/features/recorder.dart';
 import '../lib/features/login.dart';
 import 'fixtures.dart';
 
@@ -95,6 +91,7 @@ final content = <Json>[
 ];
 
 class CoreHost extends FixtureHost {
+  final requests = <String>[];
   final bodies = <String, Json>{};
   final overrides = <String, Json>{};
   final commandOverrides = <String, Json>{};
@@ -134,6 +131,7 @@ class CoreHost extends FixtureHost {
 
   @override
   Future<String> request(String method, String path, String? body) async {
+    requests.add('$method $path');
     if (offline)
       throw PlatformException(
         code: 'CONNECTION',
@@ -144,13 +142,54 @@ class CoreHost extends FixtureHost {
     if (overrides.containsKey(route)) return jsonEncode(overrides[route]);
     final data = body == null ? <String, dynamic>{} : object(jsonDecode(body));
     bodies['$method $route'] = data;
-    if (route == '/api/v1/capabilities') return '{"personal_core":1}';
+    if (route == '/api/v1/capabilities')
+      return '{"personal_core":1,"library_filters":1,"library_stats":1}';
     if (route == '/api/v1/personal/preferences') {
       if (method == 'PATCH') prefs = {...prefs, ...data};
       return jsonEncode(prefs);
     }
     if (route == '/api/v1/library/items') {
       var values = [...libraryContent];
+      final collections = [
+        for (final kind in ['recording', 'imports', 'images', 'note'])
+          {
+            'id': kind,
+            'count': values
+                .where(
+                  (v) => kind == 'imports'
+                      ? v['type'] == 'file'
+                      : kind == 'images'
+                      ? v['kind'] == 'image'
+                      : v['type'] == kind,
+                )
+                .length,
+            'updated_at': '2026-11-07T09:00:00Z',
+          },
+      ];
+      if (url.queryParameters.containsKey('folder_id')) {
+        final folder = url.queryParameters['folder_id'];
+        values = values
+            .where(
+              (v) => folder == ''
+                  ? v['folder_id'] == null
+                  : v['folder_id'] == folder,
+            )
+            .toList();
+      }
+      values = values
+          .map(
+            (v) => ({
+              ...v,
+              'folder_title': v['folder_id'] == null
+                  ? 'Recordings'
+                  : 'Research',
+              if (v['type'] == 'folder')
+                'child_count': libraryContent
+                    .where((c) => c['folder_id'] == v['id'])
+                    .length,
+            }),
+          )
+          .toList();
       final type = url.queryParameters['type'];
       if (type != null)
         values = values
@@ -169,8 +208,26 @@ class CoreHost extends FixtureHost {
       values.sort(
         (a, b) => text(b['created_at']).compareTo(text(a['created_at'])),
       );
-      return jsonEncode({'items': values, 'total': values.length});
+      final total = values.length;
+      values = values
+          .skip(int.tryParse(url.queryParameters['offset'] ?? '0') ?? 0)
+          .take(int.tryParse(url.queryParameters['limit'] ?? '100') ?? 100)
+          .toList();
+      return jsonEncode({
+        'items': values,
+        'total': total,
+        if (url.queryParameters['include_stats'] == 'true')
+          'collections': collections,
+      });
     }
+    if (route == '/api/v1/library/search/options')
+      return jsonEncode({
+        'folders': [
+          {'id': 'folder-1', 'title': 'Research', 'parent_id': null},
+        ],
+        'types': ['recording', 'note', 'documents', 'images', 'folder'],
+        'speakers': ['Alex', 'Maya'],
+      });
     if (route == '/api/v1/library/search')
       return jsonEncode({
         'items': [
@@ -302,7 +359,11 @@ TenoModel coreModel([CoreHost? host]) {
   final h = host ?? CoreHost();
   final model = reviewModel(h);
   model.personalCore = true;
-  model.capabilities = {'personal_core': 1};
+  model.capabilities = {
+    'personal_core': 1,
+    'library_filters': 1,
+    'library_stats': 1,
+  };
   model.personalSettings = h.prefs;
   return model;
 }
@@ -324,6 +385,8 @@ void main() {
     double scale = 1,
     double width = 390,
   }) async {
+    debugDisableShadows = false;
+    addTearDown(() => debugDisableShadows = true);
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = Size(width, 844);
     tester.view.padding = const FakeViewPadding(top: 24, bottom: 24);
@@ -354,6 +417,69 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     final target =
         boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+    if ([
+      'light/01-home',
+      'light/04-library',
+      'light/06-search',
+      'light/14-recording-notes',
+      'light/17-templates',
+      'light/27-share',
+    ].contains(name)) {
+      final nodes = <Json>[];
+      void visit(Element element) {
+        final widget = element.widget;
+        if (widget is Offstage && widget.offstage) return;
+        final render = element.findRenderObject();
+        if (render is RenderBox &&
+            render.attached &&
+            render.hasSize &&
+            (widget is CoreAction ||
+                widget is AskBar ||
+                widget is CoreSurface ||
+                widget is Text)) {
+          final point = render.localToGlobal(Offset.zero, ancestor: target);
+          if (point.dy >= 0 && point.dy < target.size.height) {
+            final style = widget is Text
+                ? DefaultTextStyle.of(element).style.merge(widget.style)
+                : null;
+            nodes.add({
+              'type': widget.runtimeType.toString(),
+              'label': widget is CoreAction
+                  ? widget.label
+                  : widget is AskBar
+                  ? widget.label
+                  : widget is Text
+                  ? widget.data
+                  : null,
+              'x': point.dx,
+              'y': point.dy,
+              'width': render.size.width,
+              'height': render.size.height,
+              if (style != null) ...{
+                'fontSize': style.fontSize,
+                'fontWeight': style.fontWeight?.value,
+                'lineHeight': style.height,
+              },
+              if (widget is CoreSurface) 'radius': widget.radius,
+            });
+          }
+        }
+        element.visitChildren(visit);
+      }
+
+      (boundary.currentContext! as Element).visitChildren(visit);
+      final geometry = File('$directory/geometry/$name.json');
+      geometry.parent.createSync(recursive: true);
+      geometry.writeAsStringSync(
+        jsonEncode({
+          'logicalWidth': target.size.width,
+          'logicalHeight': target.size.height,
+          'systemTop': 24,
+          'systemBottom': 24,
+          'nodes': nodes,
+        }),
+      );
+    }
     final img = await target.toImage(pixelRatio: 2);
     final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
     final file = File('$directory/$name.png');
@@ -362,67 +488,205 @@ void main() {
     img.dispose();
   }
 
-  final pages = <String, Widget Function(TenoModel)>{
-    '01-home': (m) => PersonalHome(m),
-    '04-library': (m) => PersonalHome(m, initialSection: 'Library'),
-    '05-recordings': (m) =>
-        PersonalListPage(m, title: 'Recordings', type: 'recording'),
-    '06-search': (m) => PersonalSearchPage(m),
-    '14-recording-notes': (m) => PersonalRecordingPage(m, 'record-1'),
-    '15-transcript': (m) =>
-        PersonalRecordingPage(m, 'record-1', transcriptOnly: true),
-    '17-templates': (m) =>
-        CoreFrame(title: 'Tools', child: PersonalTemplates(m)),
-    '18-chat-history': (m) =>
-        CoreFrame(title: 'Ask Teno', child: PersonalChatHistory(m)),
-    '19-new-chat': (m) => PersonalChatPage(m),
-    '20-chat-context': (m) => PersonalContextPicker(m, const []),
-    '21-settings': (m) =>
-        CoreFrame(title: 'Settings', child: PersonalSettings(m)),
-    '22-preferences': (m) => PersonalPreferences(m),
-    '23-export': (m) =>
-        PersonalExportPage(m, {'type': 'recording', 'id': 'record-1'}),
-    '24-trash': (m) => PersonalListPage(m, title: 'Trash', trash: true),
-    '26-import': (m) => PersonalImportPage(m),
-    '27-share': (m) =>
-        PersonalSharePage(m, {'type': 'recording', 'id': 'record-1'}),
-    '28-calendar': (m) => PersonalCalendarPage(m),
-    '32-note': (m) => PersonalNotePage(m, 'note-1'),
-    '33-note-editor': (m) => PersonalNoteEditor(m, note: note),
-    '34-document': (m) => PersonalFilePage(m, 'file-1'),
-    '35-local-files': (m) => PersonalLocalList(m),
-    '36-local-recording': (m) => PersonalLocalPage(m, 'local-1'),
-    '37-storage': (m) => PersonalStoragePage(m),
-    '38-links': (m) => PersonalLinksPage(m),
-    '29-photos': (m) => PersonalListPage(m, title: 'Photos', type: 'images'),
-    '30-notes': (m) => PersonalListPage(m, title: 'Notes', type: 'note'),
-    '31-imports': (m) => PersonalListPage(m, title: 'Imports', type: 'imports'),
-    '07-device-connect': (m) => DevicePage(m),
-    '09-recording': (m) {
-      m.changed(reviewState(phase: 'recording', connected: true));
-      return Scaffold(body: RecorderSheet(m));
-    },
-    '10-paused': (m) {
-      m.changed(reviewState(phase: 'paused', connected: true));
-      return Scaffold(body: RecorderSheet(m));
-    },
-    '25-login': (m) => LoginPage(m),
-  };
+  Future<void> navigatePage(
+    WidgetTester tester,
+    TenoModel model,
+    String name,
+  ) async {
+    Future<void> tap(Finder finder) async {
+      for (var i = 0; i < 12 && finder.evaluate().isEmpty; i++) {
+        final lists = find.byType(ListView);
+        if (lists.evaluate().isEmpty) break;
+        await tester.drag(lists.last, const Offset(0, -220));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(finder, findsWidgets, reason: 'Navigation target $name');
+      await tester.ensureVisible(finder.first);
+      await tester.pump();
+      await tester.tap(finder.first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump();
+    }
+
+    Future<void> label(String value) => tap(find.text(value));
+    Future<void> tip(String value) => tap(find.byTooltip(value));
+    Future<void> section(String value) async {
+      await tip('Navigation');
+      await tap(find.widgetWithText(ListTile, value));
+    }
+
+    Future<void> detail() async {
+      await tap(
+        find
+            .byWidgetPredicate(
+              (w) => w is CoreTile && w.item['id'] == 'record-1',
+            )
+            .first,
+      );
+    }
+
+    Future<void> export(String kind) async {
+      await detail();
+      await tip('Recording options');
+      await label('Export as');
+      await label(kind);
+    }
+
+    switch (name) {
+      case '01-home':
+      case '25-login':
+        break;
+      case '04-library':
+        await section('Library');
+      case '05-recordings':
+        await section('Library');
+        await label('Recordings');
+      case '06-search':
+        await tip('Navigation');
+        await tip('Search');
+      case '07-device-connect':
+        await tip('Create');
+        await label('Start recording');
+      case '09-recording':
+      case '10-paused':
+        await tap(find.textContaining('Recording ·'));
+      case '14-recording-notes':
+        await detail();
+      case '15-transcript':
+        await detail();
+        await label('Audio & transcript');
+      case '17-templates':
+        await section('Tools');
+      case '18-chat-history':
+        await section('Ask Teno');
+      case '19-new-chat':
+        await tap(find.byType(AskBar));
+      case '20-chat-context':
+        await tap(find.byType(AskBar));
+        await tip('Add context');
+      case '21-settings':
+        await section('Settings');
+      case '22-preferences':
+        await section('Settings');
+        await label('Preferences');
+      case '23-export':
+        await export('Transcript');
+      case '55-export-audio':
+        await export('Audio');
+      case '24-trash':
+        await section('Library');
+        await tip('Library options');
+        await label('Trash');
+      case '26-import':
+        await tip('Create');
+        await label('Import files');
+      case '27-share':
+        await detail();
+        await tip('Share');
+      case '28-calendar':
+        await tip('Calendar');
+      case '29-photos':
+      case '30-notes':
+      case '35-local-files':
+        await section('Library');
+        await tip('My files views');
+        await label(
+          name == '29-photos'
+              ? 'Photos'
+              : name == '30-notes'
+              ? 'Notes'
+              : 'On this phone',
+        );
+      case '31-imports':
+        await section('Library');
+        await label('Imports');
+      case '32-note':
+        await navigatePage(tester, model, '30-notes');
+        await label('Launch meeting notes');
+      case '33-note-editor':
+        await navigatePage(tester, model, '32-note');
+        await tip('Note options');
+        await label('Edit');
+      case '34-document':
+        await navigatePage(tester, model, '31-imports');
+        await label('Interview notes.txt');
+      case '36-local-recording':
+        await navigatePage(tester, model, '35-local-files');
+        await tap(
+          find.byWidgetPredicate(
+            (w) => w is CoreTile && w.item['id'] == 'local-1',
+          ),
+        );
+      case '37-storage':
+        await section('Settings');
+        await label('Storage');
+      case '38-links':
+        await section('Settings');
+        await label('Shared links');
+      case '53-template-picker':
+        await detail();
+        await label('New note');
+    }
+  }
+
+  final pages = [
+    '01-home',
+    '04-library',
+    '05-recordings',
+    '06-search',
+    '14-recording-notes',
+    '15-transcript',
+    '17-templates',
+    '18-chat-history',
+    '19-new-chat',
+    '20-chat-context',
+    '21-settings',
+    '22-preferences',
+    '23-export',
+    '24-trash',
+    '26-import',
+    '27-share',
+    '28-calendar',
+    '32-note',
+    '33-note-editor',
+    '34-document',
+    '35-local-files',
+    '36-local-recording',
+    '37-storage',
+    '38-links',
+    '29-photos',
+    '30-notes',
+    '31-imports',
+    '07-device-connect',
+    '09-recording',
+    '10-paused',
+    '25-login',
+  ];
   for (final mode in ['light', 'dark', 'large'])
-    for (final entry in pages.entries) {
-      testWidgets('personal page ${entry.key} $mode has no layout errors', (
+    for (final pageName in pages) {
+      testWidgets('personal page $pageName $mode has no layout errors', (
         tester,
       ) async {
         final model = coreModel();
+        if (pageName == '09-recording' || pageName == '10-paused')
+          model.changed(
+            reviewState(
+              phase: pageName == '09-recording' ? 'recording' : 'paused',
+              connected: true,
+            ),
+          );
         await mount(
           tester,
-          entry.value(model),
+          pageName == '25-login' ? LoginPage(model) : PersonalHome(model),
           dark: mode == 'dark',
           scale: mode == 'large' ? 1.5 : 1,
           width: mode == 'large' ? 360 : 390,
         );
+        await navigatePage(tester, model, pageName);
         expect(tester.takeException(), isNull);
-        await tester.runAsync(() => screenshot('$mode/${entry.key}'));
+        await tester.runAsync(() => screenshot('$mode/$pageName'));
+        debugDisableShadows = true;
         await tester.pumpWidget(const SizedBox.shrink());
         model.dispose();
       });
@@ -455,51 +719,61 @@ void main() {
     '62-processing-failed',
     '63-calendar-upcoming',
     '64-share-created',
+    '65-filter-folder',
+    '66-filter-type',
+    '67-filter-speaker',
+    '68-filter-date',
+    '69-search-filtered',
+    '70-folder-expanded',
+    '71-folder-selected',
+    '72-my-files-views',
+    '73-share-content',
+    '74-my-templates',
+    '75-template-search',
+    '76-theme',
+    '77-notifications',
+    '78-account',
+    '79-transcription-preferences',
+    '80-calendar-actions',
+    '81-export-menu',
+    '82-search-sort',
+    '83-audio-settings',
+    '84-transcript-menu',
+    '85-calendar-events',
   ];
   for (final mode in ['light', 'dark', 'large']) {
     for (final state in states) {
       testWidgets('personal state $state $mode', (tester) async {
         final host = CoreHost();
-        Widget Function(TenoModel) page = (m) => PersonalHome(m);
         switch (state) {
+          case '70-folder-expanded':
+          case '71-folder-selected':
+            host.libraryContent = [
+              for (final i in content)
+                {...i, if (i['id'] == 'record-1') 'folder_id': 'folder-1'},
+              {
+                'id': 'folder-2',
+                'type': 'folder',
+                'title': 'Interviews',
+                'folder_id': 'folder-1',
+                'created_at': '2026-11-07T09:00:00Z',
+              },
+              {
+                ...document,
+                'id': 'file-child',
+                'title': 'Customer interview.txt',
+                'folder_id': 'folder-2',
+              },
+            ];
           case '39-home-empty':
           case '40-library-empty':
             host.libraryContent = [];
-            if (state == '40-library-empty')
-              page = (m) =>
-                  PersonalListPage(m, title: 'Recordings', type: 'recording');
           case '41-library-offline':
             host.offline = true;
-            page = (m) => PersonalListPage(m, title: 'Recordings');
           case '42-home-loading':
             host.heldRoute = '/api/v1/library/items';
-          case '43-search-matches':
-            page = (m) => PersonalSearchPage(m);
-          case '44-library-sort':
-          case '45-library-select':
-          case '46-library-create':
-          case '47-folder-menu':
-            page = (m) => PersonalListPage(m, title: 'My files');
-          case '48-recording-options':
-          case '49-speaker-names':
-          case '50-find-replace':
-          case '51-trim-audio':
-          case '52-transcript-variants':
-            page = (m) => PersonalRecordingPage(
-              m,
-              'record-1',
-              transcriptOnly: state == '52-transcript-variants',
-            );
-          case '53-template-picker':
-            page = (m) => PersonalTemplatePicker(m);
-          case '54-note-versions':
-            page = (m) => PersonalNotePage(m, 'note-1');
-          case '55-export-audio':
-            page = (m) =>
-                PersonalExportPage(m, {'type': 'recording', 'id': 'record-1'});
           case '56-calendar-permission':
             host.deniedCommand = 'calendar';
-            page = (m) => PersonalCalendarPage(m);
           case '57-document-failed':
           case '58-document-processing':
             host.overrides['/api/v1/files/file-1'] = {
@@ -511,7 +785,6 @@ void main() {
                     'This document is encrypted or damaged. The original file is saved.',
               },
             };
-            page = (m) => PersonalFilePage(m, 'file-1');
           case '59-import-pending':
           case '60-import-error':
             host.commandOverrides['pending_imports'] = {
@@ -528,16 +801,6 @@ void main() {
                   ? 'The shared file could not be read. Share it again with read permission.'
                   : '',
             };
-            page = (m) => PersonalImportPage(m);
-          case '61-note-keyboard':
-            page = (m) => PersonalNoteEditor(
-              m,
-              note: {
-                ...note,
-                'title':
-                    'A long meeting note title that remains editable on a narrow phone',
-              },
-            );
           case '62-processing-failed':
             host.overrides['/api/v1/personal/recordings/record-1/processing'] = {
               'status': 'failed',
@@ -547,8 +810,8 @@ void main() {
                     'Transcription failed. Your audio is saved. Retry when connected.',
               },
             };
-            page = (m) => PersonalRecordingPage(m, 'record-1');
           case '63-calendar-upcoming':
+          case '85-calendar-events':
             host.overrides['/api/v1/events'] = {
               'items': [
                 {
@@ -567,21 +830,70 @@ void main() {
                 },
               ],
             };
-          case '64-share-created':
-            page = (m) =>
-                PersonalSharePage(m, {'type': 'recording', 'id': 'record-1'});
         }
         final model = coreModel(host);
         if (state == '39-home-empty') model.runtime!.draftsJson = '[]';
         await mount(
           tester,
-          page(model),
+          PersonalHome(model),
           dark: mode == 'dark',
           scale: mode == 'large' ? 1.5 : 1,
           width: mode == 'large' ? 360 : 390,
         );
+        final destination = switch (state) {
+          '83-audio-settings' || '84-transcript-menu' => '15-transcript',
+          '65-filter-folder' ||
+          '66-filter-type' ||
+          '67-filter-speaker' ||
+          '68-filter-date' ||
+          '69-search-filtered' ||
+          '82-search-sort' => '06-search',
+          '70-folder-expanded' ||
+          '71-folder-selected' ||
+          '72-my-files-views' => '04-library',
+          '73-share-content' => '27-share',
+          '74-my-templates' || '75-template-search' => '17-templates',
+          '76-theme' ||
+          '77-notifications' ||
+          '78-account' ||
+          '79-transcription-preferences' => '21-settings',
+          '80-calendar-actions' || '85-calendar-events' => '28-calendar',
+          '81-export-menu' => '14-recording-notes',
+          '40-library-empty' => '05-recordings',
+          '41-library-offline' => '04-library',
+          '43-search-matches' => '06-search',
+          '44-library-sort' ||
+          '45-library-select' ||
+          '46-library-create' ||
+          '47-folder-menu' => '04-library',
+          '48-recording-options' ||
+          '49-speaker-names' ||
+          '50-find-replace' ||
+          '51-trim-audio' ||
+          '62-processing-failed' => '14-recording-notes',
+          '52-transcript-variants' => '15-transcript',
+          '53-template-picker' => '53-template-picker',
+          '54-note-versions' => '32-note',
+          '55-export-audio' => '55-export-audio',
+          '56-calendar-permission' => '28-calendar',
+          '57-document-failed' || '58-document-processing' => '34-document',
+          '59-import-pending' || '60-import-error' => '26-import',
+          '61-note-keyboard' => '33-note-editor',
+          '64-share-created' => '27-share',
+          _ => '01-home',
+        };
+        await navigatePage(tester, model, destination);
         Future<void> tapText(String label) async {
-          await tester.tap(find.text(label).first);
+          for (var i = 0; i < 10 && find.text(label).evaluate().isEmpty; i++) {
+            await tester.drag(
+              find.byType(ListView).last,
+              const Offset(0, -220),
+            );
+            await tester.pump(const Duration(milliseconds: 100));
+          }
+          await tester.ensureVisible(find.text(label).last);
+          await tester.pump();
+          await tester.tap(find.text(label).last);
           await tester.pump();
           await tester.pump(const Duration(milliseconds: 400));
         }
@@ -593,13 +905,69 @@ void main() {
         }
 
         switch (state) {
+          case '83-audio-settings':
+            await tapTip('Playback speed');
+          case '84-transcript-menu':
+            await tester.longPress(find.textContaining('Let’s begin').last);
+            await tester.pumpAndSettle();
+          case '65-filter-folder':
+            await tapText('Folder');
+          case '66-filter-type':
+            await tapText('Type');
+          case '67-filter-speaker':
+            await tapText('Speaker');
+          case '68-filter-date':
+            await tapText('Date range');
+          case '69-search-filtered':
+            await tester.enterText(find.byType(TextField).first, 'launch');
+            await tester.pump(const Duration(milliseconds: 500));
+            await tapText('Folder');
+            await tapText('Research');
+            await tapText('Type');
+            await tapText('Recordings');
+            await tapText('Speaker');
+            await tapText('Maya');
+          case '70-folder-expanded':
+            await tapText('Research');
+            await tapText('Interviews');
+          case '71-folder-selected':
+            await tapTip('Library options');
+            await tapText('Select');
+            await tapText('Research');
+          case '72-my-files-views':
+            await tapTip('My files views');
+          case '73-share-content':
+            await tapText('Choose content to include');
+          case '74-my-templates':
+            await tapText('My templates');
+          case '75-template-search':
+            await tapText('Search');
+          case '76-theme':
+            await tapText('Theme');
+          case '77-notifications':
+            await tapText('Notifications');
+          case '78-account':
+            await tapText('Account & security');
+          case '79-transcription-preferences':
+            await tapText('Preferences');
+            await tapText('Transcription & summary');
+          case '80-calendar-actions':
+            await tapTip('Calendar actions');
+          case '81-export-menu':
+            await tapTip('Recording options');
+            await tapText('Export as');
+          case '82-search-sort':
+            await tester.enterText(find.byType(TextField).first, 'launch');
+            await tester.pump(const Duration(milliseconds: 500));
+            await tapTip('Sort search results');
           case '43-search-matches':
             await tester.enterText(find.byType(TextField).first, 'launch');
             await tester.pump(const Duration(milliseconds: 500));
           case '44-library-sort':
-            await tapTip('Sort and select');
+            await tapTip('Library options');
           case '45-library-select':
-            await tapTip('Sort and select');
+            await tapText('Recordings');
+            await tapTip('Library options');
             await tapText('Select');
             await tester.tap(find.byIcon(Icons.circle_outlined).first);
             await tester.pump();
@@ -609,7 +977,7 @@ void main() {
             await tester.tap(
               find.descendant(
                 of: find.byWidgetPredicate(
-                  (w) => w is CoreTile && w.item['type'] == 'folder',
+                  (w) => w is CoreTile && w.item['id'] == 'folder-1',
                 ),
                 matching: find.byTooltip('File options'),
               ),
@@ -629,12 +997,13 @@ void main() {
           case '52-transcript-variants':
             await tapText('Edited text');
           case '54-note-versions':
-            await tester.tap(find.byType(PopupMenuButton<String>).first);
+            await tester.tap(find.byTooltip('Note options'));
             await tester.pumpAndSettle();
             await tapText('Version history');
           case '55-export-audio':
-            await tapText('Audio');
+            break;
           case '56-calendar-permission':
+            await tapTip('Calendar actions');
             await tapText('Connect phone calendar');
           case '61-note-keyboard':
             tester.view.viewInsets = const FakeViewPadding(bottom: 280);
@@ -645,6 +1014,7 @@ void main() {
         }
         expect(tester.takeException(), isNull);
         await tester.runAsync(() => screenshot('$mode/$state'));
+        debugDisableShadows = true;
         await tester.pumpWidget(const SizedBox.shrink());
         model.dispose();
       });
@@ -665,6 +1035,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(host.calls, contains('native:import'));
       expect(host.calls.where((v) => v.startsWith('configure')), isEmpty);
+      debugDisableShadows = true;
       await tester.pumpWidget(const SizedBox.shrink());
       actual.dispose();
     },
@@ -680,8 +1051,9 @@ void main() {
     expect(find.text('Product launch review'), findsOneWidget);
     await tester.tap(find.text('Product launch review'));
     await tester.pumpAndSettle();
-    expect(find.text('Audio & transcript'), findsWidgets);
+    expect(find.text('Transcript'), findsWidgets);
     expect(host.calls.any((v) => v.contains('record-1')), isTrue);
+    debugDisableShadows = true;
     await tester.pumpWidget(const SizedBox.shrink());
     model.dispose();
   });
@@ -693,12 +1065,14 @@ void main() {
       tester,
       PersonalSharePage(model, {'type': 'recording', 'id': 'record-1'}),
     );
+    await tester.ensureVisible(find.text('Create link'));
     await tester.tap(find.text('Create link'));
     await tester.pumpAndSettle();
     final body = host.bodies['POST /api/v1/shares']!;
     expect(body['include_audio'], false);
     expect(body['include_transcript'], false);
     expect(body['days'], 7);
+    debugDisableShadows = true;
     await tester.pumpWidget(const SizedBox.shrink());
     model.dispose();
   });
@@ -711,6 +1085,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('What are the next steps?'), findsWidgets);
     expect(host.bodies.keys.where((v) => v.endsWith('/messages')), isEmpty);
+    debugDisableShadows = true;
     await tester.pumpWidget(const SizedBox.shrink());
     model.dispose();
   });
@@ -735,22 +1110,29 @@ void main() {
         host.bodies['POST /api/v1/library/batch']?['folder_id'],
         'folder-1',
       );
+      debugDisableShadows = true;
       await tester.pumpWidget(const SizedBox.shrink());
       model.dispose();
     },
   );
-  testWidgets('Android personal entry is ready while legacy library loading waits', (tester) async {
-    final host=CoreHost()..heldRoute='/api/v1/recordings';
-    host.state.session.optionsSet=false;
-    final model=TenoModel(host:host);
-    await mount(tester,TenoApp(model:model));await tester.pump();
-    expect(model.personalCore,isTrue);
-    expect(find.byType(PersonalHome),findsOneWidget);
-    await tester.tap(find.byTooltip('Create'));await tester.pumpAndSettle();
-    expect(find.text('Import files'),findsOneWidget);
-    expect(host.calls.where((v)=>v.startsWith('configure')),isEmpty);
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
+  testWidgets(
+    'Android personal entry is ready while legacy library loading waits',
+    (tester) async {
+      final host = CoreHost()..heldRoute = '/api/v1/recordings';
+      host.state.session.optionsSet = false;
+      final model = TenoModel(host: host);
+      await mount(tester, TenoApp(model: model));
+      await tester.pump();
+      expect(model.personalCore, isTrue);
+      expect(find.byType(PersonalHome), findsOneWidget);
+      await tester.tap(find.byTooltip('Create'));
+      await tester.pumpAndSettle();
+      expect(find.text('Import files'), findsOneWidget);
+      expect(host.calls.where((v) => v.startsWith('configure')), isEmpty);
+      debugDisableShadows = true;
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
   for (final mode in ['light', 'dark', 'large'])
     testWidgets(
       'navigation and creation menus use Teno and expose core destinations $mode',
@@ -776,6 +1158,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Import files'), findsOneWidget);
         await tester.runAsync(() => screenshot('$mode/03-create-menu'));
+        debugDisableShadows = true;
         await tester.pumpWidget(const SizedBox.shrink());
         if (mode != 'light') model.dispose();
       },

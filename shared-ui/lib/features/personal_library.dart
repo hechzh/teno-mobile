@@ -7,6 +7,8 @@ import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
 import 'personal_notes.dart';
 import 'personal_import.dart';
+import 'personal_search.dart';
+export 'personal_search.dart';
 
 class PersonalListPage extends StatelessWidget {
   const PersonalListPage(
@@ -25,7 +27,7 @@ class PersonalListPage extends StatelessWidget {
   Widget build(BuildContext context) => CoreFrame(
     title: title,
     actions: [
-      CircleAction(
+      CoreAction(
         Icons.search,
         'Search',
         () => push(context, PersonalSearchPage(model)),
@@ -48,10 +50,14 @@ class PersonalListBody extends StatefulWidget {
     this.type,
     this.trash = false,
     this.root = false,
+    this.commands,
+    this.onSelectionChanged,
   });
   final TenoModel model;
   final String? folderId, type;
   final bool trash, root;
+  final ValueNotifier<String>? commands;
+  final ValueChanged<int?>? onSelectionChanged;
   @override
   State<PersonalListBody> createState() => _PersonalListBodyState();
 }
@@ -62,10 +68,76 @@ class _PersonalListBodyState extends State<PersonalListBody> {
   bool loading = true, selecting = false, more = false, dragging = false;
   String error = '', sort = 'created';
   bool ascending = false;
+  String view = 'all';
+  List<Json> collections = [];
+  final Map<String, List<Json>> branches = {};
+  final Map<String, int> branchTotals = {};
+  final Map<String, String> branchErrors = {};
+  final Set<String> expanded = {}, branchLoading = {};
+  bool get stats => widget.model.capabilities['library_stats'] == 1;
   @override
   void initState() {
     super.initState();
+    widget.commands?.addListener(command);
     unawaited(load());
+  }
+
+  void command() {
+    final value = widget.commands?.value.split(':').first;
+    if (value == 'select' || value == 'done') {
+      setState(() {
+        selecting = value == 'select';
+        selected.clear();
+      });
+      widget.onSelectionChanged?.call(selecting ? 0 : null);
+    } else if (['created', 'modified', 'name'].contains(value)) {
+      setState(() {
+        sort = value!;
+        ascending =
+            widget.commands!.value.split(':').elementAtOrNull(1) == 'asc';
+      });
+      unawaited(load());
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.commands?.removeListener(command);
+    super.dispose();
+  }
+
+  Future<void> expand(
+    String key, {
+    bool append = false,
+    bool retry = false,
+  }) async {
+    if (!append && !retry && expanded.contains(key)) {
+      setState(() => expanded.remove(key));
+      return;
+    }
+    setState(() {
+      expanded.add(key);
+      branchLoading.add(key);
+      branchErrors.remove(key);
+    });
+    try {
+      final system = key.startsWith('system:');
+      final old = append ? branches[key] ?? <Json>[] : <Json>[];
+      final data = await widget.model.api(
+        'GET',
+        '/api/v1/library/items?limit=100&offset=${old.length}&sort=$sort&ascending=$ascending'
+            '&include_stats=$stats&${system ? 'type' : 'folder_id'}=${Uri.encodeQueryComponent(system ? key.substring(7) : key)}',
+      );
+      if (mounted)
+        setState(() {
+          branches[key] = [...old, ...rows(data['items'])];
+          branchTotals[key] = (data['total'] as num? ?? 0).toInt();
+        });
+    } catch (e) {
+      if (mounted) setState(() => branchErrors[key] = TenoModel.friendly(e));
+    } finally {
+      if (mounted) setState(() => branchLoading.remove(key));
+    }
   }
 
   Future<void> load({bool append = false}) async {
@@ -78,11 +150,16 @@ class _PersonalListBodyState extends State<PersonalListBody> {
       final result = await widget.model.api(
         'GET',
         '/api/v1/library/items?limit=100&offset=${append ? items.length : 0}&sort=$sort&ascending=$ascending&trash=${widget.trash}' +
-            (widget.root ? '&root=true' : '') +
+            '&include_stats=$stats' +
+            (widget.root && view == 'all' ? '&root=true' : '') +
             (widget.folderId == null
-                ? (widget.root ? '&folder_id=' : '')
+                ? (widget.root && view == 'all' ? '&folder_id=' : '')
                 : '&folder_id=${Uri.encodeQueryComponent(widget.folderId!)}') +
-            (widget.type == null ? '' : '&type=${widget.type}'),
+            (widget.root && view != 'all'
+                ? '&type=$view'
+                : widget.type == null
+                ? ''
+                : '&type=${widget.type}'),
       );
       if (mounted)
         setState(() {
@@ -90,6 +167,12 @@ class _PersonalListBodyState extends State<PersonalListBody> {
               ? [...items, ...rows(result['items'])]
               : rows(result['items']);
           more = items.length < (result['total'] as num? ?? 0);
+          collections = rows(result['collections']);
+          if (!append) {
+            branches.clear();
+            expanded.clear();
+            branchTotals.clear();
+          }
         });
     } catch (e) {
       if (mounted) setState(() => error = TenoModel.friendly(e));
@@ -103,8 +186,11 @@ class _PersonalListBodyState extends State<PersonalListBody> {
     try {
       final folders = await widget.model.list('/api/v1/folders?limit=200');
       if (mounted) setState(() => widget.model.folders = folders);
-    } catch (_) { /* Drop requests still use server-side ownership validation. */ }
+    } catch (_) {
+      /* Drop requests still use server-side ownership validation. */
+    }
   }
+
   Future<void> apply(String action, List<Json> values, {String? folder}) async {
     await widget.model.api('POST', '/api/v1/library/batch', {
       'action': action,
@@ -118,6 +204,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
         selected.clear();
         selecting = false;
       });
+    widget.onSelectionChanged?.call(null);
     await load();
   }
 
@@ -126,7 +213,39 @@ class _PersonalListBodyState extends State<PersonalListBody> {
     List<Json> values,
   ) => perform(context, () async {
     if (values.isEmpty) return;
-    if (action == 'move') {
+    if (values.singleOrNull?['type'] == 'folder') {
+      final folder = values.single;
+      if (action == 'edit_folder') {
+        final title = await inputDialog(
+          context,
+          'Rename',
+          initial: text(folder['title']),
+        );
+        if (title == null || title.trim().isEmpty) return;
+        await widget.model.api(
+          'PATCH',
+          '/api/v1/library/items/folder/${folder['id']}',
+          {'title': title},
+        );
+      } else if (action == 'delete_folder') {
+        if (!await confirm(
+          context,
+          'Delete folder?',
+          'Files remain in your library.',
+        ))
+          return;
+        await widget.model.api('DELETE', '/api/v1/folders/${folder['id']}');
+      } else {
+        return;
+      }
+      if (mounted)
+        setState(() {
+          selected.clear();
+          selecting = false;
+        });
+      widget.onSelectionChanged?.call(null);
+      await load();
+    } else if (action == 'move') {
       final folder = await choosePersonalFolder(context, widget.model);
       if (folder == null) return;
       await apply('move', values, folder: folder);
@@ -272,14 +391,28 @@ class _PersonalListBodyState extends State<PersonalListBody> {
     final folder = item['type'] == 'folder';
     final child = CoreTile(
       item,
-      () => openPersonalItem(context, widget.model, item),
-      selected: selecting && !folder ? selected.contains(identity(item)) : null,
-      select: selecting && !folder
-          ? () => setState(
-              () => selected.contains(identity(item))
-                  ? selected.remove(identity(item))
-                  : selected.add(identity(item)),
-            )
+      () => folder
+          ? expand(text(item['id']))
+          : openPersonalItem(context, widget.model, item),
+      selected: selecting ? selected.contains(identity(item)) : null,
+      select: selecting
+          ? () {
+              setState(() {
+                final key = identity(item);
+                if (selected.contains(key)) {
+                  selected.remove(key);
+                } else {
+                  // Folder editing is a single-folder operation. File batch
+                  // actions never send unsupported folders to the batch API.
+                  if (folder)
+                    selected.clear();
+                  else
+                    selected.removeWhere((id) => id.startsWith('folder:'));
+                  selected.add(key);
+                }
+              });
+              widget.onSelectionChanged?.call(selected.length);
+            }
           : null,
       trailing: !selecting && !widget.trash
           ? IconButton(
@@ -306,7 +439,10 @@ class _PersonalListBodyState extends State<PersonalListBody> {
       );
     return LongPressDraggable<Json>(
       data: item,
-      onDragStarted: () {setState(() => dragging = true); unawaited(loadDropFolders());},
+      onDragStarted: () {
+        setState(() => dragging = true);
+        unawaited(loadDropFolders());
+      },
       onDragEnd: (_) {
         if (mounted) setState(() => dragging = false);
       },
@@ -323,20 +459,109 @@ class _PersonalListBodyState extends State<PersonalListBody> {
     );
   }
 
+  Widget branch(String key, int depth) => Padding(
+    padding: EdgeInsets.only(left: depth < 5 ? 16 : 0),
+    child: Column(
+      children: [
+        for (final child in branches[key] ?? <Json>[]) tree(child, depth + 1),
+        if (branchLoading.contains(key))
+          const LinearProgressIndicator(minHeight: 2),
+        if (branchErrors.containsKey(key))
+          ErrorNotice(
+            branchErrors[key]!,
+            retry: () => expand(key, retry: true),
+          ),
+        if (!branchLoading.contains(key) &&
+            (branches[key]?.length ?? 0) < (branchTotals[key] ?? 0))
+          TextButton(
+            onPressed: () => expand(key, append: true),
+            child: const Text('Load more'),
+          ),
+        if (!branchLoading.contains(key) &&
+            !branchErrors.containsKey(key) &&
+            branches[key]?.isEmpty == true)
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text('No files here'),
+          ),
+      ],
+    ),
+  );
+
+  Widget tree(Json item, int depth) {
+    final key = text(item['id']);
+    return Column(
+      children: [
+        Row(
+          children: [
+            if (item['type'] == 'folder')
+              Icon(
+                expanded.contains(key)
+                    ? Icons.keyboard_arrow_down
+                    : Icons.chevron_right,
+                size: 16,
+                color: subtle(context),
+              ),
+            Expanded(child: tile(item)),
+          ],
+        ),
+        if (item['type'] == 'folder')
+          const Divider(height: 1, thickness: .5, indent: 52),
+        if (item['type'] == 'folder' && expanded.contains(key))
+          branch(key, depth),
+      ],
+    );
+  }
+
+  Widget collection(String type, String title) {
+    final key = 'system:$type';
+    final meta =
+        collections.where((v) => v['id'] == type).firstOrNull ??
+        <String, dynamic>{};
+    return Column(
+      children: [
+        Row(
+          children: [
+            Icon(
+              expanded.contains(key)
+                  ? Icons.keyboard_arrow_down
+                  : Icons.chevron_right,
+              size: 16,
+              color: subtle(context),
+            ),
+            Expanded(
+              child: CoreTile({
+                'id': key,
+                'type': 'folder',
+                'title': title,
+                if (stats) ...{
+                  'child_count': meta['count'],
+                  'content_updated_at': meta['updated_at'],
+                },
+              }, () => expand(key)),
+            ),
+          ],
+        ),
+        const Divider(height: 1, thickness: .5, indent: 52),
+        if (expanded.contains(key)) branch(key, 0),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final visible = widget.root
+    final visible = widget.root && view == 'all'
         ? items
-              .where(
-                (i) =>
-                    i['type'] == 'folder' && i['folder_id'] == null ||
-                    i['type'] == 'note' &&
-                        i['recording_id'] == null &&
-                        i['folder_id'] == null,
-              )
+              .where((i) => i['type'] == 'folder' && i['folder_id'] == null)
               .toList()
         : items;
-    final chosen = items.where((i) => selected.contains(identity(i))).toList();
+    final all = <String, Json>{
+      for (final i in [...items, ...branches.values.expand((v) => v)])
+        identity(i): i,
+    };
+    final chosen = all.values
+        .where((i) => selected.contains(identity(i)))
+        .toList();
     return Column(
       children: [
         Expanded(
@@ -344,59 +569,98 @@ class _PersonalListBodyState extends State<PersonalListBody> {
             onRefresh: load,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 21),
+              padding: const EdgeInsets.symmetric(horizontal: coreInset),
               children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: Text(
-                        selecting
-                            ? '${selected.length} selected'
-                            : widget.root
-                            ? 'My files'
-                            : 'Files',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                    if (widget.root)
+                      PopupMenuButton<String>(
+                        tooltip: 'My files views',
+                        onSelected: (value) {
+                          if (value == 'phone') {
+                            unawaited(
+                              push(context, PersonalLocalList(widget.model)),
+                            );
+                            return;
+                          }
+                          setState(() {
+                            view = value;
+                            selected.clear();
+                            selecting = false;
+                          });
+                          widget.onSelectionChanged?.call(null);
+                          unawaited(load());
+                        },
+                        itemBuilder: (_) => [
+                          for (final v in [
+                            ('all', 'My files'),
+                            ('images', 'Photos'),
+                            ('note', 'Notes'),
+                            ('phone', 'On this phone'),
+                          ])
+                            PopupMenuItem(value: v.$1, child: Text(v.$2)),
+                        ],
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Row(
+                            children: [
+                              Text(
+                                switch (view) {
+                                  'images' => 'Photos',
+                                  'note' => 'Notes',
+                                  _ => 'My files',
+                                },
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              const Icon(Icons.keyboard_arrow_down, size: 18),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: Text(
+                          selecting ? '${selected.length} selected' : 'Files',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
+                    if (widget.root) const Spacer(),
                     if (!selecting && !widget.trash)
                       IconButton(
                         tooltip: 'New folder or note',
                         onPressed: create,
                         icon: const Icon(Icons.add, size: 21),
                       ),
-                    PopupMenuButton<String>(
-                      tooltip: 'Sort and select',
-                      onSelected: (value) {
-                        if (value == 'select') {
-                          setState(() => selecting = true);
-                          return;
-                        }
-                        setState(() {
-                          sort = value;
-                        });
-                        unawaited(load());
-                      },
-                      itemBuilder: (_) => [
-                        const PopupMenuItem(
-                          value: 'select',
-                          child: Text('Select'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'created',
-                          child: Text('Date created'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'modified',
-                          child: Text('Date modified'),
-                        ),
-                        const PopupMenuItem(value: 'name', child: Text('Name')),
-                      ],
-                      icon: const Icon(Icons.sort, size: 21),
-                    ),
-                    if (selecting)
+                    if (!widget.root)
+                      PopupMenuButton<String>(
+                        tooltip: 'Sort and select',
+                        onSelected: (value) {
+                          if (value == 'select') {
+                            setState(() => selecting = true);
+                            return;
+                          }
+                          setState(() => sort = value);
+                          unawaited(load());
+                        },
+                        itemBuilder: (_) => [
+                          for (final v in [
+                            ('select', 'Select'),
+                            ('created', 'Date created'),
+                            ('modified', 'Date modified'),
+                            ('name', 'Name'),
+                          ])
+                            PopupMenuItem(value: v.$1, child: Text(v.$2)),
+                        ],
+                        icon: const Icon(Icons.more_horiz, size: 21),
+                      ),
+                    if (selecting && !widget.root)
                       TextButton(
                         onPressed: () => setState(() {
                           selecting = false;
@@ -408,50 +672,14 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                 ),
                 if (loading) const LinearProgressIndicator(minHeight: 2),
                 if (error.isNotEmpty) ErrorNotice(error, retry: load),
-                if (widget.root) ...[
-                  for (final entry in [
-                    ('Recordings', 'recording', Icons.mic_none),
-                    ('Imports', 'imports', Icons.file_download_outlined),
-                    ('Photos', 'images', Icons.image_outlined),
-                    ('Notes', 'note', Icons.article_outlined),
-                  ])
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(entry.$3, size: 22),
-                      title: Text(
-                        entry.$1,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      trailing: const Icon(Icons.chevron_right, size: 18),
-                      onTap: () => push(
-                        context,
-                        PersonalListPage(
-                          widget.model,
-                          title: entry.$1,
-                          type: entry.$2,
-                        ),
-                      ),
-                    ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.phone_android_outlined, size: 22),
-                    title: const Text('On this phone'),
-                    onTap: () => push(context, PersonalLocalList(widget.model)),
-                  ),
-                  const Divider(height: 28),
+                if (widget.root && view == 'all') ...[
+                  collection('recording', 'Recordings'),
+                  collection('imports', 'Imports'),
                 ],
-                for (final item in visible) ...[
-                  tile(item),
-                  Divider(
-                    height: 1,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.outlineVariant.withValues(alpha: .45),
-                  ),
-                ],
+                for (final item in visible) tree(item, 0),
                 if (!loading &&
                     visible.isEmpty &&
-                    !widget.root &&
+                    !(widget.root && view == 'all') &&
                     error.isEmpty)
                   const EmptyState(
                     'No files here',
@@ -462,20 +690,6 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                     onPressed: loading ? null : () => load(append: true),
                     child: const Text('Load more'),
                   ),
-                if (widget.root)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.delete_outline),
-                    title: const Text('Trash'),
-                    onTap: () => push(
-                      context,
-                      PersonalListPage(
-                        widget.model,
-                        title: 'Trash',
-                        trash: true,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -483,12 +697,10 @@ class _PersonalListBodyState extends State<PersonalListBody> {
         if (dragging)
           SafeArea(
             top: false,
-            child: Container(
+            child: Padding(
               padding: const EdgeInsets.all(12),
-              color: Theme.of(context).colorScheme.surfaceContainerLow,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Drop into a folder'),
                   SizedBox(
@@ -517,11 +729,11 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                                         context,
                                       ).colorScheme.outlineVariant,
                                     ),
-                                    color: candidates.isNotEmpty
-                                        ? Theme.of(
+                                    color: candidates.isEmpty
+                                        ? null
+                                        : Theme.of(
                                             context,
-                                          ).colorScheme.secondaryContainer
-                                        : null,
+                                          ).colorScheme.secondaryContainer,
                                   ),
                                   child: Row(
                                     children: [
@@ -544,213 +756,69 @@ class _PersonalListBodyState extends State<PersonalListBody> {
               ),
             ),
           ),
-        if (selecting && chosen.isNotEmpty)
+        if (selecting)
           SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Wrap(
-                spacing: 8,
-                children: [
-                  if (widget.trash)
-                    OutlinedButton.icon(
-                      onPressed: () => actions('restore', chosen),
-                      icon: const Icon(Icons.restore, size: 18),
-                      label: const Text('Restore'),
-                    )
-                  else ...[
-                    OutlinedButton.icon(
-                      onPressed: () => actions('move', chosen),
-                      icon: const Icon(Icons.drive_file_move_outline, size: 18),
-                      label: const Text('Move'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed:
-                          chosen.length >= 2 &&
-                              chosen.every((v) => v['type'] == 'recording')
-                          ? () => actions('merge', chosen)
-                          : null,
-                      icon: const Icon(Icons.merge, size: 18),
-                      label: const Text('Merge'),
-                    ),
-                  ],
-                  OutlinedButton.icon(
-                    onPressed: () =>
-                        actions(widget.trash ? 'delete' : 'trash', chosen),
-                    icon: const Icon(Icons.delete_outline, size: 18),
-                    label: Text(widget.trash ? 'Delete' : 'Trash'),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: CoreSurface(
+                radius: 28,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 8,
                   ),
-                ],
+                  child: Row(
+                    children: [
+                      for (final action in [
+                        if (chosen.singleOrNull?['type'] == 'folder') ...[
+                          ('edit_folder', 'Edit', Icons.edit_outlined),
+                          ('delete_folder', 'Delete', Icons.delete_outline),
+                        ] else ...[
+                          if (widget.trash)
+                            ('restore', 'Restore', Icons.restore)
+                          else
+                            ('move', 'Move', Icons.drive_file_move_outline),
+                          if (!widget.trash) ('merge', 'Merge', Icons.merge),
+                          (
+                            widget.trash ? 'delete' : 'trash',
+                            widget.trash ? 'Delete' : 'Trash',
+                            Icons.delete_outline,
+                          ),
+                        ],
+                      ])
+                        Expanded(
+                          child: TextButton(
+                            onPressed:
+                                chosen.isEmpty ||
+                                    action.$1 == 'merge' &&
+                                        (chosen.length < 2 ||
+                                            chosen.any(
+                                              (v) => v['type'] != 'recording',
+                                            ))
+                                ? null
+                                : () => actions(action.$1, chosen),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(action.$3, size: 21),
+                                const SizedBox(height: 4),
+                                Text(
+                                  action.$2,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
       ],
     );
-  }
-}
-
-class PersonalSearchPage extends StatefulWidget {
-  const PersonalSearchPage(this.model, {super.key});
-  final TenoModel model;
-  @override
-  State<PersonalSearchPage> createState() => _PersonalSearchPageState();
-}
-
-class _PersonalSearchPageState extends State<PersonalSearchPage> {
-  final query = TextEditingController();
-  Timer? timer;
-  List<Json> found = [];
-  List<String> history = [];
-  bool loading = false;
-  String error = '', sort = 'match';
-  int generation = 0;
-  @override
-  void initState() {
-    super.initState();
-    unawaited(loadHistory());
-  }
-
-  Future<void> loadHistory() async {
-    try {
-      final value = await widget.model.command('history');
-      if (mounted)
-        setState(
-          () => history = (value['items'] as List? ?? []).map(text).toList(),
-        );
-    } catch (_) {}
-  }
-
-  void search(String value) {
-    timer?.cancel();
-    final current = ++generation;
-    timer = Timer(const Duration(milliseconds: 350), () async {
-      if (value.trim().isEmpty) {
-        if (mounted)
-          setState(() {
-            found = [];
-            loading = false;
-          });
-        return;
-      }
-      setState(() {
-        loading = true;
-        error = '';
-      });
-      try {
-        final values = await widget.model.list(
-          '/api/v1/library/search?q=${Uri.encodeQueryComponent(value.trim())}&sort=$sort',
-        );
-        if (mounted && current == generation) setState(() => found = values);
-        await widget.model.command('history', {'query': value.trim()});
-      } catch (e) {
-        if (mounted && current == generation)
-          setState(() => error = TenoModel.friendly(e));
-      } finally {
-        if (mounted && current == generation) setState(() => loading = false);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => CoreFrame(
-    title: 'Search',
-    child: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: TextField(
-            controller: query,
-            autofocus: true,
-            onChanged: search,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              hintText: 'Search your files',
-            ),
-          ),
-        ),
-        if (loading) const LinearProgressIndicator(minHeight: 2),
-        if (error.isNotEmpty) ErrorNotice(error),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 21),
-            children: [
-              if (query.text.isEmpty) ...[
-                Row(
-                  children: [
-                    const Expanded(child: Text('Recent searches')),
-                    IconButton(
-                      tooltip: 'Clear search history',
-                      onPressed: () async {
-                        await widget.model.command('history', {'clear': true});
-                        await loadHistory();
-                      },
-                      icon: const Icon(Icons.delete_outline, size: 20),
-                    ),
-                  ],
-                ),
-                for (final value in history)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.history, size: 19),
-                    title: Text(value),
-                    onTap: () {
-                      query.text = value;
-                      search(value);
-                    },
-                  ),
-              ] else ...[
-                DropdownButton<String>(
-                  value: sort,
-                  items: const [
-                    DropdownMenuItem(value: 'match', child: Text('Best match')),
-                    DropdownMenuItem(
-                      value: 'created',
-                      child: Text('Date created'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'modified',
-                      child: Text('Date modified'),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    setState(() => sort = v!);
-                    search(query.text);
-                  },
-                ),
-                for (final result in found)
-                  Builder(
-                    builder: (context) {
-                      final item = object(result['item']),
-                          matches = rows(result['matches']);
-                      return CoreTile(
-                        item,
-                        () => openPersonalItem(
-                          context,
-                          widget.model,
-                          item,
-                          matches.isEmpty ? null : matches.first,
-                        ),
-                        highlight: query.text,
-                        snippet: matches.isEmpty
-                            ? null
-                            : text(matches.first['text']),
-                      );
-                    },
-                  ),
-                if (!loading && found.isEmpty && error.isEmpty)
-                  const EmptyState('No results', 'Try another word or phrase.'),
-              ],
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-  @override
-  void dispose() {
-    timer?.cancel();
-    query.dispose();
-    super.dispose();
   }
 }
 
@@ -802,14 +870,11 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
             );
           else
             unawaited(
-              push(
-                context,
-                PersonalSharePage(widget.model, {
-                  'type': 'file',
-                  'id': widget.id,
-                  ...file,
-                }),
-              ),
+              personalShare(context, widget.model, {
+                'type': 'file',
+                'id': widget.id,
+                ...file,
+              }),
             );
         },
         itemBuilder: (_) => const [

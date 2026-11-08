@@ -33,7 +33,8 @@ def package(version,evidence_dir=None,private_values=()):
     log=(qa/'android-checks.log').read_text(encoding='utf-8',errors='replace')
     assert 'All tests passed!' in log and 'No issues found!' in log
     total=int(re.search(r'\+(\d+):[^\n]*All tests passed!',log)[1])
-    backend=read(qa/'backend-acceptance.json');assert backend['all_passed'] and backend['deployed_version']=='1.4.0'
+    backend=read(qa/'backend-acceptance.json');assert backend['all_passed'] and re.fullmatch(r'\d+\.\d+\.\d+', backend['deployed_version'])
+    assert backend['android_version']==version, 'Backend evidence must belong to this Android release'
     ui=read(ROOT/f'design-baseline/v{version}/pages.json');assert ui and all(len(v['variants'])==3 for v in ui)
     issues=ET.parse(ROOT/'app/build/reports/lint-results-release.xml').getroot().findall('issue')
     errors=sum(v.get('severity') in ('Error','Fatal') for v in issues);warnings=sum(v.get('severity')=='Warning' for v in issues);assert errors==0
@@ -63,7 +64,7 @@ def package(version,evidence_dir=None,private_values=()):
         'upgrade_runtime_checks':len(native['checks']),'upgrade_candidate_apk_sha256':native.get('upgrade_candidate_apk_sha256'),
         'regression_runtime_checks':len(regression['checks']),'flutter_tests':total,'ui_states':len(ui),'ui_screenshots':sum(len(v['variants']) for v in ui),
         'backend_version':backend['deployed_version'],'backend_tests':backend['isolated_tests'],'real_provider_checks':backend['real_provider_checks'],
-        'lint_errors':errors,'lint_warnings':warnings,'speech_language':'auto','backend_modified':True,'real_azure_retested':True,
+        'lint_errors':errors,'lint_warnings':warnings,'speech_language':'auto','backend_modified':backend.get('backend_modified',True),'real_azure_retested':backend.get('real_provider_checks',0)>0,
         'physical_android_tested':False,'physical_jwd_tested':False,'near_120_min_provider_call_tested':False,
         'no_test_runners_in_apk':True,'private_credential_scan_passed':True,'ios':None,'baseline_promoted':False,
         'review':f'../design-baseline/v{version}/index.html','validation':f'../RELEASE-{version}.txt'}

@@ -31,7 +31,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
   Json record = {}, transcript = {}, metadata = {}, processing = {};
   List<Json> notes = [];
   List<double> peaks = [];
-  String error = '', variant = 'edited';
+  String error = '', variant = 'edited', chapterTitle = '';
   int noteIndex = 0, currentSegment = -1;
   bool loading = true, follow = true;
   Timer? timer;
@@ -296,6 +296,9 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
       case 'speakers':
         await speakers();
         return;
+      case 'follow':
+        setState(() => follow = !follow);
+        return;
       case 'rename':
         final title = await inputDialog(
           context,
@@ -414,38 +417,58 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
   });
   @override
   Widget build(BuildContext context) => CoreFrame(
-    title: audio ? 'Audio & transcript' : '',
+    title: '',
+    close: !audio,
     actions: [
-      CircleAction(
-        Icons.ios_share_outlined,
-        'Share',
-        () => push(
-          context,
-          PersonalSharePage(widget.model, {
-            'type': 'recording',
-            'id': widget.id,
-          }, noteId: notes.isEmpty ? null : text(notes[noteIndex]['id'])),
+      Align(
+        child: CoreSurface(
+          radius: 26,
+          child: SizedBox(
+            width: 102,
+            height: 42,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.ios_share_outlined, size: 25),
+                  tooltip: 'Share',
+                  onPressed: () => personalShare(
+                    context,
+                    widget.model,
+                    {...record, 'type': 'recording', 'id': widget.id},
+                    noteId: notes.isEmpty ? null : text(notes[noteIndex]['id']),
+                  ),
+                ),
+                PopupMenuButton<String>(
+                  tooltip: 'Recording options',
+                  icon: const Icon(Icons.more_horiz),
+                  onSelected: menu,
+                  itemBuilder: (_) => [
+                    for (final entry in [
+                      ('speakers', 'Name speakers'),
+                      ('rename', 'Rename'),
+                      ('move', 'Move to folder'),
+                      ('calendar', 'Link calendar event'),
+                      ('generate', 'New summary note'),
+                      ('transcribe', 'Transcribe again'),
+                      ('replace', 'Find & replace'),
+                      ('trim', 'Trim audio'),
+                      ('copy', 'Copy to clipboard'),
+                      if (audio)
+                        (
+                          'follow',
+                          follow ? 'Stop following audio' : 'Follow audio',
+                        ),
+                      ('export', 'Export as'),
+                      ('trash', 'Move to trash'),
+                    ])
+                      PopupMenuItem(value: entry.$1, child: Text(entry.$2)),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
-      PopupMenuButton<String>(
-        tooltip: 'Recording options',
-        onSelected: menu,
-        itemBuilder: (_) => [
-          for (final entry in [
-            ('speakers', 'Name speakers'),
-            ('rename', 'Rename'),
-            ('move', 'Move to folder'),
-            ('calendar', 'Link calendar event'),
-            ('generate', 'New summary note'),
-            ('transcribe', 'Transcribe again'),
-            ('replace', 'Find & replace'),
-            ('trim', 'Trim audio'),
-            ('copy', 'Copy to clipboard'),
-            ('export', 'Export as'),
-            ('trash', 'Move to trash'),
-          ])
-            PopupMenuItem(value: entry.$1, child: Text(entry.$2)),
-        ],
       ),
     ],
     bottom: AskBar(
@@ -461,7 +484,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
       label: 'Ask me anything about this recording',
     ),
     child: ListView(
-      padding: const EdgeInsets.all(21),
+      padding: const EdgeInsets.fromLTRB(16, 36, 16, 20),
       children: [
         if (loading) const LinearProgressIndicator(minHeight: 2),
         if (error.isNotEmpty) ErrorNotice(error, retry: load),
@@ -485,9 +508,9 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
           Text(
             text(record['title']),
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 28,
               height: 1.2,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 13),
@@ -498,7 +521,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
               ActionChip(
                 avatar: const Icon(Icons.calendar_today_outlined, size: 14),
                 label: Text(
-                  dateLabel(record['created_at']),
+                  coreDate(record['created_at'], time: true),
                   style: const TextStyle(fontSize: 11),
                 ),
                 onPressed: () => menu('calendar'),
@@ -520,17 +543,36 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
           ),
         ],
         if (audio) ...[
+          Text(
+            'Chapters',
+            style: TextStyle(fontSize: 13, color: subtle(context)),
+          ),
           if (notes.isNotEmpty &&
               rows(object(notes.first['data'])['chapters']).isNotEmpty)
             PopupMenuButton<int>(
               tooltip: 'Chapters',
-              onSelected: (ms) => widget.model.host.playback(
-                PlaybackAction.play,
-                widget.id,
-                false,
-                ms,
-                1,
-              ),
+              onSelected: (ms) {
+                final chapter = rows(object(notes.first['data'])['chapters'])
+                    .where(
+                      (chapter) =>
+                          rows(object(notes.first['data'])['sources']).any(
+                            (s) =>
+                                s['source_id'] == chapter['source_id'] &&
+                                (s['start_ms'] ?? 0) == ms,
+                          ),
+                    )
+                    .firstOrNull;
+                setState(() => chapterTitle = text(chapter?['title']));
+                unawaited(
+                  widget.model.host.playback(
+                    PlaybackAction.play,
+                    widget.id,
+                    false,
+                    ms,
+                    1,
+                  ),
+                );
+              },
               itemBuilder: (_) => [
                 for (final chapter in rows(
                   object(notes.first['data'])['chapters'],
@@ -550,15 +592,26 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                     child: Text(text(chapter['title'])),
                   ),
               ],
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
                 child: Row(
                   children: [
-                    Text(
-                      'Chapters',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    Flexible(
+                      child: Text(
+                        chapterTitle.isNotEmpty
+                            ? chapterTitle
+                            : text(
+                                rows(
+                                  object(notes.first['data'])['chapters'],
+                                ).first['title'],
+                              ),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    Icon(Icons.keyboard_arrow_down, size: 18),
+                    const Icon(Icons.keyboard_arrow_down, size: 18),
                   ],
                 ),
               ),
@@ -569,33 +622,56 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
             peaks: peaks,
             durationMs: (record['duration_ms'] as num? ?? 0).toInt(),
           ),
+          const Divider(height: 45, thickness: .7),
           Wrap(
             alignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 16,
             runSpacing: 8,
             children: [
-              const Text(
-                'Transcript',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              DropdownButton<String>(
-                value: variant,
-                items: const [
-                  DropdownMenuItem(
-                    value: 'original',
-                    child: Text('Original text'),
-                  ),
-                  DropdownMenuItem(value: 'edited', child: Text('Edited text')),
-                  DropdownMenuItem(
-                    value: 'cleaned',
-                    child: Text('Cleaned-up text'),
+              const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.article_outlined, size: 21),
+                  SizedBox(width: 10),
+                  Text(
+                    'Transcript',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ],
-                onChanged: (v) {
-                  setState(() => variant = v!);
+              ),
+              PopupMenuButton<String>(
+                tooltip: 'Transcript version',
+                onSelected: (v) {
+                  setState(() => variant = v);
                   unawaited(load());
                 },
+                itemBuilder: (_) => [
+                  for (final v in [
+                    ('original', 'Original text'),
+                    ('edited', 'Edited text'),
+                    ('cleaned', 'Cleaned-up text'),
+                  ])
+                    PopupMenuItem(value: v.$1, child: Text(v.$2)),
+                ],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        {
+                          'original': 'Original text',
+                          'edited': 'Edited text',
+                          'cleaned': 'Cleaned-up text',
+                        }[variant]!,
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.keyboard_arrow_down, size: 16),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -612,14 +688,6 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
               }),
               child: const Text('Generate cleaned-up text'),
             ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: FilterChip(
-              label: const Text('Follow audio'),
-              selected: follow,
-              onSelected: (v) => setState(() => follow = v),
-            ),
-          ),
           for (var i = 0; i < rows(transcript['segments']).length; i++)
             segment(rows(transcript['segments'])[i], i),
           if (rows(transcript['segments']).isEmpty && !loading)
@@ -658,10 +726,10 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                     ),
                   ),
                 ),
-                IconButton.outlined(
-                  tooltip: 'New note',
+                TextButton.icon(
                   onPressed: generate,
                   icon: const Icon(Icons.add, size: 18),
+                  label: const Text('New note'),
                 ),
               ],
             ],
@@ -677,26 +745,70 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
               ),
             ),
             child: Container(
-              padding: const EdgeInsets.all(13),
+              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.graphic_eq, size: 20),
-                  const SizedBox(width: 10),
-                  const Expanded(child: Text('Audio & transcript')),
-                  Text(
-                    duration(record['duration_ms']),
-                    style: TextStyle(fontSize: 11, color: subtle(context)),
+                  Icon(
+                    Icons.mic_none_rounded,
+                    size: 25,
+                    color: subtle(context),
                   ),
-                  const Icon(Icons.chevron_right, size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 6,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Audio & transcript',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          duration(record['duration_ms']),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: subtle(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: SizedBox(
+                      height: 46,
+                      child: CustomPaint(
+                        painter: _Wave(
+                          peaks,
+                          0,
+                          Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, size: 22, color: subtle(context)),
                 ],
               ),
             ),
           ),
           if (notes.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                text(notes[noteIndex]['title']),
+                style: const TextStyle(
+                  fontSize: 28,
+                  height: 1.25,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
             NoteContent(notes[noteIndex], widget.model),
             TextButton(
               onPressed: () async {
@@ -748,73 +860,192 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
   );
   Widget segment(Json s, int index) {
     final key = segmentKeys.putIfAbsent(text(s['id']), () => GlobalKey());
-    return Container(
-      key: key,
-      margin: const EdgeInsets.symmetric(vertical: 7),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: currentSegment == index
-            ? Theme.of(context).colorScheme.surfaceContainerHighest
-            : null,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TextButton(
-                onPressed: () => perform(
-                  context,
-                  () => widget.model.host.playback(
-                    PlaybackAction.play,
-                    widget.id,
-                    false,
-                    (s['start_ms'] as num).toInt(),
-                    1,
+    return GestureDetector(
+      onLongPressStart: (details) => segmentMenu(s, details.globalPosition),
+      child: Container(
+        key: key,
+        margin: const EdgeInsets.symmetric(vertical: 7),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        decoration: BoxDecoration(
+          color: currentSegment == index
+              ? Theme.of(context).colorScheme.surfaceContainerHighest
+              : null,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 36),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  onPressed: () => perform(
+                    context,
+                    () => widget.model.host.playback(
+                      PlaybackAction.play,
+                      widget.id,
+                      false,
+                      (s['start_ms'] as num).toInt(),
+                      1,
+                    ),
+                  ),
+                  child: Text(
+                    coreTimestamp(s['start_ms']),
+                    style: TextStyle(fontSize: 16, color: subtle(context)),
                   ),
                 ),
-                child: Text(
-                  duration(s['start_ms']),
-                  style: TextStyle(fontSize: 11, color: subtle(context)),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  text(s['speaker_name'] ?? s['speaker']).isEmpty
-                      ? 'Speaker'
-                      : text(s['speaker_name'] ?? s['speaker']),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    text(s['speaker_name'] ?? s['speaker']).isEmpty
+                        ? 'Speaker'
+                        : text(s['speaker_name'] ?? s['speaker']),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-              PopupMenuButton<String>(
-                onSelected: (v) => perform(context, () async {
-                  if (v == 'copy')
-                    await Clipboard.setData(
-                      ClipboardData(text: text(s['text'])),
-                    );
-                  else
-                    await edit(s);
-                }),
-                itemBuilder: (_) => [
-                  const PopupMenuItem(value: 'copy', child: Text('Copy')),
-                  if (variant != 'original')
-                    const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                ],
-                icon: const Icon(Icons.more_horiz, size: 18),
-              ),
-            ],
-          ),
-          SelectableText(
-            text(s['text']),
-            style: const TextStyle(fontSize: 14, height: 1.7),
-          ),
-        ],
+              ],
+            ),
+            Text(
+              text(s['text']),
+              style: const TextStyle(fontSize: 16, height: 1.5),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> segmentMenu(Json segment, Offset point) async {
+    final box =
+        segmentKeys[text(segment['id'])]?.currentContext?.findRenderObject()
+            as RenderBox?;
+    final bounds = box == null
+        ? Rect.fromLTWH(
+            16,
+            point.dy,
+            MediaQuery.sizeOf(context).width - 32,
+            200,
+          )
+        : box.localToGlobal(Offset.zero) & box.size;
+    final value = await showGeneralDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Transcript actions',
+      barrierColor: Colors.black.withValues(alpha: .20),
+      transitionDuration: const Duration(milliseconds: 180),
+      pageBuilder: (sheet, _, secondary) => LayoutBuilder(
+        builder: (sheet, constraints) {
+          final scale = MediaQuery.textScalerOf(sheet).scale(1);
+          final menuHeight = (variant == 'original' ? 56.0 : 112.0) * scale;
+          final height = (bounds.height + 16).clamp(
+            80.0,
+            constraints.maxHeight - menuHeight - 100,
+          );
+          final top = bounds.top.clamp(
+            36.0,
+            constraints.maxHeight - height - menuHeight - 40,
+          );
+          return Stack(
+            children: [
+              Positioned(
+                left: 16,
+                right: 16,
+                top: top,
+                child: Column(
+                  children: [
+                    Material(
+                      color: Theme.of(sheet).colorScheme.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(28),
+                      elevation: 12,
+                      child: SizedBox(
+                        height: height,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Wrap(
+                                spacing: 12,
+                                children: [
+                                  Text(
+                                    coreTimestamp(segment['start_ms']),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: subtle(sheet),
+                                    ),
+                                  ),
+                                  Text(
+                                    text(
+                                      segment['speaker_name'] ??
+                                          segment['speaker'],
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                text(segment['text']),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 250,
+                      child: CoreSurface(
+                        radius: 28,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (variant != 'original')
+                                ListTile(
+                                  leading: const Icon(Icons.edit_outlined),
+                                  title: const Text('Edit'),
+                                  onTap: () => Navigator.pop(sheet, 'edit'),
+                                ),
+                              ListTile(
+                                leading: const Icon(Icons.copy_outlined),
+                                title: const Text('Copy'),
+                                onTap: () => Navigator.pop(sheet, 'copy'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (!mounted || value == null) return;
+    await perform(context, () async {
+      if (value == 'copy')
+        await Clipboard.setData(ClipboardData(text: text(segment['text'])));
+      else
+        await edit(segment);
+    });
   }
 
   @override
@@ -884,8 +1115,14 @@ class PersonalAudioPlayer extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(duration(position), style: const TextStyle(fontSize: 11)),
-              Text(duration(durationMs), style: const TextStyle(fontSize: 11)),
+              Text(
+                coreTimestamp(position),
+                style: const TextStyle(fontSize: 12),
+              ),
+              Text(
+                coreTimestamp(durationMs),
+                style: TextStyle(fontSize: 12, color: subtle(context)),
+              ),
             ],
           ),
           Row(
@@ -893,6 +1130,7 @@ class PersonalAudioPlayer extends StatelessWidget {
             children: [
               IconButton(
                 tooltip: 'Play or pause',
+                color: Theme.of(context).colorScheme.onSurface,
                 onPressed: () => act(
                   context,
                   ready && p.playing
@@ -904,11 +1142,12 @@ class PersonalAudioPlayer extends StatelessWidget {
                   ready && p.playing
                       ? Icons.pause_circle_outline
                       : Icons.play_circle_outline,
-                  size: 32,
+                  size: 40,
                 ),
               ),
               IconButton(
                 tooltip: 'Back 15 seconds',
+                color: Theme.of(context).colorScheme.onSurface,
                 onPressed: () => act(
                   context,
                   ready ? PlaybackAction.seek : PlaybackAction.play,
@@ -917,35 +1156,131 @@ class PersonalAudioPlayer extends StatelessWidget {
                 icon: const Stack(
                   alignment: Alignment.center,
                   children: [
-                    Icon(Icons.replay, size: 26),
-                    Text('15', style: TextStyle(fontSize: 8)),
+                    Icon(Icons.replay, size: 29),
+                    Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text('15', style: TextStyle(fontSize: 8)),
+                    ),
                   ],
                 ),
               ),
               IconButton(
                 tooltip: 'Forward 15 seconds',
+                color: Theme.of(context).colorScheme.onSurface,
                 onPressed: () => act(
                   context,
                   ready ? PlaybackAction.seek : PlaybackAction.play,
                   position + 15000,
                 ),
-                icon: const Stack(
+                icon: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Icon(Icons.forward, size: 26),
-                    Text('15', style: TextStyle(fontSize: 8)),
+                    Transform.flip(
+                      flipX: true,
+                      child: const Icon(Icons.replay, size: 29),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text('15', style: TextStyle(fontSize: 8)),
+                    ),
                   ],
                 ),
               ),
-              PopupMenuButton<double>(
-                tooltip: 'Playback speed',
-                onSelected: (v) =>
-                    act(context, PlaybackAction.speed, position, v),
-                itemBuilder: (_) => [
-                  for (final v in [.75, 1.0, 1.25, 1.5, 2.0])
-                    PopupMenuItem(value: v, child: Text('$v×')),
-                ],
-                child: Text('${ready ? p.speed : 1.0}×'),
+              Tooltip(
+                message: 'Playback speed',
+                child: InkWell(
+                  onTap: () => showCoreSheet<void>(
+                    context,
+                    StatefulBuilder(
+                      builder: (sheet, change) => CoreFrame(
+                        title: 'Audio settings',
+                        sheet: true,
+                        child: ListView(
+                          padding: const EdgeInsets.all(24),
+                          children: [
+                            heading('Playback speed'),
+                            const SizedBox(height: 30),
+                            Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              runSpacing: 20,
+                              children: [
+                                for (final speed in [
+                                  .75,
+                                  1.0,
+                                  1.25,
+                                  1.5,
+                                  1.75,
+                                  2.0,
+                                ])
+                                  InkWell(
+                                    onTap: () async {
+                                      await act(
+                                        sheet,
+                                        PlaybackAction.speed,
+                                        position,
+                                        speed,
+                                      );
+                                      change(() {});
+                                    },
+                                    child: SizedBox(
+                                      width:
+                                          MediaQuery.textScalerOf(
+                                                sheet,
+                                              ).scale(1) >
+                                              1.2
+                                          ? 86
+                                          : 46,
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            height: 24,
+                                            width: 2,
+                                            color:
+                                                (model.runtime!.playback.speed -
+                                                            speed)
+                                                        .abs() <
+                                                    .01
+                                                ? Theme.of(
+                                                    sheet,
+                                                  ).colorScheme.onSurface
+                                                : Theme.of(
+                                                    sheet,
+                                                  ).colorScheme.outlineVariant,
+                                          ),
+                                          const SizedBox(height: 18),
+                                          Text(
+                                            '${speed == speed.roundToDouble() ? speed.toInt() : speed}×',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight:
+                                                  (model
+                                                                  .runtime!
+                                                                  .playback
+                                                                  .speed -
+                                                              speed)
+                                                          .abs() <
+                                                      .01
+                                                  ? FontWeight.w600
+                                                  : FontWeight.w400,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    height: 320,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text('${ready ? p.speed : 1.0}×'),
+                  ),
+                ),
               ),
             ],
           ),

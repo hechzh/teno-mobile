@@ -154,7 +154,12 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
   @override
   void initState() {
     super.initState();
+    input.addListener(inputChanged);
     if (chatId.isNotEmpty) unawaited(load());
+  }
+
+  void inputChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> load() async {
@@ -277,21 +282,26 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
   @override
   Widget build(BuildContext context) => CoreFrame(
-    title: 'Ask Teno',
+    title: 'Chat',
     actions: [
-      CircleAction(Icons.history, 'Chat history', () => Navigator.pop(context)),
+      CoreAction(
+        Icons.history,
+        'Chat history',
+        () => push(
+          context,
+          CoreFrame(
+            title: 'Chat history',
+            child: PersonalChatHistory(widget.model),
+          ),
+        ),
+      ),
     ],
     bottom: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          padding: const EdgeInsets.fromLTRB(12, 4, 6, 4),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outlineVariant,
-            ),
-            borderRadius: BorderRadius.circular(28),
-          ),
+        CoreSurface(
+          radius: 32,
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -303,34 +313,37 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
               Expanded(
                 child: TextField(
                   controller: input,
-                  minLines: 1,
+                  minLines: 2,
                   maxLines: 5,
                   decoration: const InputDecoration(
-                    hintText: 'Ask me anything',
+                    hintText: 'Ask me anything about your recordings',
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
                     filled: false,
                     contentPadding: EdgeInsets.symmetric(vertical: 14),
                   ),
                   onSubmitted: (_) => send(),
                 ),
               ),
-              IconButton(
-                tooltip: 'Voice input',
-                onPressed: dictating || sending ? null : dictate,
-                icon: dictating
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.graphic_eq, size: 21),
-              ),
-              IconButton(
-                tooltip: 'Send question',
-                onPressed: sending ? null : send,
-                icon: const Icon(Icons.arrow_upward, size: 22),
-              ),
+              if (input.text.trim().isEmpty)
+                IconButton(
+                  tooltip: 'Voice input',
+                  onPressed: dictating || sending ? null : dictate,
+                  icon: dictating
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.graphic_eq, size: 21),
+                ),
+              if (input.text.trim().isNotEmpty)
+                IconButton(
+                  tooltip: 'Send question',
+                  onPressed: sending ? null : send,
+                  icon: const Icon(Icons.arrow_upward, size: 22),
+                ),
             ],
           ),
         ),
@@ -343,17 +356,18 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     ),
     child: Column(
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 21, vertical: 6),
-            child: ActionChip(
-              avatar: const Icon(Icons.attach_file, size: 16),
-              label: Text('${selected.length} sources'),
-              onPressed: sending ? null : choose,
+        if (selected.isNotEmpty)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 21, vertical: 6),
+              child: ActionChip(
+                avatar: const Icon(Icons.attach_file, size: 16),
+                label: Text('${selected.length} sources'),
+                onPressed: sending ? null : choose,
+              ),
             ),
           ),
-        ),
         if (error.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 21),
@@ -361,36 +375,67 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
           ),
         Expanded(
           child: messages.isEmpty && !sending
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'How can I help you today?',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
+              ? LayoutBuilder(
+                  builder: (context, c) => SingleChildScrollView(
+                    reverse: true,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: c.maxHeight),
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'How can I help you today?',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              for (final question in [
+                                'Recap the key decisions',
+                                'What are the next steps?',
+                                'Find the important details',
+                              ])
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      side: BorderSide(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.outlineVariant,
+                                      ),
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerLowest,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 14,
+                                      ),
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(24),
+                                          topRight: Radius.circular(24),
+                                          bottomRight: Radius.circular(24),
+                                          bottomLeft: Radius.circular(5),
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      input.text = question;
+                                    },
+                                    child: Text(question),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        for (final question in [
-                          'Recap the key decisions',
-                          'What are the next steps?',
-                          'Find the important details',
-                        ])
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: OutlinedButton(
-                              onPressed: () {
-                                input.text = question;
-                              },
-                              child: Text(question),
-                            ),
-                          ),
-                      ],
+                      ),
                     ),
                   ),
                 )

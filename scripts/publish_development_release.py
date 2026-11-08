@@ -43,7 +43,15 @@ def normalize(manifest_path, output, baseline=False):
           ('sync','音频和文档导出、7天默认分享链接、撤销、主题与应用锁','Audio/document exports, seven-day default share links, revocation, themes and App lock','实机生物识别/锁屏、导出阅读器与分享行为验收','Validate device authentication, export readers and sharing on physical phones'),
           ('distribution','Android0.6.0原签名覆盖更新；共享后端1.4.0兼容扩展','Same-signer Android0.6.0 update and compatible backend1.4.0 extension','保留0.5.0已确认交付基线，真实手机验收待完成','Keep the confirmed0.5.0 baseline; physical phone acceptance remains pending'),
         ]
-    modules=[{'key':key,'scope':words(zh,en),'implementation':'implemented','verification':'partial','pending':words(pzh,pen)} for key,zh,en,pzh,pen in catalog] if version in ('0.4.4','0.5.0','0.6.0') else []
+    if version=='0.6.1':
+        catalog=[
+          ('library','PLAUD 4.x 页面结构、可展开文件夹、真实统计、组合筛选与分页','PLAUD 4.x page structure, expandable folders, complete counts, combined filters and pagination','缺图状态按共用控件延伸，实机待验收','Missing reference states use shared controls; physical acceptance pending'),
+          ('recording','录音底部弹层、转写播放和段落菜单；原录音与队列保留','Recording sheets, transcript playback and paragraph menus; original recording and queues retained','Magic4 Pro / JWD 待验收','Magic4 Pro / JWD acceptance pending'),
+          ('summary','模板分类与 My templates、笔记切换、日历分组','Template categories and My templates, note switching and calendar groups','真实手机日历权限待验收','Physical calendar permissions pending'),
+          ('sync','导入、固定版本分享与内容子面板、分类导出和分组设置','Import sheets, fixed-version sharing with content selection, categorized exports and grouped settings','手机导入导出和应用锁待验收','Physical import/export and App lock pending'),
+          ('distribution','Android 0.6.1 原签名覆盖更新；后端 1.4.1 兼容查询扩展','Same-signer Android 0.6.1 update; compatible backend 1.4.1 queries','不提升已确认基线；本轮不交付 iOS','Confirmed baseline unchanged; no iOS delivery'),
+        ]
+    modules=[{'key':key,'scope':words(zh,en),'implementation':'implemented','verification':'partial','pending':words(pzh,pen)} for key,zh,en,pzh,pen in catalog] if version in ('0.4.4','0.5.0','0.6.0','0.6.1') else []
     if version=='0.4.4':
         modules[-1]['pending']=words('Magic4 Pro 原签名覆盖更新与权限验收','Validate same-signer update and permissions on Magic4 Pro')
     changes = [words('录音与导入统一 Automatic，摘要语言独立配置。','Recording and import use Automatic recognition; summary language is configured independently.')]
@@ -52,6 +60,8 @@ def normalize(manifest_path, output, baseline=False):
     if version=='0.6.0':
         changes=[words('按PLAUD4.x官方资料对齐Android个人核心；独立逐页截图与差异清单。','Android personal core aligned to official PLAUD4.x references, with independent page captures and differences.'),
             words('默认云处理保留显式关闭；补全文档/OCR、多笔记、说话人、Ask、日历、导出与可撤销分享。','Default cloud processing preserves opt-outs; adds files/OCR, multiple notes, speakers, Ask, calendar, exports and revocable sharing.')]
+    if version=='0.6.1':
+        changes=[words('按已有功能对齐页面结构、入口、菜单层级及弹层；修正参考图映射，逐状态记录缺图推定和保留差异。','Align existing page structure, entries, menu hierarchy and sheets; correct reference mapping and record inferred states and retained differences.'),words('新增能力声明、账号隔离的组合搜索筛选与完整统计；不改变生成 Prompt、录音及上传队列。','Add capabilities, owner-scoped combined search filters and complete counts; generation prompts, recordings and upload queues are preserved.')]
     sources=[{'label':f'Teno {version} release manifest','reference':f'dist/{manifest_path.name}','sha256':sha(manifest_path)}]
     if release.exists(): sources.append({'label':f'Teno {version} release notes','reference':release.name,'sha256':sha(release)})
     tests=[]; summaries=[]
@@ -85,6 +95,13 @@ def normalize(manifest_path, output, baseline=False):
         assert installed['apk_sha256']==manifest['sha256'] and not installed['uninstalled']
         evidence(qa/'backend-acceptance.json','后端迁移、旧端兼容及真实供应商验收','Backend migration, legacy compatibility and real-provider acceptance','server')
         tests.append({'name':words('本轮Flutter页面与交互回归','Current Flutter page and interaction regression'),'status':'passed','environment':'unit','count':manifest['flutter_tests'],'source':release.name})
+    elif version=='0.6.1':
+        evidence(qa/'full-runtime-report.json','0.6.0 至 0.6.1 覆盖保留检查','0.6.0 to 0.6.1 upgrade retention','emulator',manifest['upgrade_runtime_checks'])
+        evidence(qa/'regression-runtime-report.json','最终 APK 原生回归与系统界面','Final APK native regression and system surfaces','emulator',manifest['regression_runtime_checks'])
+        installed=evidence(qa/'final-install-report.json','原签名包安装与冷启动','Signed APK installation and cold launch','emulator')
+        assert installed['apk_sha256']==manifest['sha256'] and not installed['uninstalled']
+        evidence(qa/'backend-acceptance.json','查询增量、隔离回归与旧端兼容','Read-query additions, isolated regression and legacy compatibility','server')
+        tests.append({'name':words('Flutter 页面及交互回归','Flutter page and interaction regression'),'status':'passed','environment':'unit','count':manifest['flutter_tests'],'source':release.name})
     tests.append({'name':words(f"Lint：0 错误 / {manifest['lint_warnings']} 警告",f"Lint: 0 errors / {manifest['lint_warnings']} warnings"),'status':'passed','environment':'static','source':f'dist/{manifest_path.name}'})
     report={'platform':'android','version':version,'commit':commit,'build_number':f"release-{version}-{sha(manifest_path)[:12]}-android",
             'occurred_at':source_time,'outcome':'passed','implementation':'implemented' if modules else 'unknown','physical':'pending','distribution':'internal',
@@ -99,6 +116,9 @@ def normalize(manifest_path, output, baseline=False):
         report['title']=words('Android个人核心与UI对齐','Android personal core and UI alignment')
         report['dependency']=words('共享后端1.4.0／迁移007；复用Azure和DeepSeek。真实合成验收与用量单独记录，团队网页流程保留。','Backend1.4.0 / migration007; uses Azure and DeepSeek. Synthetic real-provider acceptance and usage are recorded separately; team web workflows are retained.')
         report['pending'].append(words('本轮不构建iOS；120分钟边界已做分段/时间轴测试，未进行2小时付费语音调用。','No iOS build in this release. Near-limit splitting/timeline tests passed; a paid two-hour provider call was not performed.'))
+    if version=='0.6.1':
+        report['title']=words('已有功能的 PLAUD UI 对齐','PLAUD UI alignment for existing features')
+        report['dependency']=words('共享后端 1.4.1，无新增迁移；生成流程和 Prompt 不变。本轮未调用 Azure / DeepSeek。','Shared backend 1.4.1 without new migrations; generation workflows and prompts unchanged. No Azure / DeepSeek calls in this release.')
     def asset(path,kind,zh,en):return {'path':str(path.resolve()),'kind':kind,'sha256':sha(path),'label':words(zh,en)}
     summary_path=output/f'Teno-{version}-android-evidence.txt'
     summary_path.write_text(json.dumps({'version':version,'platform':'android','source_commit':commit,'apk_sha256':manifest['sha256'],'physical_device_tested':False,'verification':summaries},ensure_ascii=False,indent=2),encoding='utf-8')

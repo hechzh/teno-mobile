@@ -1,3 +1,6 @@
+import 'dart:async';
+import '../core/calendar_view.dart';
+import 'personal_ask.dart';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
@@ -6,104 +9,296 @@ import 'personal_library.dart';
 import 'personal_import.dart';
 import 'recorder.dart';
 
+Widget settingsGroup(BuildContext context, String title) => Padding(
+  padding: const EdgeInsets.only(top: 24, bottom: 14),
+  child: Text(title, style: TextStyle(fontSize: 13, color: subtle(context))),
+);
+Widget settingsEntry(
+  BuildContext context,
+  String title,
+  IconData icon,
+  VoidCallback open,
+) => ListTile(
+  contentPadding: EdgeInsets.zero,
+  minVerticalPadding: 15,
+  leading: Icon(icon, size: 23),
+  title: Text(title, style: const TextStyle(fontSize: 16)),
+  trailing: Icon(Icons.chevron_right, size: 20, color: subtle(context)),
+  onTap: open,
+);
+
 class PersonalSettings extends StatelessWidget {
   const PersonalSettings(this.model, {super.key});
   final TenoModel model;
   @override
   Widget build(BuildContext context) => ListView(
-    padding: const EdgeInsets.all(21),
+    padding: const EdgeInsets.symmetric(horizontal: coreInset),
     children: [
-      heading('Personalization'),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.person_outline),
-        title: Text(model.runtime!.session.username),
-        subtitle: const Text('Teno account'),
+      settingsGroup(context, 'Workspace'),
+      settingsEntry(
+        context,
+        'Personalization',
+        Icons.badge_outlined,
+        () => push(context, PersonalAccountPage(model, profile: true)),
       ),
-      heading('Workspace'),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.tune),
-        title: const Text('Preferences'),
-        trailing: const Icon(Icons.chevron_right, size: 18),
-        onTap: () => push(context, PersonalPreferences(model)),
+      settingsEntry(
+        context,
+        'Preferences',
+        Icons.tune,
+        () => push(context, PersonalPreferences(model)),
       ),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.speaker_phone_outlined),
-        title: const Text('Recorder'),
-        onTap: () => push(context, DevicePage(model)),
+      settingsEntry(
+        context,
+        'Cloud processing',
+        Icons.cloud_outlined,
+        () => push(context, PersonalRecorderPreferences(model, cloud: true)),
       ),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.calendar_month_outlined),
-        title: const Text('Calendar'),
-        onTap: () => push(context, PersonalCalendarPage(model)),
+      const Divider(height: 30),
+      settingsGroup(context, 'Account'),
+      settingsEntry(
+        context,
+        'Account & security',
+        Icons.person_outline,
+        () => push(context, PersonalAccountPage(model)),
       ),
-      heading('Account & security'),
-      CoreLoad(
-        load: () => model.command('preferences'),
-        builder: (context, data, reload) => SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: const Text('App lock'),
-          subtitle: const Text('Use your phone’s screen lock to open Teno.'),
-          value: data['app_lock'] == true,
-          onChanged: (v) => perform(context, () async {
-            await model.command('app_lock', {'enabled': v});
-            reload();
-          }),
-        ),
+      settingsEntry(
+        context,
+        'Shared links',
+        Icons.link,
+        () => push(context, PersonalLinksPage(model)),
       ),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.link),
-        title: const Text('Shared links'),
-        onTap: () => push(context, PersonalLinksPage(model)),
+      const Divider(height: 30),
+      settingsGroup(context, 'General'),
+      settingsEntry(
+        context,
+        'Notifications',
+        Icons.notifications_none,
+        () => push(context, PersonalAppearance(model, notifications: true)),
       ),
-      heading('General'),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.storage_outlined),
-        title: const Text('Storage'),
-        onTap: () => push(context, PersonalStoragePage(model)),
+      settingsEntry(
+        context,
+        'Theme',
+        Icons.light_mode_outlined,
+        () => push(context, PersonalAppearance(model)),
       ),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.delete_outline),
-        title: const Text('Trash'),
-        onTap: () =>
+      const Divider(height: 30),
+      settingsGroup(context, 'Recorder & files'),
+      settingsEntry(
+        context,
+        'Recorder',
+        Icons.speaker_phone_outlined,
+        () => push(context, PersonalRecorderPreferences(model)),
+      ),
+      settingsEntry(
+        context,
+        'Calendar',
+        Icons.calendar_month_outlined,
+        () => push(context, PersonalCalendarPage(model)),
+      ),
+      settingsEntry(
+        context,
+        'Storage',
+        Icons.storage_outlined,
+        () => push(context, PersonalStoragePage(model)),
+      ),
+      settingsEntry(
+        context,
+        'Trash',
+        Icons.delete_outline,
+        () =>
             push(context, PersonalListPage(model, title: 'Trash', trash: true)),
       ),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.help_outline),
-        title: const Text('Help center'),
-        onTap: () => push(context, const PersonalHelpPage()),
+      const Divider(height: 30),
+      settingsGroup(context, 'Help & support'),
+      settingsEntry(
+        context,
+        'Help center',
+        Icons.help_outline,
+        () => push(context, const PersonalHelpPage()),
       ),
-      const ListTile(
-        contentPadding: EdgeInsets.zero,
-        title: Text('About Teno'),
-        subtitle: Text('0.6.0 · Internal testing'),
-      ),
-      const SizedBox(height: 16),
-      OutlinedButton(
-        onPressed: () => perform(context, () async {
-          if (await confirm(
-            context,
-            'Sign out?',
-            'Local files and recorder keys remain on this phone under their original account.',
-          ))
-            await model.signOut();
-        }),
-        child: const Text('Sign out'),
-      ),
+      const SizedBox(height: 24),
     ],
   );
 }
 
-class PersonalPreferences extends StatefulWidget {
-  const PersonalPreferences(this.model, {super.key});
+class PersonalAccountPage extends StatelessWidget {
+  const PersonalAccountPage(this.model, {super.key, this.profile = false});
   final TenoModel model;
+  final bool profile;
+  @override
+  Widget build(BuildContext context) => CoreFrame(
+    title: profile ? 'Personalization' : 'Account & security',
+    child: ListView(
+      padding: const EdgeInsets.all(coreInset),
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.person_outline),
+          title: Text(model.runtime!.session.username),
+          subtitle: const Text('Teno account'),
+        ),
+        if (!profile) ...[
+          CoreLoad(
+            load: () => model.command('preferences'),
+            builder: (context, data, reload) => SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('App lock'),
+              subtitle: const Text(
+                'Use your phone’s screen lock to open Teno.',
+              ),
+              value: data['app_lock'] == true,
+              onChanged: (v) => perform(context, () async {
+                await model.command('app_lock', {'enabled': v});
+                reload();
+              }),
+            ),
+          ),
+          const SizedBox(height: 24),
+          OutlinedButton(
+            onPressed: () => perform(context, () async {
+              if (await confirm(
+                context,
+                'Sign out?',
+                'Local files and recorder keys remain on this phone under their original account.',
+              ))
+                await model.signOut();
+            }),
+            child: const Text('Sign out'),
+          ),
+        ],
+      ],
+    ),
+  );
+}
+
+class PersonalAppearance extends StatelessWidget {
+  const PersonalAppearance(this.model, {super.key, this.notifications = false});
+  final TenoModel model;
+  final bool notifications;
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: model,
+    builder: (context, _) => CoreFrame(
+      title: notifications ? 'Notifications' : 'Theme',
+      child: ListView(
+        padding: const EdgeInsets.all(coreInset),
+        children: [
+          if (notifications)
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Processing notifications'),
+              subtitle: const Text(
+                'Notify me when processing finishes. Requires Android notification permission.',
+              ),
+              value: model.personalSettings['notifications'] != false,
+              onChanged: (v) => perform(context, () async {
+                await model.command('notifications', {'enabled': v});
+                await model.updatePersonal({'notifications': v});
+              }),
+            )
+          else
+            RadioGroup<String>(
+              groupValue: text(model.personalSettings['theme']).isEmpty
+                  ? 'system'
+                  : text(model.personalSettings['theme']),
+              onChanged: (v) =>
+                  perform(context, () => model.updatePersonal({'theme': v})),
+              child: Column(
+                children: [
+                  for (final v in [
+                    ('system', 'Follow system'),
+                    ('light', 'Light'),
+                    ('dark', 'Dark'),
+                  ])
+                    RadioListTile<String>(
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.trailing,
+                      value: v.$1,
+                      title: Text(v.$2),
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
+}
+
+class PersonalRecorderPreferences extends StatelessWidget {
+  const PersonalRecorderPreferences(
+    this.model, {
+    super.key,
+    this.cloud = false,
+  });
+  final TenoModel model;
+  final bool cloud;
+  Future<void> configure({bool? upload, bool? wifi, bool? live}) async {
+    final s = model.runtime!.session;
+    await model.host.configure(
+      upload ?? s.cloudUpload,
+      wifi ?? s.wifiOnly,
+      live ?? s.livePreview,
+    );
+    model.changed(await model.host.snapshot());
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: model,
+    builder: (context, _) => CoreFrame(
+      title: cloud ? 'Cloud processing' : 'Recorder',
+      child: ListView(
+        padding: const EdgeInsets.all(coreInset),
+        children: [
+          if (!cloud)
+            settingsEntry(
+              context,
+              'Connect recorder',
+              Icons.speaker_phone_outlined,
+              () => push(context, DevicePage(model)),
+            ),
+          if (cloud)
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Cloud processing'),
+              subtitle: const Text(
+                'Automatically upload new recordings and imports for transcription and summaries.',
+              ),
+              value: model.runtime!.session.cloudUpload,
+              onChanged: (v) => perform(context, () => configure(upload: v)),
+            ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Upload on Wi-Fi only'),
+            value: model.runtime!.session.wifiOnly,
+            onChanged: (v) => perform(context, () => configure(wifi: v)),
+          ),
+          if (!cloud)
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Live transcript preview'),
+              subtitle: const Text(
+                'Preview only. The complete audio is processed after recording.',
+              ),
+              value: model.runtime!.session.livePreview,
+              onChanged: (v) => perform(context, () => configure(live: v)),
+            ),
+          const SizedBox(height: 24),
+          Text(
+            'Complete recordings and imports stay on this phone after upload. Existing saved files are uploaded only when you request it.',
+            style: TextStyle(fontSize: 13, color: subtle(context)),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class PersonalPreferences extends StatefulWidget {
+  const PersonalPreferences(this.model, {super.key, this.detail = false});
+  final TenoModel model;
+  final bool detail;
   @override
   State<PersonalPreferences> createState() => _PersonalPreferencesState();
 }
@@ -137,23 +332,38 @@ class _PersonalPreferencesState extends State<PersonalPreferences> {
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: widget.model,
     builder: (context, _) {
-      final s = widget.model.runtime!.session,
-          p = widget.model.personalSettings;
+      if (!widget.detail)
+        return CoreFrame(
+          title: 'Preferences',
+          child: ListView(
+            padding: const EdgeInsets.all(coreInset),
+            children: [
+              heading('Generation'),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text(
+                  'Transcription & summary',
+                  style: TextStyle(fontSize: 16),
+                ),
+                subtitle: const Text(
+                  'Default configurations for language, speaker labels and transcript cleanup.',
+                ),
+                trailing: const Icon(Icons.chevron_right, size: 20),
+                onTap: () => push(
+                  context,
+                  PersonalPreferences(widget.model, detail: true),
+                ),
+              ),
+            ],
+          ),
+        );
+      final p = widget.model.personalSettings;
       return CoreFrame(
-        title: 'Preferences',
+        title: 'Transcription & summary',
         child: ListView(
           padding: const EdgeInsets.all(21),
           children: [
             heading('Generation'),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Cloud processing'),
-              subtitle: const Text(
-                'Automatically upload new recordings and imports for transcription and summaries.',
-              ),
-              value: s.cloudUpload,
-              onChanged: (v) => perform(context, () => configure(cloud: v)),
-            ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Clean up transcript automatically'),
@@ -196,52 +406,6 @@ class _PersonalPreferencesState extends State<PersonalPreferences> {
                 });
                 await load();
               }),
-            ),
-            heading('Appearance'),
-            DropdownButtonFormField<String>(
-              initialValue: text(p['theme']).isEmpty
-                  ? 'system'
-                  : text(p['theme']),
-              decoration: const InputDecoration(labelText: 'Theme'),
-              items: const [
-                DropdownMenuItem(value: 'system', child: Text('System')),
-                DropdownMenuItem(value: 'light', child: Text('Light')),
-                DropdownMenuItem(value: 'dark', child: Text('Dark')),
-              ],
-              onChanged: (v) => perform(
-                context,
-                () => widget.model.updatePersonal({'theme': v}),
-              ),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Notifications'),
-              subtitle: const Text('Notify me when processing finishes. Requires Android notification permission.'),
-              value: p['notifications'] != false,
-              onChanged: (v) => perform(context, () async {
-                await widget.model.command('notifications', {'enabled': v});
-                await widget.model.updatePersonal({'notifications': v});
-              }),
-            ),
-            heading('Upload & recording'),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Upload on Wi-Fi only'),
-              value: s.wifiOnly,
-              onChanged: (v) => perform(context, () => configure(wifi: v)),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Live transcript preview'),
-              subtitle: const Text(
-                'Preview only. The complete audio is processed after recording.',
-              ),
-              value: s.livePreview,
-              onChanged: (v) => perform(context, () => configure(live: v)),
-            ),
-            heading('Local storage'),
-            const Text(
-              'Complete recordings and imports stay on this phone after upload. Existing saved files are uploaded only when you request it.',
             ),
           ],
         ),
@@ -353,15 +517,48 @@ class PersonalCalendarPage extends StatefulWidget {
 }
 
 class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
-  int version = 0;
+  DateTime selected = calendarDay(DateTime.now());
+  List<Json> events = [];
+  bool loading = true;
+  String error = '';
+  @override
+  void initState() {
+    super.initState();
+    unawaited(load());
+  }
+
+  Future<void> load() async {
+    if (mounted)
+      setState(() {
+        loading = true;
+        error = '';
+      });
+    try {
+      final values = <Json>[], seen = <String>{};
+      while (true) {
+        final page = await widget.model.list(
+          '/api/v1/events?limit=200&offset=${values.length}',
+        );
+        final fresh = page.where((v) => seen.add(text(v['id']))).toList();
+        values.addAll(fresh);
+        if (page.length < 200 || fresh.isEmpty) break;
+      }
+      if (mounted) setState(() => events = values);
+    } catch (e) {
+      if (mounted) setState(() => error = TenoModel.friendly(e));
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
   Future<void> add() async {
     final title = await inputDialog(context, 'Event title');
     if (title == null || !mounted) return;
     final date = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2040),
+      initialDate: selected,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
     );
     if (date == null || !mounted) return;
     final time = await showTimePicker(
@@ -382,125 +579,410 @@ class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
       'ends_at': start.add(const Duration(hours: 1)).toUtc().toIso8601String(),
       'timezone': 'UTC',
     });
-    if (mounted) setState(() => version++);
+    if (mounted) setState(() => selected = calendarDay(start));
+    await load();
+  }
+
+  Future<void> action(String value) => perform(context, () async {
+    if (value == 'add') {
+      await add();
+      return;
+    }
+    if (value == 'import') {
+      await showPersonalImport(context, widget.model);
+      await load();
+      return;
+    }
+    final data = await widget.model.command('calendar');
+    await widget.model.api('POST', '/api/v1/personal/calendar/sync', data);
+    await load();
+  });
+  Future<void> chooseMonth() async {
+    final value = await showDatePicker(
+      context: context,
+      initialDate: selected,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      helpText: 'Choose date',
+    );
+    if (value != null && mounted) setState(() => selected = calendarDay(value));
+  }
+
+  Future<void> openEvent(Json event) async {
+    if (widget.select) {
+      Navigator.pop(context, text(event['id']));
+      return;
+    }
+    final data = object(event['data']);
+    final choice = await showCoreSheet<String>(
+      context,
+      Builder(
+        builder: (sheet) => CoreFrame(
+          title: 'Event',
+          sheet: true,
+          child: ListView(
+            padding: const EdgeInsets.all(coreInset),
+            children: [
+              Text(
+                text(data['title']),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '${coreDate(data['starts_at'], time: true)} – ${coreDate(data['ends_at'], time: true)}',
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('Edit title'),
+                onTap: () => Navigator.pop(sheet, 'edit'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.delete_outline),
+                title: const Text('Delete event'),
+                onTap: () => Navigator.pop(sheet, 'delete'),
+              ),
+            ],
+          ),
+        ),
+      ),
+      height: 390,
+    );
+    if (choice == null || !mounted) return;
+    await perform(context, () async {
+      if (choice == 'delete') {
+        if (await confirm(
+          context,
+          'Delete event?',
+          'This removes the event from Teno. Your phone calendar is unchanged.',
+        ))
+          await widget.model.api('DELETE', '/api/v1/events/${event['id']}');
+      } else {
+        final title = await inputDialog(
+          context,
+          'Event title',
+          initial: text(data['title']),
+        );
+        if (title != null)
+          await widget.model.api('PATCH', '/api/v1/events/${event['id']}', {
+            'title': title,
+          });
+      }
+      await load();
+    });
   }
 
   @override
-  Widget build(BuildContext context) => CoreFrame(
-    title: widget.select ? 'Link calendar event' : 'Calendar',
-    actions: [
-      CircleAction(Icons.add, 'Add event', () => perform(context, add)),
-    ],
-    child: CoreLoad(
-      key: ValueKey(version),
-      load: () async => {
-        'items': await widget.model.list('/api/v1/events?limit=200'),
-      },
-      builder: (context, data, reload) {
-        final events = rows(data['items'])
-          ..sort(
-            (a, b) => text(
-              object(a['data'])['starts_at'],
-            ).compareTo(text(object(b['data'])['starts_at'])),
-          );
-        return ListView(
-          padding: const EdgeInsets.all(21),
-          children: [
-            OutlinedButton.icon(
-              onPressed: () => perform(context, () async {
-                final values = await widget.model.command('calendar');
-                await widget.model.api(
-                  'POST',
-                  '/api/v1/personal/calendar/sync',
-                  values,
-                );
-                reload();
-              }),
-              icon: const Icon(Icons.sync, size: 18),
-              label: const Text('Connect phone calendar'),
-            ),
-            TextButton.icon(
-              onPressed: () => push(context, PersonalImportPage(widget.model)),
-              icon: const Icon(Icons.file_download_outlined, size: 18),
-              label: const Text('Import calendar file'),
-            ),
-            if (events.isEmpty)
-              const EmptyState(
-                'No upcoming events',
-                'Connect your phone calendar or add an event.',
-              ),
-            for (final event in events)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.event_outlined),
-                title: Text(text(object(event['data'])['title'])),
-                subtitle: Text(
-                  text(
-                    object(event['data'])['starts_at'],
-                  ).replaceFirst('T', ' '),
+  Widget build(BuildContext context) {
+    final week = calendarWeek(selected);
+    final agenda = calendarAgenda(
+      events,
+      week,
+      DateTime(selected.year, selected.month + 4, 1),
+    );
+    final colors = Theme.of(context).colorScheme;
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return Scaffold(
+      appBar: AppBar(
+        leadingWidth: 68,
+        leading: Padding(
+          padding: const EdgeInsets.all(12),
+          child: CoreAction(
+            Icons.arrow_back_ios_new_rounded,
+            'Back',
+            () => Navigator.pop(context),
+          ),
+        ),
+        titleSpacing: 0,
+        centerTitle: false,
+        title: InkWell(
+          onTap: chooseMonth,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  '${months[selected.month - 1]} ${selected.year}',
+                  style: const TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                onTap: widget.select
-                    ? () => Navigator.pop(context, text(event['id']))
-                    : () => showDialog<void>(
-                        context: context,
-                        builder: (dialog) => AlertDialog(
-                          title: Text(text(object(event['data'])['title'])),
-                          content: Text(
-                            text(
-                              object(event['data'])['starts_at'],
-                            ).replaceFirst('T', ' '),
+              ),
+              const Icon(Icons.keyboard_arrow_down, size: 20),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () =>
+                setState(() => selected = calendarDay(DateTime.now())),
+            child: const Text('Today'),
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Calendar actions',
+            onSelected: action,
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'connect',
+                child: Text('Connect phone calendar'),
+              ),
+              PopupMenuItem(
+                value: 'import',
+                child: Text('Import calendar file'),
+              ),
+              PopupMenuItem(value: 'add', child: Text('Add event')),
+            ],
+          ),
+        ],
+      ),
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            GestureDetector(
+              onHorizontalDragEnd: (d) {
+                if (d.primaryVelocity == null || d.primaryVelocity!.abs() < 50)
+                  return;
+                setState(
+                  () => selected = DateTime(
+                    selected.year,
+                    selected.month,
+                    selected.day + (d.primaryVelocity! < 0 ? 7 : -7),
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                child: Row(
+                  children: [
+                    for (var i = 0; i < 7; i++)
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => setState(
+                            () => selected = DateTime(
+                              week.year,
+                              week.month,
+                              week.day + i,
+                            ),
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(dialog),
-                              child: const Text('Done'),
+                          child: Column(
+                            children: [
+                              Text(
+                                weekdays[i][0],
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: subtle(context),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                constraints: const BoxConstraints(
+                                  minWidth: 30,
+                                  minHeight: 30,
+                                ),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color:
+                                      DateTime(
+                                            week.year,
+                                            week.month,
+                                            week.day + i,
+                                          ) ==
+                                          selected
+                                      ? colors.onSurface
+                                      : null,
+                                ),
+                                child: Text(
+                                  '${DateTime(week.year, week.month, week.day + i).day}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color:
+                                        DateTime(
+                                              week.year,
+                                              week.month,
+                                              week.day + i,
+                                            ) ==
+                                            selected
+                                        ? colors.surface
+                                        : colors.onSurface,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            if (loading) const LinearProgressIndicator(minHeight: 2),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: load,
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 16, 20),
+                  children: [
+                    if (error.isNotEmpty) ErrorNotice(error, retry: load),
+                    if (agenda.isEmpty && !loading && error.isEmpty)
+                      const EmptyState(
+                        'No upcoming events',
+                        'Use the menu to connect your calendar or add an event.',
+                      ),
+                    for (final group in agenda.entries)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 18),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 44,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      weekdays[group.key.weekday % 7],
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: subtle(context),
+                                      ),
+                                    ),
+                                    Text(
+                                      '${group.key.day}',
+                                      style: const TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    if (group.key.month != selected.month)
+                                      Text(
+                                        months[group.key.month - 1],
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: subtle(context),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  for (final event in group.value)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 8),
+                                      child: InkWell(
+                                        onTap: () => openEvent(event),
+                                        borderRadius: BorderRadius.circular(6),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 12,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: coreBlue.withValues(
+                                              alpha: .09,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          ),
+                                          child: IntrinsicHeight(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                Container(
+                                                  width: 2,
+                                                  color: coreBlue,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        text(
+                                                          object(
+                                                            event['data'],
+                                                          )['title'],
+                                                        ),
+                                                        style: const TextStyle(
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: coreBlue,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 3),
+                                                      Text(
+                                                        '${event['continues_before'] == true ? 'Continued' : calendarClock(event['local_start'] as DateTime)} – ${event['continues_after'] == true ? 'continues' : calendarClock(event['local_end'] as DateTime)}',
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: coreBlue,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-                trailing: widget.select
-                    ? const Icon(Icons.chevron_right, size: 18)
-                    : PopupMenuButton<String>(
-                        onSelected: (v) => perform(context, () async {
-                          if (v == 'delete') {
-                            if (await confirm(
-                              context,
-                              'Delete event?',
-                              'This removes the event from Teno. Your phone calendar is unchanged.',
-                            ))
-                              await widget.model.api(
-                                'DELETE',
-                                '/api/v1/events/${event['id']}',
-                              );
-                          } else {
-                            final title = await inputDialog(
-                              context,
-                              'Event title',
-                              initial: text(object(event['data'])['title']),
-                            );
-                            if (title != null)
-                              await widget.model.api(
-                                'PATCH',
-                                '/api/v1/events/${event['id']}',
-                                {'title': title},
-                              );
-                          }
-                          reload();
-                        }),
-                        itemBuilder: (_) => const [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: Text('Edit title'),
-                          ),
-                          PopupMenuItem(value: 'delete', child: Text('Delete')),
-                        ],
-                      ),
+                  ],
+                ),
               ),
+            ),
           ],
-        );
-      },
-    ),
-  );
+        ),
+      ),
+      bottomNavigationBar: widget.select
+          ? null
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                child: AskBar(
+                  () => push(context, PersonalChatPage(widget.model)),
+                ),
+              ),
+            ),
+    );
+  }
 }
 
 class PersonalHelpPage extends StatelessWidget {
@@ -517,7 +999,7 @@ class PersonalHelpPage extends StatelessWidget {
         ),
         heading('Automatic processing'),
         const Text(
-          'Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Preferences.',
+          'Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.',
         ),
         heading('Your recorder'),
         const Text(

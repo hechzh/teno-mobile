@@ -1,0 +1,32 @@
+[
+  {
+    "id": "03-import-entry-android",
+    "path": "screenshots/native/03-import-entry-android.png",
+    "sha256": "30585d2dcd4b6e2356d7b40283507c5194761789b61eeb58585793b8ba74aedd",
+    "evidence": "actual dedicated API35 Android emulator; no physical device claim"
+  },
+  {
+    "id": "05-system-files-android",
+    "path": "screenshots/native/05-system-files-android.png",
+    "sha256": "fd54300c10f4f090ad30cf768bc509adc7317cfe18925b7ac4037821b9e9ad07",
+    "evidence": "actual dedicated API35 Android emulator; no physical device claim"
+  },
+  {
+    "id": "06-system-photos-android",
+    "path": "screenshots/native/06-system-photos-android.png",
+    "sha256": "5b5c8e55219bbf5933d0e132bb8805cfd01caa4868234060bae154bbf25613dd",
+    "evidence": "actual dedicated API35 Android emulator; no physical device claim"
+  },
+  {
+    "id": "07-system-keyboard-android",
+    "path": "screenshots/native/07-system-keyboard-android.png",
+    "sha256": "01cae12df926097d9036c39ed6fcf841becdd30eaad5c0867d07c872ad25f802",
+    "evidence": "actual dedicated API35 Android emulator; no physical device claim"
+  },
+  {
+    "id": "04-final-login-android",
+    "path": "screenshots/native/04-final-login-android.png",
+    "sha256": "cf8b1363026ab5daf101c6e2278e0ea3df73f50b9bcf9a1b9809d23571e823cb",
+    "evidence": "actual dedicated API35 Android emulator; no physical device claim"
+  }
+]

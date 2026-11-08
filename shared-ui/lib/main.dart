@@ -34,7 +34,12 @@ class _TenoAppState extends State<TenoApp> {
     builder: (context, _) => MaterialApp(
       title: 'Teno',
       debugShowCheckedModeBanner: false,
-      theme: widget.model.personalCore ? personalTheme(false) : tenoTheme(),
+      theme:
+          widget.model.personalCore ||
+              (defaultTargetPlatform == TargetPlatform.android &&
+                  !widget.model.signedIn)
+          ? personalTheme(false)
+          : tenoTheme(),
       darkTheme: personalTheme(true),
       themeMode: !widget.model.personalCore
           ? ThemeMode.light

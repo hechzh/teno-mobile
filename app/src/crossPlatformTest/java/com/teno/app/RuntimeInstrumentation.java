@@ -63,6 +63,12 @@ public final class RuntimeInstrumentation extends Instrumentation {
         store.save(draft);
         JSONObject expected=new JSONObject().put("id",draft.getString("id")).put("scope",store.scope()).put("address",address)
             .put("key_hash",hash(key.getBytes(StandardCharsets.UTF_8))).put("audio_hash",hash(Files.readAllBytes(file.toPath())));
+        if(!baseline.equals("0.5.0")){
+            JSONObject document=store.newDraft("Teno upgrade document",".txt");
+            File original=new File(document.getString("path"));Files.write(original.toPath(),"Synthetic retained local document".getBytes(StandardCharsets.UTF_8));
+            document.put("kind","file").put("status","local");store.save(document);
+            expected.put("document_id",document.getString("id")).put("document_hash",hash(Files.readAllBytes(original.toPath())));
+        }
         Files.write(new File(context.getFilesDir(),"upgrade-fixture.json").toPath(),expected.toString().getBytes(StandardCharsets.UTF_8));
         check(context.getPackageManager().getPackageInfo(context.getPackageName(),0).versionName.equals(baseline),"seed_runs_inside_original_"+baseline.replace('.','_'));
         check(!store.token("access_token").isEmpty(),"old_keystore_session_saved");
@@ -103,6 +109,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
                 }
                 test.check(hash(store.deviceKey(expected.getString("address")).getBytes(StandardCharsets.UTF_8)).equals(expected.getString("key_hash")),"current_release_retains_original_device_key");
                 test.check(hash(Files.readAllBytes(new File(store.draft(oldId).getString("path")).toPath())).equals(expected.getString("audio_hash")),"current_release_retains_original_audio_bytes");
+                if(expected.has("document_id"))test.check(hash(Files.readAllBytes(new File(store.draft(expected.getString("document_id")).getString("path")).toPath())).equals(expected.getString("document_hash")),"current_release_retains_local_document_bytes");
                 UploadQueue.pauseAccount(context);
                 JSONArray previous=store.drafts();for(int i=0;i<previous.length();i++){
                     JSONObject queued=previous.getJSONObject(i);if(queued.optBoolean("upload_requested")){queued.put("upload_retry_at",System.currentTimeMillis()+86400000);store.save(queued);}
@@ -168,7 +175,8 @@ public final class RuntimeInstrumentation extends Instrumentation {
                 store.base("http://127.0.0.1:9");store.identity("Teno upgrade fixture","cross-platform-upgrade");
                 test.check(store.draft(oldId).getString("id").equals(oldId),"returning_account_keeps_pending_original_recording");
                 test.check(store.draft(pendingId).optBoolean("upload_requested")&&new File(store.draft(pendingId).getString("path")).isFile(),"account_switch_preserves_paused_upload_and_local_audio");
-                store.logout();
+                call(result->activity.runtime.logout(result));
+                keyboardSurface();
                 screenshot("02-runtime-finished");
             } finally {
                 if(RecorderService.active)context.startService(new Intent(context,RecorderService.class).setAction("stop"));
@@ -259,6 +267,28 @@ public final class RuntimeInstrumentation extends Instrumentation {
             try(FileOutputStream out=new FileOutputStream(new File(context.getExternalFilesDir(null),name+".png"))){
                 test.getUiAutomation().takeScreenshot().compress(Bitmap.CompressFormat.PNG,100,out);
             }
+        }
+        android.view.accessibility.AccessibilityNodeInfo editable(android.view.accessibility.AccessibilityNodeInfo node){
+            if(node==null)return null;
+            if(node.isEditable())return node;
+            for(int i=0;i<node.getChildCount();i++){android.view.accessibility.AccessibilityNodeInfo found=editable(node.getChild(i));if(found!=null)return found;}
+            return null;
+        }
+        void keyboardSurface()throws Exception {
+            android.accessibilityservice.AccessibilityServiceInfo info=test.getUiAutomation().getServiceInfo();
+            info.flags|=android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+            test.getUiAutomation().setServiceInfo(info);
+            test.getUiAutomation().executeShellCommand("settings put secure show_ime_with_hard_keyboard 1").close();
+            test.until(()->editable(test.getUiAutomation().getRootInActiveWindow())!=null);
+            android.view.accessibility.AccessibilityNodeInfo field=editable(test.getUiAutomation().getRootInActiveWindow());
+            android.graphics.Rect bounds=new android.graphics.Rect();field.getBoundsInScreen(bounds);
+            test.getUiAutomation().executeShellCommand("input tap "+bounds.centerX()+" "+bounds.centerY()).close();
+            test.until(()->test.getUiAutomation().getWindows().stream().anyMatch(w->w.getType()==android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD));
+            Thread.sleep(300);
+            boolean ime=test.getUiAutomation().getWindows().stream().anyMatch(w->w.getType()==android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD);
+            // An actual IME window, not a test-only padding or keyboard drawing.
+            test.check(ime,"android_system_keyboard_opens_for_login");screenshot("07-system-keyboard-android");
+            test.getUiAutomation().executeShellCommand("input keyevent KEYCODE_BACK").close();Thread.sleep(300);
         }
         static String line(InputStream in)throws Exception {
             ByteArrayOutputStream out=new ByteArrayOutputStream();int value;

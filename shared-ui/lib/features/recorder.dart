@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../platform/runtime.g.dart';
 import '../ui/widgets.dart';
+import '../ui/personal_widgets.dart';
 import 'detail.dart';
 
 Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
@@ -76,7 +77,29 @@ Future<void> showRecorder(BuildContext context, TenoModel model) =>
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (_) => RecorderSheet(model),
+      showDragHandle: false,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: .20),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(8),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(38),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              width: .7,
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(38),
+            child: Material(
+              color: Colors.transparent,
+              child: RecorderSheet(model),
+            ),
+          ),
+        ),
+      ),
     );
 
 class DevicePage extends StatefulWidget {
@@ -431,7 +454,13 @@ class _RecorderSheetState extends State<RecorderSheet> {
           !widget.model.capturing && !widget.model.runtime!.device.receiving;
       final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
       return SizedBox(
-        height: MediaQuery.sizeOf(context).height * (keyboardOpen ? .96 : .76),
+        height:
+            MediaQuery.sizeOf(context).height *
+            (keyboardOpen
+                ? .94
+                : MediaQuery.textScalerOf(context).scale(1) > 1.2
+                ? .72
+                : .51),
         child: Padding(
           padding: EdgeInsets.fromLTRB(
             22,
@@ -442,10 +471,31 @@ class _RecorderSheetState extends State<RecorderSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Container(
+                  width: 56,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 6, bottom: 8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(74, 42),
+                      shape: const StadiumBorder(),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLowest,
+                    ),
                     onPressed: active ? () => control(false) : null,
                     child: Text(c.phase == 'paused' ? 'Resume' : 'Pause'),
                   ),
@@ -459,6 +509,16 @@ class _RecorderSheetState extends State<RecorderSheet> {
                     ),
                   ),
                   OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(64, 42),
+                      shape: const StadiumBorder(),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLowest,
+                    ),
                     onPressed: active ? () => control(true) : null,
                     child: const Text('Stop'),
                   ),
@@ -476,11 +536,11 @@ class _RecorderSheetState extends State<RecorderSheet> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  c.status,
-                  style: const TextStyle(fontSize: 12, color: muted),
-                ),
-                const SizedBox(height: 16),
+                if (!['recording', 'paused'].contains(c.phase))
+                  Text(
+                    c.status,
+                    style: const TextStyle(fontSize: 12, color: muted),
+                  ),
               ],
               Expanded(
                 child: ListView(
@@ -502,12 +562,52 @@ class _RecorderSheetState extends State<RecorderSheet> {
                         ),
                       ),
                     if (!writing && notes.text.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: Text(
-                          'Mark key moments\n\nType main ideas',
-                          style: TextStyle(color: muted, height: 2),
-                        ),
+                      Column(
+                        children: [
+                          for (final hint in [
+                            (Icons.outlined_flag, 'Mark key moments'),
+                            if (widget.model.personalCore)
+                              (
+                                Icons.camera_alt_outlined,
+                                'Capture important visuals',
+                              ),
+                            (Icons.edit_outlined, 'Type main ideas'),
+                          ])
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 9),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.outlineVariant,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      hint.$1,
+                                      color: subtle(context),
+                                      size: 22,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      hint.$2,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: subtle(context),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
                     ExpansionTile(
                       tilePadding: EdgeInsets.zero,
@@ -595,7 +695,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                   children: [
                     Column(
                       children: [
-                        CircleAction(
+                        CoreAction(
                           Icons.edit_outlined,
                           'Type note',
                           () => setState(() => writing = true),
@@ -611,7 +711,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                     if (widget.model.personalCore)
                       Column(
                         children: [
-                          CircleAction(
+                          CoreAction(
                             Icons.camera_alt_outlined,
                             'Photo',
                             active
@@ -633,7 +733,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                       ),
                     Column(
                       children: [
-                        CircleAction(
+                        CoreAction(
                           Icons.flag_outlined,
                           'Add highlight',
                           active

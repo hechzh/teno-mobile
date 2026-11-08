@@ -34,7 +34,7 @@ if args.mode == 'upgrade':
     for name in ('01-home-upgrade','02-runtime-finished'): run('pull', external+name+'.png', str(qa/(name+'.png')))
 elif args.mode == 'regression':
     instrument('regression')
-    for name in ('03-import-entry-android','05-system-files-android','06-system-photos-android'):
+    for name in ('03-import-entry-android','05-system-files-android','06-system-photos-android','07-system-keyboard-android'):
         run('pull', external+name+'.png', str(qa/(name+'.png')))
 else:
     install(apk)
@@ -43,8 +43,9 @@ else:
     run('shell','am','start','-W','-n',package+'/com.teno.app.MainActivity'); time.sleep(5)
     assert run('shell','pidof',package).strip()
     assert 'FATAL EXCEPTION' not in run('logcat','-b','crash','-d')
-    run('shell','screencap','-p','/sdcard/teno-060-cold-start.png')
-    run('pull','/sdcard/teno-060-cold-start.png',str(qa/'04-final-login-android.png'))
+    remote_screen=f'/sdcard/teno-{version}-cold-start.png'
+    run('shell','screencap','-p',remote_screen)
+    run('pull',remote_screen,str(qa/'04-final-login-android.png'))
     report={'all_passed':True,'device':args.device+' dedicated API35 emulator','apk_sha256':hashlib.sha256(apk.read_bytes()).hexdigest(),
         'package':package,'version':version,'uninstalled':False,'install_mode':'adb install -r','original_upgrade_from':args.baseline,
         'original_upgrade_evidence':'full-runtime-report.json','final_update_and_cold_launch':True,'crash_buffer_clean':True,

@@ -1,0 +1,3425 @@
+[
+  {
+    "id": "01-home",
+    "title": "首页",
+    "category": "same",
+    "refs": [
+      "S50-01.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "统一圆形入口、设备胶囊、Upcoming、日期分组、文件归属和底部 Ask。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [
+      "原额度区不显示虚构额度；本机待上传录音保留归属说明；JWD 图标按真实设备保留。"
+    ],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/01-home.png",
+        "sha256": "172884d04bd534e69cad2858cfea28d54da6bbe65e5bbeaf763f2ce0a5c00eb9"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/01-home.png",
+        "sha256": "770016eb4ba95e54e8b363556fa4bd9d95469446c2a641e0d4c031f459501717"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/01-home.png",
+        "sha256": "6c372681bbdb610f82c56dbb1e48502e8b2bb97939f9bf64b1d5b9ee29481cec"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S50-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527397273",
+        "alt": "",
+        "sha256": "54d23959ab434830a00eab3587f85e0b9dfe9016425133f5391b94d72a99464b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later",
+        "local_path": "references/S50-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "02-navigation",
+    "title": "侧栏",
+    "category": "same",
+    "refs": [
+      "S44-01.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "改为主页向右侧移和浅色过渡；原额度区域呈现真实账号。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [
+      "账号信息替换额度；省略 Work、团队及会员入口后收拢空位。"
+    ],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/02-navigation.png",
+        "sha256": "3138c49ec9bcb8dfaa7835120d42a87de47f0d53b8ab17eeebd7864c9c07cb22"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/02-navigation.png",
+        "sha256": "0bf6b53e4e66c48b39555176a1e1ca3e8a4b9751042d22bcd3aeb6ac93e0972b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/02-navigation.png",
+        "sha256": "2aca1b87230c8ba878aaf969528252e62da9d5f692de3d81dadcd47173a8c29b"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430604799897",
+        "alt": "",
+        "sha256": "37a3e961ef5beb4a3fcbd14143a3276ce568864e84b62a132b08875979b2b410",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "03-create-menu",
+    "title": "新增菜单",
+    "category": "same",
+    "refs": [
+      "S50-02.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "新增菜单包含设备录音、导入和新 Chat；手机录音保留次级入口。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/03-create-menu.png",
+        "sha256": "c374db9791207942361f1c58e6766940c73768b5c1b6bd4d58c69ac192fa252d"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/03-create-menu.png",
+        "sha256": "3b48756b62b6b6ee5b7ea685e490706e804372a9cbadd95f4f93a71e796b6d1a"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/03-create-menu.png",
+        "sha256": "f9cfa4c8f9751f3744626818d89c37398a71abf48fdd2a498edbcfca7cd4fe89"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S50-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430571356057",
+        "alt": "",
+        "sha256": "b2169996123804a8c8b8ff4d279dd868bd65b5efedc4d7bb9cea09f62dd42ee4",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later",
+        "local_path": "references/S50-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "04-library",
+    "title": "资料库",
+    "category": "same",
+    "refs": [
+      "S44-02.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "系统 Recordings/Imports 与可展开目录；真实更新时间和直接子条目数；右侧选择圈及底部批量栏。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/04-library.png",
+        "sha256": "cbd92028fef237f7bc3b8dfcfe60d366bd4f2b9b4a302b7157219f7694f7a157"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/04-library.png",
+        "sha256": "c7283c725e50ec9762b464f6bcaac83bf3034ffaf69c9d9b2052599ad730a9b6"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/04-library.png",
+        "sha256": "b4f677e5f3c48dff2c663dbff114cf27b214d7dde3a26630b80b3bf635470a53"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "05-recordings",
+    "title": "录音列表",
+    "category": "related",
+    "refs": [
+      "S44-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "在 Library 原位置展开 Recordings，不再跳到另一套目录布局。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/05-recordings.png",
+        "sha256": "b09f782935ebea8bc115562f9d774db12ea6589b3535c59adf6abbfe869507aa"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/05-recordings.png",
+        "sha256": "dbf9f7d1295b8c9e96a4ab5f9803ecd3a99bd70b6b48eb80e854c044acfda96a"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/05-recordings.png",
+        "sha256": "d58a6bb5f3f92b3138b2ca19e4757c178c176cb8820b688d4ac38b3ee5301471"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "06-search",
+    "title": "搜索",
+    "category": "same",
+    "refs": [
+      "S75-04.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "顶部搜索框、历史、四项筛选、排序及底部 Ask；筛选先于分页。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/06-search.png",
+        "sha256": "d7087b64af4e8e018846fc37bc4f3732f85ea746598885120dc522d17f358632"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/06-search.png",
+        "sha256": "9483ef7438d4470134861d4863cf16a328eb966502a04e35e45f7706f3121b82"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/06-search.png",
+        "sha256": "663267424b2e39ab0cfc5c63fad723d7700a923ee0d9e6ff3a239b7590f071af"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S75-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430598825241",
+        "alt": "",
+        "sha256": "426a164ff8284425d52ff561f6f382c891d756b82fc005a26908eae56ada1017",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-04.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "07-device-connect",
+    "title": "连接录音卡",
+    "category": "related",
+    "refs": [
+      "S78-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "展示真实 JWD 服务核实、连接、电量、录音与传输状态；使用 Teno/JWD 通用设备图标。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/07-device-connect.png",
+        "sha256": "aedb799540f87d382ef5aa70a78cb720d81b0a4287ca8d6731580f5f22e79263"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/07-device-connect.png",
+        "sha256": "23b7f95de8ed41551b86721fb37a9a09226b0298c67795a97aa3cb5dae6dc5c0"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/07-device-connect.png",
+        "sha256": "3134b235ae63385ab08aa0e2cf198f6c35ed48ab9e36c292a4c0be6dcabb34ae"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S78-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63439088186393",
+        "alt": "",
+        "sha256": "12a15d100f784c48335bf10232592d92ee91aaea67850cdd386864db36a880a2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63439108932121-How-to-bind-your-Plaud-device-for-v4-0-x-or-later",
+        "local_path": "references/S78-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "09-recording",
+    "title": "录音中",
+    "category": "same",
+    "refs": [
+      "S50-03.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "通过真实首页入口打开录音底部弹层，保留背景；Type/Photo/Highlight 与折叠实时预览。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/09-recording.png",
+        "sha256": "6ee6d9cf9bd64cf63b9359d6a3c0981973e4f3ae1441b01ebdda889ac8d6b80b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/09-recording.png",
+        "sha256": "eb4dcaf21dd4d4e6096ee7c917fa7d7fe4943db452e406c1246b342630ba1725"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/09-recording.png",
+        "sha256": "ae9ca90b5b5255d35df1021522ab0a0df13eccba59b342327e0c5764849f9a37"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S50-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430543796761",
+        "alt": "",
+        "sha256": "8de1b6f7e0d5d99f18ced66c9a3acc6447da7a711728ace8fedaafad83a2d574",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later",
+        "local_path": "references/S50-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "10-paused",
+    "title": "录音暂停",
+    "category": "related",
+    "refs": [
+      "S50-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/10-paused.png",
+        "sha256": "7e8bf9c8ed40bbe3d6aaca82b2a775d13c239e1f038fef54da99ebe31f0b3dae"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/10-paused.png",
+        "sha256": "53a184682e279ea1e76d443a77d5f8f8a06d17d1a9cb09c66ece51e52a9cb528"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/10-paused.png",
+        "sha256": "a46cecb2d4b5f46abfd9e62bd66fb18507c179cc9470d5e44935f3bdee397c56"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S50-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430543796761",
+        "alt": "",
+        "sha256": "8de1b6f7e0d5d99f18ced66c9a3acc6447da7a711728ace8fedaafad83a2d574",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later",
+        "local_path": "references/S50-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "14-recording-notes",
+    "title": "录音详情与摘要",
+    "category": "same",
+    "refs": [
+      "S43-01.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "关闭与分享/更多胶囊、标题元信息、笔记切换、New note、波形音频入口和独立笔记标题。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [
+      "保留 Teno 自有笔记封面与模板内容；样例笔记数量、标题换行和波形随实际资料变化。"
+    ],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/14-recording-notes.png",
+        "sha256": "ce5d4d43b2faf64c083c27aa7d3adba9939d1c9c6da7969c52a39dbb09818b81"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/14-recording-notes.png",
+        "sha256": "dffa4af79d42b0ff7cd4c4c4bd5b0d3bb3538f0ad9326f3880d5efcc25ca571d"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/14-recording-notes.png",
+        "sha256": "5c413058309f3af3f552f04e187d88e4ce7a3c354670f452f18b95ed78fac6de"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S43-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430620644377",
+        "alt": "",
+        "sha256": "b65c8cf507ed21fa9ef14185206c7aafd7de519d136ef18817e993de5ae630ab",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later",
+        "local_path": "references/S43-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "15-transcript",
+    "title": "播放与转写",
+    "category": "related",
+    "refs": [
+      "S55-02.png"
+    ],
+    "reason": "原图为段落菜单/音频设置覆盖态；可比底层转写布局，普通状态仍标相关参考。",
+    "change": "章节、波形、时间轴、15秒跳转、速度面板；时间戳/说话人/正文及长按编辑菜单。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [
+      "保留 Teno 自有笔记封面与模板内容；样例笔记数量、标题换行和波形随实际资料变化。"
+    ],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/15-transcript.png",
+        "sha256": "8c23f544b0139de894a71da1bec7e81ccb69c210fe3ffbbc2b032f16183c681a"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/15-transcript.png",
+        "sha256": "14ce2432a072dc1d7ef1b3b0567427aaa149287b6fa2c3b9e02f5f78654e1d89"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/15-transcript.png",
+        "sha256": "4c8a72613069797a937c427198e84d4291d2a2bc9f94266bddbd2901257a72ff"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S55-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582388121",
+        "alt": "",
+        "sha256": "4aedc38ff704cbb0ad2e0233e95a6a8b56ed0a5027a1c0e23c81d8ffc5fedb77",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later",
+        "local_path": "references/S55-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "17-templates",
+    "title": "模板",
+    "category": "same",
+    "refs": [
+      "S63-02.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "My templates 横向卡片、Category 网格、分类模板区；收藏/最近/自建收至子页。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [
+      "只呈现 Templates；省略 Skills/Connectors。实际模板分类数量由 Teno 内容决定，不复制官方样例和社区内容。"
+    ],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/17-templates.png",
+        "sha256": "03e3f838e40ca3ad39f5c4461419898fe027eed89c43c580dddbfa08ffa22372"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/17-templates.png",
+        "sha256": "9f185befde2ed177f85ac040e3717a860925ac5e4ff5c68340f92d4ccc470950"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/17-templates.png",
+        "sha256": "278a83c90d64fe13809e6eaff2917ae39111033c7e81374d0585f1175fb0d784"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S63-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430588876441",
+        "alt": "",
+        "sha256": "fd0d1a9f060e2ebdf06fbdc148ab0b4c99bbc8b836140ba9e19a3a4a7b4b04ff",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429951493401-Summary-templates-for-v4-0-x-or-later",
+        "local_path": "references/S63-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "18-chat-history",
+    "title": "对话历史",
+    "category": "related",
+    "refs": [
+      "S45-02.png"
+    ],
+    "reason": "官方为空历史，本页为有历史；只对齐共有顶部和列表规范。",
+    "change": "只保留 Chat 历史和新对话入口，移除不可用的 Work 等入口。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/18-chat-history.png",
+        "sha256": "3ff52fe03be6491aeb11f5787db02be0b0ee87acfa64c0dea6cec86f4773036b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/18-chat-history.png",
+        "sha256": "f70dbce775132671231dacbef3a1f7ee195b0331ac620ede56a91fe8235b7172"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/18-chat-history.png",
+        "sha256": "f4755b59f7c6f4c6f52cfc9b896dc556562dcf5d4219a518b862e19c9d81b5e9"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S45-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430606867737",
+        "alt": "",
+        "sha256": "e791640d5d424becd9f0fa60148ab7c148e7faccf0ed672029c12ba1ca447331",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429926029593-Ask-Plaud-Chat-and-Work-modes-for-v4-0-x-or-later",
+        "local_path": "references/S45-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "19-new-chat",
+    "title": "新对话",
+    "category": "same",
+    "refs": [
+      "S45-03.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "Chat 支持录音、笔记、文件夹和文档上下文；语音识别结果先显示为可编辑文字。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/19-new-chat.png",
+        "sha256": "7964500b2cfebc43a130572fb0615117074e9e1bf18440b5958e99fdcd6ee008"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/19-new-chat.png",
+        "sha256": "fda54cf41e3cb7d712ea2911e02a03fdad27f404d327f93e85392c9342d0ddca"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/19-new-chat.png",
+        "sha256": "4f01529e64ee408207a403fb6e8ce7bc329be5d4d31c347ac2f95b7b7da331c3"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S45-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430607136665",
+        "alt": "",
+        "sha256": "33c2cfaedfe58d09adb8d1c5cc9c03e05136acd4a5826b626045fc0cfb96f794",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429926029593-Ask-Plaud-Chat-and-Work-modes-for-v4-0-x-or-later",
+        "local_path": "references/S45-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "20-chat-context",
+    "title": "选择对话资料",
+    "category": "related",
+    "refs": [
+      "S42-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/20-chat-context.png",
+        "sha256": "ca8395a99c7d94f7f005d6d7b35dc0f7286b955e686e8a34997001afbc8cc618"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/20-chat-context.png",
+        "sha256": "20cffd0f3c06ea728fdc28f1303945de17b91f29d85f645bd8a05fb815e1ea92"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/20-chat-context.png",
+        "sha256": "647430c57246a3d5d459f955999df742d5d04bc19ad521b8c9a5f8cbcf316810"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S42-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430600417561",
+        "sha256": "5099fe676316646a5ff631772800b6d7f8fb547b2ecd9edaf9e90dee585b8c20",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429922328217-Choose-the-right-context-for-an-Agent-task-for-v4-0-x-or-later",
+        "local_path": "references/S42-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "21-settings",
+    "title": "设置",
+    "category": "same",
+    "refs": [
+      "S52-03.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "按 Workspace、Account、General 分组；Recorder/Storage 收纳 Teno 专有设置。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/21-settings.png",
+        "sha256": "96047b7585ebb8184f597f4ab34369688cb6013e204b62df795c13ee5b52fc03"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/21-settings.png",
+        "sha256": "7db9b1debea0feb15bf121488ebfd4518aadee559b51802657bd59b9c7b7bbf1"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/21-settings.png",
+        "sha256": "5965a529a105558b4e0f0f4eba272c9426cc2cef3d70c57f815fdaefc71f622b"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S52-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430544782233",
+        "alt": "",
+        "sha256": "3fd00fa4c7e181c806aef247519c87b01de84167edcc949d1547dfdc087ab2c2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later",
+        "local_path": "references/S52-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "22-preferences",
+    "title": "偏好",
+    "category": "same",
+    "refs": [
+      "S52-04.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "Generation 分类及 Transcription & summary 子页；未实现的设置不放占位开关。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/22-preferences.png",
+        "sha256": "17ace9ff0c4113b32c2f7449cb18d09c13caea257a2ad57cb8346a50e700bb01"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/22-preferences.png",
+        "sha256": "2faa20644615582b5c6b05bdeea4d9b77140e6d091ac4f2fc2636dae0cd9a593"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/22-preferences.png",
+        "sha256": "10fdb9c4e45141b976a96c025dfe642c8fdf591a3598cd3348709474ee57ac96"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S52-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430529049369",
+        "alt": "",
+        "sha256": "f24221449adbc6f6fca014eca8b9ec2ef58542fe43307a2a4abb6ba233744cdf",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later",
+        "local_path": "references/S52-04.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "23-export",
+    "title": "导出",
+    "category": "related",
+    "refs": [
+      "S35-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "从详情更多菜单先选 Audio/Transcript/Summary，再打开格式与选项底部面板。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/23-export.png",
+        "sha256": "f3694f9f6df9b054a1ab7801120b4ce0ad03877b1cdd305ad7edc8d2be1cddb0"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/23-export.png",
+        "sha256": "9dd195316add6a4e4399ab9e90d339899ff74c2f4632d92498dd8114211eb2db"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/23-export.png",
+        "sha256": "c3a22ee57dca257de4a23d0a4c4fe4eb55e8ed5dbe8c566f513c18614aca1686"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S35-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430655101337",
+        "alt": "",
+        "sha256": "bbcd0a0af04aa2ec9bcb241bd33d8ee688679e5037bcdceff79de2d6f6c6dbc1",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429911054617-Export-transcripts-notes-and-audio-for-v4-0-x-or-later",
+        "local_path": "references/S35-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "24-trash",
+    "title": "回收站",
+    "category": "related",
+    "refs": [
+      "S68-05.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "保留真实恢复和永久删除；使用统一选择圈和底部栏，普通状态仅参考选中态原图。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/24-trash.png",
+        "sha256": "c36b01bada77b2902645b104d66051855a0e25f73bb750dc83f15b69e97f29ca"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/24-trash.png",
+        "sha256": "6cb68422a6e8e733cc759f6cd564308e41171cefe55c9a9b63b0fe67ad2a7a9b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/24-trash.png",
+        "sha256": "8cef4c64026864e387c40c59493eaa0a8df50e8d436360aa094a653c3d695de2"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S68-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430591250329",
+        "alt": "",
+        "sha256": "a00a6ad19d6b9ab7580e343bac347b3d9b71fee457252b5e85b5e1cbe864b892",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later",
+        "local_path": "references/S68-05.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "25-login",
+    "title": "登录",
+    "category": "missing",
+    "refs": [],
+    "reason": "官方同状态原图缺失；按已确认共用控件延伸，不称已还原。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "缺少原图",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/25-login.png",
+        "sha256": "37a600c105bc15c24448271f3a944aaafd82751351ad6e0c2832762cb4a05f8c"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/25-login.png",
+        "sha256": "343bfe5824fc3ecb3f57d3f99ab2685328548755345f617d9a20ffdbca9d760d"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/25-login.png",
+        "sha256": "0c26f18b0b62cde402342484cffddd67cc96027db7d24d871ab70a88ad9e3921"
+      }
+    ],
+    "official_sources": [],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "26-import",
+    "title": "导入入口",
+    "category": "same",
+    "refs": [
+      "S40-03.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "首页上的 Import 底部面板，三个来源入口；完整保存、账号确认与失败状态保留。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/26-import.png",
+        "sha256": "f1982a08f41ccfc113d649cce839c0b51d84b33f7c5910a0e3bec493cff627e5"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/26-import.png",
+        "sha256": "cbcd096c5aa72a249717a43714ba814ca8757bf174064c469a9136b23376be01"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/26-import.png",
+        "sha256": "e8df98ac075cf667399afdb690e3ff2866919b14eb4a25bad073d7714e154ae9"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S40-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430557152281",
+        "alt": "",
+        "sha256": "a10ea10aea10d396b1f006f9fb8fb46d670f277d8a0246b4fd12e1fdd4b17e4e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later",
+        "local_path": "references/S40-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "27-share",
+    "title": "分享",
+    "category": "same",
+    "refs": [
+      "S72-02.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "底部 Share 面板、内容预览、内容选择子面板、固定版本、有效期和撤销；省略 Invite。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [
+      "省略 Invite 与无对应功能的帮助按钮；固定版本、有效期及撤销说明保留，因此下方分享按钮随这些真实内容顺延。"
+    ],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/27-share.png",
+        "sha256": "6eaecbf29a695d674a4f8f7bb2e7d4380dd831d03ab604847ded1e9b224c7160"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/27-share.png",
+        "sha256": "72c56f610955056c1d8be305e700d4cd8c9c2d3698503705363430633618bdfd"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/27-share.png",
+        "sha256": "393cfb039d6267510e0394188388f131562ea67ed6dd84231e3cbaa10339971a"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S72-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430610693145",
+        "alt": "",
+        "sha256": "e4a88bd47ff45b482e0bd1ae3f304e8514213e2c8394ffd35ca4d68c0820ed69",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later",
+        "local_path": "references/S72-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "28-calendar",
+    "title": "日历",
+    "category": "related",
+    "refs": [
+      "S64-02.png"
+    ],
+    "reason": "官方图展示有事件的周日历；当前状态为空日历，只能借用周日期和操作栏。",
+    "change": "月份、周日期、Today、按本地日期分组事件；连接/ICS/手动新增归入菜单。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/28-calendar.png",
+        "sha256": "4d1ad2b58315f11b28be0088e6b32f52c2517c96dd4443d371c9ac59c5a2de26"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/28-calendar.png",
+        "sha256": "c2f29256c3c64c1d15df561811a4ac599d9a999ae8f8857cd658ee248d2d7e0e"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/28-calendar.png",
+        "sha256": "1198f29afc15cca3c87c2b74f91427f269638f4bb0c7b898d41cfc112b152cfe"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S64-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567740825",
+        "alt": "",
+        "sha256": "78ce467c380f9848e269f2147cd72c666c67ecb9a3fc00c4487a0315acb82d3d",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952262041-Calendar-events-link-recordings-to-your-meetings-for-v4-0-x-or-later",
+        "local_path": "references/S64-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "29-photos",
+    "title": "照片列表",
+    "category": "related",
+    "refs": [
+      "S44-02.png",
+      "S39-01.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "Library → My files → Photos；参考图仅说明共用列表和录音照片，不视为独立 Photos 原图。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/29-photos.png",
+        "sha256": "0eb73dd8de2dfc7b6e9a5244d4dcd5cb9269919405873be37a53835fa8424e7f"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/29-photos.png",
+        "sha256": "057d1892c3b2c14d8700a7675b35722d4c1ca0fd39d1136e5ffc55f7bf65f25e"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/29-photos.png",
+        "sha256": "f4ebf60c9b31bdac571d5a34043c904045bd1e6e2917db36283f30c7847a0cd0"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      },
+      {
+        "file": "S39-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527862297",
+        "alt": "",
+        "sha256": "6a51b9592ce9a46d2b32de66cf6cb7ebfe3cf6a469f8a46ba565a5073dfc0ce2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919023385-Highlight-a-moment-while-recording-for-v4-0-x-or-later",
+        "local_path": "references/S39-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "30-notes",
+    "title": "笔记列表",
+    "category": "related",
+    "refs": [
+      "S44-02.png",
+      "S43-01.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "Library → My files → Notes；不再把 New note 弹窗当作独立 Notes 原图。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/30-notes.png",
+        "sha256": "648b3178b621897955d9c946c6f53a1b69bb589c355f2d1be9c21c8f9a4ed839"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/30-notes.png",
+        "sha256": "11caabb9cdb5177d2105d7b79d031d71f32016646b4e78fb907471c10b4196e9"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/30-notes.png",
+        "sha256": "c4896d25314040be0db144de198f5054592942a838bf67a14fe769bee938e2b5"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      },
+      {
+        "file": "S43-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430620644377",
+        "alt": "",
+        "sha256": "b65c8cf507ed21fa9ef14185206c7aafd7de519d136ef18817e993de5ae630ab",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later",
+        "local_path": "references/S43-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "31-imports",
+    "title": "导入资料列表",
+    "category": "related",
+    "refs": [
+      "S44-02.png",
+      "S40-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "Library → Imports 展开列表；Import 来源弹层仅作相关流程参考。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/31-imports.png",
+        "sha256": "957b862cc121205cf8e8cdc2cb7d7f156b80287812541edc4cf8d23ca0764e57"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/31-imports.png",
+        "sha256": "2422571e3810a882d4b73cb8684dc6d17e425f00c786ac7493112ea8762c2bdf"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/31-imports.png",
+        "sha256": "8915b7184bf43fd8d7b533b7b7805b66e5300ddcd46235bbb907a8ceaea0a856"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      },
+      {
+        "file": "S40-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430557152281",
+        "alt": "",
+        "sha256": "a10ea10aea10d396b1f006f9fb8fb46d670f277d8a0246b4fd12e1fdd4b17e4e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later",
+        "local_path": "references/S40-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "32-note",
+    "title": "独立笔记详情",
+    "category": "related",
+    "refs": [
+      "S43-01.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "独立笔记沿用录音笔记正文与通用编辑/版本控件；缺少独立笔记同状态原图。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/32-note.png",
+        "sha256": "af9cbd448223ae6dccd73ae3a36fb7c850ec7af8f36db79e4e32431c593add7b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/32-note.png",
+        "sha256": "46e22b7447d888474dd4b4b9ff392f44bc386fe25209ee65176b74d997c599d3"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/32-note.png",
+        "sha256": "36880b1f953ecaf37d9aaa52005e5c585004ee572ec0e5328360626d1e43cddd"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S43-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430620644377",
+        "alt": "",
+        "sha256": "b65c8cf507ed21fa9ef14185206c7aafd7de519d136ef18817e993de5ae630ab",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later",
+        "local_path": "references/S43-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "33-note-editor",
+    "title": "笔记编辑",
+    "category": "related",
+    "refs": [
+      "S55-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "独立编辑页按共用控件延伸；转写编辑仅为相关参考。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/33-note-editor.png",
+        "sha256": "ec4d45f4952c5b144d4307d842637d629437f5d6f1c5423c5fa90131cfa9ff72"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/33-note-editor.png",
+        "sha256": "7e0dc2bd4e80bd453ba0ab2844f89ddbe893c3408f73610e4d3637aeb7151ff5"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/33-note-editor.png",
+        "sha256": "87e00562d2b32d1af94c2c752a2d8d0e2697881972aca5564251a878dbee5410"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S55-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430566569241",
+        "alt": "",
+        "sha256": "b7e1a43cfc6121b0f985ab6990840b5c54d29477877a761de31c42d0256e0308",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later",
+        "local_path": "references/S55-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "34-document",
+    "title": "文档详情",
+    "category": "missing",
+    "refs": [],
+    "reason": "官方同状态原图缺失；按已确认共用控件延伸，不称已还原。",
+    "change": "服务端本地提取/OCR，保存页码与来源；Word 渲染后定位实际页，损坏/加密/超限明确报错。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "缺少原图",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/34-document.png",
+        "sha256": "4d407980c62ee03e9b88ba519b461a50d07d5f4624504756fef461be8fbcc76b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/34-document.png",
+        "sha256": "6a0a1dfe3649dae0e12bd92714b85ed72a97fee93677dff1693581c98cc40eac"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/34-document.png",
+        "sha256": "ca86d7228769ce24c2617ea37434099361387e0d618f2f41bf5a3d62c64c2d1b"
+      }
+    ],
+    "official_sources": [],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "35-local-files",
+    "title": "本机文件",
+    "category": "related",
+    "refs": [
+      "S44-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "完整本机副本、手动/批量上传和状态；失败保留原文件及稳定 client_id。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/35-local-files.png",
+        "sha256": "c957721db5bf782e1031d6ab83f64f23dee7c7d306468df36ebbc026b8371559"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/35-local-files.png",
+        "sha256": "900dec06f1c25b283bf746a2cfb614e934806d475d9dd89ff906c4427f05abd4"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/35-local-files.png",
+        "sha256": "540d372591286d64b632934b333e9278c2fa8a8a7bebed1e392be8b65c0976cf"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "36-local-recording",
+    "title": "本机录音详情",
+    "category": "related",
+    "refs": [
+      "S55-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/36-local-recording.png",
+        "sha256": "815d18a320138fe611facdd7ab6249048f862b509d6b174b8584a799ff9df4a6"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/36-local-recording.png",
+        "sha256": "9ef2aaaa0926925cebac9335c1558bb64b4a240d694ad340e4d3288a5411c035"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/36-local-recording.png",
+        "sha256": "5dc465baae1e649267db37ebaf76b49dc186a60e7ebe50c7361b4ad1fa1a407f"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S55-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582388121",
+        "alt": "",
+        "sha256": "4aedc38ff704cbb0ad2e0233e95a6a8b56ed0a5027a1c0e23c81d8ffc5fedb77",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later",
+        "local_path": "references/S55-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "37-storage",
+    "title": "存储",
+    "category": "related",
+    "refs": [
+      "S52-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "查看本机副本与缓存用量；清缓存不删除录音原文件。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/37-storage.png",
+        "sha256": "8f3bf8a700ddd53009fd22deaa64e06330c9dcd89c068a425263624de722f947"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/37-storage.png",
+        "sha256": "afe3e65debd7a0b9cfddbcf4e148c634259843b01022ced13872cc40a4548453"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/37-storage.png",
+        "sha256": "22eb577982ac70afb10c6e7e1cd6ea335581ba72d563aa2738d5e0704dc98384"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S52-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430544782233",
+        "alt": "",
+        "sha256": "3fd00fa4c7e181c806aef247519c87b01de84167edcc949d1547dfdc087ab2c2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later",
+        "local_path": "references/S52-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "38-links",
+    "title": "分享链接管理",
+    "category": "related",
+    "refs": [
+      "S72-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/38-links.png",
+        "sha256": "a969f9398ba929c132f9b0dd42c3ac1a51649bd9ff3f018de6b4377ae36a470c"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/38-links.png",
+        "sha256": "d338e97e563c0693c93d67bcd5c642c26a5f5094ef466b043fc80aa6683ab91a"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/38-links.png",
+        "sha256": "b4e36173dc4b5f265e349b0fbf16cbcfeb7585ef694ee4010b9035775b9418e5"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S72-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430610693145",
+        "alt": "",
+        "sha256": "e4a88bd47ff45b482e0bd1ae3f304e8514213e2c8394ffd35ca4d68c0820ed69",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later",
+        "local_path": "references/S72-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "39-home-empty",
+    "title": "首页空态",
+    "category": "related",
+    "refs": [
+      "S50-01.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "空态保持原页面结构，提供已实现的录音和导入路径。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/39-home-empty.png",
+        "sha256": "b7c3ddd9ae7e289fcad63cc53d53425846c8663358e0ca1525a995aebc08c687"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/39-home-empty.png",
+        "sha256": "1c0dd921a0588f80ca9366aa1a075d1fc825586c7ef9c5995c8fe99d8bd605cb"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/39-home-empty.png",
+        "sha256": "a476672ad8f27bb450c9cca5786ac343a10cb56a01375168f6407193c5b45dd6"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S50-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527397273",
+        "alt": "",
+        "sha256": "54d23959ab434830a00eab3587f85e0b9dfe9016425133f5391b94d72a99464b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later",
+        "local_path": "references/S50-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "40-library-empty",
+    "title": "资料列表空态",
+    "category": "related",
+    "refs": [
+      "S44-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/40-library-empty.png",
+        "sha256": "55ec28f825093037e1b0b3f5b27b6e198db42beb945323ee82c13c754c4a0780"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/40-library-empty.png",
+        "sha256": "1312feef27329f27cd4c2cb076a943d86759af9464272bc3224911d24a35dc63"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/40-library-empty.png",
+        "sha256": "d28fdb80e6870a30a98606705986812678f3a2fb13904cbffe69e0f664fbc44b"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "41-library-offline",
+    "title": "资料列表离线",
+    "category": "related",
+    "refs": [
+      "S44-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "连接失败仍可访问本机文件，显示原因和重试。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/41-library-offline.png",
+        "sha256": "7fc61f1cbb18bff280d929f50d6f1a3b4460647ddd0f3bc44fc889cb089de049"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/41-library-offline.png",
+        "sha256": "d7ac33daa930c321dcc6161a5fa950cc57203aa51c804873355471d40e0848ba"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/41-library-offline.png",
+        "sha256": "b85d4fc6f479c21bc3b84c9be7e6eb152409b9c0f4d2f0835933e10d95ef3a71"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "42-home-loading",
+    "title": "首页加载",
+    "category": "related",
+    "refs": [
+      "S50-01.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/42-home-loading.png",
+        "sha256": "92d30813a0ea782f25d7d33158a12b62dbbd7b68319106839e8be0136d8b08b6"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/42-home-loading.png",
+        "sha256": "269497f997ba4ab6aa64c2a4b87b0c2a9bf2e807cabf52c86727a54ef3b548ed"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/42-home-loading.png",
+        "sha256": "6a6eb6de9a02a4c96e017912bce0f7fee84460840868f51db7618d7eab41a12c"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S50-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527397273",
+        "alt": "",
+        "sha256": "54d23959ab434830a00eab3587f85e0b9dfe9016425133f5391b94d72a99464b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later",
+        "local_path": "references/S50-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "43-search-matches",
+    "title": "搜索结果",
+    "category": "same",
+    "refs": [
+      "S75-05.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "结果高亮，录音定位时间、文档定位页码，笔记打开对应内容。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/43-search-matches.png",
+        "sha256": "3883e3905741513dd9f766a301003a28a10667fb317ad118341f4d41e89459ea"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/43-search-matches.png",
+        "sha256": "65db0d5dd0eecaefe78a7437312c7764e6231cfcc3f90caa1c2ac8e72eebfefd"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/43-search-matches.png",
+        "sha256": "bc57c36a331f4dcda4a0b3bd8bafe1ccc62d6d1b9bbbdc44f9aa1967938afe1d"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S75-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430605902489",
+        "alt": "",
+        "sha256": "12f35a11a6fe11b1c28c62564b34bd9c5142bcd48c0e24799c044a33e3f11fa0",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-05.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "44-library-sort",
+    "title": "资料排序菜单",
+    "category": "related",
+    "refs": [
+      "S68-04.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/44-library-sort.png",
+        "sha256": "c52743b788e3185f3c4a38951d1a1d49c704d0f2ebe56d551f60e3f9c3c9a025"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/44-library-sort.png",
+        "sha256": "c25343364c1547765876dcf39ae17b54033985636146b800713e1d5f8c8b073d"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/44-library-sort.png",
+        "sha256": "cd2014a4d04410b42d72aa045cf830530c4b410505fdcdbe94376023253df70e"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later",
+        "local_path": "references/S68-04.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "45-library-select",
+    "title": "资料批量选择",
+    "category": "related",
+    "refs": [
+      "S65-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "多选管理；合并只对多条录音开放，生成新记录并保留原文件。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/45-library-select.png",
+        "sha256": "aebf6c47bfcf1bd70d4129ebd7f5b6415df60a367c7016794fcb598ab8a5a33e"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/45-library-select.png",
+        "sha256": "182561a49a258ebeaced49638759074500721c9924a4445c266d771dc421d067"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/45-library-select.png",
+        "sha256": "989a50eda6f1dfbf6543058919be883ed79ce9b1f5ad68c120fda0fc323d4521"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S65-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430568230553",
+        "alt": "",
+        "sha256": "a9ccf7567a3388bccef00d8dd082fb6cc49e90a65c68857d70114d5ad0283b53",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952453657-Create-rename-and-delete-folders-for-v4-0-x-or-later",
+        "local_path": "references/S65-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "46-library-create",
+    "title": "新建文件夹或笔记",
+    "category": "related",
+    "refs": [
+      "S68-04.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/46-library-create.png",
+        "sha256": "5cf9f9a398455c80043066d1a3083c3dd8e916c05f5ae9105e3a4da53e8df521"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/46-library-create.png",
+        "sha256": "014255ac5609c95e7eedb4fb8c536d03e2d028e30d35a95a6ecc6a66223564a9"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/46-library-create.png",
+        "sha256": "93baef16b94a0e03e5b2625355fe95aa422d66dab73132993b1c28856cc965b8"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later",
+        "local_path": "references/S68-04.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "47-folder-menu",
+    "title": "文件夹操作",
+    "category": "related",
+    "refs": [
+      "S68-04.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/47-folder-menu.png",
+        "sha256": "2e392f375dba6e6885d4957f4b5694ba632eddb45ae749319c79f5978c6d1aeb"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/47-folder-menu.png",
+        "sha256": "c161c3d6a2f8f97ad8dab05fc6bc62ae2fb2772c05fc0f88d73f590ee2acdc0e"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/47-folder-menu.png",
+        "sha256": "7bf11365877f259cbe354463e660f16627aa0aa3132d7cfee50be74063697b30"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later",
+        "local_path": "references/S68-04.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "48-recording-options",
+    "title": "录音操作菜单",
+    "category": "related",
+    "refs": [
+      "S43-01.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/48-recording-options.png",
+        "sha256": "0bde8fe199059c7404f1c2ff6904ea5de607e2ccfdbbc187a6e065b6eb4898d1"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/48-recording-options.png",
+        "sha256": "bcb30df031fd0f18e15552f587ac159d800fd74539a76e031344620df0b1a6f4"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/48-recording-options.png",
+        "sha256": "7085ed3da94d5204cd80f5da9352905833da19f6fb25496bc5f5c92a1bd76dfe"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S43-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430620644377",
+        "alt": "",
+        "sha256": "b65c8cf507ed21fa9ef14185206c7aafd7de519d136ef18817e993de5ae630ab",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later",
+        "local_path": "references/S43-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "49-speaker-names",
+    "title": "说话人命名",
+    "category": "related",
+    "refs": [
+      "S55-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "手动命名限定当前录音和转写版本；重新转写后重新核对，不跨录音猜身份。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/49-speaker-names.png",
+        "sha256": "79b92a8a271802e3682ad17709260e3eedd62dac556c00181d7f7070ef06df17"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/49-speaker-names.png",
+        "sha256": "f6fa084c24e16352cc7d95c71f76ff2db311cd17d8a6fc1a0e4c082fe4bba8cd"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/49-speaker-names.png",
+        "sha256": "1e139086cce719f8f8dc2cac46c8db2d6d321de0d1980a35bb2ba4e89f916e54"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S55-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582388121",
+        "alt": "",
+        "sha256": "4aedc38ff704cbb0ad2e0233e95a6a8b56ed0a5027a1c0e23c81d8ffc5fedb77",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later",
+        "local_path": "references/S55-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "50-find-replace",
+    "title": "查找替换",
+    "category": "related",
+    "refs": [
+      "S55-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "查找替换保存编辑修订，原始 ASR 内容完整保留。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/50-find-replace.png",
+        "sha256": "d03a648ac5f8091524df46d670aabe67f5449eec37dcd70a363cb4037d0fb3d4"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/50-find-replace.png",
+        "sha256": "99ece811562dd845ef8a7b56a95d2a98ca70689467306671694cad7cc260346b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/50-find-replace.png",
+        "sha256": "573d6accfbad8f519aa9c939041f98e72680d60ba217905e140ebf91b5f41ef9"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S55-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430566569241",
+        "alt": "",
+        "sha256": "b7e1a43cfc6121b0f985ab6990840b5c54d29477877a761de31c42d0256e0308",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later",
+        "local_path": "references/S55-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "51-trim-audio",
+    "title": "裁剪音频",
+    "category": "missing",
+    "refs": [],
+    "reason": "官方同状态原图缺失；按已确认共用控件延伸，不称已还原。",
+    "change": "按秒选取裁剪范围，异步生成新录音；合并同样保留原始文件。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "缺少原图",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/51-trim-audio.png",
+        "sha256": "a185234f764f8b834a3e662ab11de567496f8e9c564196ecbc01765c78c3066e"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/51-trim-audio.png",
+        "sha256": "b06771c09ebc9cbbf3c452e4d3babb85b6c5d413b7b92e83db24e1ca542ec73b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/51-trim-audio.png",
+        "sha256": "dbc123b6b9489e1ead1873c976545b2028a3b2adc9635d70c200411c2f53ac9e"
+      }
+    ],
+    "official_sources": [],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "52-transcript-variants",
+    "title": "转写版本选择",
+    "category": "related",
+    "refs": [
+      "S55-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/52-transcript-variants.png",
+        "sha256": "56ccfcb3fbe8028015428f375f5915dcacd726e4fdef6bd1ea46e07267bae092"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/52-transcript-variants.png",
+        "sha256": "a56d5c9107f7bb63450daf18090321df3903aca718e43f5d56cb69ff3992697b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/52-transcript-variants.png",
+        "sha256": "d66861d2eee074c3e52ad013ddb68f9b066973d071c406a435b93e3302afddcd"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S55-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582388121",
+        "alt": "",
+        "sha256": "4aedc38ff704cbb0ad2e0233e95a6a8b56ed0a5027a1c0e23c81d8ffc5fedb77",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later",
+        "local_path": "references/S55-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "53-template-picker",
+    "title": "选择模板",
+    "category": "related",
+    "refs": [
+      "S43-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/53-template-picker.png",
+        "sha256": "7815fab20e08d5a5cddc9ce2b948861ca085c74c60e1b7d54ccc7f19596e9e1b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/53-template-picker.png",
+        "sha256": "6ed64828775f1546c1a79dcc83be47b659999bf62e5afa692cc92aa0d8afb8aa"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/53-template-picker.png",
+        "sha256": "58ed9904d1476fddffd9cd8f586feaf99e6d2910fceec799a0a3349339a0d1b8"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S43-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430598426393",
+        "alt": "",
+        "sha256": "84f55e53caaa68c20e7540ef03ad644f4f147260902f9bafa96ae1616482b0e2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later",
+        "local_path": "references/S43-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "54-note-versions",
+    "title": "笔记版本",
+    "category": "related",
+    "refs": [
+      "S43-01.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "独立笔记版本可追溯；重新生成保留原文和原摘要。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/54-note-versions.png",
+        "sha256": "3159469f28cec56eaca5ca30bb141c3fa8396c71ef699b22b7d0dda74ad2668b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/54-note-versions.png",
+        "sha256": "a63689bce111487ef51cc6491f3765d7d26fe8477009af557e62722cef54f44b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/54-note-versions.png",
+        "sha256": "0192ba1e3eb4e4ee5b9e4e76d05023caad0ad63bb88c99d9f07c51185f097b14"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S43-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430620644377",
+        "alt": "",
+        "sha256": "b65c8cf507ed21fa9ef14185206c7aafd7de519d136ef18817e993de5ae630ab",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925078553-Multidimensional-summaries-for-v4-0-x-or-later",
+        "local_path": "references/S43-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "55-export-audio",
+    "title": "音频导出",
+    "category": "related",
+    "refs": [
+      "S35-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/55-export-audio.png",
+        "sha256": "1cd15225f60c60fe722f89602cb0d7e40a9b94f3795bec6f5b57b525f140a1f0"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/55-export-audio.png",
+        "sha256": "e4ae5ff9367d6d803da68b8bb052f6e6a3cddcdf9415820b9a09cd60f88912c9"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/55-export-audio.png",
+        "sha256": "f0cf03012aee6278057e26d5b6d0d4433307eb1730df719b1aa8b3ec28c41579"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S35-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430655101337",
+        "alt": "",
+        "sha256": "bbcd0a0af04aa2ec9bcb241bd33d8ee688679e5037bcdceff79de2d6f6c6dbc1",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429911054617-Export-transcripts-notes-and-audio-for-v4-0-x-or-later",
+        "local_path": "references/S35-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "56-calendar-permission",
+    "title": "日历权限拒绝",
+    "category": "related",
+    "refs": [
+      "S64-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "系统权限拒绝时明确提示，可使用手动/ICS 日历路径。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/56-calendar-permission.png",
+        "sha256": "ab6423f2dec43c50b5ce1f0130b852b8d02ac37ffc6754ce767cde4d21cc7dd0"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/56-calendar-permission.png",
+        "sha256": "37066d389f3c8e4264d7b4ecfcf550e5f78eed649a64532eba65a108c72307e4"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/56-calendar-permission.png",
+        "sha256": "7d68f10990756b524be76bb416a277ef8e6ec2617cae820b916817b06a62e337"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S64-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567740825",
+        "alt": "",
+        "sha256": "78ce467c380f9848e269f2147cd72c666c67ecb9a3fc00c4487a0315acb82d3d",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952262041-Calendar-events-link-recordings-to-your-meetings-for-v4-0-x-or-later",
+        "local_path": "references/S64-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "57-document-failed",
+    "title": "文档失败",
+    "category": "missing",
+    "refs": [],
+    "reason": "官方同状态原图缺失；按已确认共用控件延伸，不称已还原。",
+    "change": "解析失败显示原因并保留原文件，可重试。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "缺少原图",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/57-document-failed.png",
+        "sha256": "9b02cb6592051e4f694c0dc13c688cf464964d40ba87fea78846022171c35da5"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/57-document-failed.png",
+        "sha256": "2c3e6785e1994348fa68047c6aef4447a9006a3ad9d15ba2d715f564f02c7b58"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/57-document-failed.png",
+        "sha256": "897bb99a6399098fdf4d713a073f15beeaa73381014d5001055ed66f0f805dec"
+      }
+    ],
+    "official_sources": [],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "58-document-processing",
+    "title": "文档处理中",
+    "category": "missing",
+    "refs": [],
+    "reason": "官方同状态原图缺失；按已确认共用控件延伸，不称已还原。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "缺少原图",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/58-document-processing.png",
+        "sha256": "63387103573a97f899266f6e57de0ffbccdf940e86d022754b4e33d7689654f4"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/58-document-processing.png",
+        "sha256": "05671f7542fad178894ee68f2a0249b2c371fa984f4174d505fabe9875303f45"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/58-document-processing.png",
+        "sha256": "c6d1c4766ed13b523fe9021acdfa608957be07a37259dc0f2e67c4df7fde59db"
+      }
+    ],
+    "official_sources": [],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "59-import-pending",
+    "title": "待接收分享文件",
+    "category": "related",
+    "refs": [
+      "S40-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "外部分享先暂存，用户登录后明确接受到当前账号。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/59-import-pending.png",
+        "sha256": "dc20814dd7cb0b506d51d3e44b51ba21516cc5fd29f66bf322a32e7264ea449f"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/59-import-pending.png",
+        "sha256": "fa7f31b05669013158a80f3ac79c60d3b8d8bb8876ed07bff06b34766a1a3bd0"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/59-import-pending.png",
+        "sha256": "96aa7efb51e2954d36424c3acc225989ca995b35588e8115eeb88c6795550ae9"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S40-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430557152281",
+        "alt": "",
+        "sha256": "a10ea10aea10d396b1f006f9fb8fb46d670f277d8a0246b4fd12e1fdd4b17e4e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later",
+        "local_path": "references/S40-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "60-import-error",
+    "title": "导入失败",
+    "category": "related",
+    "refs": [
+      "S40-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/60-import-error.png",
+        "sha256": "9a8f1af9e3566bb9f8ea3722682dec41b49e8f7804e47eef67da1a29e1fe83f8"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/60-import-error.png",
+        "sha256": "6c71562d70414bd74304813bbf5cc5e194a7f3cbe0615adaf32b8ea4206dbd6c"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/60-import-error.png",
+        "sha256": "e7d68a7e7977044b621589c11ae9dfc51f3e82ec726f5dc55e54d24552472a9c"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S40-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430557152281",
+        "alt": "",
+        "sha256": "a10ea10aea10d396b1f006f9fb8fb46d670f277d8a0246b4fd12e1fdd4b17e4e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429919103385-File-import-for-v4-0-x-or-later",
+        "local_path": "references/S40-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "61-note-keyboard",
+    "title": "笔记输入与键盘避让",
+    "category": "related",
+    "refs": [
+      "S55-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "长标题可编辑；系统键盘区域下保留保存入口。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/61-note-keyboard.png",
+        "sha256": "d4ff90ea3cb07f5081053e891638a806bead979071a2b7be1534aad27089c63f"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/61-note-keyboard.png",
+        "sha256": "1ea7b178288eb404d8ca55675e221c0c778320e82be805902f0a964fdcb21f47"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/61-note-keyboard.png",
+        "sha256": "b2e3f478dcb61c77ee1606323eae4b97cee48755a9ec0b8b1136ad0f78bdffa1"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S55-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430566569241",
+        "alt": "",
+        "sha256": "b7e1a43cfc6121b0f985ab6990840b5c54d29477877a761de31c42d0256e0308",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later",
+        "local_path": "references/S55-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "62-processing-failed",
+    "title": "转写失败",
+    "category": "related",
+    "refs": [
+      "S50-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "转写/摘要失败停止无限等待，提供原因与重试；静音文件保留音频。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/62-processing-failed.png",
+        "sha256": "4c7bc5f3e1fe4cae79cd7630ff7f490af1314c333519f92423eaace7dbcd602b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/62-processing-failed.png",
+        "sha256": "18b54c01c03c71793cce76149d781383b098e6e9acfa24983f40946b7f08d003"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/62-processing-failed.png",
+        "sha256": "a7766108a788d60c2a9b7689c91e3b584569c1877280aa589563ba807ae200de"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S50-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430543796761",
+        "alt": "",
+        "sha256": "8de1b6f7e0d5d99f18ced66c9a3acc6447da7a711728ace8fedaafad83a2d574",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later",
+        "local_path": "references/S50-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "63-calendar-upcoming",
+    "title": "首页日程",
+    "category": "same",
+    "refs": [
+      "S50-01.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [
+      "原额度区不显示虚构额度；本机待上传录音保留归属说明；JWD 图标按真实设备保留。"
+    ],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/63-calendar-upcoming.png",
+        "sha256": "7e871c999a7d79179e3abb906d5e466668dbb9a2e93ed5018d21b46dc6f33d85"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/63-calendar-upcoming.png",
+        "sha256": "61b64d0710104a949d58f4937bb9a6d24963af90e18527d28b8d083887b0b01b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/63-calendar-upcoming.png",
+        "sha256": "b0741a7f8179330837008e4ddc9b17da6b902f146352337ce6a52568091c741c"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S50-01.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430527397273",
+        "alt": "",
+        "sha256": "54d23959ab434830a00eab3587f85e0b9dfe9016425133f5391b94d72a99464b",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429934771097-Record-through-the-Plaud-App-for-v4-0-x-or-later",
+        "local_path": "references/S50-01.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "64-share-created",
+    "title": "分享链接已创建",
+    "category": "related",
+    "refs": [
+      "S72-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [
+      "省略 Invite 与无对应功能的帮助按钮；固定版本、有效期及撤销说明保留，因此下方分享按钮随这些真实内容顺延。"
+    ],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/64-share-created.png",
+        "sha256": "ae51cdf793cdf4086cb7cec6d4398078e384238c49361d9b029daea022728060"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/64-share-created.png",
+        "sha256": "ffa90f1b296c680e91be4bb761fe126a6bb7d18c6eb61d98088ef74deaeebd3e"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/64-share-created.png",
+        "sha256": "aa676056ce9f72ce793e77489bfcf997ad584a70bc9d93a74640426042dbc6c4"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S72-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430610693145",
+        "alt": "",
+        "sha256": "e4a88bd47ff45b482e0bd1ae3f304e8514213e2c8394ffd35ca4d68c0820ed69",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later",
+        "local_path": "references/S72-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "65-filter-folder",
+    "title": "文件夹筛选",
+    "category": "related",
+    "refs": [
+      "S75-04.png",
+      "S75-05.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/65-filter-folder.png",
+        "sha256": "bad51b1798e016582fee148f169919ec3095c0c177e58147d1f9dc438bcb2017"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/65-filter-folder.png",
+        "sha256": "da30928cb28fddcc0c91798abaf4da4827980b7f389616e8caf89e5cca3b41b8"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/65-filter-folder.png",
+        "sha256": "672747e32bada85ed88a5ce109be32914fd2a7c3e0c6e6faf6b6ba08642b7e5b"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S75-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430598825241",
+        "alt": "",
+        "sha256": "426a164ff8284425d52ff561f6f382c891d756b82fc005a26908eae56ada1017",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-04.png"
+      },
+      {
+        "file": "S75-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430605902489",
+        "alt": "",
+        "sha256": "12f35a11a6fe11b1c28c62564b34bd9c5142bcd48c0e24799c044a33e3f11fa0",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-05.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "66-filter-type",
+    "title": "类型筛选",
+    "category": "related",
+    "refs": [
+      "S75-04.png",
+      "S75-05.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/66-filter-type.png",
+        "sha256": "80c80089a714f5eb2f0c042c0f160c3d4fce340b2c06ae0e3bddcaa3a4fa970e"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/66-filter-type.png",
+        "sha256": "32d616e9e5390ea778c5215de40654c48f3eea525e2984e19eb342fce128d46d"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/66-filter-type.png",
+        "sha256": "d32576d42b045b41952694920a79373aedd388c43b0a3a03315579b923e7cf24"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S75-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430598825241",
+        "alt": "",
+        "sha256": "426a164ff8284425d52ff561f6f382c891d756b82fc005a26908eae56ada1017",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-04.png"
+      },
+      {
+        "file": "S75-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430605902489",
+        "alt": "",
+        "sha256": "12f35a11a6fe11b1c28c62564b34bd9c5142bcd48c0e24799c044a33e3f11fa0",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-05.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "67-filter-speaker",
+    "title": "说话人筛选",
+    "category": "related",
+    "refs": [
+      "S75-04.png",
+      "S75-05.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/67-filter-speaker.png",
+        "sha256": "542be7c0e652344b6272ecb059939929f659e09d41a30be09950d81d55539bae"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/67-filter-speaker.png",
+        "sha256": "8a591d604b7b8055a4a6aef5e7409daff1828d6ee397aa8e8298415aa6863c62"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/67-filter-speaker.png",
+        "sha256": "3fdb69ba521b8b6c43709c274bb284c14bb60c303b7790687a5906054e952451"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S75-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430598825241",
+        "alt": "",
+        "sha256": "426a164ff8284425d52ff561f6f382c891d756b82fc005a26908eae56ada1017",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-04.png"
+      },
+      {
+        "file": "S75-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430605902489",
+        "alt": "",
+        "sha256": "12f35a11a6fe11b1c28c62564b34bd9c5142bcd48c0e24799c044a33e3f11fa0",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-05.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "68-filter-date",
+    "title": "日期筛选",
+    "category": "related",
+    "refs": [
+      "S75-04.png",
+      "S75-05.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/68-filter-date.png",
+        "sha256": "b845bb22a57d051c6eab638cf1b8bc3b0a0e1ee45290c4add730906d1657dbdd"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/68-filter-date.png",
+        "sha256": "83e1aa1ac75752a21834bcdec765ca6045bf0830404c5b53c763886a111874a9"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/68-filter-date.png",
+        "sha256": "dd93daa782199ab7b7fd1f082f8838f24ec2d9eeb4c0e55f975c61a49a724e15"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S75-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430598825241",
+        "alt": "",
+        "sha256": "426a164ff8284425d52ff561f6f382c891d756b82fc005a26908eae56ada1017",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-04.png"
+      },
+      {
+        "file": "S75-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430605902489",
+        "alt": "",
+        "sha256": "12f35a11a6fe11b1c28c62564b34bd9c5142bcd48c0e24799c044a33e3f11fa0",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-05.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "69-search-filtered",
+    "title": "组合筛选结果",
+    "category": "related",
+    "refs": [
+      "S75-04.png",
+      "S75-05.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/69-search-filtered.png",
+        "sha256": "9ddf6e5008f5e31c90f85056bdbc898177cadedad95dd90a2307eb60a22c2238"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/69-search-filtered.png",
+        "sha256": "b579adc36f5c9abf827f15e6887d5180a3d4cc5cee7df740c0958e7e5089b78d"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/69-search-filtered.png",
+        "sha256": "a13534d40ab96dead601c216998dc51c63c4eaca0b872ddeacada4737288a0f4"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S75-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430598825241",
+        "alt": "",
+        "sha256": "426a164ff8284425d52ff561f6f382c891d756b82fc005a26908eae56ada1017",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-04.png"
+      },
+      {
+        "file": "S75-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430605902489",
+        "alt": "",
+        "sha256": "12f35a11a6fe11b1c28c62564b34bd9c5142bcd48c0e24799c044a33e3f11fa0",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-05.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "70-folder-expanded",
+    "title": "文件夹展开",
+    "category": "related",
+    "refs": [
+      "S44-02.png",
+      "S68-04.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/70-folder-expanded.png",
+        "sha256": "bb9d68a39ef0b6e8ba8b79b53d593ba93aeef0320a43d80430b655114f188a71"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/70-folder-expanded.png",
+        "sha256": "ec72ad283a714385c9cdc5969251b9cca8a85b4bd0d4fd41d9645a6933cfb5cf"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/70-folder-expanded.png",
+        "sha256": "7cea5836ae03055693ea843f58819b1c2cb4f707ea89a407ae5e31db3b35174f"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      },
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later",
+        "local_path": "references/S68-04.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "71-folder-selected",
+    "title": "文件夹选择",
+    "category": "related",
+    "refs": [
+      "S44-02.png",
+      "S68-04.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/71-folder-selected.png",
+        "sha256": "378ea20ebaa5f2ace7568b53e5aeabb524bf9cc74cec2d519a114d523139a0bf"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/71-folder-selected.png",
+        "sha256": "437b83066c6397eb6f00e62d54143e40185c7b254243dc5e21042627c9445a0c"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/71-folder-selected.png",
+        "sha256": "b013c1e7e61de73e0f74eb0837a755e561492a2f50e2de5cf16a36a01bae2639"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      },
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later",
+        "local_path": "references/S68-04.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "72-my-files-views",
+    "title": "My files 视图菜单",
+    "category": "related",
+    "refs": [
+      "S44-02.png",
+      "S68-04.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/72-my-files-views.png",
+        "sha256": "76563cff6be4e2aa7119e3e4156af5a5a7941cf30ba260e11b4042b5987db106"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/72-my-files-views.png",
+        "sha256": "b396621c8986981bd810881974e919bc0460d0a9193401fe4aa9b36d4d33fb2e"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/72-my-files-views.png",
+        "sha256": "92ff3e085bf32290a7860342a71c3e2fab1840854d3cdbe04af419b234656972"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S44-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430589603609",
+        "alt": "",
+        "sha256": "d45d521815010c4dc4c070fe2b0a785d19fece06533a2ca1c3c875386f776dc6",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429925205145-Understand-the-knowledge-base-for-v4-0-x-or-later",
+        "local_path": "references/S44-02.png"
+      },
+      {
+        "file": "S68-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430584991129",
+        "alt": "",
+        "sha256": "bed5f9f3565585794c64dc3b4274e6737a6953008b97d188fa05e1051d956f1e",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952705817-Delete-and-restore-recordings-for-v4-0-x-or-later",
+        "local_path": "references/S68-04.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "73-share-content",
+    "title": "分享内容选择",
+    "category": "related",
+    "refs": [
+      "S72-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/73-share-content.png",
+        "sha256": "dd50b584aeac37e859935c11847a76d6ccc6a2a7e9bfa0a24de714ac69960aed"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/73-share-content.png",
+        "sha256": "0d9b2635d024dc5b6aff9e2ad94e771e9a859b54f5f540c7f5068ce4e46c431b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/73-share-content.png",
+        "sha256": "e5c819336b2213051f3b88d5792f8aef1463f88463b7d7cd9a15fd7e963ad808"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S72-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430610693145",
+        "alt": "",
+        "sha256": "e4a88bd47ff45b482e0bd1ae3f304e8514213e2c8394ffd35ca4d68c0820ed69",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429954114585-Share-recordings-and-notes-for-v4-0-x-or-later",
+        "local_path": "references/S72-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "74-my-templates",
+    "title": "My templates",
+    "category": "related",
+    "refs": [
+      "S63-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/74-my-templates.png",
+        "sha256": "75bb4dd7d5e505cd3f2ced7645cb3dc55858dc8c3ea9406aa6e55085c2028e2d"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/74-my-templates.png",
+        "sha256": "ee4358a03274b7e3a38f074d38ca56cf27a0c5b0a4bd59d6fc6fc64907b77d41"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/74-my-templates.png",
+        "sha256": "3896fddff6924dccda3e7f6b9217f7eecbfdec601b613cee6d1b49680ada51aa"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S63-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430588876441",
+        "alt": "",
+        "sha256": "fd0d1a9f060e2ebdf06fbdc148ab0b4c99bbc8b836140ba9e19a3a4a7b4b04ff",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429951493401-Summary-templates-for-v4-0-x-or-later",
+        "local_path": "references/S63-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "75-template-search",
+    "title": "模板搜索",
+    "category": "related",
+    "refs": [
+      "S63-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/75-template-search.png",
+        "sha256": "7d2b50c57fe64e50ec4a435e9d9812674845fd53b17d4846c07a33f2a5256b26"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/75-template-search.png",
+        "sha256": "96497a6a62bd6332848f0d46b80d2e9ece52796da53c6bc956fc7a66865a4dcb"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/75-template-search.png",
+        "sha256": "12ac8d3c0f97095545ccae7798b1573841a19f7f4ceda1dab7dae1ef3b2b93a4"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S63-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430588876441",
+        "alt": "",
+        "sha256": "fd0d1a9f060e2ebdf06fbdc148ab0b4c99bbc8b836140ba9e19a3a4a7b4b04ff",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429951493401-Summary-templates-for-v4-0-x-or-later",
+        "local_path": "references/S63-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "76-theme",
+    "title": "主题",
+    "category": "related",
+    "refs": [
+      "S52-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/76-theme.png",
+        "sha256": "85c50ac26bc2815de2d4f264eb820c0ed648ca26bb36ec3a71505cf8ed704a72"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/76-theme.png",
+        "sha256": "1300cd9f8b56dd7ea830c7b46048fbc1f7da37b515ce8339c3abf527f635dbf3"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/76-theme.png",
+        "sha256": "989b7f71f616cb64f019e4b7cf6d100ec8ae1957d48791e84691d4eccfcbbb1e"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S52-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430544782233",
+        "alt": "",
+        "sha256": "3fd00fa4c7e181c806aef247519c87b01de84167edcc949d1547dfdc087ab2c2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later",
+        "local_path": "references/S52-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "77-notifications",
+    "title": "通知",
+    "category": "related",
+    "refs": [
+      "S52-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/77-notifications.png",
+        "sha256": "e73ef292a2865412a3b39c5eb5dc6aee8d46fb138c4bd269839914edb0a2fd2b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/77-notifications.png",
+        "sha256": "05b035e664632b7720fc371cf281f3031e37f8178c0d312691e0514e90eb3b09"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/77-notifications.png",
+        "sha256": "da6dc693e98e362d5936fd706f434569c3d65dc251e112e36b5e84494e9b8b09"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S52-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430544782233",
+        "alt": "",
+        "sha256": "3fd00fa4c7e181c806aef247519c87b01de84167edcc949d1547dfdc087ab2c2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later",
+        "local_path": "references/S52-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "78-account",
+    "title": "账号与安全",
+    "category": "related",
+    "refs": [
+      "S52-03.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/78-account.png",
+        "sha256": "3500266ae7d5922037a705a48c18792ed043d4cbf838e48db66ee63a855e488c"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/78-account.png",
+        "sha256": "2e9bd0582d6f83813c02de11417f0ac217586342c60c6a4edc65b6679e672bc1"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/78-account.png",
+        "sha256": "7529e8ce61017d30ca3120d4bdcb1d36bcd5b923a33984138bdaf69b4140e585"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S52-03.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430544782233",
+        "alt": "",
+        "sha256": "3fd00fa4c7e181c806aef247519c87b01de84167edcc949d1547dfdc087ab2c2",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later",
+        "local_path": "references/S52-03.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "79-transcription-preferences",
+    "title": "转写与摘要偏好",
+    "category": "related",
+    "refs": [
+      "S52-04.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/79-transcription-preferences.png",
+        "sha256": "dd8b5689f1a42dfe10cac0edc8fe1e3cc50967473657c766278a5b0404a1347b"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/79-transcription-preferences.png",
+        "sha256": "c1f013488d13923bc7170ca199458aa3f2cd512f528374e1e3e2074786fee94a"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/79-transcription-preferences.png",
+        "sha256": "d76c0bb99a68f0268e06879bab6554b0eccd4c7d2f15295833a2ea9f995663a6"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S52-04.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430529049369",
+        "alt": "",
+        "sha256": "f24221449adbc6f6fca014eca8b9ec2ef58542fe43307a2a4abb6ba233744cdf",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935417241-Transcription-for-v4-0-x-or-later",
+        "local_path": "references/S52-04.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "80-calendar-actions",
+    "title": "日历操作",
+    "category": "related",
+    "refs": [
+      "S64-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/80-calendar-actions.png",
+        "sha256": "b28de8f087c3c836fe5947eb8718f13bbb882548aed9aff6cec8b771acc8f89c"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/80-calendar-actions.png",
+        "sha256": "f9e3254ee9407f67c8020fbf33bcf5be849ec3812a8a67155f96b4a433522341"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/80-calendar-actions.png",
+        "sha256": "6df8bab3314e1ab0358483895fff8874fe53e6e2ea865c518070b93db7199323"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S64-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567740825",
+        "alt": "",
+        "sha256": "78ce467c380f9848e269f2147cd72c666c67ecb9a3fc00c4487a0315acb82d3d",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952262041-Calendar-events-link-recordings-to-your-meetings-for-v4-0-x-or-later",
+        "local_path": "references/S64-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "81-export-menu",
+    "title": "导出内容分类",
+    "category": "related",
+    "refs": [
+      "S35-02.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/81-export-menu.png",
+        "sha256": "e7ee83b2cb6e20df2e16d7d921f96d9b0a5a76f500c302f6ac8a10a41ab7a9bd"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/81-export-menu.png",
+        "sha256": "1c5007b86f180320da39b9f78bf1e481d4f0046401698ace48fc8031bf1df9ca"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/81-export-menu.png",
+        "sha256": "664988a17c548d106cf5630eb642cbc659f704e0cda796da060c0dfa5a77f2d0"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S35-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430655101337",
+        "alt": "",
+        "sha256": "bbcd0a0af04aa2ec9bcb241bd33d8ee688679e5037bcdceff79de2d6f6c6dbc1",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429911054617-Export-transcripts-notes-and-audio-for-v4-0-x-or-later",
+        "local_path": "references/S35-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "82-search-sort",
+    "title": "搜索排序",
+    "category": "related",
+    "refs": [
+      "S75-05.png"
+    ],
+    "reason": "未找到同状态整页原图，仅使用列出的相邻页面/共用控件作依据。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核三种显示条件；按相邻页面和统一控件延伸，本状态为推定。",
+    "retained_differences": [],
+    "reference_classification": "相关页面参考",
+    "inferred_state": true,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/82-search-sort.png",
+        "sha256": "f18152bc825e1ecab10ecd29447aba3c8af1fe7dd2dc61d45c1eff66fd105b06"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/82-search-sort.png",
+        "sha256": "4cb0f0b49918f5e9dda0c24a94480728281ff9580d396b61a4859aa011e55f24"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/82-search-sort.png",
+        "sha256": "4c0b4ca521e09810b3ba40fd027f5d76884fd5a38bffbe8ae9d4822900fdcfa2"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S75-05.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430605902489",
+        "alt": "",
+        "sha256": "12f35a11a6fe11b1c28c62564b34bd9c5142bcd48c0e24799c044a33e3f11fa0",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429967290009-Search-sort-and-organize-your-files-for-v4-0-x-or-later",
+        "local_path": "references/S75-05.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "83-audio-settings",
+    "title": "音频设置",
+    "category": "same",
+    "refs": [
+      "S41-02.png"
+    ],
+    "reason": "同为 Audio settings；本期只保留已实现速度，省略 AI speech enhancement 并收拢空间。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [
+      "省略尚未实现的 AI enhancement，仅保留可操作的播放速度。"
+    ],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/83-audio-settings.png",
+        "sha256": "797826840c1e890ed6802c62c741cafe93ca7636b0d1d1e7885f076eb67f48c6"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/83-audio-settings.png",
+        "sha256": "dcd2cde7520af707182a68d317a56267d69486ddc96d951f9664661c293e763b"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/83-audio-settings.png",
+        "sha256": "d75c5029b3b6bb18da1d477c1cb25e483fba37ca91cb4a29a275b7afbae9131f"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S41-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63666686936473",
+        "alt": "",
+        "sha256": "69cdaf5151e8fe53afe2f63aa113f700134a53ad93e3ca294957a64ca26c1683",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429920002201-Play-back-audio-for-v4-0-x-or-later",
+        "local_path": "references/S41-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "84-transcript-menu",
+    "title": "转写段落菜单",
+    "category": "same",
+    "refs": [
+      "S55-02.png"
+    ],
+    "reason": "官方同页同状态；品牌、样例资料、系统栏和已批准省略的功能单独说明。",
+    "change": "通过实际导航取得本状态；继承对应模块控件，新增行为单独验证。",
+    "visual_status": "已逐图复核浅色、深色和大字号；共有区域结构已对齐，具体尺寸边界见测量表。",
+    "retained_differences": [],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/84-transcript-menu.png",
+        "sha256": "056fc41d11e1874979d8a1d1e85409b1d7a1de17e032b274e7aa5621db8fc23e"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/84-transcript-menu.png",
+        "sha256": "44c287a88d146e00b1c7a8adac9c3c74703b41018a1baca38677c492a95f504f"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/84-transcript-menu.png",
+        "sha256": "08fc02e14242ce9a8491ad65a06911ba6eaf138dfe80b93b91dd65e56518cd73"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S55-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430582388121",
+        "alt": "",
+        "sha256": "4aedc38ff704cbb0ad2e0233e95a6a8b56ed0a5027a1c0e23c81d8ffc5fedb77",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429935915801-Edit-a-transcript-for-v4-0-x-or-later",
+        "local_path": "references/S55-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  },
+  {
+    "id": "85-calendar-events",
+    "title": "日历事件分组",
+    "category": "same",
+    "refs": [
+      "S64-02.png"
+    ],
+    "reason": "官方同页事件日历，样例日期与事件内容不同。",
+    "change": "月份、周日期、Today、按本地日期分组的事件卡片；通过首页日历入口取得。",
+    "visual_status": "已复核浅色、深色和大字号；事件卡片使用真实应用导航与合成资料。",
+    "retained_differences": [
+      "连接手机日历、导入 ICS 和新增事件收进更多菜单。"
+    ],
+    "reference_classification": "同页同状态",
+    "inferred_state": false,
+    "variants": [
+      {
+        "name": "light",
+        "screenshot": "screenshots/android/light/85-calendar-events.png",
+        "sha256": "4adb8f5941b5d52b2862cd97c92d1486fbfff872198522915b519dfb1be02dfa"
+      },
+      {
+        "name": "dark",
+        "screenshot": "screenshots/android/dark/85-calendar-events.png",
+        "sha256": "2f29043cd0b8ad98417928b65e3fa8ffc7a69a6ee7eaff0010abaa62490b2ce7"
+      },
+      {
+        "name": "large",
+        "screenshot": "screenshots/android/large/85-calendar-events.png",
+        "sha256": "637c9f78e8a3521ca3cd977f57ad3f1f6d755ec88beecc4c40696bf46041cc30"
+      }
+    ],
+    "official_sources": [
+      {
+        "file": "S64-02.png",
+        "url": "https://support.plaud.ai/hc/article_attachments/63430567740825",
+        "alt": "",
+        "sha256": "78ce467c380f9848e269f2147cd72c666c67ecb9a3fc00c4487a0315acb82d3d",
+        "article": "https://support.plaud.ai/hc/en-us/articles/63429952262041-Calendar-events-link-recordings-to-your-meetings-for-v4-0-x-or-later",
+        "local_path": "references/S64-02.png"
+      }
+    ],
+    "evidence": "Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified."
+  }
+]

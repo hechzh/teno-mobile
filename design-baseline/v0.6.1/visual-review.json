@@ -1,0 +1,16 @@
+{
+  "version": "0.6.1",
+  "reviewed_states": 80,
+  "variants": [
+    "light",
+    "dark",
+    "large"
+  ],
+  "independent_screenshots": 240,
+  "navigation": "PersonalHome actual navigation; signed-out login",
+  "visual_review": "all independent states visually inspected in three conditions; six benchmarks compared at equal width",
+  "measured_anchors": 18,
+  "pixel_perfect_all_states": false,
+  "physical_device_tested": false,
+  "reference_base": "official PLAUD 4.x help images; iOS system bars excluded"
+}

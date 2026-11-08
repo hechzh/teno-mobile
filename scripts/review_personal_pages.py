@@ -1,96 +1,44 @@
-"""Independent 0.6.0 pages, original-source links, changes and current captures."""
-import hashlib,html,json,re
+"""Create a versioned review with explicit, independently reviewed references."""
+import argparse, hashlib, html, json, re, shutil
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'design-baseline/v0.6.0';REFERENCE=ROOT.parent/'design-review/plaud-rebuild/20261104'
-references={p['id']:p for p in json.loads((REFERENCE/'page-manifest.json').read_text(encoding='utf-8'))}
-sources=json.loads((REFERENCE/'evidence/sources.json').read_text(encoding='utf-8'))
-images={im['file']:{**im,'article':source['url']} for source in sources for im in source.get('images',[])}
-mapping={'01':'01','02':'02','03':'03','04':'04','05':'05','06':'06','07':'07','09':'09','10':'10',
-    '14':'14','15':'15','17':'25','18':'18','19':'19','20':'31','21':'21','22':'22','23':'23','24':'24',
-    '26':'26','27':'27','28':'28','29':'04','30':'32','31':'26','32':'32','33':'32','34':None,'35':'29','36':'29','37':'22','38':'27',
-    '39':'01','40':'04','41':'04','42':'01','43':'06','44':'33','45':'33','46':'33','47':'33','48':'14',
-    '49':'15','50':'16','51':None,'52':'15','53':'13','54':'14','55':'23','56':'28','57':None,'58':None,
-    '59':'26','60':'26','61':'32','62':'30','63':'01','64':'27'}
-changes={
- '01':'恢复 Upcoming、日期分组、排序入口和底部 Ask；本机未上传文件单独标明状态。',
- '02':'侧栏分组与选中样式对齐；品牌为 Teno / Ask Teno，本期不显示 Work、会员和团队。',
- '03':'新增菜单包含设备录音、导入和新 Chat；手机录音保留次级入口。',
- '04':'系统目录、嵌套文件夹、排序、批量移动/删除/恢复和拖拽归档。',
- '06':'解析旧 recording + matches 契约；新检索覆盖笔记、文件夹、文档和说话人，支持高亮和匹配定位。',
- '07':'展示真实 JWD 服务核实、连接、电量、录音与传输状态；使用 Teno/JWD 通用设备图标。',
- '09':'保留暂停/停止、文字与时间高亮，并增加录音照片；设备断连不声称已停止。',
- '14':'补 New note、多笔记列表、封面、独立编辑与版本；旧摘要保留并投射到新界面。',
- '15':'真实波形、章节、跟随播放和前后跳转；原稿/编辑稿/清理稿分开，姓名按录音版本保存。',
- '17':'Teno 自有推荐模板、分类/搜索、收藏/最近使用和自建编辑；不伪造官方社区内容。',
- '19':'Chat 支持录音、笔记、文件夹和文档上下文；语音识别结果先显示为可编辑文字。',
- '21':'设置分组包含通知、主题、缓存和默认关闭的系统凭据应用锁。',
- '22':'Cloud processing 缺省开启，显式 false 保留；不因首次录音设置而阻止自动处理，不补传历史未申请文件。',
- '23':'按内容/格式/选项导出真实 MP3/WAV/TXT/MD/SRT/DOCX/PDF/JSON；时间、姓名、标记和封面可选。',
- '26':'From Files / From Photos / From other apps；多文件先完整保存，再按账号设置进入持久队列。',
- '27':'用户显式创建固定版本链接；默认仅摘要、7天、不带音频，支持撤销，来源删除后失效。',
- '28':'手机日历、手动和 ICS 导入；可关联录音，不接入第三方 OAuth。',
- '32':'独立文字笔记与引用来源；编辑/重新生成保存为修订，原版本保留。',
- '34':'服务端本地提取/OCR，保存页码与来源；Word 渲染后定位实际页，损坏/加密/超限明确报错。',
- '35':'完整本机副本、手动/批量上传和状态；失败保留原文件及稳定 client_id。',
- '37':'查看本机副本与缓存用量；清缓存不删除录音原文件。',
- '39':'空态保持原页面结构，提供已实现的录音和导入路径。',
- '41':'连接失败仍可访问本机文件，显示原因和重试。',
- '43':'结果高亮，录音定位时间、文档定位页码，笔记打开对应内容。',
- '45':'多选管理；合并只对多条录音开放，生成新记录并保留原文件。',
- '49':'手动命名限定当前录音和转写版本；重新转写后重新核对，不跨录音猜身份。',
- '50':'查找替换保存编辑修订，原始 ASR 内容完整保留。',
- '51':'按秒选取裁剪范围，异步生成新录音；合并同样保留原始文件。',
- '54':'独立笔记版本可追溯；重新生成保留原文和原摘要。',
- '56':'系统权限拒绝时明确提示，可使用手动/ICS 日历路径。',
- '57':'解析失败显示原因并保留原文件，可重试。',
- '59':'外部分享先暂存，用户登录后明确接受到当前账号。',
- '61':'长标题可编辑；系统键盘区域下保留保存入口。',
- '62':'转写/摘要失败停止无限等待，提供原因与重试；静音文件保留音频。',
-}
-css='body{font:16px/1.65 system-ui;background:#f7f8f9;color:#191c1f;margin:0}main{max-width:1000px;margin:auto;padding:28px}article{padding:20px;border:1px solid #ddd;background:white;border-radius:12px}nav{display:flex;gap:20px;flex-wrap:wrap}button,select{padding:10px 15px;margin:6px;border:1px solid #ccc;border-radius:8px;background:white;cursor:pointer}img{display:block;max-width:min(440px,100%);height:auto;margin:20px auto;border:1px solid #ddd}a{color:#245987}small{color:#626a70}li{margin:8px 0}'
-pages=OUT/'pages';pages.mkdir(parents=True,exist_ok=True);records=[]
-files=sorted((OUT/'screenshots/android/light').glob('*.png'))
-for index,file in enumerate(files):
-    key=file.stem;code=key[:2];ref_id=mapping.get(code);ref=references.get(ref_id);variants=[]
+ROOT=Path(__file__).resolve().parents[1]
+p=argparse.ArgumentParser();p.add_argument('--version');p.add_argument('--references',type=Path,default=ROOT.parent/'design-review/plaud-rebuild/20261104');a=p.parse_args()
+version=a.version or re.search(r"versionName\s+['\"]([^'\"]+)",(ROOT/'app/build.gradle').read_text(encoding='utf-8'))[1]
+assert re.fullmatch(r'\d+\.\d+\.\d+',version)
+out=ROOT/f'design-baseline/v{version}'
+def read(path):return json.loads(path.read_text(encoding='utf-8'))
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+def esc(value):return html.escape(str(value),quote=True)
+mapping=read(out/'reference-map.json')
+images={im['file']:{**im,'article':s['url']} for s in read(a.references/'evidence/sources.json') for im in s.get('images',[])}
+labels={'same':'同页同状态','related':'相关页面参考','missing':'缺少原图'}
+css='''*{box-sizing:border-box}body{font:15px/1.65 system-ui;background:#f6f7f8;color:#20242a;margin:0}main{max-width:1180px;margin:auto;padding:24px}h1{font-size:25px}nav,.controls{display:flex;gap:12px;flex-wrap:wrap}a{color:#2462a0}article{border:1px solid #dde1e5;border-radius:12px;padding:18px;background:white;margin:18px 0}button,select,input{font:inherit;padding:8px 12px;border:1px solid #c9cdd1;border-radius:8px;background:white}button{cursor:pointer}.muted{color:#60666e}.screens{display:flex;gap:20px;overflow:auto;padding:16px 0;align-items:flex-start}.screens figure{margin:0;flex:0 0 390px}.screens img{width:390px;height:auto;border:1px solid #ddd;display:block}.screens figcaption{margin-bottom:8px}li{margin:8px 0}.badge{font-size:12px;padding:3px 8px;background:#e9edf1;border-radius:5px}'''
+def document(title,body):return f'<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)}</title><style>{css}</style><main>{body}</main></html>'
+(out/'pages').mkdir(exist_ok=True);(out/'references').mkdir(exist_ok=True)
+records=[]
+for i,row in enumerate(mapping):
+    key=row['id'];variants=[];official=[]
     for mode in ('light','dark','large'):
-        shot=OUT/'screenshots/android'/mode/file.name;assert shot.is_file(),shot
-        variants.append({'name':mode,'screenshot':shot.relative_to(OUT).as_posix(),'sha256':hashlib.sha256(shot.read_bytes()).hexdigest()})
-    original=[images[n] for n in (ref['refs'] if ref else []) if n in images]
-    inferred=not ref or bool(ref.get('proposed')) or int(code)>=34
-    note=changes.get(code,changes.get(ref_id,'沿用对应核心页面布局，并补齐本状态的操作与错误反馈。'))
-    record={'id':key,'title':key[3:].replace('-',' ').title(),'reference_id':ref_id,'official_sources':original,
-        'inferred_state':inferred,'change':note,'variants':variants,'evidence':'Current Flutter code rendered with synthetic data; no physical-device claim.',
-        'acceptance':'Current Android analysis/layout/interaction regression passed; physical Magic4 Pro/JWD pending.'}
+        file=out/'screenshots/android'/mode/(key+'.png');assert file.is_file(),file
+        variants.append({'name':mode,'screenshot':file.relative_to(out).as_posix(),'sha256':sha(file)})
+    for name in row['refs']:
+        original=a.references/'evidence'/name;assert original.is_file(),original
+        destination=out/'references'/name;shutil.copyfile(original,destination)
+        official.append({**images[name],'local_path':destination.relative_to(out).as_posix(),'sha256':sha(original)})
+    record={**row,'reference_classification':labels[row['category']],'inferred_state':row['category']!='same','variants':variants,'official_sources':official,
+      'evidence':'Current Flutter code with synthetic data; application navigation from Home, signed-out Login. Physical devices remain unverified.'}
     records.append(record)
-    previous=files[index-1].stem;next_id=files[(index+1)%len(files)].stem
-    reference_html=''.join(f'<option value="{html.escape(v["url"],quote=True)}">官方原图 {i+1}</option>' for i,v in enumerate(original))
-    source_html='、'.join(f'<a href="{html.escape(v["article"],quote=True)}">官方帮助文档</a>' for v in original)
-    page=f'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teno0.6.0 · {key}</title><style>{css}</style><main><nav><a href="../index.html">全部页面</a><a href="{previous}.html">上一页</a><a href="{next_id}.html">下一页</a></nav><h1>{html.escape(record['title'])}</h1><article><strong>官方原图 → 当前页面 → 改动 → 验收</strong><p>{html.escape(note)}</p><p>{'本状态含设计推定；官方资料用于周边布局依据，未取得同状态整页原图。' if inferred else '有对应的官方4.x帮助截图依据；原图中的iOS系统栏不作为Android系统栏模板。'}</p><small>当前图片来自本轮Flutter页面代码和合成资料，并非真机/真实JWD验收。官方截图不等于已运行原版APK。{source_html}</small></article><p>{''.join(f'<button onclick="show(\'../{v["screenshot"]}\',\'{v["name"]}\')">{v["name"]}</button>' for v in variants)}<select onchange="show(this.value,\'官方原图\')"><option value="">选择官方原图</option>{reference_html}</select></p><p id="label">Teno · light</p><img id="screen" src="../{variants[0]['screenshot']}" alt="{html.escape(record['title'])}"><script>function show(path,label){{if(!path)return;document.getElementById('screen').src=path;document.getElementById('label').textContent=label}}</script><p>验收：{record['acceptance']}</p></main></html>'''
-    (pages/(key+'.html')).write_text(page,encoding='utf-8')
-(OUT/'pages.json').write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding='utf-8')
-intro='Teno0.6.0 · Android逐页差异与验收'
-index=f'<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{intro}</title><style>{css}</style><main><h1>{intro}</h1><article>本轮共{len(records)}个独立页面/状态，每页有浅色、深色和360dp/1.5倍字号截图。逐页可切换官方原图。PLAUD依据为官方4.x帮助资料；缺图状态标明推定。真实Android系统选择器另见本轮原生验收；Magic4 Pro/JWD实机待验收。<p><a href="differences-and-acceptance.txt">独立差异与验收文档</a> · <a href="../index.html">0.5.0历史稿</a></p></article><ol>'+''.join(f'<li><a href="pages/{r["id"]}.html">{r["id"]}</a> {"（含推定）" if r["inferred_state"] else ""}</li>' for r in records)+'</ol></main></html>'
-native=OUT/'native-pages.json'
-if native.is_file():
-    native_rows=json.loads(native.read_text(encoding='utf-8'))
-    native_links='<article><strong>本轮原生模拟器截图</strong><ul>'+''.join('<li><a href="'+html.escape(r['path'],quote=True)+'">'+html.escape(r['id'])+'</a></li>' for r in native_rows)+'</ul><small>实际API35模拟器画面；合成账号；不等于Magic4 Pro或JWD实机验收。</small></article>'
-    index=index.replace('<ol>',native_links+'<ol>',1)
-(OUT/'index.html').write_text(index,encoding='utf-8')
-test_log=(ROOT/'verification/v0.6.0/android-checks.log').read_text(encoding='utf-8',errors='replace')
-test_count=int(re.search(r'\+(\d+):[^\n]*All tests passed!',test_log)[1])
-lines=[intro,'','版本：Android0.6.0 / versionCode11；共享后端1.4.0 / 增量迁移007。',
-    '范围：本轮个人核心。JWD、Automatic、Azure/DeepSeek、账号隔离和完整本机保留沿用。',
-    '保留差异：音视频120分钟/250MiB；无本人声纹、Agent、Work、Tasks、Skills、Routines、Connectors、支付、团队或第三方登录。',
-    '证据边界：Flutter测试截图使用合成资料。官方截图含iOS系统栏；Android系统栏/键盘/选择器按系统规范。缺少对应原图的状态明确标为推定，不称像素级复刻或原版运行验收。',
-    f'验证：本轮Android分析和{test_count}项Flutter回归通过；后端198项隔离回归、34张旧业务表迁移前后哈希、旧端11项/新端16项恢复库兼容、21项正式HTTPS检查通过。',
-    '真实供应商：75.263秒中英合成语音、2个返回说话人标签、18项检查、4条Usage；结果在隔离恢复库，非客户录音质量/实机验证。',
-    '边界：120分钟分段和完整时间轴已做合成/隔离验证；未进行接近120分钟的付费供应商调用。Magic4 Pro和真实JWD仍待人工验收。',
-    'Cloud processing：未配置默认开启，明确关闭保持；先完整保存再排队。Wi-Fi限制和重启恢复沿用持久队列；旧未申请文件不自动补传。',
-    '文档/OCR：本地处理，Word渲染页码；200页/10分钟/一百万提取字符保护，超过限制明确报错并保留原文件。',
-    '交付不自动提升0.5.0已确认基线，不合并main，不发布应用商店，本轮不构建iOS。','']
-for r in records:
-    lines += [r['id']+' · '+r['title'], '原图：'+('；'.join(v['article'] for v in r['official_sources']) or '无同页官方原图，按已确认范围推定'),
-        '改动：'+r['change'],'状态：'+('含推定；' if r['inferred_state'] else '')+r['acceptance'],
-        '截图：'+', '.join(v['screenshot'] for v in r['variants']),'']
-(OUT/'differences-and-acceptance.txt').write_text('\n'.join(lines),encoding='utf-8')
-print(json.dumps({'pages':len(records),'screenshots':sum(len(v['variants']) for v in records),'inferred_states':sum(v['inferred_state'] for v in records)}))
+    prev=mapping[i-1]['id'];nxt=mapping[(i+1)%len(mapping)]['id']
+    options=''.join(f'<option value="../{esc(v["local_path"])}">{esc(v["file"])}</option>' for v in official)
+    compare=f'<figure id="reference"><figcaption>PLAUD 4.x · {esc(labels[row["category"]])}</figcaption><img id="original" src="../{official[0]["local_path"]}"></figure>' if official else ''
+    citations=' · '.join(f'<a href="{esc(v["article"])}">{esc(v["file"])} 官方文档</a>' for v in official)
+    differences='；'.join(row.get('retained_differences',[])) or 'Teno / Ask Teno 品牌、样例数据及 Android 系统行为按本项目保留。'
+    body=f'''<nav><a href="../index.html">全部状态</a><a href="{prev}.html">上一状态</a><a href="{nxt}.html">下一状态</a></nav><h1>{esc(key)} · {esc(row['title'])}</h1><article><b>{esc(labels[row['category']])}</b><p>{esc(row['reason'])}</p><p>{esc(row['change'])}</p><p>保留差异：{esc(differences)}</p><p>视觉记录：{esc(row['visual_status'])}</p><small class="muted">{citations}。官方图含 iOS 系统栏，不是原版 APK 运行实录；当前截图使用合成资料。</small></article><div class="controls">{''.join(f'<button onclick="mode(\'{v["name"]}\')">{v["name"]}</button>' for v in variants)}<select onchange="document.querySelector('#original').src=this.value">{options}</select><label><input type="checkbox" checked onchange="document.querySelector('#reference')?.toggleAttribute('hidden',!this.checked)">显示同宽参考</label></div><div class="screens"><figure><figcaption id="label">Teno {version} · light</figcaption><img id="current" src="../{variants[0]['screenshot']}"></figure>{compare}</div><p class="muted">正常截图按 390dp 等显示宽度比较；large 原布局宽 360dp／1.5 倍字体。系统栏、教学蓝框和样例资料不纳入几何结论。相关/缺图状态不称已还原。</p><script>function mode(m){{document.querySelector('#current').src='../screenshots/android/'+m+'/{key}.png';document.querySelector('#label').textContent='Teno {version} · '+m}}</script>'''
+    (out/'pages'/(key+'.html')).write_text(document(f'Teno {version} · '+row['title'],body),encoding='utf-8')
+(out/'pages.json').write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding='utf-8')
+native=read(out/'native-pages.json') if (out/'native-pages.json').exists() else []
+native_html='<ul>'+''.join(f'<li><a href="{esc(v["path"])}">{esc(v["id"])}</a></li>' for v in native)+'</ul>' if native else '<p>原生系统截图尚未生成。</p>'
+counts={label:sum(v['category']==key for v in records) for key,label in labels.items()}
+body=f'''<h1>Teno Android {version} · 逐页对照与验收</h1><article><p>{len(records)} 个独立状态，浅色／深色／360dp 与 1.5 倍字号，共 {len(records)*3} 张测试截图。</p><p>{esc('；'.join(k+' '+str(v) for k,v in counts.items()))}。参考分类与视觉验收分开，缺图明确推定。</p><nav><a href="differences-and-acceptance.txt">已对齐、差异、推定与待实机清单</a><a href="measurements.html">六个基准页面的几何校准</a><a href="../../RELEASE-{version}.txt">版本验证与安装</a><a href="../v0.6.0/index.html">保留的 0.6.0 证据</a></nav></article><article><b>本轮 Android 模拟器系统画面</b>{native_html}<p class="muted">真实 API35 模拟器截图；不等于 Magic4 Pro / JWD 硬件验收。</p></article><input type="search" placeholder="查找页面或状态" oninput="for(const li of document.querySelectorAll('li[data-key]'))li.hidden=!li.textContent.toLowerCase().includes(this.value.toLowerCase())"><ol>{''.join(f'<li data-key="{r["id"]}"><a href="pages/{r["id"]}.html">{r["id"]} · {esc(r["title"])}</a> <span class="badge">{esc(r["reference_classification"])}</span></li>' for r in records)}</ol>'''
+(out/'index.html').write_text(document(f'Teno {version} · 逐页对照',body),encoding='utf-8')
+print(json.dumps({'version':version,'states':len(records),'screenshots':len(records)*3,'reference_categories':counts},ensure_ascii=False))

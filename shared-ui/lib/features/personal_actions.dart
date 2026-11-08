@@ -69,22 +69,86 @@ Future<void> personalExport(
   TenoModel model,
   Json item, {
   String? noteId,
-}) => push(context, PersonalExportPage(model, item, noteId: noteId));
+}) async {
+  String content = 'note';
+  if (item['type'] == 'recording') {
+    final value = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        MediaQuery.sizeOf(context).width - 240,
+        88,
+        16,
+        0,
+      ),
+      items: [
+        for (final v in [
+          ('audio', 'Audio'),
+          ('transcript', 'Transcript'),
+          ('note', 'Summary'),
+        ])
+          PopupMenuItem(
+            value: v.$1,
+            child: Row(
+              children: [
+                Expanded(child: Text(v.$2)),
+                const Icon(Icons.chevron_right, size: 18),
+              ],
+            ),
+          ),
+      ],
+    );
+    if (value == null || !context.mounted) return;
+    content = value;
+  }
+  await showCoreSheet<void>(
+    context,
+    PersonalExportPage(
+      model,
+      item,
+      noteId: noteId,
+      initialContent: content,
+      sheet: true,
+    ),
+    height: 560,
+  );
+}
+
+Future<void> personalShare(
+  BuildContext context,
+  TenoModel model,
+  Json item, {
+  String? noteId,
+}) async {
+  await showCoreSheet<void>(
+    context,
+    PersonalSharePage(model, item, noteId: noteId, sheet: true),
+    height: MediaQuery.sizeOf(context).height - 64,
+    edgeToEdge: true,
+  );
+}
 
 class PersonalExportPage extends StatefulWidget {
-  const PersonalExportPage(this.model, this.item, {super.key, this.noteId});
+  const PersonalExportPage(
+    this.model,
+    this.item, {
+    super.key,
+    this.noteId,
+    this.initialContent,
+    this.sheet = false,
+  });
   final TenoModel model;
   final Json item;
-  final String? noteId;
+  final String? noteId, initialContent;
+  final bool sheet;
   @override
   State<PersonalExportPage> createState() => _PersonalExportPageState();
 }
 
 class _PersonalExportPageState extends State<PersonalExportPage> {
-  late String content = widget.item['type'] == 'recording'
-      ? 'transcript'
-      : 'note';
-  String format = 'txt';
+  late String content =
+      widget.initialContent ??
+      (widget.item['type'] == 'recording' ? 'transcript' : 'note');
+  late String format = content == 'audio' ? 'mp3' : 'txt';
   bool timestamps = true, speakers = true, highlights = false, cover = true;
   @override
   Widget build(BuildContext context) {
@@ -95,6 +159,7 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
         : ['txt', 'md', 'docx', 'pdf', 'json'];
     return CoreFrame(
       title: 'Export as',
+      sheet: widget.sheet,
       bottom: FilledButton(
         onPressed: () => perform(context, () async {
           final path =
@@ -110,8 +175,18 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          heading('Content'),
-          if (widget.item['type'] == 'recording')
+          if (widget.initialContent != null)
+            Text(
+              {
+                'audio': 'Audio',
+                'transcript': 'Transcript',
+                'note': 'Summary',
+              }[content]!,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+          if (widget.initialContent == null) heading('Content'),
+          if (widget.item['type'] == 'recording' &&
+              widget.initialContent == null)
             RadioGroup<String>(
               groupValue: content,
               onChanged: (v) => setState(() {
@@ -134,7 +209,7 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
                 ],
               ),
             )
-          else
+          else if (widget.initialContent == null)
             Text(text(widget.item['title'])),
           heading('Format'),
           Wrap(
@@ -149,23 +224,31 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
             ],
           ),
           if (format == 'json')
-            const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Text('JSON includes the complete structured content and source references.')),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                'JSON includes the complete structured content and source references.',
+              ),
+            ),
           if (content == 'transcript' && format != 'json') ...[
             SwitchListTile(
               title: const Text('Timestamps'),
               value: format == 'srt' || timestamps,
-              onChanged: format == 'srt' ? null : (v) => setState(() => timestamps = v),
+              onChanged: format == 'srt'
+                  ? null
+                  : (v) => setState(() => timestamps = v),
             ),
             SwitchListTile(
               title: const Text('Speaker labels'),
               value: speakers,
               onChanged: (v) => setState(() => speakers = v),
             ),
-            if (format != 'srt') SwitchListTile(
-              title: const Text('Highlights'),
-              value: highlights,
-              onChanged: (v) => setState(() => highlights = v),
-            ),
+            if (format != 'srt')
+              SwitchListTile(
+                title: const Text('Highlights'),
+                value: highlights,
+                onChanged: (v) => setState(() => highlights = v),
+              ),
           ],
           if (content == 'note' && format != 'json')
             SwitchListTile(
@@ -180,10 +263,17 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
 }
 
 class PersonalSharePage extends StatefulWidget {
-  const PersonalSharePage(this.model, this.item, {super.key, this.noteId});
+  const PersonalSharePage(
+    this.model,
+    this.item, {
+    super.key,
+    this.noteId,
+    this.sheet = false,
+  });
   final TenoModel model;
   final Json item;
   final String? noteId;
+  final bool sheet;
   @override
   State<PersonalSharePage> createState() => _PersonalSharePageState();
 }
@@ -191,87 +281,289 @@ class PersonalSharePage extends StatefulWidget {
 class _PersonalSharePageState extends State<PersonalSharePage> {
   bool summary = true, transcript = false, audio = false, busy = false;
   int days = 7;
-  String url = '';
+  String url = '', error = '';
+  late Json preview = widget.item;
   @override
-  Widget build(BuildContext context) => CoreFrame(
-    title: 'Share',
-    bottom: FilledButton(
-      onPressed: busy
-          ? null
-          : () => perform(context, () async {
-              if (url.isNotEmpty) {
-                await widget.model.host.shareText(url);
-                return;
-              }
-              setState(() => busy = true);
-              try {
-                final value = await widget.model.api('POST', '/api/v1/shares', {
-                  'source': {
-                    'type': widget.item['type'],
-                    'id': widget.item['id'],
-                  },
-                  if (widget.noteId != null) 'note_id': widget.noteId,
-                  'include_summary': summary,
-                  'include_transcript': transcript,
-                  'include_audio': audio,
-                  'days': days,
-                });
-                if (mounted) setState(() => url = text(value['url']));
-              } finally {
-                if (mounted) setState(() => busy = false);
-              }
-            }),
-      child: Text(
-        busy
-            ? 'Creating link…'
-            : url.isEmpty
-            ? 'Create link'
-            : 'Share link',
+  void initState() {
+    super.initState();
+    unawaited(loadPreview());
+  }
+
+  Future<void> loadPreview() async {
+    try {
+      final type = widget.item['type'];
+      final value = await widget.model.api(
+        'GET',
+        '/api/v1/${type == 'recording'
+            ? 'recordings'
+            : type == 'note'
+            ? 'notes'
+            : 'files'}/${widget.item['id']}',
+      );
+      if (mounted) setState(() => preview = {...widget.item, ...value});
+    } catch (e) {
+      if (mounted) setState(() => error = TenoModel.friendly(e));
+    }
+  }
+
+  Future<void> chooseContent() async {
+    var draftSummary = summary,
+        draftTranscript = transcript,
+        draftAudio = audio;
+    final result = await showCoreSheet<Json>(
+      context,
+      StatefulBuilder(
+        builder: (sheet, change) => CoreFrame(
+          title: 'Choose content',
+          sheet: true,
+          bottom: FilledButton(
+            onPressed: !draftSummary && !draftTranscript && !draftAudio
+                ? null
+                : () => Navigator.pop(sheet, {
+                    'summary': draftSummary,
+                    'transcript': draftTranscript,
+                    'audio': draftAudio,
+                  }),
+            child: const Text('Done'),
+          ),
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.trailing,
+                title: Text(
+                  widget.item['type'] == 'recording' ? 'Summary' : 'Content',
+                ),
+                value: draftSummary,
+                onChanged: (v) => change(() => draftSummary = v!),
+              ),
+              if (widget.item['type'] == 'recording') ...[
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  title: const Text('Transcript'),
+                  value: draftTranscript,
+                  onChanged: (v) => change(() => draftTranscript = v!),
+                ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  title: const Text('Audio'),
+                  value: draftAudio,
+                  onChanged: (v) => change(() => draftAudio = v!),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
-    ),
-    child: ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        heading('Anyone with the link can view'),
-        const Text(
-          'The link shares a fixed version. You can revoke it in Settings.',
-        ),
-        SwitchListTile(
-          title: const Text('Summary'),
-          value: summary,
-          onChanged: url.isEmpty ? (v) => setState(() => summary = v) : null,
-        ),
-        if (widget.item['type'] == 'recording') ...[
-          SwitchListTile(
-            title: const Text('Transcript'),
-            value: transcript,
-            onChanged: url.isEmpty
-                ? (v) => setState(() => transcript = v)
+      height: 410,
+    );
+    if (result != null && mounted)
+      setState(() {
+        summary = result['summary'] == true;
+        transcript = result['transcript'] == true;
+        audio = result['audio'] == true;
+      });
+  }
+
+  Future<void> share() => perform(context, () async {
+    if (url.isNotEmpty) {
+      await widget.model.host.shareText(url);
+      return;
+    }
+    setState(() => busy = true);
+    try {
+      final value = await widget.model.api('POST', '/api/v1/shares', {
+        'source': {'type': widget.item['type'], 'id': widget.item['id']},
+        if (widget.noteId != null) 'note_id': widget.noteId,
+        'include_summary': summary,
+        'include_transcript': transcript,
+        'include_audio': audio,
+        'days': days,
+      });
+      if (mounted) setState(() => url = text(value['url']));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final contents = [
+      if (summary) widget.item['type'] == 'recording' ? 'Summary' : 'Content',
+      if (transcript) 'Transcript',
+      if (audio) 'Audio',
+    ];
+    return CoreFrame(
+      title: 'Share',
+      sheet: widget.sheet,
+      sheetDone: widget.sheet,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(coreInset, 8, coreInset, 24),
+        children: [
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Text(
+              'Share link',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(height: 18),
+          heading('Share with link'),
+          Text(
+            'Create a shareable link. Anyone with the link can access this file.',
+            style: TextStyle(fontSize: 16, height: 1.3, color: subtle(context)),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 9,
+                  ),
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < 3; i++)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Icon(
+                            Icons.circle,
+                            size: 8,
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Container(
+                  constraints: const BoxConstraints(minHeight: 190),
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        text(preview['title']).isEmpty
+                            ? 'Untitled'
+                            : text(preview['title']),
+                        style: const TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (preview['created_at'] != null)
+                            Chip(
+                              avatar: const Icon(
+                                Icons.calendar_today_outlined,
+                                size: 16,
+                              ),
+                              label: Text(
+                                coreDate(preview['created_at'], time: true),
+                              ),
+                            ),
+                          for (final name in contents) Chip(label: Text(name)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (error.isNotEmpty) ErrorNotice(error, retry: loadPreview),
+          const SizedBox(height: 20),
+          const Divider(height: 1),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text(
+              'Choose content to include',
+              style: TextStyle(fontSize: 15),
+            ),
+            subtitle: MediaQuery.textScalerOf(context).scale(1) > 1.2
+                ? Text(contents.join(', '))
                 : null,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (MediaQuery.textScalerOf(context).scale(1) <= 1.2)
+                  Text(
+                    '${contents.length} selected',
+                    style: TextStyle(fontSize: 12, color: subtle(context)),
+                  ),
+                const Icon(Icons.chevron_right, size: 22),
+              ],
+            ),
+            onTap: url.isEmpty ? chooseContent : null,
           ),
-          SwitchListTile(
-            title: const Text('Audio'),
-            value: audio,
-            onChanged: url.isEmpty ? (v) => setState(() => audio = v) : null,
+          PopupMenuButton<int>(
+            enabled: url.isEmpty,
+            onSelected: (v) => setState(() => days = v),
+            itemBuilder: (_) => [
+              for (final d in [1, 7, 30])
+                PopupMenuItem(value: d, child: Text('$d days')),
+            ],
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text(
+                'Link expires after',
+                style: TextStyle(fontSize: 14),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$days days',
+                    style: TextStyle(fontSize: 13, color: subtle(context)),
+                  ),
+                  const Icon(Icons.keyboard_arrow_down, size: 18),
+                ],
+              ),
+            ),
           ),
+          Text(
+            'A fixed version is shared. Revoke links in Settings → Shared links.',
+            style: TextStyle(fontSize: 12, color: subtle(context)),
+          ),
+          const SizedBox(height: 20),
+          FilledButton(
+            onPressed: busy || contents.isEmpty ? null : share,
+            child: Text(
+              busy
+                  ? 'Creating link…'
+                  : url.isEmpty
+                  ? 'Create link'
+                  : 'Share link',
+            ),
+          ),
+          if (url.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: SelectableText(url, style: const TextStyle(fontSize: 12)),
+            ),
         ],
-        DropdownButtonFormField<int>(
-          initialValue: days,
-          decoration: const InputDecoration(labelText: 'Link expires after'),
-          items: [
-            for (final d in [1, 7, 30])
-              DropdownMenuItem(value: d, child: Text('$d days')),
-          ],
-          onChanged: url.isEmpty ? (v) => setState(() => days = v!) : null,
-        ),
-        if (url.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: SelectableText(url),
-          ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 
 class PersonalJobPage extends StatefulWidget {

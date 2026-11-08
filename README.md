@@ -1,3 +1,17 @@
+# Teno Android 0.6.1
+
+Version **0.6.1 / 12** aligns existing features to verified PLAUD 4.x official references: Home and shifted sidebar, expandable Library, real statistics, combined search filters, recording/import/share sheets, transcript controls, templates, calendar, Chat and settings. Teno / Ask Teno, English, JWD priority, the original Android signer and existing accounts remain.
+
+[80 independent page states](design-baseline/v0.6.1/index.html) · [Measured anchors and typography](design-baseline/v0.6.1/measurements.html) · [Retained differences and inferred states](design-baseline/v0.6.1/differences-and-acceptance.txt) · [Release and installation](RELEASE-0.6.1.txt)
+
+Search uses folder subtrees, type, current-revision manually named speakers and local date ranges together, before pagination. Old servers retain their original search behavior and hide unsupported controls. Read-only backend 1.4.1 adds capability flags and complete counts without a schema migration, generation/prompt changes or business-data rewrites.
+
+The reviewed APK is `dist/Teno-0.6.1.apk`. Install over the current Teno without uninstalling or clearing data. The same-signer release is distinct from GitHub CI build-verification APKs. Android-only feature release: no main merge, store submission, iOS delivery or baseline promotion. Magic4 Pro / JWD hardware acceptance remains pending.
+
+Reproduce checks: `python scripts/flutter_check.py release-checks --version 0.6.1`, `python scripts/review_personal_pages.py --version 0.6.1`; package with `python scripts/package_mobile.py --android-only --version 0.6.1`. Native verification requires an explicitly selected dedicated emulator with the 0.6.0 baseline. Evidence is versioned; original 0.6.0 files remain preserved. Use `scripts/run_and_report.py` for development reporting.
+
+The following releases and their evidence are retained for traceability.
+
 # Teno Android 0.6.0
 
 This release extends the existing Flutter/Java Android app with the approved PLAUD 4.x personal core. It keeps Teno / Ask Teno branding, English UI, the original `com.teno.app` signer and account/device/local-file isolation. Version code is 11. iOS remains at the separately confirmed 0.5.0 baseline; no iOS package is built here.

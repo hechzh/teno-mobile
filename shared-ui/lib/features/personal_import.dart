@@ -6,10 +6,27 @@ import 'detail.dart';
 import 'personal_library.dart';
 import 'personal_recording.dart';
 
+Future<void> showPersonalImport(
+  BuildContext context,
+  TenoModel model, {
+  bool pending = false,
+}) async {
+  await showCoreSheet<void>(
+    context,
+    PersonalImportPage(model, pending: pending, sheet: true),
+    height: pending ? 620 : 510,
+  );
+}
+
 class PersonalImportPage extends StatefulWidget {
-  const PersonalImportPage(this.model, {super.key, this.pending = false});
+  const PersonalImportPage(
+    this.model, {
+    super.key,
+    this.pending = false,
+    this.sheet = false,
+  });
   final TenoModel model;
-  final bool pending;
+  final bool pending, sheet;
   @override
   State<PersonalImportPage> createState() => _PersonalImportPageState();
 }
@@ -42,7 +59,8 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
 
   @override
   Widget build(BuildContext context) => CoreFrame(
-    title: 'Import files',
+    title: 'Import',
+    sheet: widget.sheet,
     child: ListView(
       padding: const EdgeInsets.all(21),
       children: [
