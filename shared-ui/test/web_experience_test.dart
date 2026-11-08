@@ -21,6 +21,30 @@ TenoModel browserModel({bool signedIn = true}) {
 }
 
 void main() {
+  for (final web in [true, false]) {
+    testWidgets('chat history uses the ${web ? "Web" : "native"} contract', (
+      tester,
+    ) async {
+      final host = CoreHost();
+      host.state = reviewState();
+      final path = web
+          ? '/api/v1/personal/chats/chat-web/messages'
+          : '/api/v1/chats/chat-web/messages';
+      host.overrides['GET /api/v1/chats/chat-web'] = {
+        'data': {'contexts': <Json>[]},
+      };
+      host.overrides['GET $path'] = {'items': <Json>[]};
+      final model = TenoModel(host: host, webExperience: web);
+      model.changed(host.state);
+      addTearDown(model.dispose);
+      await tester.pumpWidget(
+        MaterialApp(home: PersonalChatPage(model, chatId: 'chat-web')),
+      );
+      await tester.pumpAndSettle();
+      expect(host.requests, contains('GET $path'));
+      expect(tester.takeException(), isNull);
+    });
+  }
   testWidgets(
     'iPhone browser uses current personal home and no hardware entry',
     (tester) async {

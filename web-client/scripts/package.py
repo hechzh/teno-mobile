@@ -1,0 +1,47 @@
+"""Package a committed Web build separately from every Android release."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import tarfile
+import zipfile
+
+root = Path(__file__).resolve().parents[1]
+repo = root.parent
+parser = argparse.ArgumentParser()
+parser.add_argument('--output', type=Path, default=repo/'dist')
+args = parser.parse_args()
+version = re.search(r'^version:\s*([^+\s]+)', (root/'pubspec.yaml').read_text(), re.M)[1]
+commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True).strip()
+assert not subprocess.check_output(['git', 'status', '--porcelain', '--', 'shared-ui', 'web-client'], cwd=repo), 'Commit Web sources before packaging'
+build = root/'build/web'
+assert (build/'main.dart.js').is_file(), 'Run flutter build web first'
+shutil.copytree(root/'deploy', build/'deploy', dirs_exist_ok=True)
+files = {p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+         for p in sorted(build.rglob('*')) if p.is_file() and p.name != 'release.json'}
+manifest = {'version': version, 'source_commit': commit, 'app_ui_base': '0.6.2',
+            'backend_minimum': '1.4.2', 'files': files}
+(build/'release.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
+args.output.mkdir(parents=True, exist_ok=True)
+prefix = 'Teno-Web-'+version
+artifacts = []
+with zipfile.ZipFile(args.output/(prefix+'.zip'), 'w', zipfile.ZIP_DEFLATED) as archive:
+    for path in sorted(build.rglob('*')):
+        if path.is_file(): archive.write(path, path.relative_to(build).as_posix())
+artifacts.append(args.output/(prefix+'.zip'))
+with tarfile.open(args.output/(prefix+'.tar.gz'), 'w:gz') as archive:
+    for path in sorted(build.rglob('*')):
+        if path.is_file(): archive.add(path, arcname=path.relative_to(build).as_posix())
+artifacts.append(args.output/(prefix+'.tar.gz'))
+source = args.output/(prefix+'-source.zip')
+subprocess.run(['git', 'archive', '--format=zip', '--output='+str(source), 'HEAD',
+                'web-client', 'shared-ui', '.github/workflows/web.yml',
+                '.gitattributes', 'scripts/secret_audit.py'], cwd=repo, check=True)
+artifacts.append(source)
+hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in artifacts}
+(args.output/(prefix+'-manifest.json')).write_text(json.dumps({**manifest, 'artifacts': hashes}, indent=2)+'\n', encoding='utf-8')
+(args.output/(prefix+'-SHA256SUMS.txt')).write_text(''.join(v+'  '+k+'\n' for k,v in hashes.items()), encoding='utf-8')
+print(json.dumps({'version': version, 'commit': commit, 'artifacts': hashes}, indent=2))

@@ -166,7 +166,12 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     try {
       final values = await Future.wait([
         widget.model.api('GET', '/api/v1/chats/$chatId'),
-        widget.model.api('GET', '/api/v1/chats/$chatId/messages'),
+        widget.model.api(
+          'GET',
+          widget.model.webExperience
+              ? '/api/v1/personal/chats/$chatId/messages'
+              : '/api/v1/chats/$chatId/messages',
+        ),
       ]);
       if (!mounted) return;
       final data = object(values[0]['data']);

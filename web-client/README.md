@@ -44,7 +44,9 @@ The shared `webExperience` flag defaults to false. It is set only by this entry 
 Static assets (including Inter and Noto Sans SC) are self-hosted. No generated
 service worker caches account/API responses. There is no provider key, recorder key,
 test account or test recording in the build. Existing API contracts and generation
-prompts are unchanged. The gateway routes only `/app/` to a separate static container.
+prompts are unchanged. Backend 1.4.2 adds an owner-checked, read-only personal chat
+history endpoint for typed sources; only Web uses this new read path. Android keeps
+its existing endpoint. The gateway routes only `/app/` to a separate static container.
 
 ## Build and verification
 

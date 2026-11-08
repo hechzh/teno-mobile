@@ -12,9 +12,21 @@ sudo install -d -m 755 "$root/releases/$release" "$root/deploy"
 sudo install -d -m 700 "$backup"
 sudo cp "$backend/Caddyfile" "$backup/Caddyfile"
 sudo cp "$backend/compose.yaml" "$backup/backend-compose.yaml"
-sudo sh -c 'cd /opt/pocket-backend && git bundle create "$1/backend.bundle" --all && docker compose ps --format json > "$1/services-before.json"' sh "$backup"
+sudo -u ubuntu git -C "$backend" bundle create "/home/ubuntu/teno-web-$release.bundle" --all
+sudo mv "/home/ubuntu/teno-web-$release.bundle" "$backup/backend.bundle"
+sudo sh -c 'cd /opt/pocket-backend && docker compose ps --format json > "$1/services-before.json"' sh "$backup"
 sudo tar -xzf "$archive" -C "$root/releases/$release"
 test -f "$root/releases/$release/index.html"
+sudo python3 - "$root/releases/$release" <<'PY'
+from pathlib import Path
+import sys,json,hashlib
+root=Path(sys.argv[1]);manifest=json.loads((root/'release.json').read_text())
+for name,digest in manifest['files'].items():
+    path=(root/name).resolve()
+    assert path.is_relative_to(root.resolve()) and path.is_file(),name
+    assert hashlib.sha256(path.read_bytes()).hexdigest()==digest,name
+print('Verified release files:',len(manifest['files']))
+PY
 sudo cp "$root/releases/$release/deploy/Caddyfile" "$root/deploy/Caddyfile"
 sudo cp "$root/releases/$release/deploy/compose.yaml" "$root/deploy/compose.yaml"
 sudo python3 - "$root" "$release" "$backup" <<'PY'
