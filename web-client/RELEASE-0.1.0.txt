@@ -1,0 +1,44 @@
+Teno Web preview 0.1.0 — 2026-11-08
+
+Entry: https://54-214-180-183.sslip.io/app/
+Use an existing Teno account. Library, files, transcripts, summaries and Ask use
+the existing account-scoped backend. UI is shared with Android 0.6.2; the Web app
+has its own entry point, browser adapter, version, workflow and static container.
+
+Included: library/folders/search, file import with explicit upload confirmation,
+transcription, summary templates and notes, Ask with typed sources and history,
+audio playback and source timestamps, exports, theme/account preferences.
+Omitted: JWD/Bluetooth, phone recording, dictation and native-only services.
+Keep the tab open during upload. Server processing continues after upload.
+Retain original files: browser storage can be cleared or evicted by the browser.
+
+Validation:
+- 14 browser-runtime tests; 309 shared Flutter tests plus the final 9 Web tests
+  (including separate native/Web history contracts). Web CI runs the full suite.
+- Backend 215 isolated tests. Restored database: 41 business tables and 21 checks
+  for each backend version; legacy response bodies remain equal.
+- The API rollout preserved all 41 production business table hashes and Usage.
+  Subsequent acceptance login sessions are expected; no real meeting was edited.
+- Real synthetic TXT import/extraction/summary, 20.33-second audio import,
+  five transcript segments and automatic summary, playback, Ask answer and
+  history were exercised in the browser against the existing backend.
+- A generated document note initially failed schema validation; its retry
+  succeeded. The existing prompt and validation were not changed.
+- Chromium at mobile width and Flutter narrow/large-text checks are not actual
+  iPhone Safari certification. Real iPhone picker/playback/memory behavior is
+  still pending. No background-upload or offline guarantee is made.
+
+Backend 1.4.2 adds only GET /api/v1/personal/chats/{id}/messages, with typed-source
+ownership checks. Android retains its original history endpoint. Existing
+generation prompts, jobs, database schema, queues and worker containers remain.
+The gateway adds /app/; the existing /team/ and API remain reachable.
+
+Android APK 0.6.2 remains unchanged:
+SHA256 31ca4ccffae85c88529f7481c64720dd4aec8eb6abc7045da2cf7fb6ca13487b
+No Android/iOS release, store publication, main merge or baseline promotion.
+Web archive/source hashes and build commit: dist/Teno-Web-0.1.0-manifest.json.
+Source package: dist/Teno-Web-0.1.0-source.zip.
+
+Rollback: retained backend image, database/audio/source/config backups; restore
+the prior API image or remove /app routing and reload the gateway. Preserve all
+data volumes and migration 007. Never use down -v or a deletion-style downgrade.

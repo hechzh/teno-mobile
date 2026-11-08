@@ -75,7 +75,15 @@ Upload the archive to the existing host, then run `scripts/deploy.sh RELEASE ARC
 The script backs up the gateway configuration and backend Git bundle, creates an
 independent capped static container, and reloads Caddy. It does not restart the API,
 workers, database or Redis, and performs no migration or data-volume deletion.
+If an older gateway bind mount still references a replaced configuration file,
+the script validates the current file and recreates only the gateway to refresh
+that mount. This may cause a brief connection retry. Backend 1.4.2 is deployed
+separately after isolation tests and a verified backup restore; only its API
+container needs replacing, with workers and their generation behavior preserved.
 
 To roll back, point `/opt/teno-web-preview/current` to the previous retained release,
 or restore the backed-up gateway Caddyfile and reload Caddy to remove `/app/`.
 Keep data volumes, all backend migrations and Android release artifacts intact.
+
+Create the Web distribution and source archives with `python scripts/package.py`.
+The version is read from this app's pubspec and never overwrites an Android APK.

@@ -54,10 +54,18 @@ if 'teno-web-preview:8080' not in s:
     }''')
     p.write_text(s)
 PY
-if ! sudo docker compose -f "$backend/compose.yaml" exec -T gateway caddy validate --config /etc/caddy/Caddyfile; then
+# A long-running bind mount can still point at a file replaced by a Git checkout.
+# Validate the host's actual configuration before either reload or mount refresh.
+if ! sudo docker compose -f "$backend/compose.yaml" exec -T gateway caddy validate --config - --adapter caddyfile < "$backend/Caddyfile"; then
   sudo sh -c 'cat "$1/Caddyfile" > /opt/pocket-backend/Caddyfile' sh "$backup"
   exit 1
 fi
-sudo docker compose -f "$backend/compose.yaml" exec -T gateway caddy reload --config /etc/caddy/Caddyfile
+mounted=$(sudo docker compose -f "$backend/compose.yaml" exec -T gateway cat /etc/caddy/Caddyfile | sha256sum | cut -d ' ' -f1)
+actual=$(sha256sum "$backend/Caddyfile" | cut -d ' ' -f1)
+if test "$mounted" = "$actual"; then
+  sudo docker compose -f "$backend/compose.yaml" exec -T gateway caddy reload --config /etc/caddy/Caddyfile
+else
+  sudo docker compose -f "$backend/compose.yaml" up -d --no-deps --force-recreate gateway
+fi
 sudo sh -c 'cd /opt/pocket-backend && docker compose ps --format json > "$1/services-after.json"' sh "$backup"
 echo "Web release: $release; gateway backup: $backup"
