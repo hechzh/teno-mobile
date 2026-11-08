@@ -77,23 +77,24 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
             trailing: const Icon(Icons.chevron_right, size: 19),
             onTap: busy ? null : () => pick(row.$1),
           ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.ios_share_outlined),
-          title: const Text('From other apps'),
-          trailing: const Icon(Icons.chevron_right, size: 19),
-          onTap: () => showModalBottomSheet<void>(
-            context: context,
-            builder: (sheet) => const SafeArea(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'Open the file in another app, tap Share, then choose Teno.',
+        if (!widget.model.webExperience)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.ios_share_outlined),
+            title: const Text('From other apps'),
+            trailing: const Icon(Icons.chevron_right, size: 19),
+            onTap: () => showModalBottomSheet<void>(
+              context: context,
+              builder: (sheet) => const SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text(
+                    'Open the file in another app, tap Share, then choose Teno.',
+                  ),
                 ),
               ),
             ),
           ),
-        ),
         const Divider(height: 32),
         Text(
           'Audio and video · Up to 120 minutes / 250 MiB',
@@ -105,7 +106,9 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
         ),
         const SizedBox(height: 12),
         Text(
-          widget.model.runtime!.session.cloudUpload
+          widget.model.webExperience
+              ? 'Files are saved in this browser. Choose Upload and process to send them to your signed-in account. Keep this tab open until upload finishes.'
+              : widget.model.runtime!.session.cloudUpload
               ? 'Cloud processing is on. Imported files are saved on this phone, then uploaded and processed automatically.'
               : 'Cloud processing is off. Imported files stay on this phone until you choose Upload and process.',
           style: TextStyle(fontSize: 12, color: subtle(context)),
@@ -151,7 +154,11 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
           },
         ),
         if (imported.isNotEmpty) ...[
-          heading('Saved on this phone'),
+          heading(
+            widget.model.webExperience
+                ? 'Saved in this browser'
+                : 'Saved on this phone',
+          ),
           for (final value in imported)
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -186,7 +193,7 @@ class PersonalLocalList extends StatelessWidget {
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: model,
     builder: (context, _) => CoreFrame(
-      title: 'On this phone',
+      title: model.webExperience ? 'Browser imports' : 'On this phone',
       actions: [
         PopupMenuButton<String>(
           onSelected: (_) => perform(context, () async {
@@ -207,9 +214,11 @@ class PersonalLocalList extends StatelessWidget {
         padding: const EdgeInsets.all(21),
         children: [
           if (model.drafts.isEmpty)
-            const EmptyState(
+            EmptyState(
               'No local files',
-              'Recordings and imports are automatically kept on this phone.',
+              model.webExperience
+                  ? 'Files selected for import appear here.'
+                  : 'Recordings and imports are automatically kept on this phone.',
             ),
           for (final d in model.drafts)
             CoreTile({
@@ -242,7 +251,7 @@ class PersonalLocalPage extends StatelessWidget {
       final file = draft['kind'] == 'file',
           remote = text(draft[file ? 'file_id' : 'recording_id']);
       return CoreFrame(
-        title: 'On this phone',
+        title: model.webExperience ? 'Browser imports' : 'On this phone',
         child: ListView(
           padding: const EdgeInsets.all(21),
           children: [
@@ -252,9 +261,26 @@ class PersonalLocalPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              recordingStatus(draft['status']),
+              model.webExperience && draft['status'] == 'local'
+                  ? 'Saved in this browser'
+                  : recordingStatus(draft['status']),
               style: TextStyle(color: subtle(context)),
             ),
+            if (model.webExperience)
+              Text('Account: ${model.runtime!.session.username}'),
+            if (model.webExperience && draft['status'] == 'uploading') ...[
+              const LinearProgressIndicator(minHeight: 2),
+              const Text(
+                'Uploading. Keep this tab open until upload finishes.',
+              ),
+              TextButton(
+                onPressed: () => perform(
+                  context,
+                  () => model.command('cancelUpload', {'id': id}).then((_) {}),
+                ),
+                child: const Text('Stop upload'),
+              ),
+            ],
             if (!file) AudioPlayerBar(model, id, local: true),
             if (text(draft['error']).isNotEmpty)
               ErrorNotice(text(draft['error'])),
@@ -288,7 +314,11 @@ class PersonalLocalPage extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 14),
-            const Text('A complete copy stays on this phone after upload.'),
+            Text(
+              model.webExperience
+                  ? 'Keep your original file. Browser storage may be cleared or evicted.'
+                  : 'A complete copy stays on this phone after upload.',
+            ),
             TextButton.icon(
               onPressed: () => perform(
                 context,

@@ -43,6 +43,8 @@
 !/ios/**
 !/design-baseline/
 !/design-baseline/**
+!/web-client/
+!/web-client/**
 !/verification/
 !/verification/v0.3.0/
 !/verification/v0.3.0/package_release.py
@@ -79,6 +81,7 @@
 **/*.pyc
 **/*.log
 **/*-log.txt
+**/test-results-*.txt
 **/*.apk
 **/*.xapk
 **/*.zip

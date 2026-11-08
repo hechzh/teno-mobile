@@ -596,7 +596,12 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                             ('all', 'My files'),
                             ('images', 'Photos'),
                             ('note', 'Notes'),
-                            ('phone', 'On this phone'),
+                            (
+                              'phone',
+                              widget.model.webExperience
+                                  ? 'Browser imports'
+                                  : 'On this phone',
+                            ),
                           ])
                             PopupMenuItem(value: v.$1, child: Text(v.$2)),
                         ],

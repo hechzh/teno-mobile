@@ -326,7 +326,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
                   onSubmitted: (_) => send(),
                 ),
               ),
-              if (input.text.trim().isEmpty)
+              if (input.text.trim().isEmpty && !widget.model.webExperience)
                 IconButton(
                   tooltip: 'Voice input',
                   onPressed: dictating || sending ? null : dictate,

@@ -1,0 +1,17 @@
+name: teno-web-preview
+services:
+  web:
+    image: caddy:2
+    container_name: teno-web-preview
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.5
+    volumes:
+      - /opt/teno-web-preview:/srv:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - teno-api
+networks:
+  teno-api:
+    external: true
+    name: pocket-backend_default

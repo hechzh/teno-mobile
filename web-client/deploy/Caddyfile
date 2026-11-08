@@ -1,0 +1,15 @@
+:8080 {
+    root * /srv/current
+    encode gzip zstd
+    @internal path /deploy /deploy/*
+    respond @internal 404
+    header {
+        Cache-Control "no-cache"
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        X-Frame-Options DENY
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), bluetooth=()"
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    }
+    file_server
+}

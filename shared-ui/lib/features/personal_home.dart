@@ -69,7 +69,9 @@ class _PersonalHomeState extends State<PersonalHome> {
         widget.model.list(
           '/api/v1/library/items?sort=$sort&limit=100&include_stats=${widget.model.capabilities['library_stats'] == 1}',
         ),
-        widget.model.list('/api/v1/events?limit=200'),
+        widget.model.webExperience
+            ? Future.value(<Json>[])
+            : widget.model.list('/api/v1/events?limit=200'),
       ]);
       if (mounted)
         setState(() {
@@ -100,7 +102,8 @@ class _PersonalHomeState extends State<PersonalHome> {
       elevation: 3,
       items: [
         for (final row in [
-          ('record', 'Start recording', Icons.mic_none),
+          if (!widget.model.webExperience)
+            ('record', 'Start recording', Icons.mic_none),
           ('import', 'Import files', Icons.file_download_outlined),
           ('chat', 'New chat', Icons.add_comment_outlined),
         ])
@@ -115,11 +118,12 @@ class _PersonalHomeState extends State<PersonalHome> {
               ],
             ),
           ),
-        const PopupMenuDivider(),
-        const PopupMenuItem(
-          value: 'phone',
-          child: Text('Record with phone', style: TextStyle(fontSize: 12)),
-        ),
+        if (!widget.model.webExperience) const PopupMenuDivider(),
+        if (!widget.model.webExperience)
+          const PopupMenuItem(
+            value: 'phone',
+            child: Text('Record with phone', style: TextStyle(fontSize: 12)),
+          ),
       ],
     );
     if (!mounted) return;
@@ -252,7 +256,12 @@ class _PersonalHomeState extends State<PersonalHome> {
             ),
             onTap: () {
               setState(() => navigationOpen = false);
-              unawaited(push(context, const PersonalHelpPage()));
+              unawaited(
+                push(
+                  context,
+                  PersonalHelpPage(webExperience: widget.model.webExperience),
+                ),
+              );
             },
           ),
         ],
@@ -320,7 +329,9 @@ class _PersonalHomeState extends State<PersonalHome> {
                           ),
                         ),
                         title: section == 'Home'
-                            ? null
+                            ? (widget.model.webExperience
+                                  ? const Text('Teno')
+                                  : null)
                             : Text(
                                 selectedCount == null
                                     ? section
@@ -328,49 +339,52 @@ class _PersonalHomeState extends State<PersonalHome> {
                               ),
                         actions: [
                           if (section == 'Home') ...[
-                            InkWell(
-                              borderRadius: BorderRadius.circular(28),
-                              onTap: () => widget.model.capturing
-                                  ? showRecorder(context, widget.model)
-                                  : push(context, DevicePage(widget.model)),
-                              child: CoreSurface(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 10,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 3,
-                                      height: 25,
-                                      decoration: BoxDecoration(
-                                        color:
-                                            widget
-                                                .model
-                                                .runtime!
-                                                .device
-                                                .authorized
-                                            ? const Color(0xFF65B477)
-                                            : Theme.of(
-                                                context,
-                                              ).colorScheme.outlineVariant,
-                                        borderRadius: BorderRadius.circular(2),
+                            if (!widget.model.webExperience)
+                              InkWell(
+                                borderRadius: BorderRadius.circular(28),
+                                onTap: () => widget.model.capturing
+                                    ? showRecorder(context, widget.model)
+                                    : push(context, DevicePage(widget.model)),
+                                child: CoreSurface(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 3,
+                                        height: 25,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              widget
+                                                  .model
+                                                  .runtime!
+                                                  .device
+                                                  .authorized
+                                              ? const Color(0xFF65B477)
+                                              : Theme.of(
+                                                  context,
+                                                ).colorScheme.outlineVariant,
+                                          borderRadius: BorderRadius.circular(
+                                            2,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    const Icon(
-                                      Icons.speaker_phone_outlined,
-                                      size: 24,
-                                    ),
-                                    const SizedBox(width: 20),
-                                    const Icon(
-                                      Icons.keyboard_arrow_down,
-                                      size: 18,
-                                    ),
-                                  ],
+                                      const SizedBox(width: 6),
+                                      const Icon(
+                                        Icons.speaker_phone_outlined,
+                                        size: 24,
+                                      ),
+                                      const SizedBox(width: 20),
+                                      const Icon(
+                                        Icons.keyboard_arrow_down,
+                                        size: 18,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
                             const SizedBox(width: 10),
                             CoreAction(Icons.add, 'Create', create),
                           ],
@@ -535,57 +549,62 @@ class _PersonalHomeState extends State<PersonalHome> {
         padding: const EdgeInsets.fromLTRB(coreInset, 4, coreInset, 20),
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          Row(
-            children: [
-              Expanded(child: heading('Upcoming')),
-              IconButton(
-                tooltip: 'Calendar',
-                onPressed: () =>
-                    push(context, PersonalCalendarPage(widget.model)),
-                icon: const Icon(Icons.calendar_month_outlined, size: 20),
-              ),
-            ],
-          ),
-          if (upcoming.isEmpty)
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(11),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outlineVariant,
+          if (!widget.model.webExperience) ...[
+            Row(
+              children: [
+                Expanded(child: heading('Upcoming')),
+                IconButton(
+                  tooltip: 'Calendar',
+                  onPressed: () =>
+                      push(context, PersonalCalendarPage(widget.model)),
+                  icon: const Icon(Icons.calendar_month_outlined, size: 20),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'All caught up for today',
-                    style: TextStyle(fontSize: 13),
+              ],
+            ),
+            if (upcoming.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
-                  Text(
-                    'Review your latest notes or connect your calendar.',
-                    style: TextStyle(fontSize: 11, color: subtle(context)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'All caught up for today',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    Text(
+                      'Review your latest notes or connect your calendar.',
+                      style: TextStyle(fontSize: 11, color: subtle(context)),
+                    ),
+                  ],
+                ),
+              )
+            else
+              for (final e in upcoming.take(2))
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.event_outlined, size: 21),
+                  title: Text(
+                    text(e['title']),
+                    style: const TextStyle(fontSize: 14),
                   ),
-                ],
-              ),
-            )
-          else
-            for (final e in upcoming.take(2))
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.event_outlined, size: 21),
-                title: Text(
-                  text(e['title']),
-                  style: const TextStyle(fontSize: 14),
+                  subtitle: Text(
+                    text(
+                      e['starts_at'],
+                    ).replaceFirst('T', ' ').substring(0, 16),
+                    style: const TextStyle(fontSize: 11),
+                  ),
+                  onTap: () =>
+                      push(context, PersonalCalendarPage(widget.model)),
                 ),
-                subtitle: Text(
-                  text(e['starts_at']).replaceFirst('T', ' ').substring(0, 16),
-                  style: const TextStyle(fontSize: 11),
-                ),
-                onTap: () => push(context, PersonalCalendarPage(widget.model)),
-              ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ],
           Row(
             children: [
               const Expanded(
@@ -644,9 +663,11 @@ class _PersonalHomeState extends State<PersonalHome> {
             }, showFolder: true),
           ],
           if (!loading && visible.isEmpty && local.isEmpty && error.isEmpty)
-            const EmptyState(
+            EmptyState(
               'Your recordings start here',
-              'Connect your recorder or import a file using +.',
+              widget.model.webExperience
+                  ? 'Import a file using + to get started.'
+                  : 'Connect your recorder or import a file using +.',
             ),
         ],
       ),

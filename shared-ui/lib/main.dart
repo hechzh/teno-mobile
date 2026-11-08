@@ -36,11 +36,12 @@ class _TenoAppState extends State<TenoApp> {
       debugShowCheckedModeBanner: false,
       theme:
           widget.model.personalCore ||
-              (defaultTargetPlatform == TargetPlatform.android &&
+              ((widget.model.webExperience ||
+                      defaultTargetPlatform == TargetPlatform.android) &&
                   !widget.model.signedIn)
-          ? personalTheme(false)
+          ? personalTheme(false, webExperience: widget.model.webExperience)
           : tenoTheme(),
-      darkTheme: personalTheme(true),
+      darkTheme: personalTheme(true, webExperience: widget.model.webExperience),
       themeMode: !widget.model.personalCore
           ? ThemeMode.light
           : switch (widget.model.personalSettings['theme']) {
@@ -63,7 +64,8 @@ class _TenoAppState extends State<TenoApp> {
             )
           : widget.model.signedIn
           ? widget.model.personalCore &&
-                    defaultTargetPlatform == TargetPlatform.android
+                    (widget.model.webExperience ||
+                        defaultTargetPlatform == TargetPlatform.android)
                 ? PersonalHome(widget.model)
                 : HomePage(widget.model)
           : LoginPage(widget.model),

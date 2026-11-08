@@ -47,12 +47,13 @@ class PersonalSettings extends StatelessWidget {
         Icons.tune,
         () => push(context, PersonalPreferences(model)),
       ),
-      settingsEntry(
-        context,
-        'Cloud processing',
-        Icons.cloud_outlined,
-        () => push(context, PersonalRecorderPreferences(model, cloud: true)),
-      ),
+      if (!model.webExperience)
+        settingsEntry(
+          context,
+          'Cloud processing',
+          Icons.cloud_outlined,
+          () => push(context, PersonalRecorderPreferences(model, cloud: true)),
+        ),
       const Divider(height: 30),
       settingsGroup(context, 'Account'),
       settingsEntry(
@@ -69,12 +70,13 @@ class PersonalSettings extends StatelessWidget {
       ),
       const Divider(height: 30),
       settingsGroup(context, 'General'),
-      settingsEntry(
-        context,
-        'Notifications',
-        Icons.notifications_none,
-        () => push(context, PersonalAppearance(model, notifications: true)),
-      ),
+      if (!model.webExperience)
+        settingsEntry(
+          context,
+          'Notifications',
+          Icons.notifications_none,
+          () => push(context, PersonalAppearance(model, notifications: true)),
+        ),
       settingsEntry(
         context,
         'Theme',
@@ -82,19 +84,24 @@ class PersonalSettings extends StatelessWidget {
         () => push(context, PersonalAppearance(model)),
       ),
       const Divider(height: 30),
-      settingsGroup(context, 'Recorder & files'),
-      settingsEntry(
+      settingsGroup(
         context,
-        'Recorder',
-        Icons.speaker_phone_outlined,
-        () => push(context, PersonalRecorderPreferences(model)),
+        model.webExperience ? 'Files' : 'Recorder & files',
       ),
-      settingsEntry(
-        context,
-        'Calendar',
-        Icons.calendar_month_outlined,
-        () => push(context, PersonalCalendarPage(model)),
-      ),
+      if (!model.webExperience)
+        settingsEntry(
+          context,
+          'Recorder',
+          Icons.speaker_phone_outlined,
+          () => push(context, PersonalRecorderPreferences(model)),
+        ),
+      if (!model.webExperience)
+        settingsEntry(
+          context,
+          'Calendar',
+          Icons.calendar_month_outlined,
+          () => push(context, PersonalCalendarPage(model)),
+        ),
       settingsEntry(
         context,
         'Storage',
@@ -114,7 +121,8 @@ class PersonalSettings extends StatelessWidget {
         context,
         'Help center',
         Icons.help_outline,
-        () => push(context, const PersonalHelpPage()),
+        () =>
+            push(context, PersonalHelpPage(webExperience: model.webExperience)),
       ),
       const SizedBox(height: 24),
     ],
@@ -138,28 +146,31 @@ class PersonalAccountPage extends StatelessWidget {
           subtitle: const Text('Teno account'),
         ),
         if (!profile) ...[
-          CoreLoad(
-            load: () => model.command('preferences'),
-            builder: (context, data, reload) => SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('App lock'),
-              subtitle: const Text(
-                'Use your phone’s screen lock to open Teno.',
+          if (!model.webExperience)
+            CoreLoad(
+              load: () => model.command('preferences'),
+              builder: (context, data, reload) => SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('App lock'),
+                subtitle: const Text(
+                  'Use your phone’s screen lock to open Teno.',
+                ),
+                value: data['app_lock'] == true,
+                onChanged: (v) => perform(context, () async {
+                  await model.command('app_lock', {'enabled': v});
+                  reload();
+                }),
               ),
-              value: data['app_lock'] == true,
-              onChanged: (v) => perform(context, () async {
-                await model.command('app_lock', {'enabled': v});
-                reload();
-              }),
             ),
-          ),
           const SizedBox(height: 24),
           OutlinedButton(
             onPressed: () => perform(context, () async {
               if (await confirm(
                 context,
                 'Sign out?',
-                'Local files and recorder keys remain on this phone under their original account.',
+                model.webExperience
+                    ? 'Browser imports stay under this account. Uploads in progress will stop; sign in again to retry.'
+                    : 'Local files and recorder keys remain on this phone under their original account.',
               ))
                 await model.signOut();
             }),
@@ -475,7 +486,7 @@ class PersonalStoragePage extends StatelessWidget {
       builder: (context, data, reload) => ListView(
         padding: const EdgeInsets.all(21),
         children: [
-          heading('On this phone'),
+          heading(model.webExperience ? 'In this browser' : 'On this phone'),
           Text(
             '${((data['local_bytes'] as num? ?? 0) / 1048576).toStringAsFixed(1)} MiB · ${model.drafts.length} files',
           ),
@@ -986,37 +997,57 @@ class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
 }
 
 class PersonalHelpPage extends StatelessWidget {
-  const PersonalHelpPage({super.key});
+  const PersonalHelpPage({super.key, this.webExperience = false});
+  final bool webExperience;
   @override
   Widget build(BuildContext context) => CoreFrame(
     title: 'Help center',
     child: ListView(
       padding: const EdgeInsets.all(21),
       children: [
-        heading('Import files'),
-        const Text(
-          'Home → + → Import files. Choose From Files or From Photos. In another app, tap Share → Teno.',
-        ),
-        heading('Automatic processing'),
-        const Text(
-          'Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.',
-        ),
-        heading('Your recorder'),
-        const Text(
-          'Connect your recorder and keep its original device key. Reconnecting does not start a recording. A Bluetooth disconnect does not mean the recorder has stopped.',
-        ),
-        heading('Local copies'),
-        const Text(
-          'Complete recordings and imports remain on this phone after upload. Keep the app installed to retain these local copies.',
-        ),
-        heading('Import limits'),
-        const Text(
-          'Audio and video: 120 minutes / 250 MiB. Images: 20 MB. Documents: 15 MB. Text: 2 MB. Calendar files: 1 MiB. Use unencrypted documents.',
-        ),
-        heading('Processing and notifications'),
-        const Text(
-          'Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Live text is a preview; final results use the complete recording.',
-        ),
+        if (webExperience) ...[
+          heading('Teno Web preview'),
+          const Text(
+            'Use your existing Teno account. Library, transcripts, summaries, templates and Ask share the same cloud data as the app.',
+          ),
+          heading('Import and process'),
+          const Text(
+            'Home → + → Import files. Choose a file, then Upload and process. Keep this tab open until upload finishes. Processing then continues on the server.',
+          ),
+          heading('Browser imports'),
+          const Text(
+            'Selected files are saved in this browser for retry under their original account. Browser storage can be cleared or evicted; keep your original files. Sign in again to resume an interrupted upload.',
+          ),
+          heading('Supported files'),
+          const Text(
+            'Audio/video: 120 minutes / 250 MiB. Images (PNG/JPEG): 20 MB. Documents (PDF, Word, PowerPoint, MSG): 15 MB. Text/Markdown: 2 MB. Use unencrypted documents.',
+          ),
+        ] else ...[
+          heading('Import files'),
+          const Text(
+            'Home → + → Import files. Choose From Files or From Photos. In another app, tap Share → Teno.',
+          ),
+          heading('Automatic processing'),
+          const Text(
+            'Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.',
+          ),
+          heading('Your recorder'),
+          const Text(
+            'Connect your recorder and keep its original device key. Reconnecting does not start a recording. A Bluetooth disconnect does not mean the recorder has stopped.',
+          ),
+          heading('Local copies'),
+          const Text(
+            'Complete recordings and imports remain on this phone after upload. Keep the app installed to retain these local copies.',
+          ),
+          heading('Import limits'),
+          const Text(
+            'Audio and video: 120 minutes / 250 MiB. Images: 20 MB. Documents: 15 MB. Text: 2 MB. Calendar files: 1 MiB. Use unencrypted documents.',
+          ),
+          heading('Processing and notifications'),
+          const Text(
+            'Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Live text is a preview; final results use the complete recording.',
+          ),
+        ],
       ],
     ),
   );

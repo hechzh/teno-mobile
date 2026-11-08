@@ -448,7 +448,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                       ('speakers', 'Name speakers'),
                       ('rename', 'Rename'),
                       ('move', 'Move to folder'),
-                      ('calendar', 'Link calendar event'),
+                      if (!widget.model.webExperience) ('calendar', 'Link calendar event'),
                       ('generate', 'New summary note'),
                       ('transcribe', 'Transcribe again'),
                       ('replace', 'Find & replace'),

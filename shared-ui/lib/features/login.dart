@@ -101,16 +101,18 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text(busy ? 'Signing in…' : 'Sign in'),
               ),
               const SizedBox(height: 12),
-              TextButton(
-                onPressed: busy
-                    ? null
-                    : () => push(context, DevicePage(widget.model)),
-                child: const Text('Connect a recorder without signing in'),
-              ),
-              TextButton(
-                onPressed: () => setState(() => advanced = !advanced),
-                child: const Text('Server settings'),
-              ),
+              if (!widget.model.webExperience)
+                TextButton(
+                  onPressed: busy
+                      ? null
+                      : () => push(context, DevicePage(widget.model)),
+                  child: const Text('Connect a recorder without signing in'),
+                ),
+              if (!widget.model.webExperience)
+                TextButton(
+                  onPressed: () => setState(() => advanced = !advanced),
+                  child: const Text('Server settings'),
+                ),
               if (advanced)
                 TextField(
                   controller: server,

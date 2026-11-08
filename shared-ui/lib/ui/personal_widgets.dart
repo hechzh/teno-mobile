@@ -7,7 +7,7 @@ import 'widgets.dart' show ErrorNotice;
 const coreInset = 24.0;
 const coreBlue = Color(0xFF3478D4);
 
-ThemeData personalTheme(bool dark) {
+ThemeData personalTheme(bool dark, {bool webExperience = false}) {
   final surface = dark ? const Color(0xFF171719) : const Color(0xFFF8F8F8);
   final ink = dark ? const Color(0xFFF1F1F3) : const Color(0xFF080808);
   final colors =
@@ -43,6 +43,7 @@ ThemeData personalTheme(bool dark) {
     colorScheme: colors,
     scaffoldBackgroundColor: surface,
     fontFamily: 'Inter',
+    fontFamilyFallback: webExperience ? const ['NotoSansSC'] : null,
     textTheme: TextTheme(
       bodyMedium: TextStyle(
         fontSize: 14,

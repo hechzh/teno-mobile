@@ -50,8 +50,11 @@ String dateLabel(Object? value) {
 }
 
 class TenoModel extends ChangeNotifier implements RuntimeEvents {
-  TenoModel({RuntimeHost? host}) : host = host ?? RuntimeHost();
+  TenoModel({RuntimeHost? host, this.webExperience = false})
+    : host = host ?? RuntimeHost();
   final RuntimeHost host;
+  // Opt-in only for the independent browser host. Native behavior stays unchanged.
+  final bool webExperience;
   RuntimeState? runtime;
   List<Json> recordings = [], folders = [];
   Json capabilities = {}, personalSettings = {};

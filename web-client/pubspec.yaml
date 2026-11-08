@@ -1,0 +1,26 @@
+name: teno_web
+description: Teno browser preview using the shared mobile interface.
+publish_to: none
+version: 0.1.0+1
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+dependencies:
+  cupertino_icons: 1.0.8
+  flutter:
+    sdk: flutter
+  teno_mobile:
+    path: ../shared-ui
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: ../shared-ui/assets/fonts/InterVariable.ttf
+    - family: NotoSansSC
+      fonts:
+        - asset: assets/fonts/NotoSansSC-Regular.woff2
+  assets:
+    - assets/fonts/OFL-NotoSansSC.txt

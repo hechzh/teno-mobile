@@ -1,0 +1,7 @@
+The Web preview reuses Flutter and the shared Teno UI's Inter font.
+Noto Sans SC is bundled under the SIL Open Font License 1.1.
+Source: https://github.com/google/fonts/tree/main/ofl/notosanssc
+The regular-weight font is subset to Latin, general punctuation, CJK punctuation,
+CJK Unified Ideographs and Extension A, and full-width forms; encoded as WOFF2.
+License: assets/fonts/OFL-NotoSansSC.txt (also included in the built assets).
+The original provider font is not a runtime CDN dependency.
