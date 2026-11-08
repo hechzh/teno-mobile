@@ -14,11 +14,12 @@
     return {kind: MEDIA.has(ext) ? 'recording' : 'file', ext};
   }
   class BrowserStore {
+    constructor(database = 'teno-web-imports-v1', table = 'imports') { this.database = database; this.table = table; }
     async open() {
       if (this.db) return this.db;
       this.db = await new Promise((resolve, reject) => {
-        const r = indexedDB.open('teno-web-imports-v1', 1);
-        r.onupgradeneeded = () => r.result.createObjectStore('imports', {keyPath: 'id'});
+        const r = indexedDB.open(this.database, 1);
+        r.onupgradeneeded = () => r.result.createObjectStore(this.table, {keyPath: 'id'});
         r.onsuccess = () => resolve(r.result);
         r.onerror = () => reject(new Error('Browser storage is unavailable. Allow website storage and retry.'));
         r.onblocked = () => reject(new Error('Close other Teno tabs and retry.'));
@@ -28,8 +29,8 @@
     async transaction(mode, run) {
       const db = await this.open();
       return new Promise((resolve, reject) => {
-        const tx = db.transaction('imports', mode);
-        const result = run(tx.objectStore('imports'));
+        const tx = db.transaction(this.table, mode);
+        const result = run(tx.objectStore(this.table));
         tx.oncomplete = () => resolve(result.result);
         tx.onerror = tx.onabort = () => reject(new Error('Could not save the file in this browser. Free up storage and retry.'));
       });
@@ -38,6 +39,62 @@
     put(value) { return this.transaction('readwrite', s => s.put(value)); }
     delete(id) { return this.transaction('readwrite', s => s.delete(id)); }
     async list(scope) { return (await this.transaction('readonly', s => s.getAll())).filter(d => d.scope === scope); }
+    all() { return this.transaction('readonly', s => s.getAll()); }
+  }
+  // Separate from retained imports: this is disposable, account-scoped read data.
+  class RecordingCache {
+    constructor({store = new BrowserStore('teno-web-read-cache-v1', 'recordings'), now = Date.now,
+      maxEntries = 24, maxBytes = 8 * 1024 * 1024, maxAge = 7 * 86400000} = {}) {
+      this.store = store; this.now = now; this.maxEntries = maxEntries; this.maxBytes = maxBytes; this.maxAge = maxAge;
+      this.entries = new Map(); this.queue = Promise.resolve(); this.loaded = false;
+    }
+    run(action) {
+      const task = this.queue.then(async () => {
+        if (!this.loaded) {
+          try { for (const entry of await this.store.all()) this.entries.set(entry.id, entry); } catch (_) {}
+          this.loaded = true;
+        }
+        return action();
+      });
+      this.queue = task.catch(() => {}); return task;
+    }
+    async remove(id) { this.entries.delete(id); try { await this.store.delete(id); } catch (_) {} }
+    async prune() {
+      const entries = [...this.entries.values()].sort((a, b) => b.touched - a.touched);
+      let count = 0, bytes = 0;
+      for (const entry of entries) {
+        if (!Number.isFinite(entry.bytes) || this.now() - entry.savedAt > this.maxAge || entry.savedAt > this.now() ||
+            ++count > this.maxEntries || (bytes += entry.bytes) > this.maxBytes) await this.remove(entry.id);
+      }
+    }
+    get(scope, id, variant) {
+      return this.run(async () => {
+        await this.prune();
+        const entry = this.entries.get(JSON.stringify([scope, id, variant]));
+        if (!entry || entry.scope !== scope) return null;
+        entry.touched = this.now();
+        return JSON.parse(JSON.stringify(entry.value));
+      });
+    }
+    put(scope, id, variant, value, valid) {
+      return this.run(async () => {
+        if (!valid()) return;
+        const json = JSON.stringify(value), bytes = new TextEncoder().encode(json).length;
+        if (bytes > this.maxBytes) return;
+        const entry = {id: JSON.stringify([scope, id, variant]), scope, value: JSON.parse(json), bytes,
+          savedAt: this.now(), touched: this.now()};
+        this.entries.set(entry.id, entry);
+        try { await this.store.put(entry); } catch (_) { /* Memory cache still works when storage is full or disabled. */ }
+        if (!valid()) await this.remove(entry.id);
+        await this.prune();
+      });
+    }
+    clear(scope) {
+      return this.run(async () => {
+        for (const entry of [...this.entries.values()]) if (entry.scope === scope) await this.remove(entry.id);
+      });
+    }
+    size(scope) { return this.run(async () => { await this.prune(); return [...this.entries.values()].filter(e => e.scope === scope).reduce((n, e) => n + e.bytes, 0); }); }
   }
   class TenoWebRuntime {
     constructor(options = {}) {
@@ -45,6 +102,14 @@
       this.origin = options.origin || location.origin;
       this.storage = options.storage || sessionStorage;
       this.store = options.store || new BrowserStore();
+      this.readCache = options.readCache || new RecordingCache(); this.cacheGeneration = 0;
+      this.reads = new Map();
+      if (typeof document !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
+        this.cacheChannel = new BroadcastChannel('teno-web-read-cache-v1');
+        this.cacheChannel.onmessage = event => {
+          if (event.data?.scope === this.session?.id) this.invalidateCache(false);
+        };
+      }
       this.session = null; this.epoch = 0; this.sequence = 0; this.drafts = [];
       this.controllers = new Set(); this.uploads = new Map(); this.settings = {};
       this.player = {ready: false, playing: false, positionMs: 0, durationMs: 0, speed: 1, mediaId: '', error: ''};
@@ -76,10 +141,11 @@
     async responseError(response) {
       const data = await response.json().catch(() => ({}));
       const detail = data.detail || data.error || data;
-      return new Error(typeof detail.message === 'string' ? detail.message :
+      const error = new Error(typeof detail.message === 'string' ? detail.message :
         response.status === 413 ? 'This file exceeds the upload limit.' :
         response.status === 401 ? 'Your session expired. Sign in again.' :
         response.status === 429 ? 'Too many requests. Please try again shortly.' : 'The request could not be completed. Please retry.');
+      error.status = response.status; return error;
     }
     async raw(path, options = {}, timeout = 90000, externalSignal) {
       const controller = new AbortController(); this.controllers.add(controller);
@@ -124,11 +190,57 @@
       if (!response.ok) throw await this.responseError(response);
       return response;
     }
-    async request({method, path, body}) {
+    async request(args) {
+      const {method, path} = args;
+      if (method.toUpperCase() !== 'GET') return this.requestOnce(args);
+      this.safePath(path); this.check(this.epoch);
+      const key = this.cacheToken() + path;
+      if (this.reads.has(key)) return this.reads.get(key);
+      const pending = this.requestOnce(args); this.reads.set(key, pending);
+      try { return await pending; } finally { this.reads.delete(key); }
+    }
+    async requestOnce({method, path, body}) {
       const epoch = this.epoch;
-      const result = await this.authorized(path, {method, ...(body == null ? {} : {headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})});
-      const value = result.status === 204 ? {} : await result.json(); this.check(epoch);
-      return value;
+      this.safePath(path); this.check(epoch);
+      const mutation = !['GET', 'HEAD'].includes(method.toUpperCase());
+      if (mutation) this.invalidateCache();
+      try {
+        const result = await this.authorized(path, {method, ...(body == null ? {} : {headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})});
+        const value = result.status === 204 ? {} : await result.json(); this.check(epoch);
+        return value;
+      } catch (error) {
+        if ([401, 403, 404].includes(error.status) && /\/recordings\/[^/]+(?:\/|\?|$)/.test(path)) {
+          this.invalidateCache();
+          throw new Error('RECORDING_UNAVAILABLE: This recording is no longer available.');
+        }
+        throw error;
+      } finally { if (mutation && epoch === this.epoch) this.invalidateCache(); }
+    }
+    cacheToken() { return JSON.stringify([this.session?.id, this.epoch, this.cacheGeneration]); }
+    invalidateCache(broadcast = true) {
+      ++this.cacheGeneration;
+      const scope = this.session?.id;
+      if (!scope) return Promise.resolve();
+      if (broadcast) this.cacheChannel?.postMessage({scope});
+      return this.readCache.clear(scope).catch(() => {});
+    }
+    async recordingCache(args) {
+      const epoch = this.epoch; this.check(epoch);
+      if (!this.validated) return {};
+      const scope = this.session.id, token = this.cacheToken();
+      if (args.action === 'clear') { await this.invalidateCache(); return {}; }
+      if (typeof args.id !== 'string' || !args.id || !['edited', 'original', 'cleaned'].includes(args.variant)) return {};
+      if (args.action === 'read') {
+        const value = await this.readCache.get(scope, args.id, args.variant); this.check(epoch);
+        return token === this.cacheToken() ? {token, value} : {};
+      }
+      if (args.action === 'write' && args.token === token && args.value?.record?.id === args.id) {
+        const value = Object.fromEntries(['record', 'transcript', 'notes', 'metadata', 'processing', 'peaks']
+          .filter(key => key in args.value).map(key => [key, args.value[key]]));
+        await this.readCache.put(scope, args.id, args.variant, value,
+          () => epoch === this.epoch && token === this.cacheToken());
+      }
+      return {};
     }
     async loadDrafts() {
       const epoch = this.epoch, scope = this.session?.id;
@@ -163,6 +275,7 @@
       this.emit(); return {};
     }
     clear() {
+      this.invalidateCache();
       ++this.epoch; for (const c of this.controllers) c.abort();
       for (const c of this.uploads.values()) c.abort();
       this.session = null; this.validated = false; this.drafts = []; this.settings = {}; this.refreshing = null;
@@ -318,6 +431,7 @@
         case 'request': return this.request(args);
         case 'preferences': return {personal_core: true, settings: this.settings};
         case 'cache_preferences': this.settings = args; return {};
+        case 'recording_cache': return this.recordingCache(args);
         case 'pending_imports': return {items: []};
         case 'import': return this.pick(args);
         case 'retryUpload': return this.retryUpload(args);
@@ -332,8 +446,8 @@
           try { this.storage.setItem(key, JSON.stringify(items)); } catch (_) {}
           return {items};
         }
-        case 'storage': await this.loadDrafts(); return {local_bytes: this.drafts.reduce((n, d) => n + d.size, 0), cache_bytes: 0};
-        case 'clear_cache': this.resetPlayer(); this.emit(); return {bytes: 0};
+        case 'storage': await this.loadDrafts(); return {local_bytes: this.drafts.reduce((n, d) => n + d.size, 0), cache_bytes: await this.readCache.size(this.session?.id)};
+        case 'clear_cache': await this.invalidateCache(); this.resetPlayer(); this.emit(); return {bytes: 0};
         case 'export': case 'preview': return this.download(args);
         case 'local_export': return this.download(args, true);
         case 'shareText':
@@ -343,7 +457,7 @@
       }
     }
   }
-  if (typeof module !== 'undefined') module.exports = {TenoWebRuntime, BrowserStore, fileInfo};
+  if (typeof module !== 'undefined') module.exports = {TenoWebRuntime, BrowserStore, RecordingCache, fileInfo};
   if (typeof document !== 'undefined') {
     const runtime = new TenoWebRuntime(); runtime.playSequence = 0;
     globalThis.tenoWeb = {listen: fn => runtime.listen(fn), call: async (method, args) => {

@@ -11,6 +11,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   String _selectedNote = '', _folderTitle = '';
   List<Json>? _shares;
   Json _sourceTranscript = {};
+  String _cacheStatus = '', _visibleVariant = '', _accountScope = '';
 
   @override
   bool get audio => _transcriptTab;
@@ -54,13 +55,118 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   @override
   void initState() {
     _transcriptTab = widget.transcriptOnly || widget.seekMs != null;
+    _accountScope = widget.model.runtime?.session.scope ?? '';
     super.initState();
+  }
+
+  @override
+  void playbackChanged() {
+    if (!mounted) return;
+    if (_accountScope != (widget.model.runtime?.session.scope ?? '')) {
+      ++_loadStamp;
+      timer?.cancel();
+      setState(() {
+        record = {};
+        transcript = {};
+        metadata = {};
+        processing = {};
+        notes = [];
+        peaks = [];
+        _sourceTranscript = {};
+        _shares = null;
+        loading = false;
+        _cacheStatus = '';
+        error = 'Account changed. Open this recording again.';
+      });
+      return;
+    }
+    super.playbackChanged();
+  }
+
+  void _applyContent(Json value, String requestedVariant) {
+    record = object(value['record']);
+    transcript = object(value['transcript']);
+    notes = rows(value['notes']);
+    metadata = object(value['metadata']);
+    processing = object(value['processing']);
+    _visibleVariant = requestedVariant;
+    loading = false;
+    error = '';
+    final selected = notes.indexWhere((n) => n['id'] == _selectedNote);
+    noteIndex = selected < 0 ? 0 : selected;
+    _selectedNote = text(_note['id']);
+    if (requestedVariant == 'edited') _sourceTranscript = transcript;
+  }
+
+  Future<Json> _readCache(String requestedVariant) async {
+    try {
+      return await widget.model.command('recording_cache', {
+        'action': 'read',
+        'id': widget.id,
+        'variant': requestedVariant,
+      });
+    } catch (_) {
+      return {};
+    }
+  }
+
+  Future<void> _saveCache(
+    int stamp,
+    String requestedVariant,
+    Future<Json> cached,
+  ) async {
+    try {
+      final cache = await cached;
+      if (!mounted || stamp != _loadStamp || text(cache['token']).isEmpty)
+        return;
+      await widget.model.command('recording_cache', {
+        'action': 'write',
+        'id': widget.id,
+        'variant': requestedVariant,
+        'token': cache['token'],
+        'value': {
+          'record': record,
+          'transcript': transcript,
+          'notes': notes,
+          'metadata': metadata,
+          'processing': processing,
+          'peaks': peaks,
+        },
+      });
+    } catch (_) {
+      /* Reading cloud data must not depend on browser storage. */
+    }
   }
 
   @override
   Future<void> load() async {
     timer?.cancel();
     final stamp = ++_loadStamp, requestedVariant = variant;
+    var networkDone = false;
+    final cached = _readCache(requestedVariant);
+    if (_visibleVariant != requestedVariant) transcript = {};
+    // Start storage and network together. Slow/blocked IndexedDB cannot delay
+    // the server, and a late cache read cannot overwrite a fresh response.
+    unawaited(
+      cached.then((cache) {
+        final value = object(cache['value']);
+        if (!mounted ||
+            stamp != _loadStamp ||
+            networkDone ||
+            _accountScope != widget.model.runtime?.session.scope ||
+            object(value['record'])['id'] != widget.id ||
+            record.isNotEmpty && _visibleVariant == requestedVariant)
+          return;
+        setState(() {
+          _applyContent(value, requestedVariant);
+          peaks = (value['peaks'] as List? ?? [])
+              .whereType<num>()
+              .map((v) => v.toDouble())
+              .toList();
+          _cacheStatus = 'Saved copy · Checking for updates…';
+        });
+      }),
+    );
     try {
       final values = await Future.wait([
         widget.model.api('GET', path),
@@ -75,28 +181,58 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           '/api/v1/personal/recordings/${widget.id}/processing',
         ),
       ]);
+      networkDone = true;
       if (!mounted || stamp != _loadStamp) return;
       setState(() {
-        record = values[0];
-        transcript = values[1];
-        notes = rows(values[2]['items']);
-        metadata = values[3];
-        processing = values[4];
-        loading = false;
-        error = '';
-        final selected = notes.indexWhere((n) => n['id'] == _selectedNote);
-        noteIndex = selected < 0 ? 0 : selected;
-        _selectedNote = text(_note['id']);
-        if (requestedVariant == 'edited') _sourceTranscript = transcript;
+        if (record['revision'] != values[0]['revision'] ||
+            record['duration_ms'] != values[0]['duration_ms'])
+          peaks = [];
+        _applyContent({
+          'record': values[0],
+          'transcript': values[1],
+          'notes': values[2]['items'],
+          'metadata': values[3],
+          'processing': values[4],
+        }, requestedVariant);
+        _cacheStatus = '';
       });
-      unawaited(_loadRelated(stamp));
+      unawaited(_saveCache(stamp, requestedVariant, cached));
+      unawaited(
+        _loadRelated(
+          stamp,
+        ).then((_) => _saveCache(stamp, requestedVariant, cached)),
+      );
       if (processing['status'] == 'processing')
         timer = Timer(const Duration(seconds: 6), load);
       if (audio) playbackChanged();
     } catch (e) {
+      if (!e.toString().contains('RECORDING_UNAVAILABLE')) {
+        // A failed offline fetch can finish before IndexedDB opens.
+        await cached.timeout(
+          const Duration(milliseconds: 500),
+          onTimeout: () => <String, dynamic>{},
+        );
+      }
+      networkDone = true;
       if (mounted && stamp == _loadStamp)
         setState(() {
-          error = TenoModel.friendly(e);
+          if (e.toString().contains('RECORDING_UNAVAILABLE')) {
+            record = {};
+            transcript = {};
+            notes = [];
+            metadata = {};
+            processing = {};
+            peaks = [];
+            _sourceTranscript = {};
+            _shares = null;
+            _cacheStatus = '';
+            error = 'This recording is no longer available.';
+          } else {
+            _cacheStatus = record.isEmpty
+                ? ''
+                : 'Saved copy · Could not check for updates';
+            error = TenoModel.friendly(e);
+          }
           loading = false;
         });
     }
@@ -947,6 +1083,14 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
 
   List<Widget> _notices() => [
     if (loading) const LinearProgressIndicator(minHeight: 2),
+    if (_cacheStatus.isNotEmpty)
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Text(
+          _cacheStatus,
+          style: TextStyle(fontSize: 12, color: _muted),
+        ),
+      ),
     if (error.isNotEmpty) ErrorNotice(error, retry: load),
     if (processing['status'] == 'failed') ...[
       ErrorNotice(text(object(processing['error'])['message'])),

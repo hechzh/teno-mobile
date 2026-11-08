@@ -1,6 +1,6 @@
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
-const {TenoWebRuntime, fileInfo} = require('../web/runtime.js');
+const {TenoWebRuntime, RecordingCache, fileInfo} = require('../web/runtime.js');
 class Storage {
   values = new Map();
   getItem(k) { return this.values.get(k); }
@@ -13,6 +13,7 @@ class Store {
   async put(d) { this.values.set(d.id, structuredClone(d)); }
   async list(scope) { return [...this.values.values()].filter(d => d.scope === scope).map(d => structuredClone(d)); }
   async delete(id) { this.values.delete(id); }
+  async all() { return [...this.values.values()].map(d => structuredClone(d)); }
 }
 const response = (data, status = 200) => new Response(JSON.stringify(data), {status, headers: {'Content-Type': 'application/json'}});
 const user = {id: 'user-a', username: 'synthetic', access_token: 'access-a', refresh_token: 'refresh-a'};
@@ -126,4 +127,105 @@ test('sign-out during upload retains the original account copy for retry', async
   assert.equal((await r.store.get(id)).scope, 'user-a');
   assert.equal((await r.store.get(id)).status, 'failed');
   assert.deepEqual(r.view().drafts, []);
+});
+
+const bundle = (id = 'record-1', revision = 1) => ({record: {id, revision, duration_ms: 2461896},
+  transcript: {recording_id: id, revision, segments: [{id: 'segment-1', text: 'Saved transcript'}]},
+  notes: [{id: 'note-1', data: {summary: 'Saved note'}}], metadata: {}, processing: {status: 'ready'}, peaks: [.2, .6, .1]});
+const read = (r, id = 'record-1', variant = 'edited') => r.call('recording_cache', {action: 'read', id, variant});
+async function save(r, value = bundle(), variant = 'edited', token) {
+  token ??= (await read(r, value.record.id, variant)).token;
+  return r.call('recording_cache', {action: 'write', id: value.record.id, variant, token, value});
+}
+function cachedHost(fetch = () => assert.fail('cache never calls model or HTTP'), options = {}) {
+  const r = host(fetch); r.readCache = new RecordingCache({store: new Store(), ...options}); return r;
+}
+test('recording, note and waveform cache survive a reload under the same validated account', async () => {
+  const store = new Store(), r = cachedHost(undefined, {store}); await save(r);
+  const reloaded = cachedHost(undefined, {store});
+  assert.deepEqual((await read(reloaded)).value, bundle());
+  reloaded.validated = false; assert.deepEqual(await read(reloaded), {});
+  reloaded.validated = true; reloaded.session = {...user, id: 'user-b'};
+  assert.equal((await read(reloaded)).value, null);
+});
+test('transcript variants have separate entries and caller edits do not mutate stored snapshots', async () => {
+  const r = cachedHost(); await save(r);
+  const cleaned = bundle(); cleaned.transcript.segments[0].text = 'Cleaned transcript';
+  await save(r, cleaned, 'cleaned');
+  const edited = (await read(r)).value; edited.transcript.segments[0].text = 'Caller change';
+  assert.equal((await read(r)).value.transcript.segments[0].text, 'Saved transcript');
+  assert.equal((await read(r, 'record-1', 'cleaned')).value.transcript.segments[0].text, 'Cleaned transcript');
+});
+test('logout purges read cache while preserving retained imports', async () => {
+  const r = cachedHost(); await save(r); await r.stage([file()]);
+  r.clear(); await r.readCache.queue;
+  assert.equal(r.readCache.entries.size, 0); assert.equal(r.store.values.size, 1);
+  r.session = {...user}; r.validated = true; assert.equal((await read(r)).value, null);
+});
+test('stale writes from a previous account cannot repopulate its cache after sign-out', async () => {
+  const r = cachedHost(), old = await read(r); r.clear();
+  r.session = {...user, id: 'user-b'}; r.validated = true;
+  await save(r, bundle(), 'edited', old.token); assert.equal((await read(r)).value, null);
+});
+for (const path of ['/api/v1/notes/n1', '/api/v1/recordings/record-1/transcriptions', '/api/v1/jobs/job-1/retry']) {
+  test(`mutation invalidates cached content and older pending snapshots: ${path}`, async () => {
+    const r = cachedHost(async () => response({})); await save(r); const old = await read(r);
+    await r.request({method: 'POST', path, body: {}});
+    await save(r, bundle(), 'edited', old.token);
+    assert.equal((await read(r)).value, null);
+  });
+}
+test('an ambiguous mutation failure invalidates the old cache too', async () => {
+  const r = cachedHost(async () => { throw Error('lost connection'); }); await save(r);
+  await assert.rejects(r.request({method: 'PATCH', path: '/api/v1/notes/n1', body: {}}));
+  assert.equal((await read(r)).value, null);
+});
+for (const status of [403, 404]) {
+  test(`deleted or inaccessible recordings are evicted (${status})`, async () => {
+    const r = cachedHost(async () => response({}, status)); await save(r);
+    await assert.rejects(r.request({method: 'GET', path: '/api/v1/recordings/record-1'}), /RECORDING_UNAVAILABLE/);
+    assert.equal((await read(r)).value, null);
+  });
+}
+test('network failure retains cached data for a visibly marked offline fallback', async () => {
+  const r = cachedHost(async () => { throw Error('offline'); }); await save(r);
+  await assert.rejects(r.request({method: 'GET', path: '/api/v1/recordings/record-1'}));
+  assert.deepEqual((await read(r)).value, bundle());
+});
+test('concurrent reads share one request but a later read checks the server again', async () => {
+  let finish, calls = 0;
+  const r = cachedHost(() => { calls++; return new Promise(resolve => finish = resolve); });
+  const args = {method: 'GET', path: '/api/v1/recordings/record-1/waveform'};
+  const a = r.request(args), b = r.request(args); finish(response({peaks: [.4]}));
+  assert.deepEqual(await a, await b); assert.equal(calls, 1);
+  const c = r.request(args); finish(response({peaks: [.6]})); await c; assert.equal(calls, 2);
+});
+test('storage failure falls back to memory without blocking cloud requests', async () => {
+  const store = new Store(); store.all = store.put = store.delete = async () => { throw Error('quota'); };
+  const r = cachedHost(async () => response({id: 'ok'}), {store}); await save(r);
+  assert.deepEqual((await read(r)).value, bundle());
+  assert.deepEqual(await r.request({method: 'GET', path: '/api/v1/me'}), {id: 'ok'});
+});
+test('cache evicts least recently used entries, expires snapshots and enforces byte limits', async () => {
+  let now = 1000; const r = cachedHost(undefined, {now: () => now, maxEntries: 2, maxBytes: 2000, maxAge: 100});
+  await save(r); now++; await save(r, bundle('record-2')); now++;
+  await read(r); now++; await save(r, bundle('record-3'));
+  assert.equal((await read(r, 'record-2')).value, null); assert.ok((await read(r)).value);
+  const huge = bundle('huge'); huge.transcript.segments[0].text = '大'.repeat(1000); await save(r, huge);
+  assert.equal((await read(r, 'huge')).value, null);
+  now += 101; assert.equal((await read(r)).value, null);
+});
+test('clear cache reports real storage and does not remove import drafts', async () => {
+  const r = cachedHost(); await save(r); await r.stage([file()]);
+  assert.ok((await r.call('storage', {})).cache_bytes > 0);
+  await r.call('clear_cache', {});
+  assert.equal((await r.call('storage', {})).cache_bytes, 0); assert.equal(r.store.values.size, 1);
+});
+test('a write already in browser storage is removed when invalidated mid-write', async () => {
+  const store = new Store(); let finish, started;
+  const ready = new Promise(resolve => started = resolve);
+  store.put = async entry => { started(); await new Promise(resolve => finish = resolve); store.values.set(entry.id, entry); };
+  const r = cachedHost(undefined, {store}), pending = save(r); await ready;
+  r.clear(); finish(); await pending; await r.readCache.queue;
+  assert.equal(store.values.size, 0); assert.equal(r.readCache.entries.size, 0);
 });

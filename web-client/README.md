@@ -1,4 +1,4 @@
-# Teno Web preview 0.1.1
+# Teno Web preview 0.1.2
 
 The browser application reuses `../shared-ui` from Android 0.6.2. It has its own
 entry point, browser runtime, build, CI job and deployment. Android's package,
@@ -33,6 +33,27 @@ from the existing audio API; unavailable peaks remain an unfilled progress line.
 This presentation is enabled only by `webExperience`. Native recording details
 keep their previous layout. Light/dark and 360dp enlarged-text layouts are covered
 by automated tests; actual iPhone Safari acceptance remains a device test.
+
+## Recording read cache
+
+Web 0.1.2 first displays an account-scoped saved recording, transcript, notes and
+waveform, then refreshes the content from the existing API in the background.
+Saved data is labelled while checking or when a connection fails. Every entry
+is revalidated on opening; a denied/deleted recording is removed from view.
+Transcript variants are separate. Unchanged recording revisions reuse waveform
+peaks, avoiding repeated server-side decoding of long recordings.
+
+IndexedDB retains up to 24 recent recording/variant snapshots, 8 MiB total, for
+at most seven days. Memory caching still works if storage is disabled or full.
+This is disposable read data, separate from retained imports; it contains no
+credentials or audio files. Logout, account changes, explicit cache clearing,
+and successful or ambiguous write requests invalidate read data. Other open
+tabs receive invalidation notices when BroadcastChannel is available. A late
+cache read or request from an old account cannot overwrite current content.
+
+Initial visits still need network loading and first-time waveform computation.
+This does not cache model requests, rerun transcription on opening, or create an
+offline login/library. Generated results already persist on the server.
 
 ## Import behavior
 

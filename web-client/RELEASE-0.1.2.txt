@@ -1,0 +1,36 @@
+Teno Web preview 0.1.2 / 3
+2026-11-08
+
+Recording read cache
+Previously every recording entry fetched all text again and requested a freshly
+computed waveform. Revisited recordings now display an account-scoped saved
+snapshot while checking the current server content. Unchanged recording revisions
+reuse saved waveform peaks; opening a recording never runs transcription again.
+
+Recordings, each transcript variant, notes, metadata, processing state and waveform
+peaks are cached in memory and separate IndexedDB storage. The limit is 24 recent
+recording/variant entries, 8 MiB and seven days. Credentials and audio are excluded.
+Logout, cache clearing, mutations (including ambiguous failures), inaccessible
+recordings and cross-tab invalidation clear read data. Retained imports are separate.
+Stale requests from an old account cannot populate the next account's cache.
+
+A saved copy is labelled while checking or offline. Server results replace it
+without a blank loading screen. Cache storage failure leaves cloud reads usable.
+First visits still require network and initial waveform computation; this does not
+add offline sign-in, an offline library, or background browser uploads.
+
+Validation
+- 334 shared Flutter tests, including seven cache rendering/regression cases.
+- 30 browser runtime tests, including 16 new persistence, account isolation,
+  invalidation, quota, expiry, byte-limit, concurrent-read and stale-write cases.
+- Shared/Web static analyses and release compilation passed.
+- No paid model request or replay of failed generation is required for these tests.
+- Actual iPhone Safari remains a separate device acceptance item.
+
+Delivery
+Existing /app/ static release with previous 0.1.1 retained; same account and API.
+Works with backend 1.4.2 or newer. The separately delivered 1.4.3 generation-budget
+change raises personal recording notes/cleanup to a 100000-token request ceiling.
+Android remains 0.6.2 / 13 and its APK is unchanged. No mobile release, main merge,
+store publication or confirmed-baseline change.
+Source and SHA256 details are in dist/Teno-Web-0.1.2-manifest.json and -SHA256SUMS.txt.
