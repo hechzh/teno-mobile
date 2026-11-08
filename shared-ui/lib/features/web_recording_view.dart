@@ -632,13 +632,19 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   }) {
     final data = object(note['data']), body = text(data['body']).trim();
     final sources = rows(data['sources']), chapters = _chapters(note);
+    final narrative =
+        data['schema_version'] == 'personal-notes-v2' &&
+        chapters.isNotEmpty &&
+        chapters.every((chapter) => text(chapter['body']).trim().isNotEmpty);
     final usedSources = chapters.map((c) => c['source_id']).toSet();
     void showSource(Json source) {
       if (!anchors) Navigator.pop(context);
       unawaited(_source(source));
     }
 
-    final standalone = body.isNotEmpty
+    final standalone = narrative
+        ? (overviewShown ? '' : text(data['summary']))
+        : body.isNotEmpty
         ? body
         : overviewShown
         ? ''
@@ -706,7 +712,11 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                   height: 1.6,
                 ),
               ),
-              if (excerpt.isNotEmpty) ...[
+              if (narrative) ...[
+                const SizedBox(height: 12),
+                paragraph(text(chapter['body'])),
+              ],
+              if (!narrative && excerpt.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.only(left: 14),

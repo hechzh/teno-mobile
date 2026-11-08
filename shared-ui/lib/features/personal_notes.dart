@@ -347,8 +347,13 @@ class _PersonalNoteEditorState extends State<PersonalNoteEditor> {
 }
 
 String editableNoteText(Json data) {
-  if (data['body'] != null) return text(data['body']);
-  final parts = [text(data['summary'])];
+  final narrative = data['schema_version'] == 'personal-notes-v2';
+  if (!narrative && data['body'] != null) return text(data['body']);
+  final summary = text(data['summary']), body = text(data['body']);
+  final parts = [
+    if (summary.isNotEmpty && (!narrative || summary != body)) summary,
+    if (narrative && body.isNotEmpty) body,
+  ];
   for (final section in [
     ('key_points', 'Key points'),
     ('action_items', 'Next steps'),

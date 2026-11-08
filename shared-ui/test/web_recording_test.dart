@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/core/model.dart';
 import '../lib/platform/runtime.g.dart';
@@ -35,6 +36,49 @@ class NotesHost extends CoreHost {
 
 Json copyNote() => jsonDecode(jsonEncode(note)) as Json;
 
+// Synthetic narrative contract; never use a production transcript as a fixture.
+Json narrativeNote() {
+  final value = copyNote();
+  final data = object(value['data']);
+  data['schema_version'] = 'personal-notes-v2';
+  data['summary'] = 'The team discussed an import trial; funding remains open.';
+  data['chapters'] = [
+    {
+      'title': 'Import trial',
+      'source_id': 'segment-1',
+      'body': '[Proposed] Test the import flow before making a commitment.',
+      'paragraphs': [
+        {
+          'text': 'Test the import flow before making a commitment.',
+          'kind': 'proposal',
+          'evidence': [
+            {'source_id': 'segment-1', 'quote': 'Private source snapshot'},
+          ],
+        },
+      ],
+    },
+    {
+      'title': 'Funding questions',
+      'source_id': 'segment-1',
+      'body': '[Open question] No funding amount was agreed.',
+    },
+  ];
+  data['body'] =
+      '1. Import trial\n\n[Proposed] Test the import flow before making a commitment.'
+      '\n\n2. Funding questions\n\n[Open question] No funding amount was agreed.';
+  data['key_points'] = ['[Open question] Confirm the test budget.'];
+  data['action_items'] = [
+    {
+      'title': '[Proposed] Draft a test plan.',
+      'status': 'proposed',
+      'assignee': null,
+      'due_at': null,
+    },
+  ];
+  value['data'] = data;
+  return value;
+}
+
 Future<TenoModel> openNotes(
   WidgetTester tester,
   NotesHost host, {
@@ -67,6 +111,177 @@ Future<TenoModel> openNotes(
 }
 
 void main() {
+  testWidgets(
+    'narrative topics navigate to full prose without duplicate text',
+    (tester) async {
+      final host = NotesHost(), generated = narrativeNote();
+      final data = object(generated['data']);
+      host.overrides['/api/v1/recordings/record-1/notes'] = {
+        'items': [generated],
+      };
+      await openNotes(tester, host);
+      expect(find.text(data['summary']), findsOneWidget);
+      expect(find.text(data['body']), findsNothing);
+      expect(
+        find.text(
+          '[Proposed] Test the import flow before making a commitment.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text('[Open question] No funding amount was agreed.'),
+        findsOneWidget,
+      );
+      expect(find.text('Transcript excerpt'), findsNothing);
+      expect(find.text('Private source snapshot'), findsNothing);
+      expect(find.text('[Proposed] Draft a test plan.'), findsOneWidget);
+      await tester.tap(find.text('Topics'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ListTile, 'Funding questions'));
+      await tester.pumpAndSettle();
+      expect(find.text('Funding questions').hitTestable(), findsOneWidget);
+      final source = find.text('View source').last;
+      await tester.ensureVisible(source);
+      await tester.tap(source);
+      await tester.pumpAndSettle();
+      expect(host.playbackCalls.single, (PlaybackAction.play, 'record-1', 0));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'narrative copy and editor keep overview, full prose and extracts',
+    (tester) async {
+      final host = NotesHost(), generated = narrativeNote();
+      final data = object(generated['data']);
+      String? copied;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData')
+            copied = call.arguments['text'];
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      host.overrides['/api/v1/recordings/record-1/notes'] = {
+        'items': [generated],
+      };
+      host.overrides['/api/v1/notes/note-1'] = generated;
+      await openNotes(tester, host);
+      await tester.ensureVisible(find.text('Copy / Export'));
+      await tester.tap(find.text('Copy / Export'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Copy note'));
+      await tester.pumpAndSettle();
+      expect(copied, startsWith(data['summary']));
+      expect(copied, contains(data['body']));
+      expect(copied, contains('[Open question] Confirm the test budget.'));
+      expect(copied, contains('[Proposed] Draft a test plan.'));
+      expect(copied!.split('Draft a test plan.').length, 2);
+      expect(copied, isNot(contains('Private source snapshot')));
+      await tester.ensureVisible(find.text('Edit'));
+      await tester.tap(find.text('Edit'));
+      await tester.pumpAndSettle();
+      final fields = tester.widgetList<TextField>(find.byType(TextField));
+      expect(fields.last.controller!.text, copied);
+      expect(host.requests.where((r) => r.startsWith('PATCH ')), isEmpty);
+    },
+  );
+
+  testWidgets(
+    'saved narrative version retains its overview and source-era prose',
+    (tester) async {
+      final host = NotesHost(), older = narrativeNote();
+      older['source_revision'] = 0;
+      older['stale'] = true;
+      older['selected_revision'] = 1;
+      older['revision'] = 2;
+      host.overrides['/api/v1/notes/note-1/versions'] = {
+        'items': [older],
+      };
+      await openNotes(tester, host);
+      await tester.ensureVisible(find.text('Version'));
+      await tester.tap(find.text('Version'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Version 1'));
+      await tester.pumpAndSettle();
+      expect(find.text(object(older['data'])['summary']), findsOneWidget);
+      expect(
+        find.text('[Open question] No funding amount was agreed.'),
+        findsOneWidget,
+      );
+      expect(find.text('Private source snapshot'), findsNothing);
+      expect(
+        find.textContaining('retains its earlier version'),
+        findsOneWidget,
+      );
+      final panel = find.byType(BottomSheet).last;
+      expect(
+        find.descendant(of: panel, matching: find.text('Transcript excerpt')),
+        findsNothing,
+      );
+      expect(host.requests.where((r) => !r.startsWith('GET ')), isEmpty);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('incomplete narrative structure keeps the saved full body', (
+    tester,
+  ) async {
+    final host = NotesHost(), incomplete = narrativeNote();
+    final data = object(incomplete['data']);
+    final chapters = rows(data['chapters']);
+    chapters.last.remove('body');
+    data['chapters'] = chapters;
+    incomplete['data'] = data;
+    host.overrides['/api/v1/recordings/record-1/notes'] = {
+      'items': [incomplete],
+    };
+    await openNotes(tester, host);
+    expect(find.text(data['body']), findsOneWidget);
+    expect(find.text(data['summary']), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  test('legacy manual editing keeps its existing body-only behavior', () {
+    expect(
+      editableNoteText({
+        'body': 'Saved wording',
+        'summary': 'Old overview',
+        'key_points': ['Old point'],
+      }),
+      'Saved wording',
+    );
+  });
+
+  for (final dark in [false, true]) {
+    testWidgets('narrative notes fit 360dp at large font, dark=$dark', (
+      tester,
+    ) async {
+      final host = NotesHost();
+      host.overrides['/api/v1/recordings/record-1/notes'] = {
+        'items': [narrativeNote()],
+      };
+      await openNotes(tester, host, dark: dark, scale: 1.5);
+      tester.view.physicalSize = const Size(360, 800);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.ensureVisible(find.text('Topics'));
+      await tester.tap(find.text('Topics'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ListTile, 'Funding questions'));
+      await tester.pumpAndSettle();
+      expect(find.text('Funding questions').hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets(
     'Web reading page preserves all generated content and real topics',
     (tester) async {
