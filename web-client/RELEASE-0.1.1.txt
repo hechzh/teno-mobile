@@ -1,0 +1,42 @@
+Teno Web preview 0.1.1 / 2
+2026-11-08
+
+Scope
+User-approved recording Notes V1 applied to Web only. Reuses the current account,
+library, notes, transcript, sharing, export, playback and Ask contracts. Backend
+1.4.2, generation prompts and data schema remain unchanged. Android remains
+0.6.2 / 13; this release does not build or replace an APK or iOS application.
+
+Changes
+- Compact Teno header; Notes and Transcript in the same recording page.
+- White/sage reading layout with one overview, real topic count and chapter jump.
+- Actual note selection, edit, read-only saved versions, copy/export controls.
+- Fixed playback progress/waveform and context-aware Ask Teno entry.
+- Full key points and action items retained alongside the chapter outline.
+- Source excerpts require matching transcript revision and segment ID. Stale
+  notes remain identified; unavailable original content is not reconstructed.
+- Share status comes from owner-scoped shares and expiry/revocation state. If
+  retrieval fails, the label is omitted. Share creation remains explicit.
+- Empty, loading, processing/failure and manual-note layouts use real state.
+- Dark mode and narrow/enlarged-text layouts reuse the approved typography.
+
+Validation
+Shared UI regression: 327 tests passed, including 16 new Web recording tests.
+Browser runtime contracts: 14 tests passed. Flutter analyses and release build
+are checked locally and by the independent Web CI workflow.
+The local browser was exercised with an existing synthetic acceptance recording:
+real summary/topics, topic navigation, transcript source and audio progress.
+Release manifest records the committed source and per-file SHA256 values.
+
+Boundaries
+No additional transcription/summary/Ask generation is needed to render the page.
+The design's example prose, six-topic count, dates, waveform and OS chrome are
+not fabricated in the app. Source excerpts remain clearly labeled as excerpts.
+Real iPhone Safari, native hardware and JWD are not established by browser or
+widget tests. Safari may require a second Play tap after audio loading.
+
+Deployment
+Existing /app/ static release only, with a retained previous release and gateway
+configuration backup. Keep /team/, backend workers, data volumes and migrations.
+No main merge, store publication or change to a confirmed native baseline.
+See README.md and dist/Teno-Web-0.1.1-manifest.json / -SHA256SUMS.txt.

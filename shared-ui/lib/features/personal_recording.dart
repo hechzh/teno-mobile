@@ -11,6 +11,8 @@ import 'personal_ask.dart';
 import 'personal_settings.dart';
 import 'personal_library.dart';
 
+part 'web_recording_view.dart';
+
 class PersonalRecordingPage extends StatefulWidget {
   const PersonalRecordingPage(
     this.model,
@@ -24,7 +26,9 @@ class PersonalRecordingPage extends StatefulWidget {
   final int? seekMs;
   final bool transcriptOnly;
   @override
-  State<PersonalRecordingPage> createState() => _PersonalRecordingPageState();
+  State<PersonalRecordingPage> createState() => model.webExperience
+      ? _WebRecordingPageState()
+      : _PersonalRecordingPageState();
 }
 
 class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
@@ -448,7 +452,8 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                       ('speakers', 'Name speakers'),
                       ('rename', 'Rename'),
                       ('move', 'Move to folder'),
-                      if (!widget.model.webExperience) ('calendar', 'Link calendar event'),
+                      if (!widget.model.webExperience)
+                        ('calendar', 'Link calendar event'),
                       ('generate', 'New summary note'),
                       ('transcribe', 'Transcribe again'),
                       ('replace', 'Find & replace'),

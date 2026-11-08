@@ -1,4 +1,4 @@
-# Teno Web preview 0.1.0
+# Teno Web preview 0.1.1
 
 The browser application reuses `../shared-ui` from Android 0.6.2. It has its own
 entry point, browser runtime, build, CI job and deployment. Android's package,
@@ -13,6 +13,26 @@ speaker labels, audio playback and seeking, summary notes/templates, Ask with
 source references and chat history, file download/export, account preferences.
 Hardware recording, phone microphone recording, dictation, system calendar,
 Android app lock/notifications and incoming native share intents are omitted.
+
+## Recording notes
+
+Web 0.1.1 applies the approved Notes V1 design to recording details: Notes and
+Transcript tabs, a sage overview, a real chapter directory, note selection,
+direct editing, saved versions, copy/export, and a fixed audio/Ask bar. The audio
+bar opens the existing seek/speed controls. Share retains the existing content
+selection and revocation behavior.
+
+Content comes from the existing APIs. No additional model call is made to fill
+the layout. Chapters use the saved note's actual titles; transcript excerpts are
+shown only when the source ID and transcript revision match. Older notes keep
+their stale/source indicators. Manual notes without chapters do not show a fake
+directory, and identical summary/body text appears once. A privacy label appears
+only after share state is successfully retrieved. The displayed waveform comes
+from the existing audio API; unavailable peaks remain an unfilled progress line.
+
+This presentation is enabled only by `webExperience`. Native recording details
+keep their previous layout. Light/dark and 360dp enlarged-text layouts are covered
+by automated tests; actual iPhone Safari acceptance remains a device test.
 
 ## Import behavior
 

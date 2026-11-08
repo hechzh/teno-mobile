@@ -39,5 +39,5 @@ jobs:
           flutter build web --release --base-href /app/ --no-web-resources-cdn
       - uses: actions/upload-artifact@v4
         with:
-          name: Teno-Web-0.1.0
+          name: Teno-Web-${{ github.sha }}
           path: web-client/build/web
