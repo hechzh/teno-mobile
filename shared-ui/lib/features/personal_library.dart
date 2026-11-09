@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class PersonalListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CoreFrame(
     title: title,
+    localizeTitle: folderId == null,
     actions: [
       CoreAction(
         Icons.search,
@@ -300,7 +302,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
             ])
               ListTile(
                 leading: Icon(entry.$3),
-                title: Text(entry.$2),
+                title: UiText(entry.$2),
                 onTap: () => Navigator.pop(sheet, entry.$1),
               ),
           ],
@@ -356,12 +358,12 @@ class _PersonalListBodyState extends State<PersonalListBody> {
           children: [
             ListTile(
               leading: const Icon(Icons.create_new_folder_outlined),
-              title: const Text('New folder'),
+              title: const UiText('New folder'),
               onTap: () => Navigator.pop(sheet, 'folder'),
             ),
             ListTile(
               leading: const Icon(Icons.note_add_outlined),
-              title: const Text('New note'),
+              title: const UiText('New note'),
               onTap: () => Navigator.pop(sheet, 'note'),
             ),
           ],
@@ -416,7 +418,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
           : null,
       trailing: !selecting && !widget.trash
           ? IconButton(
-              tooltip: 'File options',
+              tooltip: ui(context, 'File options'),
               onPressed: () => itemMenu(item),
               icon: const Icon(Icons.more_horiz, size: 20),
             )
@@ -475,14 +477,14 @@ class _PersonalListBodyState extends State<PersonalListBody> {
             (branches[key]?.length ?? 0) < (branchTotals[key] ?? 0))
           TextButton(
             onPressed: () => expand(key, append: true),
-            child: const Text('Load more'),
+            child: const UiText('Load more'),
           ),
         if (!branchLoading.contains(key) &&
             !branchErrors.containsKey(key) &&
             branches[key]?.isEmpty == true)
           const Padding(
             padding: EdgeInsets.all(16),
-            child: Text('No files here'),
+            child: UiText('No files here'),
           ),
       ],
     ),
@@ -575,7 +577,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                   children: [
                     if (widget.root)
                       PopupMenuButton<String>(
-                        tooltip: 'My files views',
+                        tooltip: ui(context, 'My files views'),
                         onSelected: (value) {
                           if (value == 'phone') {
                             unawaited(
@@ -603,7 +605,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                                   : 'On this phone',
                             ),
                           ])
-                            PopupMenuItem(value: v.$1, child: Text(v.$2)),
+                            PopupMenuItem(value: v.$1, child: UiText(v.$2)),
                         ],
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -639,13 +641,13 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                     if (widget.root) const Spacer(),
                     if (!selecting && !widget.trash)
                       IconButton(
-                        tooltip: 'New folder or note',
+                        tooltip: ui(context, 'New folder or note'),
                         onPressed: create,
                         icon: const Icon(Icons.add, size: 21),
                       ),
                     if (!widget.root)
                       PopupMenuButton<String>(
-                        tooltip: 'Sort and select',
+                        tooltip: ui(context, 'Sort and select'),
                         onSelected: (value) {
                           if (value == 'select') {
                             setState(() => selecting = true);
@@ -661,7 +663,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                             ('modified', 'Date modified'),
                             ('name', 'Name'),
                           ])
-                            PopupMenuItem(value: v.$1, child: Text(v.$2)),
+                            PopupMenuItem(value: v.$1, child: UiText(v.$2)),
                         ],
                         icon: const Icon(Icons.more_horiz, size: 21),
                       ),
@@ -671,7 +673,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                           selecting = false;
                           selected.clear();
                         }),
-                        child: const Text('Done'),
+                        child: const UiText('Done'),
                       ),
                   ],
                 ),
@@ -693,7 +695,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                 if (more)
                   TextButton(
                     onPressed: loading ? null : () => load(append: true),
-                    child: const Text('Load more'),
+                    child: const UiText('Load more'),
                   ),
               ],
             ),
@@ -707,7 +709,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Drop into a folder'),
+                  const UiText('Drop into a folder'),
                   SizedBox(
                     height: 72,
                     child: ListView(
@@ -883,8 +885,8 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
             );
         },
         itemBuilder: (_) => const [
-          PopupMenuItem(value: 'export', child: Text('Export as')),
-          PopupMenuItem(value: 'share', child: Text('Share link')),
+          PopupMenuItem(value: 'export', child: UiText('Export as')),
+          PopupMenuItem(value: 'share', child: UiText('Share link')),
         ],
       ),
     ],
@@ -923,7 +925,7 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
                 .then((_) {}),
           ),
           icon: const Icon(Icons.open_in_new, size: 18),
-          label: const Text('Open original'),
+          label: const UiText('Open original'),
         ),
         if (file['status'] == 'failed') ...[
           ErrorNotice(text(object(file['error'])['message'])),
@@ -935,11 +937,11 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
               );
               await load();
             }),
-            child: const Text('Retry'),
+            child: const UiText('Retry'),
           ),
         ] else if (file['status'] != 'ready') ...[
           const LinearProgressIndicator(minHeight: 2),
-          const Text('Extracting text. The original file is saved.'),
+          const UiText('Extracting text. The original file is saved.'),
         ],
         if (file['status'] == 'ready')
           OutlinedButton.icon(
@@ -966,7 +968,7 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
               });
             },
             icon: const Icon(Icons.add),
-            label: const Text('New note'),
+            label: const UiText('New note'),
           ),
         if (rows(file['pages']).isNotEmpty)
           DropdownButtonFormField<int>(
@@ -974,7 +976,7 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
                 rows(file['pages']).any((p) => p['page'] == selectedPage)
                 ? selectedPage
                 : 1,
-            decoration: const InputDecoration(labelText: 'Page'),
+            decoration: const InputDecoration(label: UiText('Page')),
             items: [
               for (final p in rows(file['pages']))
                 DropdownMenuItem(

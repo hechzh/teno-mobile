@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
@@ -164,12 +165,12 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
             child: ListView(
               children: [
                 ListTile(
-                  title: const Text('Choose dates'),
+                  title: const UiText('Choose dates'),
                   trailing: const Icon(Icons.calendar_month_outlined),
                   onTap: () => Navigator.pop(sheet, 'pick'),
                 ),
                 ListTile(
-                  title: const Text('Any date'),
+                  title: const UiText('Any date'),
                   trailing: dates == null ? const Icon(Icons.check) : null,
                   onTap: () => Navigator.pop(sheet, 'clear'),
                 ),
@@ -190,8 +191,8 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
         firstDate: DateTime(2000),
         lastDate: DateTime(DateTime.now().year + 2),
         initialDateRange: dates,
-        helpText: 'Date range',
-        confirmText: 'Save',
+        helpText: ui(context, 'Date range'),
+        confirmText: ui(context, 'Save'),
       );
       if (!mounted || result == null) return;
       setState(() => dates = result);
@@ -228,7 +229,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
                 ListTile(
-                  title: Text('Any ${field.toLowerCase()}'),
+                  title: UiText('Any ${field.toLowerCase()}'),
                   trailing: selected == null
                       ? const Icon(Icons.check, size: 20)
                       : null,
@@ -243,7 +244,11 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                                 : Icons.subdirectory_arrow_right,
                           )
                         : null,
-                    title: Text(text(v['title'])),
+                    title: Text(
+                      field == 'Type'
+                          ? ui(context, text(v['title']))
+                          : text(v['title']),
+                    ),
                     trailing: selected == v['id']
                         ? const Icon(Icons.check, size: 20)
                         : null,
@@ -252,7 +257,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                 if (values.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Text(
+                    child: UiText(
                       field == 'Speaker'
                           ? 'Name a speaker in a transcript to filter recordings.'
                           : 'No options yet.',
@@ -295,7 +300,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 115),
             child: Text(
-              display,
+              !selected || label == 'Type' ? ui(context, display) : display,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -343,13 +348,13 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
           onSubmitted: (v) => search(v, immediate: true),
           style: const TextStyle(fontSize: 15),
           decoration: InputDecoration(
-            hintText: 'Search',
+            hint: UiText('Search'),
             prefixIcon: const Icon(Icons.search, size: 20),
             prefixIconConstraints: const BoxConstraints(minWidth: 40),
             suffixIcon: query.text.isEmpty
                 ? null
                 : IconButton(
-                    tooltip: 'Clear search',
+                    tooltip: ui(context, 'Clear search'),
                     onPressed: () {
                       query.clear();
                       search('');
@@ -385,7 +390,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                       'Date range',
                       dates == null
                           ? 'Date range'
-                          : '${coreDate(dates!.start.toIso8601String())} – ${coreDate(dates!.end.toIso8601String())}',
+                          : '${coreDate(dates!.start.toIso8601String(), context: context)} – ${coreDate(dates!.end.toIso8601String(), context: context)}',
                       dates != null,
                     ),
                   ],
@@ -408,7 +413,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
+                        child: UiText(
                           'Recent searches',
                           style: TextStyle(
                             fontSize: 14,
@@ -417,7 +422,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                         ),
                       ),
                       IconButton(
-                        tooltip: 'Clear search history',
+                        tooltip: ui(context, 'Clear search history'),
                         icon: const Icon(Icons.delete_outline, size: 20),
                         onPressed: () => perform(context, () async {
                           await widget.model.command('history', {
@@ -451,7 +456,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                         ),
                       ),
                       PopupMenuButton<String>(
-                        tooltip: 'Sort search results',
+                        tooltip: ui(context, 'Sort search results'),
                         onSelected: (value) {
                           final parts = value.split(':');
                           setState(() {
@@ -468,13 +473,13 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                             if (supported)
                               ('created:asc', 'Date created · oldest'),
                           ])
-                            PopupMenuItem(value: v.$1, child: Text(v.$2)),
+                            PopupMenuItem(value: v.$1, child: UiText(v.$2)),
                         ],
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           child: Row(
                             children: [
-                              Text(
+                              UiText(
                                 sort == 'match'
                                     ? 'Best match'
                                     : sort == 'modified'
@@ -520,7 +525,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                       onPressed: loading
                           ? null
                           : () => fetch(generation, append: true),
-                      child: const Text('Load more'),
+                      child: const UiText('Load more'),
                     ),
                 ],
               ],

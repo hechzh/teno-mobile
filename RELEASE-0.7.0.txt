@@ -1,0 +1,8 @@
+Teno Android 0.7.0 / versionCode 14 — MVP bilingual candidate
+
+Warm-paper and sage shared UI, Chinese/English/system interface language, three primary tabs, existing-note brief, reusable Notes/Source, structured sharing/export and template transcript entry. Web 0.2.0 uses the same UI with responsive desktop navigation. Existing accounts, recording services, JWD timing, keys, local originals, queue/client_id and explicit cloud=false are preserved. Backend 1.5.1 and generation prompts remain unchanged.
+
+Validation: Flutter analyze, 362 Flutter tests, 33 browser runtime tests; same-signer upgrade from 0.6.2 (74 checks), final native regression (68 checks) and cold launch on a dedicated API35 emulator with ARM translation. These are not physical BLE or phone acceptance. Existing backend checked via 255 read-only HTTPS checks, no provider calls.
+Review: design-baseline/v0.7.0/index.html (481 screenshots; 87 regression states + bilingual/responsive core flows). Differences and hardware limits are explicit in differences-and-acceptance.txt. No full-page 4dp acceptance claim.
+
+Install dist/Teno-0.7.0.apk over the current Teno without uninstalling or clearing data. Original signer retained; non-debuggable. Magic4 Pro, real JWD and iPhone Safari remain pending. Candidate only; confirmed Android0.6.2/iOS0.5.0 baselines remain. No main merge, iOS artifact or store release. Web candidate is independent of the current /app/ deployment.

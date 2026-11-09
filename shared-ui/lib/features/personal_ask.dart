@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
@@ -21,7 +22,7 @@ class PersonalChatHistory extends StatelessWidget {
             reload();
           },
           icon: const Icon(Icons.add, size: 18),
-          label: const Text('New chat'),
+          label: const UiText('New chat'),
         ),
         heading('Recent chats'),
         if (rows(data['items']).isEmpty)
@@ -91,13 +92,13 @@ class _PersonalContextPickerState extends State<PersonalContextPicker> {
       builder: (context, data, reload) => ListView(
         padding: const EdgeInsets.all(21),
         children: [
-          const Text('Select recordings, notes, documents or folders.'),
+          const UiText('Select recordings, notes, documents or folders.'),
           const SizedBox(height: 16),
           TextField(
             onChanged: (v) => setState(() => query = v),
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.search),
-              hintText: 'Find a file',
+              hint: UiText('Find a file'),
             ),
           ),
           for (final item in rows(data['items']).where(
@@ -133,10 +134,12 @@ class PersonalChatPage extends StatefulWidget {
     this.model, {
     super.key,
     this.chatId,
+    this.embedded = false,
     this.initial = const [],
   });
   final TenoModel model;
   final String? chatId;
+  final bool embedded;
   final List<Json> initial;
   @override
   State<PersonalChatPage> createState() => _PersonalChatPageState();
@@ -287,7 +290,8 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
   @override
   Widget build(BuildContext context) => CoreFrame(
-    title: 'Chat',
+    title: widget.embedded ? 'Assistant' : 'Chat',
+    showBack: !widget.embedded,
     actions: [
       CoreAction(
         Icons.history,
@@ -305,23 +309,23 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         CoreSurface(
-          radius: 32,
+          radius: 14,
           padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               IconButton(
-                tooltip: 'Add context',
+                tooltip: ui(context, 'Add context'),
                 onPressed: sending ? null : choose,
                 icon: const Icon(Icons.add, size: 22),
               ),
               Expanded(
                 child: TextField(
                   controller: input,
-                  minLines: 2,
+                  minLines: 1,
                   maxLines: 5,
                   decoration: const InputDecoration(
-                    hintText: 'Ask me anything about your recordings',
+                    hint: UiText('Ask me anything about your recordings'),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -333,7 +337,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
               ),
               if (input.text.trim().isEmpty && !widget.model.webExperience)
                 IconButton(
-                  tooltip: 'Voice input',
+                  tooltip: ui(context, 'Voice input'),
                   onPressed: dictating || sending ? null : dictate,
                   icon: dictating
                       ? const SizedBox(
@@ -345,7 +349,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
                 ),
               if (input.text.trim().isNotEmpty)
                 IconButton(
-                  tooltip: 'Send question',
+                  tooltip: ui(context, 'Send question'),
                   onPressed: sending ? null : send,
                   icon: const Icon(Icons.arrow_upward, size: 22),
                 ),
@@ -353,7 +357,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
           ),
         ),
         const SizedBox(height: 5),
-        Text(
+        UiText(
           'Check important answers against the linked sources.',
           style: TextStyle(fontSize: 10, color: subtle(context)),
         ),
@@ -368,7 +372,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
               padding: const EdgeInsets.symmetric(horizontal: 21, vertical: 6),
               child: ActionChip(
                 avatar: const Icon(Icons.attach_file, size: 16),
-                label: Text('${selected.length} sources'),
+                label: Text(context.strings.sourceCount(selected.length)),
                 onPressed: sending ? null : choose,
               ),
             ),
@@ -382,18 +386,20 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
           child: messages.isEmpty && !sending
               ? LayoutBuilder(
                   builder: (context, c) => SingleChildScrollView(
-                    reverse: true,
+                    reverse: false,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(minHeight: c.maxHeight),
                       child: Align(
-                        alignment: Alignment.bottomLeft,
+                        alignment: Alignment.center,
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const Text(
+                              const Icon(Icons.auto_awesome_outlined, size: 40),
+                              const SizedBox(height: 24),
+                              const UiText(
                                 'How can I help you today?',
                                 style: TextStyle(
                                   fontSize: 20,
@@ -422,19 +428,14 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
                                         horizontal: 16,
                                         vertical: 14,
                                       ),
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(24),
-                                          topRight: Radius.circular(24),
-                                          bottomRight: Radius.circular(24),
-                                          bottomLeft: Radius.circular(5),
-                                        ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                     ),
                                     onPressed: () {
-                                      input.text = question;
+                                      input.text = ui(context, question);
                                     },
-                                    child: Text(question),
+                                    child: UiText(question),
                                   ),
                                 ),
                             ],
@@ -516,12 +517,12 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     Row(
       children: [
         IconButton(
-          tooltip: 'Share answer',
+          tooltip: ui(context, 'Share answer'),
           onPressed: () => widget.model.host.shareText(text(data['answer'])),
           icon: const Icon(Icons.ios_share_outlined, size: 18),
         ),
         IconButton(
-          tooltip: 'Save as note',
+          tooltip: ui(context, 'Save as note'),
           onPressed: () async {
             final folder = await choosePersonalFolder(context, widget.model);
             if (folder == null || !mounted) return;

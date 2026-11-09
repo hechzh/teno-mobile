@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
@@ -49,7 +50,7 @@ class _AskHistoryBodyState extends State<AskHistoryBody> {
               await push(context, ChatPage(widget.model));
               if (mounted) reload();
             },
-            child: const Text('New chat'),
+            child: const UiText('New chat'),
           ),
         );
       return RefreshIndicator(
@@ -287,7 +288,7 @@ class _ChatPageState extends State<ChatPage> {
                   padding: const EdgeInsets.all(23),
                   children: [
                     const SizedBox(height: 90),
-                    const Text(
+                    const UiText(
                       'What would you like to know?',
                       style: TextStyle(
                         fontSize: 23,
@@ -325,7 +326,7 @@ class _ChatPageState extends State<ChatPage> {
                       userMessage(pendingQuestion),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Text(
+                        child: UiText(
                           error.isEmpty
                               ? 'Preparing your answer…'
                               : 'Your question is saved. Retry when ready.',
@@ -349,7 +350,7 @@ class _ChatPageState extends State<ChatPage> {
                   maxLines: 5,
                   maxLength: 4000,
                   decoration: const InputDecoration(
-                    hintText: 'Ask about your recordings',
+                    hint: UiText('Ask about your recordings'),
                     counterText: '',
                   ),
                 ),
@@ -365,7 +366,7 @@ class _ChatPageState extends State<ChatPage> {
         ),
         const Padding(
           padding: EdgeInsets.fromLTRB(23, 0, 23, 14),
-          child: Text(
+          child: UiText(
             'Check answers against the linked source recordings.',
             style: TextStyle(fontSize: 11, color: muted),
           ),
@@ -388,7 +389,7 @@ class _ChatPageState extends State<ChatPage> {
     if (data['grounded'] != true)
       const Padding(
         padding: EdgeInsets.only(top: 12),
-        child: Text(
+        child: UiText(
           'No verifiable source was included. Check this answer against your recordings.',
           style: TextStyle(color: muted, fontSize: 12),
         ),
@@ -412,7 +413,7 @@ class _ChatPageState extends State<ChatPage> {
     Align(
       alignment: Alignment.centerLeft,
       child: IconButton(
-        tooltip: 'Share answer',
+        tooltip: ui(context, 'Share answer'),
         icon: const Icon(Icons.ios_share, size: 18),
         onPressed: () => perform(
           context,
@@ -488,7 +489,7 @@ class _ContextPickerState extends State<ContextPicker> {
     child: ListView(
       padding: const EdgeInsets.all(23),
       children: [
-        const Text(
+        const UiText(
           'Choose up to 30 recordings with transcripts.',
           style: TextStyle(color: muted),
         ),
@@ -520,7 +521,7 @@ class _ContextPickerState extends State<ContextPicker> {
         if (more)
           TextButton(
             onPressed: loading ? null : load,
-            child: const Text('Load more'),
+            child: const UiText('Load more'),
           ),
       ],
     ),

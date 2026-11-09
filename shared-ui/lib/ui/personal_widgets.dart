@@ -1,173 +1,28 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
+import '../l10n/ui_strings.dart';
+import 'mvp_theme.dart';
 import 'widgets.dart' show ErrorNotice;
 
 // Measured shared geometry; system bars and native pickers remain Android-owned.
-const coreInset = 24.0;
-const coreBlue = Color(0xFF3478D4);
+const coreInset = 20.0;
+const coreBlue = Color(0xFF356448);
 
-ThemeData personalTheme(bool dark, {bool webExperience = false}) {
-  final surface = dark ? const Color(0xFF171719) : const Color(0xFFF8F8F8);
-  final ink = dark ? const Color(0xFFF1F1F3) : const Color(0xFF080808);
-  final colors =
-      ColorScheme.fromSeed(
-        seedColor: const Color(0xFF307ACB),
-        brightness: dark ? Brightness.dark : Brightness.light,
-      ).copyWith(
-        surface: surface,
-        onSurface: ink,
-        onSurfaceVariant: dark
-            ? const Color(0xFFA5A5A8)
-            : const Color(0xFF808080),
-        primary: ink,
-        onPrimary: surface,
-        outlineVariant: dark
-            ? const Color(0xFF414548)
-            : const Color(0xFFE4E4E4),
-        secondaryContainer: dark
-            ? const Color(0xFF303335)
-            : const Color(0xFFEAEAEA),
-        surfaceContainerHighest: dark
-            ? const Color(0xFF303033)
-            : const Color(0xFFEAEAEA),
-        surfaceContainerLowest: dark ? const Color(0xFF202023) : Colors.white,
-        onSecondaryContainer: ink,
-        surfaceContainerLow: dark
-            ? const Color(0xFF23272A)
-            : const Color(0xFFF0F0F0),
-        surfaceTint: Colors.transparent,
-      );
-  return ThemeData(
-    useMaterial3: true,
-    colorScheme: colors,
-    scaffoldBackgroundColor: surface,
-    fontFamily: 'Inter',
-    fontFamilyFallback: webExperience ? const ['NotoSansSC'] : null,
-    textTheme: TextTheme(
-      bodyMedium: TextStyle(
-        fontSize: 14,
-        height: 1.4,
-        letterSpacing: 0,
-        color: ink,
-      ),
-      bodyLarge: TextStyle(
-        fontSize: 16,
-        height: 1.4,
-        letterSpacing: 0,
-        color: ink,
-      ),
-      bodySmall: TextStyle(
-        fontSize: 12,
-        height: 1.35,
-        color: colors.onSurfaceVariant,
-      ),
-      titleLarge: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.w600,
-        height: 1.25,
-        color: ink,
-      ),
-      titleMedium: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: ink,
-      ),
-    ),
-    appBarTheme: AppBarTheme(
-      backgroundColor: surface,
-      foregroundColor: ink,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      centerTitle: true,
-      toolbarHeight: 76,
-      titleTextStyle: TextStyle(
-        fontFamily: 'Inter',
-        fontSize: 17,
-        fontWeight: FontWeight.w600,
-        color: ink,
-      ),
-    ),
-    dividerColor: colors.outlineVariant,
-    popupMenuTheme: PopupMenuThemeData(
-      color: colors.surfaceContainerLowest,
-      surfaceTintColor: Colors.transparent,
-      elevation: 8,
-      shadowColor: Colors.black.withValues(alpha: .12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(25),
-        side: BorderSide(color: colors.outlineVariant, width: .7),
-      ),
-      textStyle: TextStyle(fontFamily: 'Inter', fontSize: 14, color: ink),
-    ),
-    dialogTheme: DialogThemeData(
-      backgroundColor: colors.surfaceContainerLowest,
-      surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
-    ),
-    switchTheme: SwitchThemeData(
-      thumbColor: WidgetStatePropertyAll(
-        dark ? const Color(0xFFEDEFF0) : Colors.white,
-      ),
-      trackColor: WidgetStateProperty.resolveWith(
-        (s) => s.contains(WidgetState.selected)
-            ? const Color(0xFF327BCC)
-            : dark
-            ? const Color(0xFF4B5055)
-            : const Color(0xFFDDE0E2),
-      ),
-    ),
-    chipTheme: ChipThemeData(
-      selectedColor: colors.secondaryContainer,
-      backgroundColor: surface,
-      showCheckmark: false,
-      side: BorderSide(color: colors.outlineVariant),
-      labelStyle: TextStyle(fontFamily: 'Inter', fontSize: 12, color: ink),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: dark ? const Color(0xFF24272A) : Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
-        borderSide: BorderSide(color: colors.outlineVariant),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
-        borderSide: BorderSide(color: colors.outlineVariant),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
-        borderSide: BorderSide(color: colors.outlineVariant),
-      ),
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        minimumSize: const Size(0, 46),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-      ),
-    ),
-    bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: colors.surfaceContainerLowest,
-      surfaceTintColor: Colors.transparent,
-      showDragHandle: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-      ),
-    ),
-  );
-}
+ThemeData personalTheme(bool dark, {bool webExperience = false}) =>
+    mvpTheme(dark);
 
 Color subtle(BuildContext c) => Theme.of(c).colorScheme.onSurfaceVariant;
-Widget heading(String text) => Padding(
+Widget heading(String text, {bool localize = true}) => Padding(
   padding: const EdgeInsets.only(top: 20, bottom: 12),
-  child: Text(
-    text,
-    style: const TextStyle(
-      fontSize: 19,
-      fontWeight: FontWeight.w600,
-      height: 1.25,
+  child: Builder(
+    builder: (context) => Text(
+      localize ? ui(context, text) : text,
+      style: const TextStyle(
+        fontSize: 19,
+        fontWeight: FontWeight.w600,
+        height: 1.25,
+      ),
     ),
   ),
 );
@@ -176,7 +31,7 @@ class CoreSurface extends StatelessWidget {
   const CoreSurface({
     super.key,
     required this.child,
-    this.radius = 28,
+    this.radius = 14,
     this.padding = EdgeInsets.zero,
   });
   final Widget child;
@@ -189,19 +44,8 @@ class CoreSurface extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [colors.surfaceContainerLowest, colors.surface],
-        ),
+        color: colors.surfaceContainerLow,
         border: Border.all(color: colors.outlineVariant, width: .7),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: .035),
-            blurRadius: 18,
-            offset: const Offset(0, 5),
-          ),
-        ],
       ),
       child: child,
     );
@@ -221,27 +65,13 @@ class CoreAction extends StatelessWidget {
   final VoidCallback? onPressed;
   final double size;
   @override
-  Widget build(BuildContext context) => Align(
-    widthFactor: 1,
-    heightFactor: 1,
-    child: Tooltip(
-      message: label,
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: CoreSurface(
-          radius: size / 2,
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            onPressed: onPressed,
-            icon: Icon(
-              icon,
-              size: 23,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-        ),
-      ),
+  Widget build(BuildContext context) => SizedBox(
+    width: size < 44 ? 44 : size,
+    height: size < 44 ? 44 : size,
+    child: IconButton(
+      tooltip: ui(context, label),
+      onPressed: onPressed,
+      icon: Icon(icon, size: 23),
     ),
   );
 }
@@ -251,68 +81,81 @@ Future<T?> showCoreSheet<T>(
   Widget child, {
   double height = 560,
   bool edgeToEdge = false,
-}) => showModalBottomSheet<T>(
-  context: context,
-  isScrollControlled: true,
-  useSafeArea: true,
-  backgroundColor: Colors.transparent,
-  showDragHandle: false,
-  barrierColor: Colors.black.withValues(alpha: .20),
-  builder: (sheet) {
-    final media = MediaQuery.of(sheet);
-    final available =
-        media.size.height - media.padding.top - media.viewInsets.bottom - 16;
-    final wanted = media.textScaler.scale(1) > 1.2 ? available : height;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        edgeToEdge ? 0 : 8,
-        0,
-        edgeToEdge ? 0 : 8,
-        (edgeToEdge ? 0 : 8) + media.viewInsets.bottom,
-      ),
-      child: SizedBox(
-        height: wanted.clamp(0, available),
-        child: ClipRRect(borderRadius: BorderRadius.circular(30), child: child),
+}) {
+  if (MediaQuery.sizeOf(context).width >= 900) {
+    return showDialog<T>(
+      context: context,
+      builder: (dialog) => Dialog(
+        child: SizedBox(
+          width: 560,
+          height: height.clamp(0, MediaQuery.sizeOf(dialog).height - 80),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: child,
+          ),
+        ),
       ),
     );
-  },
-);
-
-String coreDate(dynamic value, {bool weekday = false, bool time = false}) {
-  final d = DateTime.tryParse(text(value))?.toLocal();
-  if (d == null) return '';
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  final day = '${months[d.month - 1]} ${d.day}';
-  final clock =
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
-  return weekday
-      ? '${days[d.weekday - 1]}, $day'
-      : time
-      ? '$day at $clock'
-      : day;
+  }
+  return showModalBottomSheet<T>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    backgroundColor: Colors.transparent,
+    showDragHandle: false,
+    barrierColor: Colors.black.withValues(alpha: .20),
+    builder: (sheet) {
+      final media = MediaQuery.of(sheet);
+      final available =
+          (media.size.height - media.padding.top - media.viewInsets.bottom - 16)
+              .clamp(0.0, double.infinity);
+      final wanted = media.textScaler.scale(1) > 1.2 ? available : height;
+      return Padding(
+        padding: EdgeInsets.fromLTRB(
+          edgeToEdge ? 0 : 8,
+          0,
+          edgeToEdge ? 0 : 8,
+          (edgeToEdge ? 0 : 8) + media.viewInsets.bottom,
+        ),
+        child: SizedBox(
+          height: wanted.clamp(0, available),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: child,
+          ),
+        ),
+      );
+    },
+  );
 }
 
-String coreDuration(dynamic milliseconds) {
+String coreDate(
+  dynamic value, {
+  bool weekday = false,
+  bool time = false,
+  BuildContext? context,
+}) {
+  final d = DateTime.tryParse(text(value))?.toLocal();
+  if (d == null) return '';
+  if (context == null)
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}${time ? ' ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}' : ''}';
+  final local = MaterialLocalizations.of(context);
+  final date = weekday ? local.formatFullDate(d) : local.formatMediumDate(d);
+  return time
+      ? '$date · ${local.formatTimeOfDay(TimeOfDay.fromDateTime(d), alwaysUse24HourFormat: true)}'
+      : date;
+}
+
+String coreDuration(dynamic milliseconds, {BuildContext? context}) {
   final seconds = ((milliseconds as num? ?? 0) / 1000).floor();
+  final chinese =
+      context != null &&
+      Localizations.maybeLocaleOf(context)?.languageCode == 'zh';
   return seconds < 60
-      ? '${seconds}s'
+      ? '$seconds${chinese ? '秒' : 's'}'
       : seconds < 3600
-      ? '${seconds ~/ 60}m'
-      : '${seconds ~/ 3600}h ${(seconds % 3600) ~/ 60}m';
+      ? '${seconds ~/ 60}${chinese ? '分钟' : 'm'}'
+      : '${seconds ~/ 3600}${chinese ? '小时' : 'h'} ${(seconds % 3600) ~/ 60}${chinese ? '分钟' : 'm'}';
 }
 
 String coreTimestamp(dynamic milliseconds) {
@@ -333,12 +176,14 @@ class CoreFrame extends StatelessWidget {
     this.sheet = false,
     this.close = false,
     this.sheetDone = false,
+    this.showBack = true,
+    this.localizeTitle = true,
   });
   final String title;
   final Widget child;
   final List<Widget> actions;
   final Widget? bottom;
-  final bool sheet, close, sheetDone;
+  final bool sheet, close, sheetDone, showBack, localizeTitle;
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: sheet
@@ -348,11 +193,12 @@ class CoreFrame extends StatelessWidget {
       backgroundColor: sheet
           ? Theme.of(context).colorScheme.surfaceContainerLowest
           : null,
-      toolbarHeight: sheet ? 64 : 76,
-      leadingWidth: sheet ? 16 : 68,
+      toolbarHeight: 60,
+      automaticallyImplyLeading: false,
+      leadingWidth: sheet || !showBack ? 16 : 56,
       leading: Padding(
-        padding: const EdgeInsets.all(12),
-        child: sheet
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: sheet || !showBack
             ? const SizedBox.shrink()
             : CoreAction(
                 close ? Icons.close : Icons.arrow_back_ios_new_rounded,
@@ -360,7 +206,7 @@ class CoreFrame extends StatelessWidget {
                 () => Navigator.pop(context),
               ),
       ),
-      title: Text(title),
+      title: localizeTitle ? UiText(title) : Text(title),
       actions: [
         ...actions,
         if (sheetDone)
@@ -372,7 +218,7 @@ class CoreFrame extends StatelessWidget {
                 shape: const StadiumBorder(),
               ),
               onPressed: () => Navigator.pop(context),
-              child: const Text('Done'),
+              child: const UiText('Done'),
             ),
           ),
         if (sheet && !sheetDone)
@@ -385,7 +231,15 @@ class CoreFrame extends StatelessWidget {
         const SizedBox(width: 16),
       ],
     ),
-    body: SafeArea(top: false, child: child),
+    body: SafeArea(
+      top: false,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1040),
+          child: child,
+        ),
+      ),
+    ),
     bottomNavigationBar: bottom == null
         ? null
         : SafeArea(
@@ -478,7 +332,7 @@ class CoreTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (showIcon && !showFolder) ...[
+          if (showIcon) ...[
             Icon(itemIcon(item), size: 23, color: subtle(context)),
             const SizedBox(width: 12),
           ],
@@ -489,7 +343,7 @@ class CoreTile extends StatelessWidget {
                 highlightedText(
                   context,
                   text(item['title']).isEmpty
-                      ? 'Untitled'
+                      ? ui(context, 'Untitled')
                       : text(item['title']),
                   highlight,
                   style: const TextStyle(
@@ -504,9 +358,10 @@ class CoreTile extends StatelessWidget {
                     coreDate(
                       item['content_updated_at'] ?? item['created_at'],
                       time: true,
+                      context: context,
                     ),
                     if (item['duration_ms'] != null)
-                      coreDuration(item['duration_ms']),
+                      coreDuration(item['duration_ms'], context: context),
                     if (item['child_count'] != null)
                       '${item['child_count']} items',
                   ].where((s) => s.isNotEmpty).join(' · '),
@@ -525,8 +380,9 @@ class CoreTile extends StatelessWidget {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            text(item['folder_title']).isEmpty
-                                ? 'Recordings'
+                            text(item['folder_id']).isEmpty ||
+                                    text(item['folder_title']).isEmpty
+                                ? ui(context, 'Recordings')
                                 : text(item['folder_title']),
                             style: TextStyle(
                               fontSize: 13,
@@ -549,7 +405,7 @@ class CoreTile extends StatelessWidget {
                 if (item['status'] != null &&
                     !['ready', 'transcribed'].contains(item['status']))
                   Text(
-                    recordingStatus(item['status']),
+                    ui(context, recordingStatus(item['status'])),
                     style: TextStyle(fontSize: 11, color: subtle(context)),
                   ),
               ],
@@ -618,13 +474,13 @@ class AskBar extends StatelessWidget {
     onTap: open,
     borderRadius: BorderRadius.circular(30),
     child: CoreSurface(
-      radius: 32,
+      radius: 14,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 17),
       child: Row(
         children: [
           Expanded(
             child: Text(
-              label,
+              ui(context, label),
               maxLines: MediaQuery.textScalerOf(context).scale(1) > 1.2 ? 2 : 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 14, color: subtle(context)),

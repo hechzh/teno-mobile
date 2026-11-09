@@ -8,10 +8,13 @@ import '../ui/personal_widgets.dart';
 import 'personal_library.dart';
 import 'personal_import.dart';
 import 'recorder.dart';
+import 'interface_language.dart';
+import 'personal_notes.dart';
+import '../l10n/ui_strings.dart';
 
 Widget settingsGroup(BuildContext context, String title) => Padding(
   padding: const EdgeInsets.only(top: 24, bottom: 14),
-  child: Text(title, style: TextStyle(fontSize: 13, color: subtle(context))),
+  child: UiText(title, style: TextStyle(fontSize: 13, color: subtle(context))),
 );
 Widget settingsEntry(
   BuildContext context,
@@ -22,7 +25,7 @@ Widget settingsEntry(
   contentPadding: EdgeInsets.zero,
   minVerticalPadding: 15,
   leading: Icon(icon, size: 23),
-  title: Text(title, style: const TextStyle(fontSize: 16)),
+  title: UiText(title, style: const TextStyle(fontSize: 16)),
   trailing: Icon(Icons.chevron_right, size: 20, color: subtle(context)),
   onTap: open,
 );
@@ -34,12 +37,45 @@ class PersonalSettings extends StatelessWidget {
   Widget build(BuildContext context) => ListView(
     padding: const EdgeInsets.symmetric(horizontal: coreInset),
     children: [
-      settingsGroup(context, 'Workspace'),
+      ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.person_outline),
+        title: Text(model.runtime!.session.username),
+        subtitle: const UiText('Teno account'),
+        onTap: () => push(context, PersonalAccountPage(model, profile: true)),
+      ),
+      settingsGroup(
+        context,
+        model.webExperience ? 'Files' : 'Recorder & files',
+      ),
+      if (!model.webExperience) ...[
+        settingsEntry(
+          context,
+          'Recorder',
+          Icons.speaker_phone_outlined,
+          () => push(context, PersonalRecorderPreferences(model)),
+        ),
+        settingsEntry(
+          context,
+          'Cloud processing',
+          Icons.cloud_outlined,
+          () => push(context, PersonalRecorderPreferences(model, cloud: true)),
+        ),
+        settingsEntry(
+          context,
+          'Calendar',
+          Icons.calendar_month_outlined,
+          () => push(context, PersonalCalendarPage(model)),
+        ),
+      ],
       settingsEntry(
         context,
-        'Personalization',
-        Icons.badge_outlined,
-        () => push(context, PersonalAccountPage(model, profile: true)),
+        'Templates',
+        Icons.article_outlined,
+        () => push(
+          context,
+          CoreFrame(title: 'Templates', child: PersonalTemplates(model)),
+        ),
       ),
       settingsEntry(
         context,
@@ -47,15 +83,29 @@ class PersonalSettings extends StatelessWidget {
         Icons.tune,
         () => push(context, PersonalPreferences(model)),
       ),
+      const Divider(height: 24),
+      settingsGroup(context, 'Appearance & language'),
+      settingsEntry(
+        context,
+        'Interface language',
+        Icons.language,
+        () => push(context, InterfaceLanguagePage(model)),
+      ),
+      settingsEntry(
+        context,
+        'Theme',
+        Icons.light_mode_outlined,
+        () => push(context, PersonalAppearance(model)),
+      ),
       if (!model.webExperience)
         settingsEntry(
           context,
-          'Cloud processing',
-          Icons.cloud_outlined,
-          () => push(context, PersonalRecorderPreferences(model, cloud: true)),
+          'Notifications',
+          Icons.notifications_none,
+          () => push(context, PersonalAppearance(model, notifications: true)),
         ),
-      const Divider(height: 30),
-      settingsGroup(context, 'Account'),
+      const Divider(height: 24),
+      settingsGroup(context, 'Privacy & data'),
       settingsEntry(
         context,
         'Account & security',
@@ -64,44 +114,16 @@ class PersonalSettings extends StatelessWidget {
       ),
       settingsEntry(
         context,
+        'Personalization',
+        Icons.badge_outlined,
+        () => push(context, PersonalAccountPage(model, profile: true)),
+      ),
+      settingsEntry(
+        context,
         'Shared links',
         Icons.link,
         () => push(context, PersonalLinksPage(model)),
       ),
-      const Divider(height: 30),
-      settingsGroup(context, 'General'),
-      if (!model.webExperience)
-        settingsEntry(
-          context,
-          'Notifications',
-          Icons.notifications_none,
-          () => push(context, PersonalAppearance(model, notifications: true)),
-        ),
-      settingsEntry(
-        context,
-        'Theme',
-        Icons.light_mode_outlined,
-        () => push(context, PersonalAppearance(model)),
-      ),
-      const Divider(height: 30),
-      settingsGroup(
-        context,
-        model.webExperience ? 'Files' : 'Recorder & files',
-      ),
-      if (!model.webExperience)
-        settingsEntry(
-          context,
-          'Recorder',
-          Icons.speaker_phone_outlined,
-          () => push(context, PersonalRecorderPreferences(model)),
-        ),
-      if (!model.webExperience)
-        settingsEntry(
-          context,
-          'Calendar',
-          Icons.calendar_month_outlined,
-          () => push(context, PersonalCalendarPage(model)),
-        ),
       settingsEntry(
         context,
         'Storage',
@@ -115,7 +137,7 @@ class PersonalSettings extends StatelessWidget {
         () =>
             push(context, PersonalListPage(model, title: 'Trash', trash: true)),
       ),
-      const Divider(height: 30),
+      const Divider(height: 24),
       settingsGroup(context, 'Help & support'),
       settingsEntry(
         context,
@@ -143,7 +165,7 @@ class PersonalAccountPage extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.person_outline),
           title: Text(model.runtime!.session.username),
-          subtitle: const Text('Teno account'),
+          subtitle: const UiText('Teno account'),
         ),
         if (!profile) ...[
           if (!model.webExperience)
@@ -151,8 +173,8 @@ class PersonalAccountPage extends StatelessWidget {
               load: () => model.command('preferences'),
               builder: (context, data, reload) => SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('App lock'),
-                subtitle: const Text(
+                title: const UiText('App lock'),
+                subtitle: const UiText(
                   'Use your phone’s screen lock to open Teno.',
                 ),
                 value: data['app_lock'] == true,
@@ -174,7 +196,7 @@ class PersonalAccountPage extends StatelessWidget {
               ))
                 await model.signOut();
             }),
-            child: const Text('Sign out'),
+            child: const UiText('Sign out'),
           ),
         ],
       ],
@@ -197,8 +219,8 @@ class PersonalAppearance extends StatelessWidget {
           if (notifications)
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Processing notifications'),
-              subtitle: const Text(
+              title: const UiText('Processing notifications'),
+              subtitle: const UiText(
                 'Notify me when processing finishes. Requires Android notification permission.',
               ),
               value: model.personalSettings['notifications'] != false,
@@ -225,7 +247,7 @@ class PersonalAppearance extends StatelessWidget {
                       contentPadding: EdgeInsets.zero,
                       controlAffinity: ListTileControlAffinity.trailing,
                       value: v.$1,
-                      title: Text(v.$2),
+                      title: UiText(v.$2),
                     ),
                 ],
               ),
@@ -272,8 +294,8 @@ class PersonalRecorderPreferences extends StatelessWidget {
           if (cloud)
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Cloud processing'),
-              subtitle: const Text(
+              title: const UiText('Cloud processing'),
+              subtitle: const UiText(
                 'Automatically upload new recordings and imports for transcription and summaries.',
               ),
               value: model.runtime!.session.cloudUpload,
@@ -281,22 +303,22 @@ class PersonalRecorderPreferences extends StatelessWidget {
             ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Upload on Wi-Fi only'),
+            title: const UiText('Upload on Wi-Fi only'),
             value: model.runtime!.session.wifiOnly,
             onChanged: (v) => perform(context, () => configure(wifi: v)),
           ),
           if (!cloud)
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Live transcript preview'),
-              subtitle: const Text(
+              title: const UiText('Live transcript preview'),
+              subtitle: const UiText(
                 'Preview only. The complete audio is processed after recording.',
               ),
               value: model.runtime!.session.livePreview,
               onChanged: (v) => perform(context, () => configure(live: v)),
             ),
           const SizedBox(height: 24),
-          Text(
+          UiText(
             'Complete recordings and imports stay on this phone after upload. Existing saved files are uploaded only when you request it.',
             style: TextStyle(fontSize: 13, color: subtle(context)),
           ),
@@ -352,11 +374,11 @@ class _PersonalPreferencesState extends State<PersonalPreferences> {
               heading('Generation'),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
+                title: const UiText(
                   'Transcription & summary',
                   style: TextStyle(fontSize: 16),
                 ),
-                subtitle: const Text(
+                subtitle: const UiText(
                   'Default configurations for language, speaker labels and transcript cleanup.',
                 ),
                 trailing: const Icon(Icons.chevron_right, size: 20),
@@ -377,7 +399,7 @@ class _PersonalPreferencesState extends State<PersonalPreferences> {
             heading('Generation'),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Clean up transcript automatically'),
+              title: const UiText('Clean up transcript automatically'),
               value: p['clean_transcript'] != false,
               onChanged: (v) => perform(
                 context,
@@ -386,8 +408,8 @@ class _PersonalPreferencesState extends State<PersonalPreferences> {
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Separate speakers'),
-              subtitle: const Text('Name speakers within each recording.'),
+              title: const UiText('Separate speakers'),
+              subtitle: const UiText('Name speakers within each recording.'),
               value: p['speaker_labels'] != false,
               onChanged: (v) => perform(
                 context,
@@ -396,17 +418,19 @@ class _PersonalPreferencesState extends State<PersonalPreferences> {
             ),
             const ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text('Audio language'),
-              trailing: Text('Automatic', style: TextStyle(fontSize: 12)),
+              title: UiText('Audio language'),
+              trailing: UiText('Automatic', style: TextStyle(fontSize: 12)),
             ),
             DropdownButtonFormField<String>(
               initialValue: text(settings['summary_language']).startsWith('zh')
                   ? 'zh-CN'
                   : 'en-US',
-              decoration: const InputDecoration(labelText: 'Summary language'),
+              decoration: const InputDecoration(
+                label: UiText('Summary language'),
+              ),
               items: const [
-                DropdownMenuItem(value: 'en-US', child: Text('English')),
-                DropdownMenuItem(value: 'zh-CN', child: Text('Chinese')),
+                DropdownMenuItem(value: 'en-US', child: UiText('English')),
+                DropdownMenuItem(value: 'zh-CN', child: UiText('Chinese')),
               ],
               onChanged: (v) => perform(context, () async {
                 if (v == null) return;
@@ -466,7 +490,7 @@ class PersonalLinksPage extends StatelessWidget {
                           reload();
                         }
                       }),
-                      child: const Text('Revoke'),
+                      child: const UiText('Revoke'),
                     ),
             ),
         ],
@@ -492,7 +516,7 @@ class PersonalStoragePage extends StatelessWidget {
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Manage local files'),
+            title: const UiText('Manage local files'),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => push(context, PersonalLocalList(model)),
           ),
@@ -511,7 +535,7 @@ class PersonalStoragePage extends StatelessWidget {
                 reload();
               }
             }),
-            child: const Text('Clear cache'),
+            child: const UiText('Clear cache'),
           ),
         ],
       ),
@@ -643,19 +667,19 @@ class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                '${coreDate(data['starts_at'], time: true)} – ${coreDate(data['ends_at'], time: true)}',
+                '${coreDate(data['starts_at'], time: true, context: context)} – ${coreDate(data['ends_at'], time: true, context: context)}',
               ),
               const SizedBox(height: 16),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.edit_outlined),
-                title: const Text('Edit title'),
+                title: const UiText('Edit title'),
                 onTap: () => Navigator.pop(sheet, 'edit'),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.delete_outline),
-                title: const Text('Delete event'),
+                title: const UiText('Delete event'),
                 onTap: () => Navigator.pop(sheet, 'delete'),
               ),
             ],
@@ -747,21 +771,21 @@ class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
           TextButton(
             onPressed: () =>
                 setState(() => selected = calendarDay(DateTime.now())),
-            child: const Text('Today'),
+            child: const UiText('Today'),
           ),
           PopupMenuButton<String>(
-            tooltip: 'Calendar actions',
+            tooltip: ui(context, 'Calendar actions'),
             onSelected: action,
             itemBuilder: (_) => const [
               PopupMenuItem(
                 value: 'connect',
-                child: Text('Connect phone calendar'),
+                child: UiText('Connect phone calendar'),
               ),
               PopupMenuItem(
                 value: 'import',
-                child: Text('Import calendar file'),
+                child: UiText('Import calendar file'),
               ),
-              PopupMenuItem(value: 'add', child: Text('Add event')),
+              PopupMenuItem(value: 'add', child: UiText('Add event')),
             ],
           ),
         ],
@@ -1007,44 +1031,44 @@ class PersonalHelpPage extends StatelessWidget {
       children: [
         if (webExperience) ...[
           heading('Teno Web preview'),
-          const Text(
+          const UiText(
             'Use your existing Teno account. Library, transcripts, summaries, templates and Ask share the same cloud data as the app.',
           ),
           heading('Import and process'),
-          const Text(
+          const UiText(
             'Home → + → Import files. Choose a file, then Upload and process. Keep this tab open until upload finishes. Processing then continues on the server.',
           ),
           heading('Browser imports'),
-          const Text(
+          const UiText(
             'Selected files are saved in this browser for retry under their original account. Browser storage can be cleared or evicted; keep your original files. Sign in again to resume an interrupted upload.',
           ),
           heading('Supported files'),
-          const Text(
+          const UiText(
             'Audio/video: 120 minutes / 250 MiB. Images (PNG/JPEG): 20 MB. Documents (PDF, Word, PowerPoint, MSG): 15 MB. Text/Markdown: 2 MB. Use unencrypted documents.',
           ),
         ] else ...[
           heading('Import files'),
-          const Text(
+          const UiText(
             'Home → + → Import files. Choose From Files or From Photos. In another app, tap Share → Teno.',
           ),
           heading('Automatic processing'),
-          const Text(
+          const UiText(
             'Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.',
           ),
           heading('Your recorder'),
-          const Text(
+          const UiText(
             'Connect your recorder and keep its original device key. Reconnecting does not start a recording. A Bluetooth disconnect does not mean the recorder has stopped.',
           ),
           heading('Local copies'),
-          const Text(
+          const UiText(
             'Complete recordings and imports remain on this phone after upload. Keep the app installed to retain these local copies.',
           ),
           heading('Import limits'),
-          const Text(
+          const UiText(
             'Audio and video: 120 minutes / 250 MiB. Images: 20 MB. Documents: 15 MB. Text: 2 MB. Calendar files: 1 MiB. Use unencrypted documents.',
           ),
           heading('Processing and notifications'),
-          const Text(
+          const UiText(
             'Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Live text is a preview; final results use the complete recording.',
           ),
         ],

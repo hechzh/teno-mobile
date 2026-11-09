@@ -69,7 +69,7 @@ void main() {
       await openNotes(tester, host);
       expect(find.text('Saved recording title'), findsOneWidget);
       expect(find.text('Saved copy · Checking for updates…'), findsOneWidget);
-      await tester.tap(find.text('Transcript'));
+      await tester.tap(find.text('Source'));
       await tester.pumpAndSettle();
       expect(find.text('Saved transcript words.'), findsOneWidget);
       host.networkGate!.complete();
@@ -181,7 +181,7 @@ void main() {
     final host = CachedNotesHost();
     await host.seed();
     await openNotes(tester, host, web: false);
-    expect(find.text('Audio & transcript'), findsOneWidget);
+    expect(find.text('Source'), findsOneWidget);
     expect(find.text('Saved recording title'), findsNothing);
     expect(host.saves, isEmpty);
   });

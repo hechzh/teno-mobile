@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
@@ -12,7 +13,7 @@ class SettingsBody extends StatelessWidget {
   Widget build(BuildContext context) => ListView(
     padding: const EdgeInsets.all(23),
     children: [
-      const Text('Workspace', style: TextStyle(color: muted, fontSize: 12)),
+      const UiText('Workspace', style: TextStyle(color: muted, fontSize: 12)),
       MenuRow(
         Icons.tune,
         'Preferences',
@@ -29,7 +30,7 @@ class SettingsBody extends StatelessWidget {
         () => push(context, LocalListPage(model)),
       ),
       const Divider(height: 36),
-      const Text('Account', style: TextStyle(color: muted, fontSize: 12)),
+      const UiText('Account', style: TextStyle(color: muted, fontSize: 12)),
       MenuRow(
         Icons.person_outline,
         model.runtime!.session.username,
@@ -43,7 +44,7 @@ class SettingsBody extends StatelessWidget {
         subtitle: model.runtime!.session.server,
       ),
       const Divider(height: 36),
-      const Text('General', style: TextStyle(color: muted, fontSize: 12)),
+      const UiText('General', style: TextStyle(color: muted, fontSize: 12)),
       MenuRow(
         Icons.delete_outline,
         'Trash',
@@ -71,7 +72,7 @@ class SettingsBody extends StatelessWidget {
             await model.signOut();
           }
         }),
-        child: const Text('Sign out'),
+        child: const UiText('Sign out'),
       ),
     ],
   );
@@ -124,14 +125,14 @@ class _PreferencesPageState extends State<PreferencesPage> {
           padding: const EdgeInsets.all(23),
           children: [
             if (error.isNotEmpty) ErrorNotice(error, retry: load),
-            const Text(
+            const UiText(
               'Recording',
               style: TextStyle(color: muted, fontSize: 12),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Cloud processing'),
-              subtitle: const Text(
+              title: const UiText('Cloud processing'),
+              subtitle: const UiText(
                 'Automatically upload saved audio for transcription and summary.',
               ),
               value: s.cloudUpload,
@@ -139,21 +140,21 @@ class _PreferencesPageState extends State<PreferencesPage> {
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Upload on Wi-Fi only'),
+              title: const UiText('Upload on Wi-Fi only'),
               value: s.wifiOnly,
               onChanged: (v) => configure(wifi: v),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Live transcript preview'),
-              subtitle: const Text(
+              title: const UiText('Live transcript preview'),
+              subtitle: const UiText(
                 'Applies to your next recording. Complete audio is processed again after recording.',
               ),
               value: s.livePreview,
               onChanged: (v) => configure(live: v),
             ),
             const Divider(height: 36),
-            const Text(
+            const UiText(
               'Transcription & summary',
               style: TextStyle(color: muted, fontSize: 12),
             ),
@@ -161,9 +162,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
               Icons.translate,
               'Audio language',
               null,
-              trailing: Text('Automatic', style: TextStyle(color: muted)),
+              trailing: UiText('Automatic', style: TextStyle(color: muted)),
             ),
-            const Text(
+            const UiText(
               'Language detection is automatic for recordings and imports.',
               style: TextStyle(color: muted, fontSize: 12),
             ),
@@ -174,11 +175,11 @@ class _PreferencesPageState extends State<PreferencesPage> {
                   ? 'zh-CN'
                   : 'en-US',
               decoration: const InputDecoration(
-                labelText: 'Generated content language',
+                label: UiText('Generated content language'),
               ),
               items: const [
-                DropdownMenuItem(value: 'en-US', child: Text('English')),
-                DropdownMenuItem(value: 'zh-CN', child: Text('Chinese')),
+                DropdownMenuItem(value: 'en-US', child: UiText('English')),
+                DropdownMenuItem(value: 'zh-CN', child: UiText('Chinese')),
               ],
               onChanged: loading || preferences.isEmpty
                   ? null
@@ -199,12 +200,12 @@ class _PreferencesPageState extends State<PreferencesPage> {
                     }),
             ),
             const SizedBox(height: 28),
-            const Text(
+            const UiText(
               'Local storage',
               style: TextStyle(color: muted, fontSize: 12),
             ),
             const SizedBox(height: 12),
-            const Text(
+            const UiText(
               'Complete recordings are automatically kept on this phone. Cloud upload never removes a local recording.',
             ),
           ],
@@ -249,7 +250,7 @@ class _TemplatesBodyState extends State<TemplatesBody> {
         Row(
           children: [
             const Expanded(
-              child: Text(
+              child: UiText(
                 'Templates',
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
               ),
@@ -270,19 +271,19 @@ class _TemplatesBodyState extends State<TemplatesBody> {
             children: [
               Icon(Icons.auto_awesome_outlined),
               SizedBox(height: 24),
-              Text('Default summary', style: TextStyle(fontSize: 22)),
+              UiText('Default summary', style: TextStyle(fontSize: 22)),
               SizedBox(height: 10),
-              Text(
+              UiText(
                 'Overview, key points and next steps from your conversation.',
                 style: TextStyle(color: muted),
               ),
               SizedBox(height: 22),
-              Text('Teno', style: TextStyle(color: muted, fontSize: 12)),
+              UiText('Teno', style: TextStyle(color: muted, fontSize: 12)),
             ],
           ),
         ),
         const SizedBox(height: 28),
-        const Text(
+        const UiText(
           'My templates',
           style: TextStyle(fontSize: 19, fontWeight: FontWeight.w500),
         ),
@@ -319,7 +320,7 @@ class _TemplatePickerState extends State<TemplatePicker> {
     title: 'Generate',
     bottom: FilledButton(
       onPressed: () => Navigator.pop(context, selected),
-      child: const Text('Generate'),
+      child: const UiText('Generate'),
     ),
     child: RadioGroup<String>(
       groupValue: selected,
@@ -327,7 +328,7 @@ class _TemplatePickerState extends State<TemplatePicker> {
       child: ListView(
         padding: const EdgeInsets.all(23),
         children: [
-          const Text(
+          const UiText(
             'Transcription & summary',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
           ),
@@ -336,14 +337,14 @@ class _TemplatePickerState extends State<TemplatePicker> {
             Icons.translate,
             'Audio language',
             null,
-            trailing: Text('Automatic', style: TextStyle(color: muted)),
+            trailing: UiText('Automatic', style: TextStyle(color: muted)),
           ),
           const Divider(height: 36),
-          const Text('Summary template', style: TextStyle(fontSize: 18)),
+          const UiText('Summary template', style: TextStyle(fontSize: 18)),
           RadioListTile<String>(
             value: '',
-            title: const Text('Default summary'),
-            subtitle: const Text('Overview, key points and next steps'),
+            title: const UiText('Default summary'),
+            subtitle: const UiText('Overview, key points and next steps'),
           ),
           FutureBuilder<List<Json>>(
             future: pending,
@@ -416,7 +417,7 @@ class _TemplateEditorState extends State<TemplateEditor> {
                 if (mounted) setState(() => busy = false);
               }
             }),
-      child: const Text('Save template'),
+      child: const UiText('Save template'),
     ),
     child: ListView(
       padding: const EdgeInsets.all(23),
@@ -424,7 +425,7 @@ class _TemplateEditorState extends State<TemplateEditor> {
         TextField(
           controller: title,
           maxLength: 300,
-          decoration: const InputDecoration(labelText: 'Title'),
+          decoration: const InputDecoration(label: UiText('Title')),
         ),
         const SizedBox(height: 16),
         TextField(
@@ -432,7 +433,9 @@ class _TemplateEditorState extends State<TemplateEditor> {
           minLines: 8,
           maxLines: 16,
           maxLength: 4000,
-          decoration: const InputDecoration(labelText: 'Summary instructions'),
+          decoration: const InputDecoration(
+            label: UiText('Summary instructions'),
+          ),
         ),
         if (widget.original != null)
           TextButton(
@@ -449,7 +452,7 @@ class _TemplateEditorState extends State<TemplateEditor> {
               );
               if (context.mounted) Navigator.pop(context);
             }),
-            child: const Text(
+            child: const UiText(
               'Delete template',
               style: TextStyle(color: Colors.red),
             ),
@@ -475,32 +478,32 @@ class HelpPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          UiText(
             'Recording with Teno',
             style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 20),
-          Text(
+          UiText(
             'Connect a JWD recorder, check its service, then authorize it with its device key. Keep the original key to connect from another phone.',
           ),
           SizedBox(height: 16),
-          Text(
+          UiText(
             'Pause, resume and stop wait for recorder confirmation. Bluetooth disconnection does not stop the recorder. Check the hardware before retrying.',
           ),
           SizedBox(height: 16),
-          Text(
+          UiText(
             'Complete files are verified and saved locally before cloud upload. Reconnect to retry an interrupted transfer. Device originals are not automatically deleted.',
           ),
           SizedBox(height: 16),
-          Text(
+          UiText(
             'Live text is a preview. The complete recording is processed after recording for the final transcript and summary.',
           ),
           SizedBox(height: 16),
-          Text(
+          UiText(
             'Phone recordings: up to 54 minutes. JWD Bluetooth imports: up to 60 minutes / 100 MiB. Audio file imports: up to 120 minutes / 250 MiB.',
           ),
           SizedBox(height: 16),
-          Text(
+          UiText(
             'iPhone background activity follows iOS rules. After force quitting, reopen Teno to resume queued work.',
           ),
         ],

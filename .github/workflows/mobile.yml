@@ -1,7 +1,7 @@
 name: Teno mobile
 on:
   push:
-    branches: [main, "refactor/**", "feature/teno-0.6.*"]
+    branches: [main, "refactor/**", "feature/teno-0.6.*", "feature/teno-mvp-*"]
   pull_request:
   workflow_dispatch:
 permissions:

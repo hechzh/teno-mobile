@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import tarfile
 import zipfile
+import sys
 
 root = Path(__file__).resolve().parents[1]
 repo = root.parent
@@ -19,10 +20,13 @@ commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=Tr
 assert not subprocess.check_output(['git', 'status', '--porcelain', '--', 'shared-ui', 'web-client'], cwd=repo), 'Commit Web sources before packaging'
 build = root/'build/web'
 assert (build/'main.dart.js').is_file(), 'Run flutter build web first'
+sys.path.insert(0,str(repo/'scripts'))
+from prepare_web_assets import prepare
+prepare(build)
 shutil.copytree(root/'deploy', build/'deploy', dirs_exist_ok=True)
 files = {p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
          for p in sorted(build.rglob('*')) if p.is_file() and p.name != 'release.json'}
-manifest = {'version': version, 'build_number': int(build_number), 'source_commit': commit, 'app_ui_base': '0.6.2',
+manifest = {'version': version, 'build_number': int(build_number), 'source_commit': commit, 'app_ui_base': re.search(r"versionName '([^']+)'", (repo/'app/build.gradle').read_text(encoding='utf-8'))[1],
             'backend_minimum': '1.4.2', 'files': files}
 (build/'release.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
 args.output.mkdir(parents=True, exist_ok=True)

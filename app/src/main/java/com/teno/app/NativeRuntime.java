@@ -210,6 +210,6 @@ final class NativeRuntime implements RuntimeHost {
     @Override public void playback(PlaybackAction action,String id,Boolean local,Long position,Double speed,VoidResult result){media.playback(action,id,local,position,speed,result);}
     @Override public void shareExport(String id,String format,VoidResult result){media.shareExport(id,format,result);}
     @Override public void shareText(String text,VoidResult result){ui(result,()->activity.startActivity(Intent.createChooser(
-        new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT,text),"Share Teno notes")));}
+        new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT,text),UiLocale.text(activity,"Share Teno notes"))));}
     void close(){closed=true;visible=false;main.removeCallbacks(tick);RuntimeHost.setUp(messenger,null);personal.close();media.releasePlayer();io.shutdown();}
 }

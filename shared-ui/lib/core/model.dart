@@ -59,6 +59,28 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
   List<Json> recordings = [], folders = [];
   Json capabilities = {}, personalSettings = {};
   bool personalCore = false;
+  // Device/browser UI preference, independent of account and audio language.
+  String interfaceLanguage = 'system';
+  Future<void> loadInterfaceLanguage() async {
+    try {
+      final value = await command('interface_locale');
+      final locale = text(value['locale']);
+      if (['system', 'zh', 'en'].contains(locale)) interfaceLanguage = locale;
+      if (!_disposed) notifyListeners();
+    } catch (_) {
+      /* Older hosts safely follow the device language. */
+    }
+  }
+
+  Future<void> setInterfaceLanguage(String locale) async {
+    if (!['system', 'zh', 'en'].contains(locale))
+      throw ArgumentError.value(locale);
+    await command('interface_locale', {'locale': locale});
+    if (_disposed) return;
+    interfaceLanguage = locale;
+    notifyListeners();
+  }
+
   String error = '';
   bool loading = false, moreAvailable = true;
   Timer? _processingTimer;
@@ -76,6 +98,7 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
 
   Future<void> initialize() async {
     RuntimeEvents.setUp(this);
+    await loadInterfaceLanguage();
     try {
       changed(await host.snapshot());
       if (signedIn) {
@@ -204,8 +227,27 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
   }
 
   static String friendly(Object error) {
-    if (error is PlatformException)
-      return error.message ?? 'The action could not be completed. Try again.';
+    if (error is PlatformException) {
+      final stable = switch (error.code.toUpperCase()) {
+        'UNAUTHORIZED' ||
+        'AUTH_EXPIRED' ||
+        'HTTP_401' => 'Your session expired. Sign in again.',
+        'FORBIDDEN' || 'HTTP_403' => 'You do not have access to this item.',
+        'NOT_FOUND' || 'HTTP_404' => 'This item is no longer available.',
+        'RATE_LIMITED' || 'HTTP_429' => 'Too many requests. Try again shortly.',
+        'NETWORK_ERROR' =>
+          'The network request failed. Check your connection and try again.',
+        _ => null,
+      };
+      if (stable != null) return stable;
+      final message = error.message;
+      if (message == null ||
+          message.length > 600 ||
+          message.contains('Traceback') ||
+          message.contains('Stack trace'))
+        return 'The action could not be completed. Try again.';
+      return message;
+    }
     final value = error.toString();
     // Never put arguments, request bodies or authentication headers in UI errors.
     if (value.contains('PlatformException(')) {
@@ -213,7 +255,7 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
       if (parts.length > 1) return parts[1];
     }
     return value
-        .replaceFirst('Exception: ', '')
+        .replaceFirst(RegExp(r'^(Error|Exception):\s*'), '')
         .replaceFirst('Bad state: ', '');
   }
 

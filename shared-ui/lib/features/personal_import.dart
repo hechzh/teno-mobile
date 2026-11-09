@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
@@ -73,7 +74,7 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: Icon(row.$3),
-            title: Text(row.$2),
+            title: UiText(row.$2),
             trailing: const Icon(Icons.chevron_right, size: 19),
             onTap: busy ? null : () => pick(row.$1),
           ),
@@ -81,14 +82,14 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.ios_share_outlined),
-            title: const Text('From other apps'),
+            title: const UiText('From other apps'),
             trailing: const Icon(Icons.chevron_right, size: 19),
             onTap: () => showModalBottomSheet<void>(
               context: context,
               builder: (sheet) => const SafeArea(
                 child: Padding(
                   padding: EdgeInsets.all(24),
-                  child: Text(
+                  child: UiText(
                     'Open the file in another app, tap Share, then choose Teno.',
                   ),
                 ),
@@ -96,16 +97,16 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
             ),
           ),
         const Divider(height: 32),
-        Text(
+        UiText(
           'Audio and video · Up to 120 minutes / 250 MiB',
           style: TextStyle(fontSize: 12, color: subtle(context)),
         ),
-        Text(
+        UiText(
           'Images · 20 MB    Documents · 15 MB    Text · 2 MB',
           style: TextStyle(fontSize: 12, color: subtle(context)),
         ),
         const SizedBox(height: 12),
-        Text(
+        UiText(
           widget.model.webExperience
               ? 'Files are saved in this browser. Choose Upload and process to send them to your signed-in account. Keep this tab open until upload finishes.'
               : widget.model.runtime!.session.cloudUpload
@@ -140,14 +141,14 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
                       setState(() => imported = rows(value['items']));
                     reload();
                   }),
-                  child: const Text('Import files'),
+                  child: const UiText('Import files'),
                 ),
                 TextButton(
                   onPressed: () => perform(context, () async {
                     await widget.model.command('discard_imports');
                     reload();
                   }),
-                  child: const Text('Discard pending imports'),
+                  child: const UiText('Discard pending imports'),
                 ),
               ],
             );
@@ -206,7 +207,7 @@ class PersonalLocalList extends StatelessWidget {
               await model.host.retryUpload(text(d['id']));
           }),
           itemBuilder: (_) => const [
-            PopupMenuItem(value: 'upload', child: Text('Upload saved files')),
+            PopupMenuItem(value: 'upload', child: UiText('Upload saved files')),
           ],
         ),
       ],
@@ -270,7 +271,7 @@ class PersonalLocalPage extends StatelessWidget {
               Text('Account: ${model.runtime!.session.username}'),
             if (model.webExperience && draft['status'] == 'uploading') ...[
               const LinearProgressIndicator(minHeight: 2),
-              const Text(
+              const UiText(
                 'Uploading. Keep this tab open until upload finishes.',
               ),
               TextButton(
@@ -278,7 +279,7 @@ class PersonalLocalPage extends StatelessWidget {
                   context,
                   () => model.command('cancelUpload', {'id': id}).then((_) {}),
                 ),
-                child: const Text('Stop upload'),
+                child: const UiText('Stop upload'),
               ),
             ],
             if (!file) AudioPlayerBar(model, id, local: true),
@@ -294,7 +295,7 @@ class PersonalLocalPage extends StatelessWidget {
                       ? PersonalFilePage(model, remote)
                       : PersonalRecordingPage(model, remote),
                 ),
-                child: const Text('Open file'),
+                child: const UiText('Open file'),
               )
             else
               FilledButton(
@@ -307,14 +308,14 @@ class PersonalLocalPage extends StatelessWidget {
                     ].contains(draft['status'])
                     ? null
                     : () => perform(context, () => model.host.retryUpload(id)),
-                child: Text(
+                child: UiText(
                   draft['status'] == 'queued'
                       ? 'Waiting to upload'
                       : 'Upload and process',
                 ),
               ),
             const SizedBox(height: 14),
-            Text(
+            UiText(
               model.webExperience
                   ? 'Keep your original file. Browser storage may be cleared or evicted.'
                   : 'A complete copy stays on this phone after upload.',
@@ -325,7 +326,7 @@ class PersonalLocalPage extends StatelessWidget {
                 () => model.command('local_export', {'id': id}).then((_) {}),
               ),
               icon: const Icon(Icons.ios_share, size: 18),
-              label: const Text('Export original'),
+              label: const UiText('Export original'),
             ),
             TextButton(
               onPressed: () => perform(context, () async {
@@ -340,7 +341,7 @@ class PersonalLocalPage extends StatelessWidget {
                   if (context.mounted) Navigator.pop(context);
                 }
               }),
-              child: const Text('Delete local copy'),
+              child: const UiText('Delete local copy'),
             ),
           ],
         ),

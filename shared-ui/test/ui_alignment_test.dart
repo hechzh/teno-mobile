@@ -338,6 +338,12 @@ void main() {
       await tap(tester, find.text('00:00:14'));
       expect(host.actions.last['position'], 14000);
       expect(host.actions.last['id'], 'record-1');
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (w) => w is Semantics && w.properties.label == 'Open audio player',
+        ),
+      );
       await tap(tester, find.byTooltip('Forward 15 seconds'));
       expect(host.actions.last['position'], 15000);
       await tap(tester, find.byTooltip('Playback speed'));

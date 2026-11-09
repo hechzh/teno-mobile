@@ -1,3 +1,9 @@
+# Teno Web 0.2.0 candidate
+
+Uses shared UI base 0.7.0, with Chinese/English/system language, MVP styling and responsive layouts. See [candidate release notes](RELEASE-0.2.0.txt). The production `/app/` remains on 0.1.3 until real iPhone Safari acceptance; the candidate uses its own entry. Existing cache, accounts, API and prompts remain.
+
+Previous deployed release history follows.
+
 # Teno Web preview 0.1.3
 
 The browser application reuses `../shared-ui` from Android 0.6.2. It has its own

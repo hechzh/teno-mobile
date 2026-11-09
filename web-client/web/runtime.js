@@ -426,6 +426,17 @@
     async call(method, args) {
       switch (method) {
         case 'snapshot': return this.snapshot();
+        case 'interface_locale': {
+          if (Object.prototype.hasOwnProperty.call(args, 'locale')) {
+            if (!['system', 'zh', 'en'].includes(args.locale)) throw new Error('Invalid interface language.');
+            this.interfaceLocale = args.locale;
+            try { this.storage.setItem('teno.web.interface-locale', args.locale); } catch (_) {}
+          }
+          let locale = this.interfaceLocale;
+          if (!locale) { try { locale = this.storage.getItem('teno.web.interface-locale'); } catch (_) {} }
+          if (typeof document !== 'undefined') { const lang = locale && locale !== 'system' ? locale : (navigator.language.startsWith('zh') ? 'zh' : 'en'); document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : 'en'; }
+          return {locale: ['system', 'zh', 'en'].includes(locale) ? locale : 'system'};
+        }
         case 'login': return this.login(args);
         case 'logout': return this.logout();
         case 'request': return this.request(args);

@@ -69,7 +69,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private Notification notification(String text){
         PendingIntent open=PendingIntent.getActivity(this,13,new Intent(this,MainActivity.class).putExtra("open_device",true),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         PendingIntent stop=PendingIntent.getService(this,14,new Intent(this,JwdService.class).setAction("disconnect"),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-        return new Notification.Builder(this,"jwd").setSmallIcon(R.drawable.ic_app).setContentTitle("Teno · Recorder").setContentText(text).setContentIntent(open).setOngoing(true).addAction(new Notification.Action.Builder(null,"Disconnect",stop).build()).build();
+        return new Notification.Builder(this,"jwd").setSmallIcon(R.drawable.ic_app).setContentTitle(UiLocale.text(this,"Teno · Recorder")).setContentText(UiLocale.text(this,text)).setContentIntent(open).setOngoing(true).addAction(new Notification.Action.Builder(null,UiLocale.text(this,"Disconnect"),stop).build()).build();
     }
     private void handle(Intent i)throws Exception{
         String action=i.getAction();if(action==null)return;

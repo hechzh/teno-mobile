@@ -512,17 +512,26 @@ void main() {
     Future<void> label(String value) => tap(find.text(value));
     Future<void> tip(String value) => tap(find.byTooltip(value));
     Future<void> section(String value) async {
-      await tip('Navigation');
-      await tap(find.widgetWithText(ListTile, value));
+      if (value == 'Tools') {
+        await tap(find.widgetWithText(NavigationDestination, 'Settings'));
+        await label('Templates');
+      } else if (value == 'Library') {
+        await tap(find.widgetWithText(OutlinedButton, 'Library'));
+      } else {
+        await tap(
+          find.widgetWithText(
+            NavigationDestination,
+            value == 'Ask Teno' ? 'Assistant' : value,
+          ),
+        );
+      }
     }
 
     Future<void> detail() async {
       await tap(
-        find
-            .byWidgetPredicate(
-              (w) => w is CoreTile && w.item['id'] == 'record-1',
-            )
-            .first,
+        find.byWidgetPredicate(
+          (w) => w is CoreTile && w.item['id'] == 'record-1',
+        ),
       );
     }
 
@@ -530,7 +539,7 @@ void main() {
       await detail();
       await tip('Recording options');
       await label('Export as');
-      await label(kind);
+      await label(kind == 'Audio' ? 'Export audio' : 'Export transcript');
     }
 
     switch (name) {
@@ -543,27 +552,26 @@ void main() {
         await section('Library');
         await label('Recordings');
       case '06-search':
-        await tip('Navigation');
         await tip('Search');
       case '07-device-connect':
-        await tip('Create');
-        await label('Start recording');
+        await tip('Start recording');
       case '09-recording':
       case '10-paused':
-        await tap(find.textContaining('Recording ·'));
+        await tip('Start recording');
       case '14-recording-notes':
         await detail();
       case '15-transcript':
         await detail();
-        await label('Audio & transcript');
+        await label('Source');
       case '17-templates':
         await section('Tools');
       case '18-chat-history':
         await section('Ask Teno');
+        await tip('Chat history');
       case '19-new-chat':
-        await tap(find.byType(AskBar));
+        await section('Ask Teno');
       case '20-chat-context':
-        await tap(find.byType(AskBar));
+        await section('Ask Teno');
         await tip('Add context');
       case '21-settings':
         await section('Settings');
@@ -579,13 +587,13 @@ void main() {
         await tip('Library options');
         await label('Trash');
       case '26-import':
-        await tip('Create');
         await label('Import files');
       case '27-share':
         await detail();
-        await tip('Share');
+        await tip('Share recording');
+        await label('Share link');
       case '28-calendar':
-        await tip('Calendar');
+        await label('Calendar');
       case '29-photos':
       case '30-notes':
       case '35-local-files':
@@ -906,6 +914,13 @@ void main() {
 
         switch (state) {
           case '83-audio-settings':
+            await tester.tap(
+              find.byWidgetPredicate(
+                (w) =>
+                    w is Semantics && w.properties.label == 'Open audio player',
+              ),
+            );
+            await tester.pumpAndSettle();
             await tapTip('Playback speed');
           case '84-transcript-menu':
             await tester.longPress(find.textContaining('Let’s begin').last);
@@ -987,7 +1002,8 @@ void main() {
           case '48-recording-options':
             await tapTip('Recording options');
           case '49-speaker-names':
-            await tapText('2 Speakers');
+            await tapTip('Recording options');
+            await tapText('Name speakers');
           case '50-find-replace':
             await tapTip('Recording options');
             await tapText('Find & replace');
@@ -1051,7 +1067,7 @@ void main() {
     expect(find.text('Product launch review'), findsOneWidget);
     await tester.tap(find.text('Product launch review'));
     await tester.pumpAndSettle();
-    expect(find.text('Transcript'), findsWidgets);
+    expect(find.text('Source'), findsWidgets);
     expect(host.calls.any((v) => v.contains('record-1')), isTrue);
     debugDisableShadows = true;
     await tester.pumpWidget(const SizedBox.shrink());
@@ -1125,7 +1141,7 @@ void main() {
       await tester.pump();
       expect(model.personalCore, isTrue);
       expect(find.byType(PersonalHome), findsOneWidget);
-      await tester.tap(find.byTooltip('Create'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Import files'));
       await tester.pumpAndSettle();
       expect(find.text('Import files'), findsOneWidget);
       expect(host.calls.where((v) => v.startsWith('configure')), isEmpty);
@@ -1134,33 +1150,29 @@ void main() {
     },
   );
   for (final mode in ['light', 'dark', 'large'])
-    testWidgets(
-      'navigation and creation menus use Teno and expose core destinations $mode',
-      (tester) async {
-        final model = coreModel();
-        await mount(
-          tester,
-          mode == 'light'
-              ? TenoApp(model: model, initialize: false)
-              : PersonalHome(model),
-          dark: mode == 'dark',
-          scale: mode == 'large' ? 1.5 : 1,
-          width: mode == 'large' ? 360 : 390,
-        );
-        await tester.tap(find.byTooltip('Navigation'));
-        await tester.pumpAndSettle();
-        await tester.runAsync(() => screenshot('$mode/02-navigation'));
-        for (final value in ['Work', 'Tasks', 'Skills', 'Connectors', 'PLAUD'])
-          expect(find.text(value), findsNothing);
-        await tester.tap(find.text('Home'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.byTooltip('Create'));
-        await tester.pumpAndSettle();
-        expect(find.text('Import files'), findsOneWidget);
-        await tester.runAsync(() => screenshot('$mode/03-create-menu'));
-        debugDisableShadows = true;
-        await tester.pumpWidget(const SizedBox.shrink());
-        if (mode != 'light') model.dispose();
-      },
-    );
+    testWidgets('MVP navigation and import expose core destinations $mode', (
+      tester,
+    ) async {
+      final model = coreModel();
+      await mount(
+        tester,
+        mode == 'light'
+            ? TenoApp(model: model, initialize: false)
+            : PersonalHome(model),
+        dark: mode == 'dark',
+        scale: mode == 'large' ? 1.5 : 1,
+        width: mode == 'large' ? 360 : 390,
+      );
+      expect(find.byType(NavigationDestination), findsNWidgets(3));
+      await tester.runAsync(() => screenshot('$mode/02-navigation'));
+      for (final value in ['Work', 'Tasks', 'Skills', 'Connectors', 'PLAUD'])
+        expect(find.text(value), findsNothing);
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Import files'));
+      await tester.pumpAndSettle();
+      expect(find.text('Import files'), findsOneWidget);
+      await tester.runAsync(() => screenshot('$mode/03-create-menu'));
+      debugDisableShadows = true;
+      await tester.pumpWidget(const SizedBox.shrink());
+      if (mode != 'light') model.dispose();
+    });
 }

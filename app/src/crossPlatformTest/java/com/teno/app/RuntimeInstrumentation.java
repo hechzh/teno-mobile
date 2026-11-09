@@ -134,6 +134,13 @@ public final class RuntimeInstrumentation extends Instrumentation {
                 call(result->activity.runtime.controlPhone(PhoneAction.PAUSE,result));
                 test.until(()->RecorderService.paused);long count=RecorderService.capturedBytes;Thread.sleep(800);
                 test.check(RecorderService.capturedBytes==count,"pause_does_not_append_audio");
+                NativeRuntime retainedRuntime=activity.runtime;String retainedOwner=store.scope();
+                command("interface_locale","{\"locale\":\"zh\"}");
+                test.check(UiLocale.preference(context).equals("zh")&&UiLocale.text(context,"Stop and save").equals("停止并保存"),"native_locale_resources_and_persistence");
+                test.check(activity.runtime==retainedRuntime&&RecorderService.active&&RecorderService.paused&&RecorderService.capturedBytes==count,"locale_does_not_recreate_runtime_or_recording");
+                test.check(store.scope().equals(retainedOwner)&&!store.autoUpload()&&store.draft(id.get()).optString("id").equals(id.get()),"locale_keeps_account_cloud_off_and_draft_identity");
+                command("interface_locale","{\"locale\":\"en\"}");
+
                 call(result->activity.runtime.controlPhone(PhoneAction.RESUME,result));
                 test.until(()->RecorderService.capturedBytes>count+3200);
                 // Background activity lifecycle must not stop the native recording service.

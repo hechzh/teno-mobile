@@ -1,22 +1,31 @@
 name: teno_mobile
 description: Shared Teno mobile interface backed by platform recording runtimes.
 publish_to: none
-version: 0.6.2+13
+version: 0.7.0+14
 environment:
   sdk: '>=3.10.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: 0.20.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
   pigeon: 29.1.0
 flutter:
+  generate: true
   uses-material-design: true
   fonts:
     - family: Inter
       fonts:
         - asset: assets/fonts/InterVariable.ttf
+    - family: NotoSansSC
+      fonts:
+        - asset: assets/fonts/NotoSansSC-Regular.ttf
+  assets:
+    - assets/fonts/OFL-NotoSansSC.txt
   module:
     androidX: true
     androidPackage: com.teno.shared

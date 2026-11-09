@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -51,13 +52,13 @@ class AudioPlayerBar extends StatelessWidget {
                 ),
                 const SizedBox(width: 14),
                 const Expanded(
-                  child: Text(
+                  child: UiText(
                     'Audio & transcript',
                     style: TextStyle(fontSize: 14),
                   ),
                 ),
                 PopupMenuButton<double>(
-                  tooltip: 'Playback speed',
+                  tooltip: ui(context, 'Playback speed'),
                   initialValue: p.speed,
                   onSelected: (v) =>
                       act(context, PlaybackAction.speed, speed: v),
@@ -140,7 +141,7 @@ class LocalPage extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-            const Text(
+            const UiText(
               'The complete audio file stays on this phone.',
               style: TextStyle(color: muted),
             ),
@@ -151,7 +152,7 @@ class LocalPage extends StatelessWidget {
             if (record.isNotEmpty)
               FilledButton(
                 onPressed: () => push(context, DetailPage(model, record)),
-                child: const Text('Open recording'),
+                child: const UiText('Open recording'),
               )
             else
               FilledButton(
@@ -164,7 +165,7 @@ class LocalPage extends StatelessWidget {
                     ].contains(text(d['status']))
                     ? null
                     : () => perform(context, () => model.host.retryUpload(id)),
-                child: Text(
+                child: UiText(
                   d['upload_requested'] == true
                       ? 'Queued for upload'
                       : 'Upload and process',
@@ -174,13 +175,13 @@ class LocalPage extends StatelessWidget {
             Row(
               children: [
                 const Expanded(
-                  child: Text(
+                  child: UiText(
                     'Recording notes',
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Edit local notes',
+                  tooltip: ui(context, 'Edit local notes'),
                   onPressed: () => perform(context, () async {
                     final value = await inputDialog(
                       context,
@@ -200,7 +201,7 @@ class LocalPage extends StatelessWidget {
             if (record.isNotEmpty)
               const Padding(
                 padding: EdgeInsets.only(top: 8),
-                child: Text(
+                child: UiText(
                   'Edits here update the local note. Notes sent with the original upload remain on the server.',
                   style: TextStyle(fontSize: 12, color: muted),
                 ),
@@ -219,7 +220,7 @@ class LocalPage extends StatelessWidget {
                 await model.host.deleteLocal(id);
                 if (context.mounted) Navigator.pop(context);
               }),
-              child: const Text(
+              child: const UiText(
                 'Delete local copy',
                 style: TextStyle(color: Colors.red),
               ),
@@ -431,11 +432,11 @@ class _DetailPageState extends State<DetailPage> {
     final choice = await showDialog<String>(
       context: context,
       builder: (dialog) => SimpleDialog(
-        title: const Text('Move to folder'),
+        title: const UiText('Move to folder'),
         children: [
           SimpleDialogOption(
             onPressed: () => Navigator.pop(dialog, ''),
-            child: const Text('All recordings'),
+            child: const UiText('All recordings'),
           ),
           for (final f in widget.model.folders)
             SimpleDialogOption(
@@ -462,7 +463,7 @@ class _DetailPageState extends State<DetailPage> {
       onPressed: () =>
           push(context, ChatPage(widget.model, recordingIds: [widget.id])),
       icon: const Icon(Icons.auto_awesome_outlined, size: 18),
-      label: const Text('Ask about this recording'),
+      label: const UiText('Ask about this recording'),
     ),
     child: RefreshIndicator(
       onRefresh: load,
@@ -497,7 +498,7 @@ class _DetailPageState extends State<DetailPage> {
                 clipBehavior: Clip.antiAlias,
                 child: ListTile(
                   leading: const Icon(Icons.graphic_eq),
-                  title: const Text('Audio & transcript'),
+                  title: const UiText('Audio & transcript'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
                     await push(
@@ -513,7 +514,7 @@ class _DetailPageState extends State<DetailPage> {
               Row(
                 children: [
                   const Expanded(
-                    child: Text(
+                    child: UiText(
                       'Summary',
                       style: TextStyle(
                         fontSize: 18,
@@ -522,7 +523,7 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                   ),
                   PopupMenuButton<int>(
-                    tooltip: 'Summary versions',
+                    tooltip: ui(context, 'Summary versions'),
                     onSelected: (v) => setState(() => selected = v),
                     itemBuilder: (_) => [
                       for (var i = 0; i < summaries.length; i++)
@@ -549,7 +550,7 @@ class _DetailPageState extends State<DetailPage> {
                     : 'You can leave this page while processing continues.',
                 action: TextButton(
                   onPressed: () => generate(transcriptOnly: true),
-                  child: const Text('Transcribe again'),
+                  child: const UiText('Transcribe again'),
                 ),
               ),
             for (final s in rows(transcript['segments']))
@@ -585,7 +586,7 @@ class _DetailPageState extends State<DetailPage> {
                           ),
                         ),
                         IconButton(
-                          tooltip: 'Edit segment',
+                          tooltip: ui(context, 'Edit segment'),
                           onPressed: () => editSegment(s),
                           icon: const Icon(Icons.edit_outlined, size: 18),
                         ),
@@ -608,7 +609,7 @@ class _DetailPageState extends State<DetailPage> {
                 onPressed: rows(transcript['segments']).isEmpty
                     ? null
                     : generate,
-                child: const Text('Generate summary'),
+                child: const UiText('Generate summary'),
               ),
             )
           else
@@ -635,7 +636,7 @@ class _DetailPageState extends State<DetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            const UiText(
               'MEETING NOTES',
               style: TextStyle(fontSize: 10, letterSpacing: 1, color: muted),
             ),
@@ -648,7 +649,7 @@ class _DetailPageState extends State<DetailPage> {
         ),
       ),
       const SizedBox(height: 16),
-      const Text(
+      const UiText(
         'Overview',
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
       ),
@@ -660,7 +661,7 @@ class _DetailPageState extends State<DetailPage> {
       if (data['key_points'] is List &&
           (data['key_points'] as List).isNotEmpty) ...[
         const SizedBox(height: 24),
-        const Text(
+        const UiText(
           'Key points',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
@@ -675,7 +676,7 @@ class _DetailPageState extends State<DetailPage> {
       ],
       if (rows(data['action_items']).isNotEmpty) ...[
         const SizedBox(height: 24),
-        const Text(
+        const UiText(
           'Next steps',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
@@ -704,7 +705,7 @@ class _DetailPageState extends State<DetailPage> {
             await load();
           },
           icon: const Icon(Icons.edit_outlined, size: 18),
-          label: const Text('Edit summary'),
+          label: const UiText('Edit summary'),
         ),
     ];
   }
@@ -785,7 +786,7 @@ class _SummaryEditorState extends State<SummaryEditor> {
     title: 'Edit summary',
     bottom: FilledButton(
       onPressed: busy ? null : save,
-      child: Text(busy ? 'Saving…' : 'Save new version'),
+      child: UiText(busy ? 'Saving…' : 'Save new version'),
     ),
     child: ListView(
       padding: const EdgeInsets.all(23),
@@ -793,14 +794,14 @@ class _SummaryEditorState extends State<SummaryEditor> {
         if (error.isNotEmpty) ErrorNotice(error),
         TextField(
           controller: title,
-          decoration: const InputDecoration(labelText: 'Title'),
+          decoration: const InputDecoration(label: UiText('Title')),
         ),
         const SizedBox(height: 16),
         TextField(
           controller: summary,
           minLines: 6,
           maxLines: null,
-          decoration: const InputDecoration(labelText: 'Summary'),
+          decoration: const InputDecoration(label: UiText('Summary')),
         ),
         const SizedBox(height: 16),
         TextField(
@@ -808,11 +809,11 @@ class _SummaryEditorState extends State<SummaryEditor> {
           minLines: 4,
           maxLines: null,
           decoration: const InputDecoration(
-            labelText: 'Key points · One per line',
+            label: UiText('Key points · One per line'),
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
+        const UiText(
           'Previous versions and existing next steps are preserved.',
           style: TextStyle(color: muted),
         ),
@@ -838,12 +839,12 @@ class ExportPage extends StatelessWidget {
     child: ListView(
       padding: const EdgeInsets.all(23),
       children: [
-        const Text(
+        const UiText(
           'Choose a format',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
-        const Text(
+        const UiText(
           'Save or share through your phone’s share menu.',
           style: TextStyle(color: muted),
         ),

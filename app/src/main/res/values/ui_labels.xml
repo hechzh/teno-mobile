@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from the reviewed shared ARB resources. -->
+<resources>
+  <string name="ui_home" formatted="false">Home</string>
+  <string name="ui_assistant" formatted="false">Assistant</string>
+  <string name="ui_settings" formatted="false">Settings</string>
+  <string name="ui_library" formatted="false">Library</string>
+  <string name="ui_interfacelanguage" formatted="false">Interface language</string>
+  <string name="ui_followsystem" formatted="false">Follow system</string>
+  <string name="ui_languagehint" formatted="false">Changes interface text only. Recordings, notes and chats are not translated.</string>
+  <string name="ui_appearancelanguage" formatted="false">Appearance &amp; language</string>
+  <string name="ui_privacydata" formatted="false">Privacy &amp; data</string>
+  <string name="ui_recorderrecording" formatted="false">Recorder &amp; recording</string>
+  <string name="ui_brief" formatted="false">Brief</string>
+  <string name="ui_recentrecordings" formatted="false">Recent recordings</string>
+  <string name="ui_viewall" formatted="false">View all</string>
+  <string name="ui_source" formatted="false">Source</string>
+  <string name="ui_notes" formatted="false">Notes</string>
+  <string name="ui_overview" formatted="false">Overview</string>
+  <string name="ui_search" formatted="false">Search</string>
+  <string name="ui_importfiles" formatted="false">Import files</string>
+  <string name="ui_startrecording" formatted="false">Start recording</string>
+  <string name="ui_myrecorder" formatted="false">My recorder</string>
+  <string name="ui_newnote" formatted="false">New note</string>
+  <string name="ui_versions" formatted="false">Versions</string>
+  <string name="ui_topics" formatted="false">Topics</string>
+  <string name="ui_save" formatted="false">Save</string>
+  <string name="ui_cancel" formatted="false">Cancel</string>
+  <string name="ui_close" formatted="false">Close</string>
+  <string name="ui_back" formatted="false">Back</string>
+  <string name="ui_done" formatted="false">Done</string>
+  <string name="ui_retry" formatted="false">Retry</string>
+  <string name="ui_loading" formatted="false">Loading…</string>
+  <string name="ui_emptybrief" formatted="false">Your latest saved note will appear here.</string>
+  <string name="ui_briefsource" formatted="false">From a saved note</string>
+  <string name="ui_nonotes" formatted="false">No saved notes yet</string>
+  <string name="ui_firstrecording" formatted="false">Start with something worth keeping.</string>
+  <string name="ui_firstrecordinghint" formatted="false">Import audio to keep its transcript, notes and sources together.</string>
+  <string name="ui_assistanttitle" formatted="false">A little clarity, from your recordings.</string>
+  <string name="ui_assistanthint" formatted="false">Answers from your recordings and notes, with source timestamps when available.</string>
+  <string name="ui_personalaccount" formatted="false">Personal account</string>
+  <string name="ui_label7e1b0d5641f2" formatted="false">Account</string>
+  <string name="ui_labelf521e4248c6d" formatted="false">Account &amp; security</string>
+  <string name="ui_label6c4b5440e570" formatted="false">Account changed. Open this recording again.</string>
+  <string name="ui_label8a7dfc4957be" formatted="false">Account changed. Reload this page.</string>
+  <string name="ui_label7874b13aeec1" formatted="false">Add a recording, import a file or create a note.</string>
+  <string name="ui_label88f3f837facd" formatted="false">Add a title and instructions.</string>
+  <string name="ui_label0f01d14cacf0" formatted="false">Add context</string>
+  <string name="ui_label57d208bc0d04" formatted="false">Add event</string>
+  <string name="ui_label5f0580aa7e39" formatted="false">Add highlight</string>
+  <string name="ui_label75d9b95a566f" formatted="false">Add subfolder</string>
+  <string name="ui_labela52ace420f21" formatted="false">All</string>
+  <string name="ui_labelbffc49b558cf" formatted="false">All cloud recordings</string>
+  <string name="ui_label2c92a471fdfc" formatted="false">All recordings</string>
+  <string name="ui_labela4717b6543d6" formatted="false">Any date</string>
+  <string name="ui_label772c230c059d" formatted="false">Anyone using this link will lose access.</string>
+  <string name="ui_labelb0d015fdadc3" formatted="false">App lock</string>
+  <string name="ui_label1862f6ab9820" formatted="false">Applies to your next recording. Complete audio is processed again after recording.</string>
+  <string name="ui_labela71379918f19" formatted="false">Ask Teno</string>
+  <string name="ui_label717367d1bd24" formatted="false">Ask a question about your recordings.</string>
+  <string name="ui_label440c2d0c3740" formatted="false">Ask about this recording</string>
+  <string name="ui_label813bfccd9116" formatted="false">Ask about your recordings</string>
+  <string name="ui_label844fb4bf3408" formatted="false">Ask me anything about this recording</string>
+  <string name="ui_labeldb41f0c39aaf" formatted="false">Ask me anything about your recordings</string>
+  <string name="ui_label46b396c85919" formatted="false">At a glance</string>
+  <string name="ui_label5e3176c01225" formatted="false">AI-generated · Review key details</string>
+  <string name="ui_labelbc1b88907d3b" formatted="false">Audio</string>
+  <string name="ui_label00140e8ad0ea" formatted="false">Audio &amp; transcript</string>
+  <string name="ui_label8d8e1aff4a6f" formatted="false">Audio and video · Up to 120 minutes / 250 MiB</string>
+  <string name="ui_labelfe629dea74ec" formatted="false">Audio could not be verified</string>
+  <string name="ui_label656fb6ded904" formatted="false">Audio is kept while Teno prepares your notes.</string>
+  <string name="ui_label0be233af17d9" formatted="false">Audio language</string>
+  <string name="ui_label419a6c580fbd" formatted="false">Audio settings</string>
+  <string name="ui_labeld461a493a375" formatted="false">Automatic</string>
+  <string name="ui_label179fd3261edf" formatted="false">Automatic processing</string>
+  <string name="ui_label00b76f172d63" formatted="false">Automatically upload new recordings and imports for transcription and summaries.</string>
+  <string name="ui_label6209c5481977" formatted="false">Automatically upload saved audio for transcription and summary.</string>
+  <string name="ui_label48d57e9d4911" formatted="false">Back 15 seconds</string>
+  <string name="ui_label008e42d22277" formatted="false">Back to library</string>
+  <string name="ui_labeldfcb7c1619d5" formatted="false">Battery</string>
+  <string name="ui_labeld83ab68f7428" formatted="false">Best match</string>
+  <string name="ui_label0f82b87c1954" formatted="false">Bring your JWD recorder closer</string>
+  <string name="ui_label359ca59af29e" formatted="false">Browser imports</string>
+  <string name="ui_label9bc6697e3dc9" formatted="false">Browser imports stay under this account. Uploads in progress will stop; sign in again to retry.</string>
+  <string name="ui_label2456433596a1" formatted="false">Cached previews and exports</string>
+  <string name="ui_labeld5d0a30b517e" formatted="false">Calendar</string>
+  <string name="ui_label84110d11d312" formatted="false">Calendar actions</string>
+  <string name="ui_label0e826ce50ae6" formatted="false">Capture important visuals</string>
+  <string name="ui_label292c06f0045a" formatted="false">Category</string>
+  <string name="ui_label9831375bc651" formatted="false">Chapters</string>
+  <string name="ui_label460b3a7da007" formatted="false">Chat</string>
+  <string name="ui_label05a05aa2fd48" formatted="false">Chat history</string>
+  <string name="ui_label916702c8589f" formatted="false">Check answers against the linked source recordings.</string>
+  <string name="ui_label4e8780f8aa73" formatted="false">Check important answers against the linked sources.</string>
+  <string name="ui_label473763cd02d9" formatted="false">Checking recording service…</string>
+  <string name="ui_label8a9779f42128" formatted="false">Chinese</string>
+  <string name="ui_label92181d4a51d4" formatted="false">Choose a format</string>
+  <string name="ui_labelda0f63e19741" formatted="false">Choose content</string>
+  <string name="ui_labela98b1d3e5ceb" formatted="false">Choose content to include</string>
+  <string name="ui_label343b5a9c7fd6" formatted="false">Choose date</string>
+  <string name="ui_label79c6c7ad4ad7" formatted="false">Choose dates</string>
+  <string name="ui_labelfc29d2cd66c0" formatted="false">Choose up to 30 recordings with transcripts.</string>
+  <string name="ui_label108e4eec572c" formatted="false">Clean up transcript automatically</string>
+  <string name="ui_labeld00e4df0930c" formatted="false">Cleaned-up text is not available yet.</string>
+  <string name="ui_labeld33461e6c0b6" formatted="false">Clear cache</string>
+  <string name="ui_label39041f7b9262" formatted="false">Clear cached files?</string>
+  <string name="ui_label3b7ea51793e9" formatted="false">Clear search</string>
+  <string name="ui_label95d460729621" formatted="false">Clear search history</string>
+  <string name="ui_labeld8232cf4eb24" formatted="false">Close keyboard</string>
+  <string name="ui_labela600b900f83d" formatted="false">Close panel</string>
+  <string name="ui_label2b7aa8894c21" formatted="false">Cloud processing</string>
+  <string name="ui_label838991b2b94f" formatted="false">Cloud processing is off. Imported files stay on this phone until you choose Upload and process.</string>
+  <string name="ui_label8adaed39e1a2" formatted="false">Cloud processing is on. Imported files are saved on this phone, then uploaded and processed automatically.</string>
+  <string name="ui_label2187c26af752" formatted="false">Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.</string>
+  <string name="ui_labela293e2e43fd2" formatted="false">Compatibility scan</string>
+  <string name="ui_label7810980ade40" formatted="false">Complete files are verified and saved locally before cloud upload. Reconnect to retry an interrupted transfer. Device originals are not automatically deleted.</string>
+  <string name="ui_label9d989f15c1c5" formatted="false">Complete recordings and imports remain on this phone after upload. Keep the app installed to retain these local copies.</string>
+  <string name="ui_label060f79ce72a8" formatted="false">Complete recordings and imports stay on this phone after upload. Existing saved files are uploaded only when you request it.</string>
+  <string name="ui_labelc8d900f3aeed" formatted="false">Complete recordings are automatically kept on this phone. Cloud upload never removes a local recording.</string>
+  <string name="ui_labeleebdd24a77d9" formatted="false">Confirm</string>
+  <string name="ui_label5b27ed7fa9dd" formatted="false">Connect a JWD recorder, check its service, then authorize it with its device key. Keep the original key to connect from another phone.</string>
+  <string name="ui_labelac593f874557" formatted="false">Connect a recorder</string>
+  <string name="ui_label40f9815ebd38" formatted="false">Connect a recorder without signing in</string>
+  <string name="ui_label9e7eba0b97c9" formatted="false">Connect phone calendar</string>
+  <string name="ui_label9639916d9dfb" formatted="false">Connect recorder</string>
+  <string name="ui_label1ca37334ccfa" formatted="false">Connect your recorder</string>
+  <string name="ui_label62d0bfa77e96" formatted="false">Connect your recorder and keep its original device key. Reconnecting does not start a recording. A Bluetooth disconnect does not mean the recorder has stopped.</string>
+  <string name="ui_label8b53877af85c" formatted="false">Connect your recorder to capture your next conversation.</string>
+  <string name="ui_label47bd29075f8b" formatted="false">Content</string>
+  <string name="ui_label31fbef162594" formatted="false">Continue</string>
+  <string name="ui_label37145972530b" formatted="false">Continued</string>
+  <string name="ui_labele21f935f11d7" formatted="false">Copy</string>
+  <string name="ui_labelf81b58cb3b7c" formatted="false">Copy / Export</string>
+  <string name="ui_labeld888b94d692e" formatted="false">Copy note</string>
+  <string name="ui_labelb749e205302c" formatted="false">Copy to clipboard</string>
+  <string name="ui_labelfa8d84566676" formatted="false">Cover</string>
+  <string name="ui_label4759498ac2a7" formatted="false">Create</string>
+  <string name="ui_label4993a031ed5a" formatted="false">Create a link from a recording or note.</string>
+  <string name="ui_label6eb05a41f7e6" formatted="false">Create a shareable link. Anyone with the link can access this file.</string>
+  <string name="ui_labele6b850cff6af" formatted="false">Create link</string>
+  <string name="ui_label7dc9c0adaca0" formatted="false">Create template</string>
+  <string name="ui_labelf9182f6f2dc8" formatted="false">Created by me</string>
+  <string name="ui_label26756b8c8a6e" formatted="false">Creating link…</string>
+  <string name="ui_labele0d1b68224bf" formatted="false">Current</string>
+  <string name="ui_label60acc53f13a5" formatted="false">Dark</string>
+  <string name="ui_labelfa91f7628ea5" formatted="false">Date created</string>
+  <string name="ui_label5b7e27d5a077" formatted="false">Date created · newest</string>
+  <string name="ui_labelc4709b234134" formatted="false">Date created · oldest</string>
+  <string name="ui_labeleb5e7a5e3d68" formatted="false">Date modified</string>
+  <string name="ui_label45b575b18fb2" formatted="false">Date modified · newest</string>
+  <string name="ui_label8061bfb29ce8" formatted="false">Date range</string>
+  <string name="ui_label0372d70a4fd5" formatted="false">Default configurations for language, speaker labels and transcript cleanup.</string>
+  <string name="ui_labeleb4dd2202ac2" formatted="false">Default summary</string>
+  <string name="ui_labele2d0a54968ea" formatted="false">Delete</string>
+  <string name="ui_labelb872a42ed4cc" formatted="false">Delete event</string>
+  <string name="ui_label113be1f69f41" formatted="false">Delete event?</string>
+  <string name="ui_label39f35f2d44d6" formatted="false">Delete folder</string>
+  <string name="ui_label28b4629208db" formatted="false">Delete folder?</string>
+  <string name="ui_label6a6dd3ce6ae2" formatted="false">Delete local copy</string>
+  <string name="ui_labelba9f45a1c2d6" formatted="false">Delete local copy?</string>
+  <string name="ui_label280b10c89cc4" formatted="false">Delete permanently</string>
+  <string name="ui_labelc1b15a371248" formatted="false">Delete permanently?</string>
+  <string name="ui_labelda9a9b350675" formatted="false">Delete template</string>
+  <string name="ui_labele1d84431b905" formatted="false">Delete template?</string>
+  <string name="ui_labelc13e8743fff5" formatted="false">Deleted cloud recordings will appear here.</string>
+  <string name="ui_label14f912855ddb" formatted="false">Device key backup</string>
+  <string name="ui_labelada711324c39" formatted="false">Discard pending imports</string>
+  <string name="ui_labelacfc5be785a9" formatted="false">Disconnect</string>
+  <string name="ui_labelb4e929d8bcfe" formatted="false">Documents</string>
+  <string name="ui_labele9ca7472dee6" formatted="false">Drop into a folder</string>
+  <string name="ui_label464c4ffd019e" formatted="false">Edit</string>
+  <string name="ui_label4f97831c321a" formatted="false">Edit local notes</string>
+  <string name="ui_label299e604ccff3" formatted="false">Edit note</string>
+  <string name="ui_label0e3eb67d72e9" formatted="false">Edit segment</string>
+  <string name="ui_labelc04f3d9cb841" formatted="false">Edit summary</string>
+  <string name="ui_label176a44212e88" formatted="false">Edit title</string>
+  <string name="ui_label08d4e40d7c51" formatted="false">Edit transcript</string>
+  <string name="ui_labela440abe23574" formatted="false">Edited text</string>
+  <string name="ui_label74a1be251418" formatted="false">Edits here update the local note. Notes sent with the original upload remain on the server.</string>
+  <string name="ui_labele9d41512971a" formatted="false">End of note</string>
+  <string name="ui_labelba118bf7fc9c" formatted="false">English</string>
+  <string name="ui_label258ad01aae4c" formatted="false">Enter start and end seconds separated by a comma.</string>
+  <string name="ui_label4e1f49a9c8ae" formatted="false">Event</string>
+  <string name="ui_label8ec4602ce4a2" formatted="false">Event title</string>
+  <string name="ui_label74100229729d" formatted="false">Existing notes keep their generated content.</string>
+  <string name="ui_label83f51733c819" formatted="false">Existing summaries will be preserved.</string>
+  <string name="ui_label3664895579f0" formatted="false">Export</string>
+  <string name="ui_label6888c0a35c11" formatted="false">Export &amp; share</string>
+  <string name="ui_label1e74a176a3dd" formatted="false">Export as</string>
+  <string name="ui_labelcd6d4c5ea371" formatted="false">Export audio</string>
+  <string name="ui_labelf066ead78e58" formatted="false">Export note</string>
+  <string name="ui_labeld106178565fd" formatted="false">Export original</string>
+  <string name="ui_labelf6aee6b20fe9" formatted="false">Export transcript</string>
+  <string name="ui_label6ab7f7d9e711" formatted="false">Extracting text. The original file is saved.</string>
+  <string name="ui_labelac67507227ad" formatted="false">Favorite template</string>
+  <string name="ui_label7a1f2a83aca9" formatted="false">Favorites</string>
+  <string name="ui_label50009ce1da4d" formatted="false">File</string>
+  <string name="ui_labelb163fad90bee" formatted="false">File options</string>
+  <string name="ui_labelb3b9efed9c4d" formatted="false">File unavailable</string>
+  <string name="ui_labelabc7e9892806" formatted="false">Files</string>
+  <string name="ui_labeledfdb024f059" formatted="false">Files are saved in this browser. Choose Upload and process to send them to your signed-in account. Keep this tab open until upload finishes.</string>
+  <string name="ui_labele5a5c0df54fc" formatted="false">Files remain in your library.</string>
+  <string name="ui_labeldead605b2f80" formatted="false">Files selected for import appear here.</string>
+  <string name="ui_label822b2ae4542b" formatted="false">Find</string>
+  <string name="ui_labelf8c805bd6a45" formatted="false">Find &amp; replace</string>
+  <string name="ui_label7337c292a757" formatted="false">Find a conversation</string>
+  <string name="ui_label4230011827fe" formatted="false">Find a file</string>
+  <string name="ui_labeld543a6e1672a" formatted="false">Find my recorder</string>
+  <string name="ui_labelb8a514901391" formatted="false">Find the important details</string>
+  <string name="ui_label74ccd4330384" formatted="false">Folder</string>
+  <string name="ui_labele37afba74564" formatted="false">Folder options</string>
+  <string name="ui_labelc4d6bb200f4c" formatted="false">Folders</string>
+  <string name="ui_labeld383fef33b8f" formatted="false">Follow audio</string>
+  <string name="ui_label2ba88fa96208" formatted="false">For a recorder already used with Teno, enter its original device key. A new key is only for an unbound recorder.</string>
+  <string name="ui_label2f343666aaa8" formatted="false">Format</string>
+  <string name="ui_label19190cce5524" formatted="false">Forward 15 seconds</string>
+  <string name="ui_label6754c0ab7f8f" formatted="false">From Files</string>
+  <string name="ui_label687c53cb1fb7" formatted="false">From Photos</string>
+  <string name="ui_label5052681b30b0" formatted="false">From other apps</string>
+  <string name="ui_labelc910d474dcd7" formatted="false">General</string>
+  <string name="ui_label49e49bb4401e" formatted="false">Generate</string>
+  <string name="ui_label9414748cad34" formatted="false">Generate cleaned-up text</string>
+  <string name="ui_labelab35d87baddf" formatted="false">Generate summary</string>
+  <string name="ui_label8c8afc5edbe9" formatted="false">Generated content language</string>
+  <string name="ui_label40536dd8a0e2" formatted="false">Generation</string>
+  <string name="ui_label467c73ec9baf" formatted="false">HTTPS server</string>
+  <string name="ui_label7a34ff85344e" formatted="false">Help &amp; support</string>
+  <string name="ui_labele2f55c84f3b4" formatted="false">Help center</string>
+  <string name="ui_label5cb5d4286696" formatted="false">Hide other devices</string>
+  <string name="ui_label07ccd15df32a" formatted="false">Highlight</string>
+  <string name="ui_label6e517828c3d8" formatted="false">Highlights</string>
+  <string name="ui_label66bc5802319d" formatted="false">Home → + → Import files. Choose From Files or From Photos. In another app, tap Share → Teno.</string>
+  <string name="ui_label59c2eaa21578" formatted="false">Home → + → Import files. Choose a file, then Upload and process. Keep this tab open until upload finishes. Processing then continues on the server.</string>
+  <string name="ui_labelb9e9d6be1bcf" formatted="false">How can I help you today?</string>
+  <string name="ui_labela8bb3b086be4" formatted="false">Images · 20 MB    Documents · 15 MB    Text · 2 MB</string>
+  <string name="ui_label2cff9baabf56" formatted="false">Import</string>
+  <string name="ui_labeldb5f9fda6639" formatted="false">Import a file to create your first note.</string>
+  <string name="ui_label5f25f9f40b7a" formatted="false">Import and process</string>
+  <string name="ui_label03c4ac096cd8" formatted="false">Import calendar file</string>
+  <string name="ui_label6f190ac40487" formatted="false">Import limits</string>
+  <string name="ui_label321f179c80ba" formatted="false">Imported</string>
+  <string name="ui_label7df60b64e7ef" formatted="false">Imports</string>
+  <string name="ui_label81d985062c52" formatted="false">In this browser</string>
+  <string name="ui_label4effe447355c" formatted="false">Interview</string>
+  <string name="ui_label4c2f6b585573" formatted="false">JSON includes the complete structured content and source references.</string>
+  <string name="ui_label746d2d32f63b" formatted="false">JWD candidate · Tap to verify and connect</string>
+  <string name="ui_label1cef75aa83ee" formatted="false">Keep your original file. Browser storage may be cleared or evicted.</string>
+  <string name="ui_labelc925a0fbcc77" formatted="false">Key points</string>
+  <string name="ui_labelcdfa2a966fc3" formatted="false">Key points · One per line</string>
+  <string name="ui_label8c710d7b2497" formatted="false">Language detection is automatic for recordings and imports.</string>
+  <string name="ui_label8b45bb20e077" formatted="false">Learning</string>
+  <string name="ui_labeld7cd25137fff" formatted="false">Library options</string>
+  <string name="ui_labeldbcd5e7bb7a0" formatted="false">Light</string>
+  <string name="ui_label60ec2d7bb78f" formatted="false">Link calendar event</string>
+  <string name="ui_label5a55f779d975" formatted="false">Link expires after</string>
+  <string name="ui_label3d72409411ac" formatted="false">Live preview is off · Settings &gt; Recorder</string>
+  <string name="ui_label868345e0521a" formatted="false">Live text is a preview. The complete recording is processed after it is saved and uploaded.</string>
+  <string name="ui_labeld17c23100fda" formatted="false">Live text is a preview. The complete recording is processed after recording for the final transcript and summary.</string>
+  <string name="ui_label20611c3780d1" formatted="false">Live transcript</string>
+  <string name="ui_label7adfd01e422a" formatted="false">Live transcript preview</string>
+  <string name="ui_labelac8991ef0101" formatted="false">Load more</string>
+  <string name="ui_label267c8973271e" formatted="false">Local copies</string>
+  <string name="ui_labelf6ecab810535" formatted="false">Local file</string>
+  <string name="ui_labelbdb955a9c88d" formatted="false">Local files and recorder keys remain on this phone under their original account.</string>
+  <string name="ui_labelb7d2bf6f1057" formatted="false">Local recording</string>
+  <string name="ui_label622410bb0aa1" formatted="false">Local recording notes</string>
+  <string name="ui_label3e2b34b888f3" formatted="false">Local recordings</string>
+  <string name="ui_label49dc52ab360e" formatted="false">Local recordings and device keys stay on this phone. Sign in to the same account to access its files again.</string>
+  <string name="ui_labeld62f03d8ff00" formatted="false">Local storage</string>
+  <string name="ui_label029757c8ca0d" formatted="false">MEETING NOTES</string>
+  <string name="ui_labelf3060ca2421f" formatted="false">Manage local files</string>
+  <string name="ui_labelff862e135e82" formatted="false">Mark key moments</string>
+  <string name="ui_label0e52f6b9d025" formatted="false">Markdown</string>
+  <string name="ui_label4c857c545b8a" formatted="false">Matching recorders</string>
+  <string name="ui_label8b8b8871bbfb" formatted="false">Meeting</string>
+  <string name="ui_label9e6c24f51918" formatted="false">Meeting notes</string>
+  <string name="ui_label8851aaa7d08c" formatted="false">Merge</string>
+  <string name="ui_labelc8627d844f1f" formatted="false">Merged recording</string>
+  <string name="ui_label56112ca16c30" formatted="false">Merged recording title</string>
+  <string name="ui_label6ecc3df6bffd" formatted="false">Move</string>
+  <string name="ui_labelbd0b474a3bd3" formatted="false">Move a recording into this folder from its options menu.</string>
+  <string name="ui_label91d631e150a3" formatted="false">Move to folder</string>
+  <string name="ui_labelb250a454877d" formatted="false">Move to trash</string>
+  <string name="ui_label6d090914f6d7" formatted="false">Move to trash?</string>
+  <string name="ui_label985698b7b5c4" formatted="false">My files</string>
+  <string name="ui_label5030ec983702" formatted="false">My files views</string>
+  <string name="ui_label1901b64190f9" formatted="false">My templates</string>
+  <string name="ui_label7bfab6c61f77" formatted="false">NOTES</string>
+  <string name="ui_labeldcd1d5223f73" formatted="false">Name</string>
+  <string name="ui_labeled245bd55dfb" formatted="false">Name a speaker in a transcript to filter recordings.</string>
+  <string name="ui_labele9e7f40a9bdd" formatted="false">Name speakers</string>
+  <string name="ui_label561e624aff7c" formatted="false">Name speakers within each recording.</string>
+  <string name="ui_label3db65f8c2a7d" formatted="false">Navigation</string>
+  <string name="ui_labeldb18382a249e" formatted="false">New chat</string>
+  <string name="ui_labelcf28f49ec597" formatted="false">New folder</string>
+  <string name="ui_labelbfc1adc316f2" formatted="false">New folder or note</string>
+  <string name="ui_label1f054525307b" formatted="false">New subfolder</string>
+  <string name="ui_labela6c731830aa4" formatted="false">New summary note</string>
+  <string name="ui_label30d87ec45259" formatted="false">New template</string>
+  <string name="ui_label079c45af4c2e" formatted="false">New unbound recorder</string>
+  <string name="ui_labeldd00d3d3e9f7" formatted="false">Next steps</string>
+  <string name="ui_label5a97dc7c7d1d" formatted="false">No chat history</string>
+  <string name="ui_labeld7e20271831b" formatted="false">No files here</string>
+  <string name="ui_labeldc628c03998f" formatted="false">No local files</string>
+  <string name="ui_label77161f8e007e" formatted="false">No local recordings</string>
+  <string name="ui_labeleb82569d8230" formatted="false">No matches found.</string>
+  <string name="ui_labelaf10422f854c" formatted="false">No notes added.</string>
+  <string name="ui_label5e2f7f4186ca" formatted="false">No options yet.</string>
+  <string name="ui_label033f5cf82455" formatted="false">No recordings here</string>
+  <string name="ui_labela43619f32117" formatted="false">No results</string>
+  <string name="ui_label46d5c181199b" formatted="false">No saved versions</string>
+  <string name="ui_labelb346b410d2d9" formatted="false">No shared links</string>
+  <string name="ui_labeledc4df618f81" formatted="false">No speaker labels are available for this transcript.</string>
+  <string name="ui_label330456ef9c44" formatted="false">No speech recognized</string>
+  <string name="ui_label506bbb53d801" formatted="false">No templates here</string>
+  <string name="ui_labelff785ccc115e" formatted="false">No upcoming events</string>
+  <string name="ui_label6cfd09061b65" formatted="false">No verifiable source was included. Check this answer against your recordings.</string>
+  <string name="ui_labeld8da2c49df39" formatted="false">Note</string>
+  <string name="ui_label92bb2996b9b2" formatted="false">Note copied</string>
+  <string name="ui_labele20e2be082f2" formatted="false">Note options</string>
+  <string name="ui_label788011833a5a" formatted="false">Notifications</string>
+  <string name="ui_label5e97833a594a" formatted="false">Notify me when processing finishes. Requires Android notification permission.</string>
+  <string name="ui_labelf97da48734b6" formatted="false">On this phone</string>
+  <string name="ui_label842fc3a912a6" formatted="false">Open audio player</string>
+  <string name="ui_label4190c0c7ec72" formatted="false">Open file</string>
+  <string name="ui_labelfb799b7fc5ce" formatted="false">Open note · Edit and versions</string>
+  <string name="ui_label44a915faf3a9" formatted="false">Open original</string>
+  <string name="ui_label6e00f5d853ef" formatted="false">Open recording</string>
+  <string name="ui_label3e74fe245f58" formatted="false">Open result</string>
+  <string name="ui_labeldca1f6c209a2" formatted="false">Open the file in another app, tap Share, then choose Teno.</string>
+  <string name="ui_labelbb09a1532cc1" formatted="false">Original 16-character key</string>
+  <string name="ui_labelee9869fcea57" formatted="false">Original local recordings, device keys and cloud files stay available.</string>
+  <string name="ui_label89420fdb493e" formatted="false">Original text</string>
+  <string name="ui_label0a30a815d67d" formatted="false">Page</string>
+  <string name="ui_labele7cf3ef4f17c" formatted="false">Password</string>
+  <string name="ui_label858e4ba7a29f" formatted="false">Pause</string>
+  <string name="ui_labelbb6591385f67" formatted="false">Pause recording</string>
+  <string name="ui_label02457c055802" formatted="false">Pause transfer</string>
+  <string name="ui_labelf4e08fefef74" formatted="false">Personalization</string>
+  <string name="ui_labela7c41425ec04" formatted="false">Phone recordings: up to 54 minutes. JWD Bluetooth imports: up to 60 minutes / 100 MiB. Audio file imports: up to 120 minutes / 250 MiB.</string>
+  <string name="ui_labeld84eebada93e" formatted="false">Photo</string>
+  <string name="ui_label5e3147ab51e0" formatted="false">Photos</string>
+  <string name="ui_labelcf4166250b80" formatted="false">Plain text</string>
+  <string name="ui_labela78afaff2fda" formatted="false">Play or pause</string>
+  <string name="ui_label12c3d3a920ad" formatted="false">Play or pause audio</string>
+  <string name="ui_label67e0ddff71f2" formatted="false">Play recording</string>
+  <string name="ui_labelafec2b22114c" formatted="false">Playback speed</string>
+  <string name="ui_label66962f72a088" formatted="false">Preferences</string>
+  <string name="ui_labelf1af44ed881d" formatted="false">Preparing transcript and summary</string>
+  <string name="ui_label1802b08513b6" formatted="false">Preparing your answer…</string>
+  <string name="ui_label20581eb94b5f" formatted="false">Preparing your note</string>
+  <string name="ui_label0f454c73915f" formatted="false">Preparing your summary</string>
+  <string name="ui_labelb44a7fc5628d" formatted="false">Preparing your transcript</string>
+  <string name="ui_label37c43ad41939" formatted="false">Preview only. The complete audio is processed after recording.</string>
+  <string name="ui_label23333fe2d3d9" formatted="false">Preview · Final transcript follows processing</string>
+  <string name="ui_label9348f5af2c55" formatted="false">Previous versions and existing next steps are preserved.</string>
+  <string name="ui_labelc63eb6720c6e" formatted="false">Private</string>
+  <string name="ui_labelc8e3e92a62ec" formatted="false">Processing</string>
+  <string name="ui_labela9e3bc208a09" formatted="false">Processing and notifications</string>
+  <string name="ui_label63e7cb980e55" formatted="false">Processing failed. Try again.</string>
+  <string name="ui_labeld5fe69b8a1f3" formatted="false">Processing notifications</string>
+  <string name="ui_label35b901546886" formatted="false">Processing your recording</string>
+  <string name="ui_label75767813e884" formatted="false">Queued for upload</string>
+  <string name="ui_label5fa7aac5375c" formatted="false">Ready</string>
+  <string name="ui_label451a35b8adb3" formatted="false">Ready to summarize</string>
+  <string name="ui_label7f2d46393e85" formatted="false">Recap the key decisions</string>
+  <string name="ui_labele0050e57eb70" formatted="false">Receiving and verifying the complete recording. Originals stay on your recorder.</string>
+  <string name="ui_label2ccfecbca101" formatted="false">Recent chats</string>
+  <string name="ui_label228c84b5a56e" formatted="false">Recent searches</string>
+  <string name="ui_label1e7cf8df9b6a" formatted="false">Recently used</string>
+  <string name="ui_labelf7b07c386b9c" formatted="false">Reconnect recorder</string>
+  <string name="ui_label8343f2a64a3a" formatted="false">Reconnect saved recorder</string>
+  <string name="ui_label3941c85fa102" formatted="false">Reconnecting does not start a recording. If Bluetooth disconnects, check the recorder before starting another recording.</string>
+  <string name="ui_labela571db058621" formatted="false">Record with phone</string>
+  <string name="ui_labelb984d066f603" formatted="false">Recorder</string>
+  <string name="ui_labelb41c60449af7" formatted="false">Recorder &amp; files</string>
+  <string name="ui_label80e8dd1a5a05" formatted="false">Recording</string>
+  <string name="ui_labelae19bed1f3b2" formatted="false">Recording highlights</string>
+  <string name="ui_labelaeb3eba8a655" formatted="false">Recording notes</string>
+  <string name="ui_label024bd21625b8" formatted="false">Recording options</string>
+  <string name="ui_labele7a814fbebf5" formatted="false">Recording preferences</string>
+  <string name="ui_label65ac0c306d33" formatted="false">Recording service unavailable</string>
+  <string name="ui_labela858dbd960d1" formatted="false">Recording service verified · Connect</string>
+  <string name="ui_labelcf4a89857ca6" formatted="false">Recording title</string>
+  <string name="ui_label2ef4c842e6e8" formatted="false">Recording unavailable</string>
+  <string name="ui_labelfd24f4315ebf" formatted="false">Recording with Teno</string>
+  <string name="ui_label60c56d66a128" formatted="false">Recordings</string>
+  <string name="ui_label5ca7933473f1" formatted="false">Recordings and imports are automatically kept on this phone.</string>
+  <string name="ui_labelace48a7cb5b4" formatted="false">Recordings will stay in your library.</string>
+  <string name="ui_label889bdee49e27" formatted="false">Refresh conversation</string>
+  <string name="ui_label45b14a89f746" formatted="false">Refresh device status</string>
+  <string name="ui_label1651031bf58d" formatted="false">Regenerate</string>
+  <string name="ui_label3064d79a295c" formatted="false">Rename</string>
+  <string name="ui_label7249f19c9e4f" formatted="false">Rename folder</string>
+  <string name="ui_label2ebcba962562" formatted="false">Replace all</string>
+  <string name="ui_label8382d317c1d5" formatted="false">Replace with</string>
+  <string name="ui_labela76e13b98392" formatted="false">Restore</string>
+  <string name="ui_labeld640c7421da0" formatted="false">Resume</string>
+  <string name="ui_label5939333e89a8" formatted="false">Retry processing</string>
+  <string name="ui_labelc87dc5bbfea5" formatted="false">Return to recording</string>
+  <string name="ui_label87e6d00bbf53" formatted="false">Revoke</string>
+  <string name="ui_label3d3b295854fe" formatted="false">Revoke this link?</string>
+  <string name="ui_labelf6f738d04392" formatted="false">Revoked</string>
+  <string name="ui_label55559604fc68" formatted="false">Save a favorite, create a template or choose another category.</string>
+  <string name="ui_label4f4851e2cdef" formatted="false">Save as note</string>
+  <string name="ui_label6d3f818d9f6a" formatted="false">Save favorites or create your own.</string>
+  <string name="ui_label20334a86c75a" formatted="false">Save new version</string>
+  <string name="ui_label59bfdd6b2306" formatted="false">Save or share through your phone’s share menu.</string>
+  <string name="ui_label47f72a2f3e91" formatted="false">Save template</string>
+  <string name="ui_label7ae75ed463cf" formatted="false">Saved copy · Checking for updates…</string>
+  <string name="ui_labelc9603da9e5ad" formatted="false">Saved copy · Could not check for updates</string>
+  <string name="ui_label75010cd58573" formatted="false">Saved in this browser</string>
+  <string name="ui_label4c03b51d6368" formatted="false">Saved on this phone</string>
+  <string name="ui_label951db04b82b5" formatted="false">Saved recorder · Connect</string>
+  <string name="ui_labelf15ef1a2514d" formatted="false">Saving recording</string>
+  <string name="ui_labelcbe16e470ef0" formatted="false">Saving to this phone</string>
+  <string name="ui_label23e39291d613" formatted="false">Saving…</string>
+  <string name="ui_label38d96da6e8b2" formatted="false">Scanning…</string>
+  <string name="ui_label04b9835b977e" formatted="false">Search templates</string>
+  <string name="ui_label0ca59a709d65" formatted="false">Search titles and transcripts.</string>
+  <string name="ui_label088f0ac49c96" formatted="false">Search your recordings</string>
+  <string name="ui_label2a78025de6aa" formatted="false">Select</string>
+  <string name="ui_labeld1156d07ca4e" formatted="false">Select a template</string>
+  <string name="ui_labelb43ba3e02667" formatted="false">Select recordings to merge.</string>
+  <string name="ui_labelf9086318ef13" formatted="false">Select recordings, notes, documents or folders.</string>
+  <string name="ui_labelec075128ebd3" formatted="false">Send question</string>
+  <string name="ui_label485ad1a4f6b7" formatted="false">Separate speakers</string>
+  <string name="ui_labelaef7de28d529" formatted="false">Server</string>
+  <string name="ui_label3e8fb11efc9e" formatted="false">Server settings</string>
+  <string name="ui_label29887a5ff984" formatted="false">Share</string>
+  <string name="ui_label63ff62289eca" formatted="false">Share answer</string>
+  <string name="ui_label712a4823ccb9" formatted="false">Share link</string>
+  <string name="ui_labelf40b09a5b798" formatted="false">Share recording</string>
+  <string name="ui_label44266fb49f67" formatted="false">Share with link</string>
+  <string name="ui_labele3c4b39d6d50" formatted="false">Shared</string>
+  <string name="ui_label2e3ac056d490" formatted="false">Shared links</string>
+  <string name="ui_label3dcf3d16dd02" formatted="false">Shared with Teno</string>
+  <string name="ui_labelbfd402b2f6f3" formatted="false">Sign in</string>
+  <string name="ui_label22e58a62e3f4" formatted="false">Sign in to its account or check local storage.</string>
+  <string name="ui_labelc80526e65f78" formatted="false">Sign in to record</string>
+  <string name="ui_label11aa3c02e39a" formatted="false">Sign in to the recording’s account to access its local file.</string>
+  <string name="ui_label47e82476c5c4" formatted="false">Sign in to your Teno account.</string>
+  <string name="ui_label48f0d3d397d4" formatted="false">Sign out</string>
+  <string name="ui_labelc1c084addfcc" formatted="false">Sign out?</string>
+  <string name="ui_label8b9d3de8ae00" formatted="false">Signing in…</string>
+  <string name="ui_label722173bdafb0" formatted="false">Sort and select</string>
+  <string name="ui_label75b95987156e" formatted="false">Sort search results</string>
+  <string name="ui_labelcaf85b0888d7" formatted="false">Sources</string>
+  <string name="ui_labela9e0c7058512" formatted="false">Speaker</string>
+  <string name="ui_label6d2a3d905d65" formatted="false">Speaker labels</string>
+  <string name="ui_labelc92a7237efe6" formatted="false">Speakers</string>
+  <string name="ui_label278f200e0954" formatted="false">Start a conversation about your files.</string>
+  <string name="ui_labelcae7d57bc067" formatted="false">Stop</string>
+  <string name="ui_labelcfa16e25a1b7" formatted="false">Stop following audio</string>
+  <string name="ui_label576b015da398" formatted="false">Stop recording?</string>
+  <string name="ui_label1ff87776e254" formatted="false">Stop upload</string>
+  <string name="ui_labela69c4dece144" formatted="false">Storage</string>
+  <string name="ui_label87b46d07344a" formatted="false">Summarize the key decisions</string>
+  <string name="ui_label8e76a94ac832" formatted="false">Summary</string>
+  <string name="ui_label897f93c2a3b8" formatted="false">Summary instructions</string>
+  <string name="ui_label69427a25853c" formatted="false">Summary language</string>
+  <string name="ui_label7530b89a4c88" formatted="false">Summary template</string>
+  <string name="ui_label062bcea801e1" formatted="false">Summary unavailable</string>
+  <string name="ui_label0d681ad655bb" formatted="false">Summary versions</string>
+  <string name="ui_labele2d55694b6a7" formatted="false">Supported files</string>
+  <string name="ui_label16d7372e3162" formatted="false">Switch to Edited text to make changes. The original stays unchanged.</string>
+  <string name="ui_label5f905992d185" formatted="false">Sync recordings to this phone</string>
+  <string name="ui_label7b905ed0eaf2" formatted="false">Template name</string>
+  <string name="ui_label1ad5d815ceef" formatted="false">Template options</string>
+  <string name="ui_label56b564b75c7f" formatted="false">Templates</string>
+  <string name="ui_label1e43824cfa40" formatted="false">Teno Web preview</string>
+  <string name="ui_label971dc8d18395" formatted="false">Teno account</string>
+  <string name="ui_label2504d9c7417d" formatted="false">The action could not be completed. Try again.</string>
+  <string name="ui_label0852dd932048" formatted="false">The answer could not be generated.</string>
+  <string name="ui_label1074f8d0c278" formatted="false">The cloud content will stay in your library.</string>
+  <string name="ui_labelef525ba5f521" formatted="false">The cloud recording will stay in your library.</string>
+  <string name="ui_labelc15e0ed239f9" formatted="false">The complete audio file stays on this phone.</string>
+  <string name="ui_label9fedf65e0ac5" formatted="false">The complete audio remains available to play.</string>
+  <string name="ui_labelbc9c04e2af0b" formatted="false">The complete file is checked before it is saved and uploaded. Originals stay on your recorder.</string>
+  <string name="ui_labeld87528954e3a" formatted="false">The complete recording will be saved on this phone. Your cloud processing preference will apply.</string>
+  <string name="ui_label8f16804b7f33" formatted="false">The current note is available on this page.</string>
+  <string name="ui_label5a6ad55a1421" formatted="false">The source transcript has changed. This note retains its earlier version.</string>
+  <string name="ui_label785bd7747acd" formatted="false">The transcript has changed since this summary was generated.</string>
+  <string name="ui_labelf033a57053af" formatted="false">The transcript has changed. This note retains its earlier version.</string>
+  <string name="ui_labelefb52e7172b7" formatted="false">Theme</string>
+  <string name="ui_label281a1ea9ebc2" formatted="false">This answer is taking longer. Refresh this conversation to check again.</string>
+  <string name="ui_label663517e589cf" formatted="false">This file has not been uploaded. Its local copy will be permanently deleted.</string>
+  <string name="ui_labelc29cd21b0ce4" formatted="false">This permanently deletes the cloud recording and its results.</string>
+  <string name="ui_label3c12c196ecfa" formatted="false">This recording has not been uploaded. Its local audio will be permanently deleted.</string>
+  <string name="ui_labeld5f64f34a299" formatted="false">This recording is no longer available.</string>
+  <string name="ui_labelb519667d4c17" formatted="false">This removes the event from Teno. Your phone calendar is unchanged.</string>
+  <string name="ui_labelec2d8412977b" formatted="false">This removes the selected cloud content and its shared links. Local copies stay on this phone.</string>
+  <string name="ui_label755f099dbf49" formatted="false">Timestamps</string>
+  <string name="ui_label7e8cd2056da7" formatted="false">Title</string>
+  <string name="ui_label2b065c7c9ce4" formatted="false">Today</string>
+  <string name="ui_labelea93d6a262ec" formatted="false">Tools</string>
+  <string name="ui_labelfe69a43d8568" formatted="false">Transcribe again</string>
+  <string name="ui_label9ee39146dee1" formatted="false">Transcribe again?</string>
+  <string name="ui_label721164f0dc70" formatted="false">Transcript</string>
+  <string name="ui_label4a2f872776b1" formatted="false">Transcript actions</string>
+  <string name="ui_label2eeff6f159ed" formatted="false">Transcript excerpt</string>
+  <string name="ui_label441836b87229" formatted="false">Transcript is being prepared</string>
+  <string name="ui_labelc304d04ca0b6" formatted="false">Transcript version</string>
+  <string name="ui_label8bc7ce62eec1" formatted="false">Transcription &amp; summary</string>
+  <string name="ui_labelc560122ac470" formatted="false">Trash</string>
+  <string name="ui_label52a78027bdd9" formatted="false">Trash is empty</string>
+  <string name="ui_labelaa877d97e3f2" formatted="false">Trim audio</string>
+  <string name="ui_labele38240ff7d06" formatted="false">Trim range · start,end in seconds</string>
+  <string name="ui_labele54a1a0afd40" formatted="false">Try a different word or phrase.</string>
+  <string name="ui_labelb4084a52d9d2" formatted="false">Try another word or adjust your filters.</string>
+  <string name="ui_labelbaaddf70fb5d" formatted="false">Type</string>
+  <string name="ui_label849a11b7a0fb" formatted="false">Type main ideas</string>
+  <string name="ui_label63e39c39bfbb" formatted="false">Type note</string>
+  <string name="ui_label325ffdb1396d" formatted="false">Unrecognized device · Check recording service</string>
+  <string name="ui_labelf59ab8d1331b" formatted="false">Untitled</string>
+  <string name="ui_labele93736573a33" formatted="false">Untitled note</string>
+  <string name="ui_label567fb2d64a3d" formatted="false">Untitled recording</string>
+  <string name="ui_labelc26ea11155cf" formatted="false">Upload and process</string>
+  <string name="ui_labelaedad2135947" formatted="false">Upload needs attention</string>
+  <string name="ui_label3c414b7123b8" formatted="false">Upload on Wi-Fi only</string>
+  <string name="ui_labeld541bdf9758b" formatted="false">Upload saved files</string>
+  <string name="ui_label8b898ca34ce7" formatted="false">Uploading</string>
+  <string name="ui_label65189a29b993" formatted="false">Uploading. Keep this tab open until upload finishes.</string>
+  <string name="ui_labelb16a23ba57f3" formatted="false">Use original key</string>
+  <string name="ui_label82dbedf99ae9" formatted="false">Use the menu to connect your calendar or add an event.</string>
+  <string name="ui_label1a439ee577c7" formatted="false">Use this template</string>
+  <string name="ui_label467e685ec21a" formatted="false">Use your existing Teno account. Library, transcripts, summaries, templates and Ask share the same cloud data as the app.</string>
+  <string name="ui_labeleb4b0ba0995a" formatted="false">Use your phone’s screen lock to open Teno.</string>
+  <string name="ui_labele3b89e9d33f8" formatted="false">Username</string>
+  <string name="ui_labeldd167905de0d" formatted="false">Version</string>
+  <string name="ui_labela6df11e706c5" formatted="false">Version history</string>
+  <string name="ui_label6ee818aa2de3" formatted="false">View source</string>
+  <string name="ui_label8748f23993a8" formatted="false">Voice input</string>
+  <string name="ui_label9e320fd47505" formatted="false">Waiting for recorder</string>
+  <string name="ui_labelcf7ca0c9fd5d" formatted="false">Waiting to upload</string>
+  <string name="ui_labelcaf8ca93250b" formatted="false">What are the next steps?</string>
+  <string name="ui_labelee3986c25932" formatted="false">What should I follow up on?</string>
+  <string name="ui_label7b3091d59ac7" formatted="false">What would you like to know?</string>
+  <string name="ui_label87bb59ba2f92" formatted="false">Workspace</string>
+  <string name="ui_label28fbf97242b1" formatted="false">Write your note…</string>
+  <string name="ui_labelfe1bb9b9b4d7" formatted="false">You can leave this page while processing continues.</string>
+  <string name="ui_label42dcdde2fdda" formatted="false">You can leave this page. Processing continues in the background.</string>
+  <string name="ui_label69a45f93d227" formatted="false">You can restore this cloud recording from Trash.</string>
+  <string name="ui_label99bff501c410" formatted="false">You can restore this recording from Trash.</string>
+  <string name="ui_label11ae56a716fc" formatted="false">Your audio remains available.</string>
+  <string name="ui_labelf20283e2f772" formatted="false">Your brief</string>
+  <string name="ui_label066bb7662174" formatted="false">Your brief will appear here when a note is ready.</string>
+  <string name="ui_labelaa9ebfad71c7" formatted="false">Your existing Teno account</string>
+  <string name="ui_label55576676783c" formatted="false">Your notes</string>
+  <string name="ui_label2fb2d67edf83" formatted="false">Your question is saved. Retry when ready.</string>
+  <string name="ui_label5b8980b8296a" formatted="false">Your recorder</string>
+  <string name="ui_labelc390405502f1" formatted="false">Your recordings and imports are automatically kept here.</string>
+  <string name="ui_labelae0ea9dc7f8c" formatted="false">Your recordings start here</string>
+  <string name="ui_labelbc183962239b" formatted="false">Your templates</string>
+  <string name="ui_label0ad1dcc94259" formatted="false">A complete audio file is always kept on this phone. These choices are saved to this account on this device.</string>
+  <string name="ui_label200d05914172" formatted="false">Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Live text is a preview; final results use the complete recording.</string>
+  <string name="ui_label5098dcb4379e" formatted="false">Audio and video: 120 minutes / 250 MiB. Images: 20 MB. Documents: 15 MB. Text: 2 MB. Calendar files: 1 MiB. Use unencrypted documents.</string>
+  <string name="ui_label738e03c827d3" formatted="false">Audio/video: 120 minutes / 250 MiB. Images (PNG/JPEG): 20 MB. Documents (PDF, Word, PowerPoint, MSG): 15 MB. Text/Markdown: 2 MB. Use unencrypted documents.</string>
+  <string name="ui_label938be793bada" formatted="false">Selected files are saved in this browser for retry under their original account. Browser storage can be cleared or evicted; keep your original files. Sign in again to resume an interrupted upload.</string>
+  <string name="ui_labelc85f64f70b34" formatted="false">Overview, key points and next steps</string>
+  <string name="ui_labelc4e33bbe61e6" formatted="false">Change interface language without changing your recordings or generated content.</string>
+  <string name="ui_label15f98a3794f0" formatted="false">Your conversations,\nyour clarity.</string>
+  <string name="ui_labelf40d7f51f69e" formatted="false">Mon</string>
+  <string name="ui_labeld1eb39b09bf5" formatted="false">Tue</string>
+  <string name="ui_label58339f45df96" formatted="false">Wed</string>
+  <string name="ui_label7da11212ed34" formatted="false">Thu</string>
+  <string name="ui_label66dab40cea1d" formatted="false">Fri</string>
+  <string name="ui_labelfdeb71b569e0" formatted="false">Sat</string>
+  <string name="ui_labeldb18f17fe532" formatted="false">Sun</string>
+  <string name="ui_label5c5db120cb11" formatted="false">Jan</string>
+  <string name="ui_labelcaf71b3f582d" formatted="false">Feb</string>
+  <string name="ui_labelb4b7d3818dbf" formatted="false">Mar</string>
+  <string name="ui_label617531b4fec3" formatted="false">Apr</string>
+  <string name="ui_label8c78fe5b9936" formatted="false">May</string>
+  <string name="ui_labelb27fd46ed1b6" formatted="false">Jun</string>
+  <string name="ui_labelc43f56b9807e" formatted="false">Jul</string>
+  <string name="ui_label41e1d82aa990" formatted="false">Aug</string>
+  <string name="ui_label451e2b719061" formatted="false">Sep</string>
+  <string name="ui_label6877e8494c3a" formatted="false">Oct</string>
+  <string name="ui_label3e630d2964a0" formatted="false">Nov</string>
+  <string name="ui_labelf2a0cfbcf191" formatted="false">Dec</string>
+  <string name="ui_labeld98eb49ceb4b" formatted="false">Teno · Saving recording</string>
+  <string name="ui_label71469cab82c6" formatted="false">Teno · Recording paused</string>
+  <string name="ui_label331d2129ed6b" formatted="false">Teno · Recording</string>
+  <string name="ui_label145ee0765c43" formatted="false">Audio is saved on this phone.</string>
+  <string name="ui_label6be804aeece9" formatted="false">Stop and save</string>
+  <string name="ui_label57bb71e63419" formatted="false">Uploads and processing</string>
+  <string name="ui_label4d1e89c3f939" formatted="false">Recorder connection</string>
+  <string name="ui_label1fe47a729aaf" formatted="false">Teno · Recorder</string>
+  <string name="ui_labelc2bc6d5282a7" formatted="false">Teno · Syncing recordings</string>
+  <string name="ui_labeld14b24f9ebe0" formatted="false">Teno · Reminder</string>
+  <string name="ui_label3701e28787a3" formatted="false">Speak your question</string>
+  <string name="ui_label24cd990fcc96" formatted="false">Up to 60 seconds. You can edit the text before sending.</string>
+  <string name="ui_label3cfcdc5d210b" formatted="false">Export from Teno</string>
+  <string name="ui_label8ab78c95bb63" formatted="false">Share from Teno</string>
+  <string name="ui_label60baea44888e" formatted="false">Processing · Local copy kept</string>
+  <string name="ui_labelf79ec89e7d95" formatted="false">Upload paused · Local copy kept</string>
+  <string name="ui_label0303e1824670" formatted="false">Not connected</string>
+  <string name="ui_label0b4bb3eed1bb" formatted="false">Not received</string>
+  <string name="ui_label9c1f7ff256de" formatted="false">Recorder service</string>
+  <string name="ui_labelb18237558cf3" formatted="false">Recorder is recording</string>
+  <string name="ui_labela4348acc6d9c" formatted="false">Recording paused</string>
+  <string name="ui_label02acf8170c9a" formatted="false">Receiving audio over Bluetooth</string>
+  <string name="ui_label570d8b1483dd" formatted="false">Saved on recorder · Syncing to this phone</string>
+  <string name="ui_label944daea70213" formatted="false">Waiting for the recorder to finish saving…</string>
+  <string name="ui_labelb18eeb0d43f6" formatted="false">Compatibility scan · 15 seconds</string>
+  <string name="ui_labele2d7f6d7f18b" formatted="false">Scanning · Keep the recorder available for connection</string>
+  <string name="ui_label15fd3168e6c2" formatted="false">No recorder found. Wake the recorder and close other recorder apps, then try again.</string>
+  <string name="ui_labelabad6f3dc147" formatted="false">Scan complete. Verify the service before connecting.</string>
+  <string name="ui_label196574e3aa9c" formatted="false">Disconnected. Check the recorder: it may still be recording.</string>
+  <string name="ui_labela610dc54b358" formatted="false">Sync paused. Originals stay on the recorder. Reconnect to try again.</string>
+  <string name="ui_labeleec2b22a86dc" formatted="false">Device key not accepted. Enter the original 16-character key, or check Recorder help before resetting the device.</string>
+  <string name="ui_label0cc1ba39d071" formatted="false">Saved on recorder. Sign in and set recording preferences to sync automatically.</string>
+  <string name="ui_labelcf2759aff016" formatted="false">Permission was not granted. Enable it in Android Settings to use this feature.</string>
+  <string name="ui_labelfc25221a1fc1" formatted="false">Finish the current permission request first.</string>
+  <string name="ui_labelca44e25205d6" formatted="false">Allow microphone access in Android Settings.</string>
+  <string name="ui_label533f1648108c" formatted="false">No audio received from recorder</string>
+  <string name="ui_label2a0b3310ed0f" formatted="false">Live preview is off</string>
+  <string name="ui_labeld403c686f6a1" formatted="false">Connecting</string>
+  <string name="ui_label22965568d22a" formatted="false">Connected</string>
+  <string name="ui_label04dfac3671b4" formatted="false">Disconnected</string>
+  <string name="ui_label7971dd752669" formatted="false">Reminders</string>
+  <string name="ui_fullmeetingnotes" formatted="false">Full meeting notes</string>
+  <string name="ui_label548dc526803d" formatted="false">Scan for recorders</string>
+  <string name="ui_label2d56922b543d" formatted="false">Any folder</string>
+  <string name="ui_labelb05fc1fe6984" formatted="false">Any type</string>
+  <string name="ui_label73843394f5ee" formatted="false">Any speaker</string>
+  <string name="ui_label0951734d8ac4" formatted="false">Cleaned-up text</string>
+  <string name="ui_label7dcd94452308" formatted="false">A fixed version is shared. Revoke links in Settings → Shared links.</string>
+  <string name="ui_label401584c4ad5b" formatted="false">Copy transcript</string>
+  <string name="ui_labele58a1a86879f" formatted="false">Export files</string>
+  <string name="ui_label758ba0c08150" formatted="false">Transcript copied</string>
+  <string name="ui_label8876eaf42b3b" formatted="false">Open the existing transcript without generating a new note.</string>
+  <string name="ui_label0c00c2a6d16e" formatted="false">A complete copy stays on this phone after upload.</string>
+  <string name="ui_labelc8e9021fd812" formatted="false">A new transcript version will be generated from the complete audio.</string>
+  <string name="ui_label1118a899f7f2" formatted="false">Teno device key</string>
+  <string name="ui_label86f468a6b1d9" formatted="false">Unlock to view your recorder\'s binding key.</string>
+  <string name="ui_labeled7d0390e6c9" formatted="false">Keep this key private. It is needed to connect this recorder from another phone.</string>
+  <string name="ui_label20bb8fece4b5" formatted="false">Share Teno notes</string>
+  <string name="ui_labeldde65e3126c3" formatted="false">Check the recorder service before saving a device key.</string>
+  <string name="ui_labelbcf0cd2bc357" formatted="false">Finish recording and transfers before changing accounts.</string>
+  <string name="ui_labelb8d5ef9344ff" formatted="false">Finish the current recording first.</string>
+  <string name="ui_label1f45e77f2c0c" formatted="false">Finish the phone recording first.</string>
+  <string name="ui_labelc43a281ad04f" formatted="false">Invalid local recording.</string>
+  <string name="ui_labelfc576d907ff7" formatted="false">Recording could not start. Open the app and try again.</string>
+  <string name="ui_label2bd2ab92015b" formatted="false">Recording notes are too long.</string>
+  <string name="ui_labelaf8da0a68f14" formatted="false">Sign in to this recording\'s account.</string>
+  <string name="ui_label7fe5b32b587a" formatted="false">Sign in to your Teno account first.</string>
+  <string name="ui_label2d211ecaebe2" formatted="false">Sign out before changing accounts.</string>
+  <string name="ui_labelc161ed9c9526" formatted="false">There is no active phone recording.</string>
+  <string name="ui_label7afc8612d3d2" formatted="false">This recorder already has a saved key.</string>
+  <string name="ui_label27d81c15395f" formatted="false">Unsupported API request.</string>
+  <string name="ui_label6dd96f6320f1" formatted="false">Wait for the active recording or upload to finish.</string>
+  <string name="ui_label268703d4af88" formatted="false">Account changed. Import the file again.</string>
+  <string name="ui_labelaf4e0f09019e" formatted="false">Account changed. Open the export again.</string>
+  <string name="ui_label2ddae4d82d4c" formatted="false">Choose playable audio up to 120 minutes.</string>
+  <string name="ui_label1a0c74b79fc2" formatted="false">Finish the current device key request.</string>
+  <string name="ui_label2395f9d173b3" formatted="false">Finish the current import first.</string>
+  <string name="ui_label419205d06a9d" formatted="false">Invalid recording.</string>
+  <string name="ui_labele5a17d74835d" formatted="false">No device key is saved.</string>
+  <string name="ui_label6452bb49b9fd" formatted="false">Playback request changed.</string>
+  <string name="ui_label1d00f99f5e44" formatted="false">Screen-lock verification is unavailable.</string>
+  <string name="ui_label5fdfb782b25b" formatted="false">Set a phone screen lock before viewing a device key.</string>
+  <string name="ui_label6977460770a2" formatted="false">Supported formats: WAV, MP3, M4A, MP4 and OGG.</string>
+  <string name="ui_label65d0add78333" formatted="false">The import limit is 250 MiB.</string>
+  <string name="ui_label686dfdbc0bd6" formatted="false">The selected file is unavailable.</string>
+  <string name="ui_label4eabe69bda69" formatted="false">This audio could not be played.</string>
+  <string name="ui_labela9b9f6f9c8bb" formatted="false">Unsupported export.</string>
+  <string name="ui_label1ac024f120c6" formatted="false">Unsupported playback speed.</string>
+  <string name="ui_labeld642f9d8fbbd" formatted="false">Account changed during export.</string>
+  <string name="ui_labela69f32f2be19" formatted="false">Account changed during import.</string>
+  <string name="ui_labelaf589e0ed460" formatted="false">Account changed during voice input.</string>
+  <string name="ui_label82cab6a7cf93" formatted="false">Choose a file shared with read permission.</string>
+  <string name="ui_label4780fd8ca280" formatted="false">Choose a supported audio, video, document or image file.</string>
+  <string name="ui_label69f231493a92" formatted="false">Choose a valid image up to 25 megapixels.</string>
+  <string name="ui_labeldfd6f617b710" formatted="false">Choose audio or video up to 120 minutes.</string>
+  <string name="ui_label78bf8ff7bab7" formatted="false">Finish phone recording before using voice input.</string>
+  <string name="ui_labele10607ef7236" formatted="false">Import up to 20 files at a time.</string>
+  <string name="ui_labelfaedf3084288" formatted="false">Invalid export request.</string>
+  <string name="ui_label412eadfa55af" formatted="false">Invalid pending import.</string>
+  <string name="ui_label3249da300236" formatted="false">Set a screen lock in Android Settings before enabling App lock.</string>
+  <string name="ui_labeld0bc2276463c" formatted="false">Share up to 20 files at a time.</string>
+  <string name="ui_labelcdbfee510021" formatted="false">The local copy is missing. Import the file again.</string>
+  <string name="ui_label42eb27c3baf6" formatted="false">The selected file is empty.</string>
+  <string name="ui_label6578f2c3deff" formatted="false">The shared file is unavailable.</string>
+  <string name="ui_label3eee87dc352b" formatted="false">The shared item does not contain a file.</string>
+  <string name="ui_label31efa9c0d5f1" formatted="false">This file exceeds the import size limit.</string>
+  <string name="ui_label3a5ad967765d" formatted="false">This file has no supported audio track.</string>
+  <string name="ui_label1bb4f67fef3a" formatted="false">Unlock was cancelled.</string>
+  <string name="ui_labela69fc6732df7" formatted="false">Unsupported Android action.</string>
+  <string name="ui_labele5c81a03c8e4" formatted="false">No valid audio file found</string>
+  <string name="ui_label8957795f2687" formatted="false">Sign in to the recording\'s account.</string>
+  <string name="ui_labelc27cda07904f" formatted="false">The local recording is unavailable.</string>
+  <string name="ui_label7160d98ed12a" formatted="false">Upload is stopping. Try signing out again in a moment.</string>
+  <string name="ui_label6e403d1365f7" formatted="false">Audio saved, but its details could not be updated.</string>
+  <string name="ui_labeld1497761ce3d" formatted="false">Microphone interrupted. The saved audio has been kept.</string>
+  <string name="ui_labelfb7fabb3f59b" formatted="false">Sign in before recording</string>
+  <string name="ui_label86a0a120d000" formatted="false">The 54-minute recording limit was reached. Audio has been saved.</string>
+  <string name="ui_label6aacf8f7a4f4" formatted="false">The microphone could not be opened</string>
+  <string name="ui_labelf77d844bd3e6" formatted="false">Android requested Bluetooth pairing. Cancel the prompt and export diagnostics. This is separate from the device key.</string>
+  <string name="ui_labelb4abac09ddaa" formatted="false">Bluetooth is unavailable</string>
+  <string name="ui_label2696acc675bb" formatted="false">Bluetooth scanning is unavailable</string>
+  <string name="ui_label12ccdafe98af" formatted="false">Connect and authorize the recorder first</string>
+  <string name="ui_label881358b23a3e" formatted="false">Decoding audio…</string>
+  <string name="ui_label60be0d723450" formatted="false">Device discovery could not start. Try again.</string>
+  <string name="ui_labele6de9857d9de" formatted="false">Device status is unknown. Refresh it first.</string>
+  <string name="ui_label9a83d411be97" formatted="false">Disconnect the current device or wait for verification to finish</string>
+  <string name="ui_labele3612e46803e" formatted="false">File list is incomplete. Load it again.</string>
+  <string name="ui_label624978a9fdb9" formatted="false">File received. Verifying and decoding audio…</string>
+  <string name="ui_label6e10b5d9ac7c" formatted="false">Finish or cancel the current transfer first</string>
+  <string name="ui_labelc84c53e325b9" formatted="false">Folder list is incomplete. Refresh it.</string>
+  <string name="ui_label1d6fa934a135" formatted="false">Invalid Bluetooth address</string>
+  <string name="ui_label73f3b91129b4" formatted="false">Not enough phone storage to receive and decode this file</string>
+  <string name="ui_labela67fbae8b37e" formatted="false">Recorder busy. Wait for the current action to finish.</string>
+  <string name="ui_label56293b946edb" formatted="false">Recording has not been confirmed. Refresh device status.</string>
+  <string name="ui_label99cb9dbb575f" formatted="false">Recordings must be under 60 minutes. For a connection test, record 10–30 seconds.</string>
+  <string name="ui_label582e2241c5e0" formatted="false">Refresh the device file list</string>
+  <string name="ui_label6de22cdd3fbe" formatted="false">Save a device key before connecting</string>
+  <string name="ui_label3d0eedf458fb" formatted="false">Sign in before syncing to this phone.</string>
+  <string name="ui_label4898fd2ce8a9" formatted="false">Sign in first. Imported recordings are saved to that account on this phone.</string>
+  <string name="ui_label8835e8dff9c4" formatted="false">Sign in to use live transcription.</string>
+  <string name="ui_labeld1ded7701d16" formatted="false">Stop recording and refresh device status first</string>
+  <string name="ui_labele915c9021cf0" formatted="false">The account changed. The original file was kept without adding it to another account.</string>
+  <string name="ui_labeld39fe5ae8670" formatted="false">The previous transcript is finishing. Try again shortly.</string>
+  <string name="ui_labeld081d82e7bac" formatted="false">Turn on Bluetooth</string>
+  <string name="ui_labelbf84d4f787ce" formatted="false">Turn on Bluetooth first</string>
+  <string name="ui_labeld7cf4941b136" formatted="false">Wait for the decoded file to finish saving before disconnecting</string>
+  <string name="ui_label3380d425195b" formatted="false">The network request failed. Check your connection and try again.</string>
+  <string name="ui_label1b144c8c7d14" formatted="false">Your session expired. Sign in again.</string>
+  <string name="ui_label1d1152d6d52f" formatted="false">You do not have access to this item.</string>
+  <string name="ui_label197c299e08a2" formatted="false">This item is no longer available.</string>
+  <string name="ui_label5063fc19cf22" formatted="false">Too many requests. Try again shortly.</string>
+  <string name="ui_labelea44638d3340" formatted="false">The service is temporarily unavailable. Try again later.</string>
+  <string name="ui_labelb17d3954b0f0" formatted="false">Account changed. Sign in and retry.</string>
+  <string name="ui_label715d2af9f81b" formatted="false">Audio could not be loaded. Retry playback.</string>
+  <string name="ui_labelf7c4df5ebfc0" formatted="false">Browser storage is unavailable. Allow website storage and retry.</string>
+  <string name="ui_labelcfa0dfffb662" formatted="false">Choose a supported audio, video, document or PNG/JPEG file.</string>
+  <string name="ui_label1b1aff5e5100" formatted="false">Choose up to 20 files at a time.</string>
+  <string name="ui_label033eedd28183" formatted="false">Close other Teno tabs and retry.</string>
+  <string name="ui_label450f7807e5e7" formatted="false">Could not save the file in this browser. Free up storage and retry.</string>
+  <string name="ui_label7f5bff4d3e6d" formatted="false">File unavailable for this account.</string>
+  <string name="ui_labelbe125b0e02ff" formatted="false">Invalid interface language.</string>
+  <string name="ui_label42ff5192c1e3" formatted="false">RECORDING_UNAVAILABLE: This recording is no longer available.</string>
+  <string name="ui_label4776d0f30a16" formatted="false">Sign-in cancelled.</string>
+  <string name="ui_labeld213c1d485d4" formatted="false">Stop the upload before deleting this browser copy.</string>
+  <string name="ui_label3ee0417ca776" formatted="false">This action is not available in the Web preview.</string>
+  <string name="ui_label05fa01dff97b" formatted="false">This audio cannot be played in this browser.</string>
+  <string name="ui_label12bfad5e9bb0" formatted="false">This file is uploading in another tab.</string>
+  <string name="ui_label009a19b41a91" formatted="false">This request is not a Teno API request.</string>
+  <string name="ui_labelc691c2b42bd2" formatted="false">Upload result was incomplete. Retry safely.</string>
+  <string name="ui_label6122f155474f" formatted="false">Upload or request stopped. Retry when ready.</string>
+  <string name="ui_label8c7103817ec7" formatted="false">Connection interrupted. Check your internet connection and retry.</string>
+</resources>

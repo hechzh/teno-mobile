@@ -1,3 +1,9 @@
+# Teno Android 0.7.0 candidate
+
+The MVP visual refresh adds Chinese/English switching and shares its Notes UI with Web 0.2.0. See [release notes](RELEASE-0.7.0.txt) and [481-page capture gallery](design-baseline/v0.7.0/index.html). Install the original-signer candidate APK without uninstalling. Physical Magic4 Pro/JWD acceptance is pending; confirmed baselines remain unchanged.
+
+Previous release history follows.
+
 # Teno Android 0.6.2
 
 Version **0.6.2 / 13** fixes the JWD recording timer freezing between Bluetooth replies. Discovery starts on entry, puts saved recorders and supported JWD name/service candidates first, and keeps other Bluetooth devices expandable. A selected new device is checked before the existing key/binding flow; saved keys are reused. Reconnecting never starts a recording.

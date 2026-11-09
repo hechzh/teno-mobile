@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 
@@ -92,10 +93,12 @@ class CircleAction extends StatelessWidget {
     height: size,
     child: IconButton.outlined(
       onPressed: onPressed,
-      tooltip: label,
+      tooltip: ui(context, label),
       style: IconButton.styleFrom(
         side: const BorderSide(color: line),
-        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: .5),
+        backgroundColor: Theme.of(
+          context,
+        ).colorScheme.surface.withValues(alpha: .5),
       ),
       icon: Icon(icon, size: 22),
     ),
@@ -161,13 +164,13 @@ class EmptyState extends StatelessWidget {
           Icon(icon, size: 40, color: muted),
           const SizedBox(height: 20),
           Text(
-            title,
+            ui(context, title),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
           Text(
-            message,
+            ui(context, message),
             textAlign: TextAlign.center,
             style: const TextStyle(color: muted),
           ),
@@ -196,9 +199,9 @@ class ErrorNotice extends StatelessWidget {
       children: [
         const Icon(Icons.info_outline, size: 20),
         const SizedBox(width: 12),
-        Expanded(child: Text(message)),
+        Expanded(child: UiText(message)),
         if (retry != null)
-          TextButton(onPressed: retry, child: const Text('Retry')),
+          TextButton(onPressed: retry, child: const UiText('Retry')),
       ],
     ),
   );
@@ -212,7 +215,9 @@ class MenuRow extends StatelessWidget {
     super.key,
     this.subtitle,
     this.trailing,
+    this.localizeTitle = true,
   });
+  final bool localizeTitle;
   final IconData icon;
   final String title;
   final String? subtitle;
@@ -222,10 +227,10 @@ class MenuRow extends StatelessWidget {
   Widget build(BuildContext context) => ListTile(
     contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
     leading: Icon(icon, size: 23),
-    title: Text(title),
+    title: localizeTitle ? UiText(title) : Text(title),
     subtitle: subtitle == null
         ? null
-        : Text(subtitle!, style: const TextStyle(color: muted, fontSize: 12)),
+        : UiText(subtitle!, style: const TextStyle(color: muted, fontSize: 12)),
     trailing:
         trailing ??
         (onTap == null
@@ -254,7 +259,7 @@ class RecordTile extends StatelessWidget {
               children: [
                 Text(
                   text(record['title']).isEmpty
-                      ? 'Untitled recording'
+                      ? ui(context, 'Untitled recording')
                       : text(record['title']),
                   style: const TextStyle(
                     fontSize: 16,
@@ -282,7 +287,7 @@ class RecordTile extends StatelessWidget {
                         color: const Color(0xFFEDEEEE),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(
+                      child: UiText(
                         local ? 'On this phone' : 'Recordings',
                         style: const TextStyle(fontSize: 11, color: muted),
                       ),
@@ -294,7 +299,7 @@ class RecordTile extends StatelessWidget {
                       '',
                     ].contains(text(record['status'])))
                       Text(
-                        recordingStatus(record['status']),
+                        ui(context, recordingStatus(record['status'])),
                         style: const TextStyle(fontSize: 11, color: muted),
                       ),
                   ],
@@ -322,7 +327,7 @@ Future<void> perform(
     if (context.mounted)
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(TenoModel.friendly(e))));
+      ).showSnackBar(SnackBar(content: UiText(TenoModel.friendly(e))));
   }
 }
 
@@ -336,7 +341,7 @@ Future<String?> inputDialog(
   final result = await showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(title),
+      title: UiText(title),
       content: TextField(
         controller: controller,
         autofocus: true,
@@ -346,11 +351,11 @@ Future<String?> inputDialog(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: const UiText('Cancel'),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, controller.text.trim()),
-          child: const Text('Save'),
+          child: const UiText('Save'),
         ),
       ],
     ),
@@ -369,16 +374,16 @@ Future<bool> confirm(
     await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
+        title: UiText(title),
+        content: UiText(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const UiText('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirm'),
+            child: const UiText('Confirm'),
           ),
         ],
       ),

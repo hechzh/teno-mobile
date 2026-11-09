@@ -12,7 +12,7 @@ public final class TransferService extends Service {
     private final Handler handler=new Handler(Looper.getMainLooper());private int latestStart;private boolean working;private long lastNotice;
     @Override public IBinder onBind(Intent i){return null;}
     @Override public void onCreate(){super.onCreate();RecorderService.channel(this,"upload","Uploads and processing");}
-    private Notification notification(String text){return new Notification.Builder(this,"upload").setSmallIcon(R.drawable.ic_app).setContentTitle("Teno · Syncing recordings").setContentText(text).setContentIntent(RecorderService.home(this)).setOngoing(true).build();}
+    private Notification notification(String text){return new Notification.Builder(this,"upload").setSmallIcon(R.drawable.ic_app).setContentTitle(UiLocale.text(this,"Teno · Syncing recordings")).setContentText(UiLocale.text(this,text)).setContentIntent(RecorderService.home(this)).setOngoing(true).build();}
     @Override public int onStartCommand(Intent intent,int flags,int startId){
         latestStart=startId;startForeground(11,notification("Local audio is kept while uploading"));
         if(intent!=null&&intent.hasExtra("id"))try{UploadQueue.enqueue(new Store(this),intent.getStringExtra("id"),false);}catch(Exception e){message=e.getMessage();}

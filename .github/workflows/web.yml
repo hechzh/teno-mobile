@@ -1,7 +1,7 @@
 name: Teno Web preview
 on:
   push:
-    branches: ["feature/teno-web-*"]
+    branches: ["feature/teno-web-*", "feature/teno-mvp-*"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,7 +24,7 @@ jobs:
       - name: Scan source and history
         run: python3 scripts/secret_audit.py --history
       - name: Browser runtime contracts
-        run: node --test web-client/test/runtime.test.cjs
+        run: node --test web-client/test/*.test.cjs
       - name: Shared UI regression
         working-directory: shared-ui
         run: |
@@ -37,6 +37,7 @@ jobs:
           flutter pub get --enforce-lockfile
           flutter analyze --no-pub
           flutter build web --release --base-href /app/ --no-web-resources-cdn
+          python3 ../scripts/prepare_web_assets.py
       - uses: actions/upload-artifact@v4
         with:
           name: Teno-Web-${{ github.sha }}

@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
@@ -28,7 +29,7 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
         }),
       ),
       PopupMenuButton<String>(
-        tooltip: 'Note options',
+        tooltip: ui(context, 'Note options'),
         icon: const Icon(Icons.more_horiz),
         onSelected: (value) => perform(context, () async {
           final note = await widget.model.api(
@@ -121,10 +122,10 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
           }
         }),
         itemBuilder: (_) => const [
-          PopupMenuItem(value: 'edit', child: Text('Edit')),
-          PopupMenuItem(value: 'versions', child: Text('Version history')),
-          PopupMenuItem(value: 'regenerate', child: Text('Regenerate')),
-          PopupMenuItem(value: 'export', child: Text('Export as')),
+          PopupMenuItem(value: 'edit', child: UiText('Edit')),
+          PopupMenuItem(value: 'versions', child: UiText('Version history')),
+          PopupMenuItem(value: 'regenerate', child: UiText('Regenerate')),
+          PopupMenuItem(value: 'export', child: UiText('Export as')),
         ],
       ),
     ],
@@ -321,14 +322,14 @@ class _PersonalNoteEditorState extends State<PersonalNoteEditor> {
                 if (mounted) setState(() => busy = false);
               }
             }),
-      child: Text(busy ? 'Saving…' : 'Save'),
+      child: UiText(busy ? 'Saving…' : 'Save'),
     ),
     child: ListView(
       padding: const EdgeInsets.all(21),
       children: [
         TextField(
           controller: title,
-          decoration: const InputDecoration(hintText: 'Title'),
+          decoration: const InputDecoration(hint: UiText('Title')),
           style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 18),
@@ -336,7 +337,7 @@ class _PersonalNoteEditorState extends State<PersonalNoteEditor> {
           controller: body,
           minLines: 15,
           maxLines: null,
-          decoration: const InputDecoration(hintText: 'Write your note…'),
+          decoration: const InputDecoration(hint: UiText('Write your note…')),
         ),
       ],
     ),
@@ -371,12 +372,21 @@ String editableNoteText(Json data) {
 }
 
 class PersonalTemplatePicker extends StatelessWidget {
-  const PersonalTemplatePicker(this.model, {super.key});
+  const PersonalTemplatePicker(
+    this.model, {
+    super.key,
+    this.allowTranscript = false,
+  });
   final TenoModel model;
+  final bool allowTranscript;
   @override
   Widget build(BuildContext context) => CoreFrame(
     title: 'Select a template',
-    child: PersonalTemplates(model, picker: true),
+    child: PersonalTemplates(
+      model,
+      picker: true,
+      allowTranscript: allowTranscript,
+    ),
   );
 }
 
@@ -388,9 +398,10 @@ class PersonalTemplates extends StatefulWidget {
     this.collection,
     this.initialCategory,
     this.searching = false,
+    this.allowTranscript = false,
   });
   final TenoModel model;
-  final bool picker, searching;
+  final bool picker, searching, allowTranscript;
   final String? collection, initialCategory;
   @override
   State<PersonalTemplates> createState() => _PersonalTemplatesState();
@@ -443,12 +454,12 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              heading(text(item['title'])),
+              heading(text(item['title']), localize: false),
               Text(text(item['prompt'])),
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () => Navigator.pop(sheet, true),
-                child: const Text('Use this template'),
+                child: const UiText('Use this template'),
               ),
             ],
           ),
@@ -554,11 +565,11 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
         color: Theme.of(context).colorScheme.outlineVariant,
         width: .7,
       ),
-      borderRadius: BorderRadius.circular(5),
+      borderRadius: BorderRadius.circular(12),
     ),
     child: InkWell(
       onTap: () => perform(context, () => use(item)),
-      borderRadius: BorderRadius.circular(5),
+      borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -569,13 +580,11 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                 Icon(
                   Icons.article_outlined,
                   size: 25,
-                  color: item['category'] == 'Meeting'
-                      ? const Color(0xFF81AA77)
-                      : const Color(0xFFA858C4),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 const Spacer(),
                 IconButton(
-                  tooltip: 'Favorite template',
+                  tooltip: ui(context, 'Favorite template'),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
                   onPressed: () => perform(context, () async {
@@ -600,11 +609,11 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                 ),
                 if (item['recommended'] != true && !compact)
                   PopupMenuButton<String>(
-                    tooltip: 'Template options',
+                    tooltip: ui(context, 'Template options'),
                     onSelected: (v) => editTemplate(item, v),
                     itemBuilder: (_) => const [
-                      PopupMenuItem(value: 'edit', child: Text('Edit')),
-                      PopupMenuItem(value: 'delete', child: Text('Delete')),
+                      PopupMenuItem(value: 'edit', child: UiText('Edit')),
+                      PopupMenuItem(value: 'delete', child: UiText('Delete')),
                     ],
                   ),
               ],
@@ -690,6 +699,28 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
       children: [
         if (loading) const LinearProgressIndicator(minHeight: 2),
         if (error.isNotEmpty) ErrorNotice(error, retry: load),
+        if (root && widget.picker) ...[
+          if (widget.allowTranscript)
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+              leading: const Icon(Icons.article_outlined),
+              title: const UiText('Transcript'),
+              subtitle: const UiText(
+                'Open the existing transcript without generating a new note.',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.pop(context, '__transcript__'),
+            ),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+            leading: const Icon(Icons.notes_outlined),
+            title: const UiText('Default summary'),
+            subtitle: const UiText('Overview, key points and next steps'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pop(context, ''),
+          ),
+          const Divider(height: 24),
+        ],
         if (root) ...[
           if (!widget.picker)
             Container(
@@ -699,7 +730,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                 color: Theme.of(context).colorScheme.surfaceContainerLowest,
                 borderRadius: BorderRadius.circular(22),
               ),
-              child: const Text(
+              child: const UiText(
                 'Templates',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
@@ -725,7 +756,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerLowest,
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: Theme.of(context).colorScheme.outlineVariant,
                   ),
@@ -734,7 +765,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    const UiText(
                       'Your templates',
                       style: TextStyle(
                         fontSize: 19,
@@ -742,14 +773,14 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text(
+                    UiText(
                       'Save favorites or create your own.',
                       style: TextStyle(color: subtle(context)),
                     ),
                     TextButton.icon(
                       onPressed: createTemplate,
                       icon: const Icon(Icons.add, size: 18),
-                      label: const Text('Create template'),
+                      label: const UiText('Create template'),
                     ),
                   ],
                 ),
@@ -763,7 +794,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                 onPressed: () =>
                     openCollection('Search templates', search: true),
                 icon: const Icon(Icons.search, size: 21),
-                label: const Text('Search'),
+                label: const UiText('Search'),
               ),
             ],
           ),
@@ -796,7 +827,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                               _ => Icons.category_outlined,
                             }, size: 22),
                             const SizedBox(height: 10),
-                            Text(value, style: const TextStyle(fontSize: 16)),
+                            UiText(value, style: const TextStyle(fontSize: 16)),
                           ],
                         ),
                       ),
@@ -805,13 +836,6 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
               ],
             ),
           ),
-          if (widget.picker)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Default summary'),
-              subtitle: const Text('Overview, key points and next steps'),
-              onTap: () => Navigator.pop(context, ''),
-            ),
           for (final value in categories) ...[
             const SizedBox(height: 16),
             InkWell(
@@ -834,7 +858,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                 TextButton.icon(
                   onPressed: createTemplate,
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Create template'),
+                  label: const UiText('Create template'),
                 ),
               ],
             ),
@@ -867,7 +891,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                 onChanged: (v) => setState(() => query = v),
                 decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.search, size: 20),
-                  hintText: 'Search templates',
+                  hint: UiText('Search templates'),
                 ),
               ),
             ),

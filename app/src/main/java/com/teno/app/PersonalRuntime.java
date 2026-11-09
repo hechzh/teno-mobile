@@ -47,6 +47,10 @@ final class PersonalRuntime {
     void command(String command,String json,Result<String> result){
         try{
             JSONObject args=json==null?new JSONObject():new JSONObject(json);
+            if(command.equals("interface_locale")){
+                if(args.has("locale"))UiLocale.set(activity,args.getString("locale"));
+                result.success(new JSONObject().put("locale",UiLocale.preference(activity)).toString());return;
+            }
             if(command.equals("preferences")){result.success(new JSONObject().put("personal_core",true).put("settings",new JSONObject(prefs.getString(key("settings"),"{}"))).put("app_lock",prefs.getBoolean(key("lock"),false)).put("pending_imports",pending().length()).toString());return;}
             if(command.equals("cache_preferences")){runtime.signedIn();prefs.edit().putString(key("settings"),args.toString()).putBoolean(key("notifications"),args.optBoolean("notifications",true)).commit();result.success("{}");return;}
             if(command.equals("app_lock")){setLock(args.optBoolean("enabled"),result);return;}
@@ -240,7 +244,7 @@ final class PersonalRuntime {
         JSONObject data=new JSONObject(value);File out=new File(data.getString("file"));String format=data.getString("format");
         Uri uri=FileProvider.getUriForFile(activity,activity.getPackageName()+".exports",out);
         String mime=format.equals("pdf")?"application/pdf":format.equals("docx")?"application/vnd.openxmlformats-officedocument.wordprocessingml.document":format.equals("mp3")?"audio/mpeg":format.equals("wav")?"audio/wav":format.equals("png")?"image/png":format.equals("jpg")?"image/jpeg":format.equals("json")?"application/json":"text/plain";
-        Intent intent=new Intent(preview?Intent.ACTION_VIEW:Intent.ACTION_SEND).setDataAndType(preview?uri:null,mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);if(!preview)intent.putExtra(Intent.EXTRA_STREAM,uri);activity.startActivity(Intent.createChooser(intent,preview?"Open file":"Export from Teno"));result.success("{}");
+        Intent intent=new Intent(preview?Intent.ACTION_VIEW:Intent.ACTION_SEND).setDataAndType(preview?uri:null,mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);if(!preview)intent.putExtra(Intent.EXTRA_STREAM,uri);activity.startActivity(Intent.createChooser(intent,UiLocale.text(activity,preview?"Open file":"Export from Teno")));result.success("{}");
       }catch(Exception e){result.error(runtime.failure(e));}}
     };}
     private void startDictation(Result<String> result){
@@ -248,7 +252,7 @@ final class PersonalRuntime {
             if(voice!=null||RecorderService.active||RecorderService.finishing)throw new IOException("Finish phone recording before using voice input.");
             String owner=store.scope();File folder=new File(activity.getCacheDir(),"exports");folder.mkdirs();voiceFile=new File(folder,"question-"+UUID.randomUUID()+".m4a");
             voice=new MediaRecorder();voice.setAudioSource(MediaRecorder.AudioSource.MIC);voice.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);voice.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);voice.setAudioChannels(1);voice.setAudioSamplingRate(16000);voice.setAudioEncodingBitRate(64000);voice.setMaxDuration(60000);voice.setOutputFile(voiceFile.getAbsolutePath());voice.prepare();voice.start();
-            voiceDialog=new AlertDialog.Builder(activity).setTitle("Speak your question").setMessage("Up to 60 seconds. You can edit the text before sending.").setCancelable(false).setPositiveButton("Stop",(d,w)->finishDictation(result,owner,true)).setNegativeButton("Cancel",(d,w)->finishDictation(result,owner,false)).create();voiceDialog.show();
+            voiceDialog=new AlertDialog.Builder(activity).setTitle(UiLocale.text(activity,"Speak your question")).setMessage(UiLocale.text(activity,"Up to 60 seconds. You can edit the text before sending.")).setCancelable(false).setPositiveButton(UiLocale.text(activity,"Stop"),(d,w)->finishDictation(result,owner,true)).setNegativeButton(UiLocale.text(activity,"Cancel"),(d,w)->finishDictation(result,owner,false)).create();voiceDialog.show();
             voice.setOnInfoListener((r,what,extra)->{if(what==MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED){if(voiceDialog!=null)voiceDialog.dismiss();finishDictation(result,owner,true);}});
         }catch(Exception e){releaseVoice();result.error(runtime.failure(e));}
     }

@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
@@ -14,15 +15,15 @@ class LibraryBody extends StatelessWidget {
       Row(
         children: [
           const Expanded(
-            child: Text('My files', style: TextStyle(fontSize: 14)),
+            child: UiText('My files', style: TextStyle(fontSize: 14)),
           ),
           IconButton(
-            tooltip: 'Search',
+            tooltip: ui(context, 'Search'),
             onPressed: () => push(context, SearchPage(model)),
             icon: const Icon(Icons.search),
           ),
           IconButton(
-            tooltip: 'New folder',
+            tooltip: ui(context, 'New folder'),
             onPressed: () => perform(context, () async {
               final title = await inputDialog(context, 'New folder');
               if (title == null || title.isEmpty) return;
@@ -209,7 +210,7 @@ class _RecordListPageState extends State<RecordListPage> {
         if (widget.folder != null)
           IconButton(
             onPressed: folderMenu,
-            tooltip: 'Folder options',
+            tooltip: ui(context, 'Folder options'),
             icon: const Icon(Icons.more_horiz),
           ),
       ],
@@ -251,7 +252,7 @@ class _RecordListPageState extends State<RecordListPage> {
             if (more && items.isNotEmpty)
               TextButton(
                 onPressed: loading ? null : () => load(append: true),
-                child: const Text('Load more'),
+                child: const UiText('Load more'),
               ),
           ],
         ),
@@ -353,7 +354,7 @@ class _SearchPageState extends State<SearchPage> {
             autofocus: true,
             onChanged: search,
             decoration: const InputDecoration(
-              hintText: 'Search your recordings',
+              hint: UiText('Search your recordings'),
               prefixIcon: Icon(Icons.search),
             ),
           ),
@@ -463,7 +464,7 @@ class _TrashPageState extends State<TrashPage> {
                           reload();
                           await widget.model.refresh();
                         }),
-                        child: const Text('Restore'),
+                        child: const UiText('Restore'),
                       ),
                       TextButton(
                         onPressed: () => perform(context, () async {
@@ -479,7 +480,7 @@ class _TrashPageState extends State<TrashPage> {
                           );
                           reload();
                         }),
-                        child: const Text(
+                        child: const UiText(
                           'Delete permanently',
                           style: TextStyle(color: Colors.red),
                         ),

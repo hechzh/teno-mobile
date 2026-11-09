@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
@@ -49,7 +50,7 @@ Future<String?> choosePersonalFolder(
           heading('Move to folder'),
           ListTile(
             leading: const Icon(Icons.folder_outlined),
-            title: const Text('My files'),
+            title: const UiText('My files'),
             onTap: () => Navigator.pop(sheet, ''),
           ),
           for (final folder in folders)
@@ -90,7 +91,7 @@ Future<void> personalExport(
             value: v.$1,
             child: Row(
               children: [
-                Expanded(child: Text(v.$2)),
+                Expanded(child: UiText(v.$2)),
                 const Icon(Icons.chevron_right, size: 18),
               ],
             ),
@@ -148,15 +149,15 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
   late String content =
       widget.initialContent ??
       (widget.item['type'] == 'recording' ? 'transcript' : 'note');
-  late String format = content == 'audio' ? 'mp3' : 'txt';
+  late String format = content == 'audio' ? 'mp3' : 'docx';
   bool timestamps = true, speakers = true, highlights = false, cover = true;
   @override
   Widget build(BuildContext context) {
     final formats = content == 'audio'
         ? ['mp3', 'wav']
         : content == 'transcript'
-        ? ['txt', 'md', 'srt', 'docx', 'pdf', 'json']
-        : ['txt', 'md', 'docx', 'pdf', 'json'];
+        ? ['docx', 'pdf', 'md', 'txt', 'srt', 'json']
+        : ['docx', 'pdf', 'md', 'txt', 'json'];
     return CoreFrame(
       title: 'Export as',
       sheet: widget.sheet,
@@ -170,13 +171,13 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
             'format': format,
           });
         }),
-        child: const Text('Export'),
+        child: const UiText('Export'),
       ),
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           if (widget.initialContent != null)
-            Text(
+            UiText(
               {
                 'audio': 'Audio',
                 'transcript': 'Transcript',
@@ -191,14 +192,14 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
               groupValue: content,
               onChanged: (v) => setState(() {
                 content = v!;
-                format = v == 'audio' ? 'mp3' : 'txt';
+                format = v == 'audio' ? 'mp3' : 'docx';
               }),
               child: Column(
                 children: [
                   for (final value in ['audio', 'transcript', 'note'])
                     RadioListTile<String>(
                       value: value,
-                      title: Text(
+                      title: UiText(
                         {
                           'audio': 'Audio',
                           'transcript': 'Transcript',
@@ -226,33 +227,33 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
           if (format == 'json')
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
-              child: Text(
+              child: UiText(
                 'JSON includes the complete structured content and source references.',
               ),
             ),
           if (content == 'transcript' && format != 'json') ...[
             SwitchListTile(
-              title: const Text('Timestamps'),
+              title: const UiText('Timestamps'),
               value: format == 'srt' || timestamps,
               onChanged: format == 'srt'
                   ? null
                   : (v) => setState(() => timestamps = v),
             ),
             SwitchListTile(
-              title: const Text('Speaker labels'),
+              title: const UiText('Speaker labels'),
               value: speakers,
               onChanged: (v) => setState(() => speakers = v),
             ),
             if (format != 'srt')
               SwitchListTile(
-                title: const Text('Highlights'),
+                title: const UiText('Highlights'),
                 value: highlights,
                 onChanged: (v) => setState(() => highlights = v),
               ),
           ],
           if (content == 'note' && format != 'json')
             SwitchListTile(
-              title: const Text('Cover'),
+              title: const UiText('Cover'),
               value: cover,
               onChanged: (v) => setState(() => cover = v),
             ),
@@ -324,14 +325,14 @@ class _PersonalSharePageState extends State<PersonalSharePage> {
                     'transcript': draftTranscript,
                     'audio': draftAudio,
                   }),
-            child: const Text('Done'),
+            child: const UiText('Done'),
           ),
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.trailing,
-                title: Text(
+                title: UiText(
                   widget.item['type'] == 'recording' ? 'Summary' : 'Content',
                 ),
                 value: draftSummary,
@@ -340,13 +341,13 @@ class _PersonalSharePageState extends State<PersonalSharePage> {
               if (widget.item['type'] == 'recording') ...[
                 CheckboxListTile(
                   controlAffinity: ListTileControlAffinity.trailing,
-                  title: const Text('Transcript'),
+                  title: const UiText('Transcript'),
                   value: draftTranscript,
                   onChanged: (v) => change(() => draftTranscript = v!),
                 ),
                 CheckboxListTile(
                   controlAffinity: ListTileControlAffinity.trailing,
-                  title: const Text('Audio'),
+                  title: const UiText('Audio'),
                   value: draftAudio,
                   onChanged: (v) => change(() => draftAudio = v!),
                 ),
@@ -407,14 +408,14 @@ class _PersonalSharePageState extends State<PersonalSharePage> {
               color: Theme.of(context).colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
+            child: const UiText(
               'Share link',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           const SizedBox(height: 18),
           heading('Share with link'),
-          Text(
+          UiText(
             'Create a shareable link. Anyone with the link can access this file.',
             style: TextStyle(fontSize: 16, height: 1.3, color: subtle(context)),
           ),
@@ -478,10 +479,15 @@ class _PersonalSharePageState extends State<PersonalSharePage> {
                                 size: 16,
                               ),
                               label: Text(
-                                coreDate(preview['created_at'], time: true),
+                                coreDate(
+                                  preview['created_at'],
+                                  time: true,
+                                  context: context,
+                                ),
                               ),
                             ),
-                          for (final name in contents) Chip(label: Text(name)),
+                          for (final name in contents)
+                            Chip(label: UiText(name)),
                         ],
                       ),
                     ],
@@ -495,19 +501,19 @@ class _PersonalSharePageState extends State<PersonalSharePage> {
           const Divider(height: 1),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text(
+            title: const UiText(
               'Choose content to include',
               style: TextStyle(fontSize: 15),
             ),
             subtitle: MediaQuery.textScalerOf(context).scale(1) > 1.2
-                ? Text(contents.join(', '))
+                ? Text(contents.map((v) => ui(context, v)).join('、'))
                 : null,
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (MediaQuery.textScalerOf(context).scale(1) <= 1.2)
                   Text(
-                    '${contents.length} selected',
+                    context.strings.selectedCount(contents.length),
                     style: TextStyle(fontSize: 12, color: subtle(context)),
                   ),
                 const Icon(Icons.chevron_right, size: 22),
@@ -520,11 +526,14 @@ class _PersonalSharePageState extends State<PersonalSharePage> {
             onSelected: (v) => setState(() => days = v),
             itemBuilder: (_) => [
               for (final d in [1, 7, 30])
-                PopupMenuItem(value: d, child: Text('$d days')),
+                PopupMenuItem(
+                  value: d,
+                  child: Text(context.strings.dayCount(d)),
+                ),
             ],
             child: ListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text(
+              title: const UiText(
                 'Link expires after',
                 style: TextStyle(fontSize: 14),
               ),
@@ -532,7 +541,7 @@ class _PersonalSharePageState extends State<PersonalSharePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '$days days',
+                    context.strings.dayCount(days),
                     style: TextStyle(fontSize: 13, color: subtle(context)),
                   ),
                   const Icon(Icons.keyboard_arrow_down, size: 18),
@@ -540,14 +549,14 @@ class _PersonalSharePageState extends State<PersonalSharePage> {
               ),
             ),
           ),
-          Text(
+          UiText(
             'A fixed version is shared. Revoke links in Settings → Shared links.',
             style: TextStyle(fontSize: 12, color: subtle(context)),
           ),
           const SizedBox(height: 20),
           FilledButton(
             onPressed: busy || contents.isEmpty ? null : share,
-            child: Text(
+            child: UiText(
               busy
                   ? 'Creating link…'
                   : url.isEmpty
@@ -609,7 +618,7 @@ class _PersonalJobPageState extends State<PersonalJobPage> {
         if (!['completed', 'failed'].contains(job['status'])) ...[
           const LinearProgressIndicator(minHeight: 2),
           heading('Preparing your note'),
-          const Text(
+          const UiText(
             'You can leave this page. Processing continues in the background.',
           ),
         ],
@@ -623,7 +632,7 @@ class _PersonalJobPageState extends State<PersonalJobPage> {
               );
               await poll();
             }),
-            child: const Text('Retry'),
+            child: const UiText('Retry'),
           ),
         ],
         if (job['status'] == 'completed') ...[
@@ -646,7 +655,7 @@ class _PersonalJobPageState extends State<PersonalJobPage> {
                 );
               }
             },
-            child: const Text('Open result'),
+            child: const UiText('Open result'),
           ),
         ],
       ],

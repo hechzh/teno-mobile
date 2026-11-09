@@ -56,7 +56,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(PersonalHome), findsOneWidget);
       expect(find.text('Upcoming'), findsNothing);
-      await tester.tap(find.byTooltip('Create'));
+      await tester.tap(find.byTooltip('Import files'));
       await tester.pumpAndSettle();
       expect(find.text('Import files'), findsOneWidget);
       expect(find.text('Start recording'), findsNothing);
@@ -113,6 +113,7 @@ void main() {
       expect(find.text('Recorder'), findsNothing);
       expect(find.text('Notifications'), findsNothing);
       expect(find.text('Cloud processing'), findsNothing);
+      await tester.scrollUntilVisible(find.text('Theme'), 180);
       expect(find.text('Theme'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });

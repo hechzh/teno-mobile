@@ -1,0 +1,167 @@
+{
+  "source_zip_name": "Teno_MVP交互原型_图片切片.zip",
+  "source_zip_sha256": "2c1a99a6a1ce10264fe2d352667745ef02ca64301608c780e89de2603391236d",
+  "source": "User supplied image slices; static references, not executable interaction specification",
+  "pages": [
+    {
+      "id": "01",
+      "original_name": "01-首页.png",
+      "path": "references/01.png",
+      "sha256": "467adaa4f87b6ecd78d09296d39c47222e695ada08bf446cfe92ac0df78e1643",
+      "dimensions": [
+        430,
+        858
+      ]
+    },
+    {
+      "id": "02",
+      "original_name": "02-首页-设备菜单.png",
+      "path": "references/02.png",
+      "sha256": "16dd9cbb02f1a75f65169ef0f9aec3fb164c84c012785799082e93941165e45a",
+      "dimensions": [
+        430,
+        879
+      ]
+    },
+    {
+      "id": "03",
+      "original_name": "03-选择设备.png",
+      "path": "references/03.png",
+      "sha256": "4f44bcf076c8fe08df192e1a28c2015b052fdb427ab49255174c856a943fa268",
+      "dimensions": [
+        430,
+        817
+      ]
+    },
+    {
+      "id": "04",
+      "original_name": "04-连接设备-搜索中.png",
+      "path": "references/04.png",
+      "sha256": "963796cad1bacad3a748f45274e85c85b0b0727ccf32b62a627141d3de79ebc8",
+      "dimensions": [
+        430,
+        868
+      ]
+    },
+    {
+      "id": "05",
+      "original_name": "05-连接设备-已发现.png",
+      "path": "references/05.png",
+      "sha256": "dbbbc5e0dabf5575dc074c613d86ea5e2942a0bfe5e1738ba4a762b5e9aeb5be",
+      "dimensions": [
+        430,
+        868
+      ]
+    },
+    {
+      "id": "06",
+      "original_name": "06-设备详情.png",
+      "path": "references/06.png",
+      "sha256": "2987142194ec911e752bd0cc601122ccc62bab6d695964c99e0289031da34878",
+      "dimensions": [
+        430,
+        733
+      ]
+    },
+    {
+      "id": "07",
+      "original_name": "07-录音详情-笔记.png",
+      "path": "references/07.png",
+      "sha256": "a6c58ab20dea39fe6bc7ea029788aa1b6a51591a2fb51a3d83f9fe7ddae8af8e",
+      "dimensions": [
+        430,
+        2743
+      ]
+    },
+    {
+      "id": "08",
+      "original_name": "08-录音详情-来源转写.png",
+      "path": "references/08.png",
+      "sha256": "200509e8537525e6d15aef6897d70c59ecd2684f9e9cbed30589951d9549b666",
+      "dimensions": [
+        430,
+        2727
+      ]
+    },
+    {
+      "id": "09",
+      "original_name": "09-选择笔记模板.png",
+      "path": "references/09.png",
+      "sha256": "8533ffc989de79d7abf71d12900dbed90db4f3d73b26d06e2d537584127213b7",
+      "dimensions": [
+        430,
+        788
+      ]
+    },
+    {
+      "id": "10",
+      "original_name": "10-分享中心.png",
+      "path": "references/10.png",
+      "sha256": "942cdaa0e51b06aeda93eb324733d25f8375b3175d1a240723b1c92fdd19faa2",
+      "dimensions": [
+        430,
+        812
+      ]
+    },
+    {
+      "id": "11",
+      "original_name": "11-分享链接.png",
+      "path": "references/11.png",
+      "sha256": "ece13f9e197ce82af8b80f9440c47b8ce79bd3339a917910894f96c422a08771",
+      "dimensions": [
+        430,
+        788
+      ]
+    },
+    {
+      "id": "12",
+      "original_name": "12-导出笔记.png",
+      "path": "references/12.png",
+      "sha256": "d86bad52162ef1314ae395a4635d8ee9383ce69499aa60cbb4e2e0895a135702",
+      "dimensions": [
+        430,
+        788
+      ]
+    },
+    {
+      "id": "13",
+      "original_name": "13-更多操作.png",
+      "path": "references/13.png",
+      "sha256": "711e48a0ec30f7a3209baf2a163eb1babdc9a6ff2044ecb5a4fbfe0db93110eb",
+      "dimensions": [
+        430,
+        788
+      ]
+    },
+    {
+      "id": "14",
+      "original_name": "14-说话人命名.png",
+      "path": "references/14.png",
+      "sha256": "6b7f8b5725a9d30357dda7009f4ef142054901514f5cb3ba729b0e1c5de14b02",
+      "dimensions": [
+        430,
+        788
+      ]
+    },
+    {
+      "id": "15",
+      "original_name": "15-助手.png",
+      "path": "references/15.png",
+      "sha256": "41af01895277c137183354ddaf966fe9dfd8876b5b22e35ecbc9f7a433acc6bc",
+      "dimensions": [
+        430,
+        858
+      ]
+    },
+    {
+      "id": "16",
+      "original_name": "16-设置.png",
+      "path": "references/16.png",
+      "sha256": "f910fbaf9df0d7aa583ba15233aa72589df100243739a873ca6f7af0a6a69607",
+      "dimensions": [
+        430,
+        858
+      ]
+    }
+  ]
+}

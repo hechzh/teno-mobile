@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
 import 'recorder.dart';
+import 'interface_language.dart';
+import '../l10n/ui_strings.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage(this.model, {super.key});
@@ -47,7 +49,16 @@ class _LoginPageState extends State<LoginPage> {
             shrinkWrap: true,
             padding: const EdgeInsets.all(28),
             children: [
-              const Text(
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () =>
+                      push(context, InterfaceLanguagePage(widget.model)),
+                  icon: const Icon(Icons.language, size: 20),
+                  label: const UiText('Interface language'),
+                ),
+              ),
+              const UiText(
                 'Teno',
                 style: TextStyle(
                   fontSize: 46,
@@ -56,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              const UiText(
                 'Your conversations,\nyour clarity.',
                 style: TextStyle(
                   fontSize: 28,
@@ -65,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              const UiText(
                 'Sign in to your Teno account.',
                 style: TextStyle(color: muted),
               ),
@@ -78,7 +89,9 @@ class _LoginPageState extends State<LoginPage> {
                       enabled: !busy,
                       autofillHints: const [AutofillHints.username],
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'Username'),
+                      decoration: const InputDecoration(
+                        label: UiText('Username'),
+                      ),
                     ),
                     const SizedBox(height: 14),
                     TextField(
@@ -89,7 +102,9 @@ class _LoginPageState extends State<LoginPage> {
                       autocorrect: false,
                       autofillHints: const [AutofillHints.password],
                       onSubmitted: (_) => submit(),
-                      decoration: const InputDecoration(labelText: 'Password'),
+                      decoration: const InputDecoration(
+                        label: UiText('Password'),
+                      ),
                     ),
                   ],
                 ),
@@ -98,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               FilledButton(
                 onPressed: busy ? null : submit,
-                child: Text(busy ? 'Signing in…' : 'Sign in'),
+                child: UiText(busy ? 'Signing in…' : 'Sign in'),
               ),
               const SizedBox(height: 12),
               if (!widget.model.webExperience)
@@ -106,19 +121,21 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: busy
                       ? null
                       : () => push(context, DevicePage(widget.model)),
-                  child: const Text('Connect a recorder without signing in'),
+                  child: const UiText('Connect a recorder without signing in'),
                 ),
               if (!widget.model.webExperience)
                 TextButton(
                   onPressed: () => setState(() => advanced = !advanced),
-                  child: const Text('Server settings'),
+                  child: const UiText('Server settings'),
                 ),
               if (advanced)
                 TextField(
                   controller: server,
                   enabled: !busy,
                   keyboardType: TextInputType.url,
-                  decoration: const InputDecoration(labelText: 'HTTPS server'),
+                  decoration: const InputDecoration(
+                    label: UiText('HTTPS server'),
+                  ),
                 ),
             ],
           ),

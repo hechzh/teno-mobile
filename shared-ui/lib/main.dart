@@ -7,6 +7,7 @@ import 'features/login.dart';
 import 'features/personal_home.dart';
 import 'ui/personal_widgets.dart';
 import 'package:flutter/foundation.dart';
+import 'l10n/ui_strings.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,15 @@ class _TenoAppState extends State<TenoApp> {
     animation: widget.model,
     builder: (context, _) => MaterialApp(
       title: 'Teno',
+      locale: widget.model.interfaceLanguage == 'system'
+          ? null
+          : Locale(widget.model.interfaceLanguage),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localeResolutionCallback: (locale, supported) =>
+          locale?.languageCode == 'zh'
+          ? const Locale('zh')
+          : const Locale('en'),
       debugShowCheckedModeBanner: false,
       theme:
           widget.model.personalCore ||

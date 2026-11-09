@@ -36,7 +36,7 @@ final class NativeMedia {
         if(!manager.isDeviceSecure())throw new IOException("Set a phone screen lock before viewing a device key.");
         keyAddress=runtime.device().optString("address",store.recorderAddress());
         if(store.deviceKey(keyAddress).isEmpty())throw new IOException("No device key is saved.");
-        Intent prompt=manager.createConfirmDeviceCredentialIntent("Teno device key","Unlock to view your recorder's binding key.");
+        Intent prompt=manager.createConfirmDeviceCredentialIntent(UiLocale.text(activity,"Teno device key"),UiLocale.text(activity,"Unlock to view your recorder's binding key."));
         if(prompt==null)throw new IOException("Screen-lock verification is unavailable.");
         keyPending=true;activity.startActivityForResult(prompt,512);
     });}
@@ -50,8 +50,8 @@ final class NativeMedia {
         if(request==512&&keyPending){keyPending=false;if(result!=Activity.RESULT_OK)return;
             try{
                 String secret=store.deviceKey(keyAddress);activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
-                AlertDialog dialog=new AlertDialog.Builder(activity).setTitle("Device key backup").setMessage(secret+"\n\nKeep this key private. It is needed to connect this recorder from another phone.")
-                    .setPositiveButton("Done",null).create();
+                AlertDialog dialog=new AlertDialog.Builder(activity).setTitle(UiLocale.text(activity,"Device key backup")).setMessage(secret+"\n\n"+UiLocale.text(activity,"Keep this key private. It is needed to connect this recorder from another phone."))
+                    .setPositiveButton(UiLocale.text(activity,"Done"),null).create();
                 dialog.setOnDismissListener(x->activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE));dialog.show();
             }catch(Exception ignored){}return;
         }
@@ -124,7 +124,7 @@ final class NativeMedia {
                 Uri uri=FileProvider.getUriForFile(activity,activity.getPackageName()+".exports",file);
                 Intent send=new Intent(Intent.ACTION_SEND).setType(format.equals("audio")?"audio/wav":format.equals("json")?"application/json":"text/plain")
                     .putExtra(Intent.EXTRA_STREAM,uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                send.setClipData(ClipData.newRawUri("Teno export",uri));activity.startActivity(Intent.createChooser(send,"Share from Teno"));
+                send.setClipData(ClipData.newRawUri("Teno export",uri));activity.startActivity(Intent.createChooser(send,UiLocale.text(activity,"Share from Teno")));
             });}
         },()->{
             runtime.signedIn();if(!id.matches("[A-Za-z0-9_-]{1,128}")||!Arrays.asList("txt","md","json","audio").contains(format))throw new IOException("Unsupported export.");

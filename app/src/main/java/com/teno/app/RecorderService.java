@@ -17,9 +17,9 @@ public final class RecorderService extends Service {
     @Override public IBinder onBind(Intent i){return null;}
     @Override public void onCreate(){super.onCreate();store=new Store(this);channel(this,"recording","Recording");}
     public static PendingIntent home(Context c){return PendingIntent.getActivity(c,0,new Intent(c,MainActivity.class).putExtra("open_recording",true),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);}
-    public static void channel(Context c,String id,String name){((NotificationManager)c.getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(new NotificationChannel(id,name,NotificationManager.IMPORTANCE_LOW));}
+    public static void channel(Context c,String id,String name){((NotificationManager)c.getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(new NotificationChannel(id,UiLocale.text(c,name),NotificationManager.IMPORTANCE_LOW));}
     private Notification notification(){PendingIntent stop=PendingIntent.getService(this,2,new Intent(this,RecorderService.class).setAction("stop"),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
-        return new Notification.Builder(this,"recording").setSmallIcon(R.drawable.ic_app).setContentTitle(finishing?"Teno · Saving recording":paused?"Teno · Recording paused":"Teno · Recording").setContentText("Audio is saved on this phone.").setContentIntent(home(this)).setOngoing(true).addAction(new Notification.Action.Builder(null,"Stop and save",stop).build()).build();}
+        return new Notification.Builder(this,"recording").setSmallIcon(R.drawable.ic_app).setContentTitle(UiLocale.text(this,finishing?"Teno · Saving recording":paused?"Teno · Recording paused":"Teno · Recording")).setContentText(UiLocale.text(this,"Audio is saved on this phone.")).setContentIntent(home(this)).setOngoing(true).addAction(new Notification.Action.Builder(null,UiLocale.text(this,"Stop and save"),stop).build()).build();}
     public static long elapsed(){return capturedBytes/32;}
     @Override public int onStartCommand(Intent intent,int flags,int id){
         if(intent==null){stopSelf();return START_NOT_STICKY;}String action=intent.getAction();

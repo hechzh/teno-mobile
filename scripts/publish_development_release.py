@@ -119,6 +119,23 @@ def normalize(manifest_path, output, baseline=False):
     if version=='0.6.1':
         report['title']=words('已有功能的 PLAUD UI 对齐','PLAUD UI alignment for existing features')
         report['dependency']=words('共享后端 1.4.1，无新增迁移；生成流程和 Prompt 不变。本轮未调用 Azure / DeepSeek。','Shared backend 1.4.1 without new migrations; generation workflows and prompts unchanged. No Azure / DeepSeek calls in this release.')
+    if version=='0.7.0':
+        assert not baseline, 'MVP candidate cannot promote the baseline before physical acceptance'
+        report['title']=words('Teno MVP双语界面候选：Android0.7.0 / Web0.2.0','Teno MVP bilingual candidate: Android0.7.0 / Web0.2.0')
+        report['implementation']='implemented'
+        report['changes']=[words('按MVP原型更新暖白绿视觉与中英切换；不重处理历史资料。','MVP visual refresh and Chinese/English switching without reprocessing existing content.')]
+        report['modules']=[{'key':key,'scope':words(zh,en),'implementation':'implemented','verification':'partial','pending':words('实机与逐页视觉验收待完成','Physical-device and page-by-page visual acceptance remain pending')} for key,zh,en in [
+            ('library','暖白绿视觉、三项导航、资料库与现有笔记简报','MVP theme, three tabs, library and existing-note brief'),
+            ('summary','共用Notes/来源、版本、分享中心与导出','Shared Notes/Source, versions, sharing and exports'),
+            ('recording','双语共享页面与原生通知；保留录音、密钥及队列','Bilingual UI/native notices; recordings, keys and queue preserved'),
+            ('distribution','原签名Android候选、独立Web候选；已确认基线不变','Original-signer Android and independent Web candidates; confirmed baselines unchanged')]]
+        evidence(qa/'full-runtime-report.json','0.6.2至候选原签名覆盖保留','Same-signer upgrade retention from 0.6.2','emulator',manifest['upgrade_runtime_checks'])
+        evidence(qa/'regression-runtime-report.json','候选原生回归和系统选择器','Candidate native regression and system pickers','emulator',manifest['regression_runtime_checks'])
+        installed=evidence(qa/'final-install-report.json','候选覆盖安装与冷启动','Candidate update install and cold launch','emulator')
+        assert installed['apk_sha256']==manifest['sha256'] and not installed['uninstalled']
+        evidence(qa/'backend-acceptance.json','已有后端只读兼容验证','Existing backend read-only compatibility','server')
+        tests.append({'name':words('Flutter共享界面回归','Shared Flutter regression'),'status':'passed','environment':'unit','count':manifest['flutter_tests'],'source':release.name})
+        report['pending'].append(words('按计划完成Safari、Magic4 Pro/JWD验收后再正式发布；不提升基线。','Formal release follows Safari/Magic4 Pro/JWD acceptance; no baseline promotion.'))
     def asset(path,kind,zh,en):return {'path':str(path.resolve()),'kind':kind,'sha256':sha(path),'label':words(zh,en)}
     summary_path=output/f'Teno-{version}-android-evidence.txt'
     summary_path.write_text(json.dumps({'version':version,'platform':'android','source_commit':commit,'apk_sha256':manifest['sha256'],'physical_device_tested':False,'verification':summaries},ensure_ascii=False,indent=2),encoding='utf-8')

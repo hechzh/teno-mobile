@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
@@ -92,7 +93,7 @@ class _HomePageState extends State<HomePage> {
         const PopupMenuDivider(),
         const PopupMenuItem(
           value: 'phone',
-          child: Text(
+          child: UiText(
             'Record with phone',
             style: TextStyle(fontSize: 12, color: muted),
           ),
@@ -177,7 +178,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  const Text(
+                  const UiText(
                     'Teno',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600),
                   ),
@@ -247,7 +248,7 @@ class _HomePageState extends State<HomePage> {
                           Icon(Icons.auto_awesome_outlined, size: 18),
                           SizedBox(width: 12),
                           Expanded(
-                            child: Text(
+                            child: UiText(
                               'Ask me anything about your recordings',
                               style: TextStyle(fontSize: 13, color: muted),
                             ),
@@ -277,14 +278,14 @@ class _HomePageState extends State<HomePage> {
           Row(
             children: [
               const Expanded(
-                child: Text(
+                child: UiText(
                   'Meeting notes',
                   style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
                 ),
               ),
               IconButton(
                 onPressed: () => push(context, SearchPage(model)),
-                tooltip: 'Search',
+                tooltip: ui(context, 'Search'),
                 icon: const Icon(Icons.search),
               ),
             ],
@@ -306,7 +307,7 @@ class _HomePageState extends State<HomePage> {
             ErrorNotice(model.error, retry: () => unawaited(model.refresh())),
           if (local.isNotEmpty) ...[
             const SizedBox(height: 20),
-            const Text(
+            const UiText(
               'On this phone',
               style: TextStyle(color: muted, fontSize: 12),
             ),
@@ -326,7 +327,7 @@ class _HomePageState extends State<HomePage> {
               'Connect your recorder to capture your next conversation.',
               action: FilledButton(
                 onPressed: () => push(context, DevicePage(model)),
-                child: const Text('Connect recorder'),
+                child: const UiText('Connect recorder'),
               ),
             ),
           for (var i = 0; i < model.recordings.length; i++) ...[
@@ -353,7 +354,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: model.loading
                   ? null
                   : () => model.refresh(append: true),
-              child: const Text('Load more'),
+              child: const UiText('Load more'),
             ),
         ],
       ),

@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
@@ -15,28 +16,28 @@ Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
     builder: (dialog) => StatefulBuilder(
       builder: (context, update) => AlertDialog(
         scrollable: true,
-        title: const Text('Recording preferences'),
+        title: const UiText('Recording preferences'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            const UiText(
               'A complete audio file is always kept on this phone. These choices are saved to this account on this device.',
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Cloud processing'),
+              title: const UiText('Cloud processing'),
               value: cloud,
               onChanged: (v) => update(() => cloud = v),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Upload on Wi-Fi only'),
+              title: const UiText('Upload on Wi-Fi only'),
               value: wifi,
               onChanged: (v) => update(() => wifi = v),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Live transcript preview'),
+              title: const UiText('Live transcript preview'),
               value: live,
               onChanged: (v) => update(() => live = v),
             ),
@@ -45,11 +46,11 @@ Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog, false),
-            child: const Text('Cancel'),
+            child: const UiText('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialog, true),
-            child: const Text('Continue'),
+            child: const UiText('Continue'),
           ),
         ],
       ),
@@ -85,14 +86,14 @@ Future<void> showRecorder(BuildContext context, TenoModel model) =>
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(38),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: Theme.of(context).colorScheme.outlineVariant,
               width: .7,
             ),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(38),
+            borderRadius: BorderRadius.circular(24),
             child: Material(
               color: Colors.transparent,
               child: RecorderSheet(model),
@@ -203,12 +204,12 @@ class _DevicePageState extends State<DevicePage> {
       context: context,
       builder: (dialog) => AlertDialog(
         scrollable: true,
-        title: const Text('Connect your recorder'),
+        title: const UiText('Connect your recorder'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            const UiText(
               'For a recorder already used with Teno, enter its original device key. A new key is only for an unbound recorder.',
             ),
             const SizedBox(height: 16),
@@ -219,7 +220,7 @@ class _DevicePageState extends State<DevicePage> {
               enableSuggestions: false,
               maxLength: 16,
               decoration: const InputDecoration(
-                labelText: 'Original 16-character key',
+                label: UiText('Original 16-character key'),
               ),
             ),
           ],
@@ -227,15 +228,15 @@ class _DevicePageState extends State<DevicePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog),
-            child: const Text('Cancel'),
+            child: const UiText('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialog, 'new'),
-            child: const Text('New unbound recorder'),
+            child: const UiText('New unbound recorder'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialog, 'existing'),
-            child: const Text('Use original key'),
+            child: const UiText('Use original key'),
           ),
         ],
       ),
@@ -277,7 +278,7 @@ class _DevicePageState extends State<DevicePage> {
               const SizedBox(height: 60),
               const Icon(Icons.downloading_outlined, size: 72, color: muted),
               const SizedBox(height: 32),
-              const Text(
+              const UiText(
                 'Saving to this phone',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
@@ -305,7 +306,7 @@ class _DevicePageState extends State<DevicePage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 36),
-              const Text(
+              const UiText(
                 'The complete file is checked before it is saved and uploaded. Originals stay on your recorder.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: muted),
@@ -313,7 +314,7 @@ class _DevicePageState extends State<DevicePage> {
               const SizedBox(height: 32),
               OutlinedButton(
                 onPressed: () => command(DeviceAction.cancelTransfer),
-                child: const Text('Pause transfer'),
+                child: const UiText('Pause transfer'),
               ),
             ],
           ),
@@ -374,7 +375,7 @@ class _DevicePageState extends State<DevicePage> {
                         model.changed(await model.host.snapshot());
                         if (context.mounted) await showRecorder(context, model);
                       }),
-                child: Text(
+                child: UiText(
                   !model.signedIn
                       ? 'Sign in to record'
                       : model.capturing
@@ -387,17 +388,17 @@ class _DevicePageState extends State<DevicePage> {
                 onPressed: device.busy || model.capturing
                     ? null
                     : () => command(DeviceAction.sync),
-                child: const Text('Sync recordings to this phone'),
+                child: const UiText('Sync recordings to this phone'),
               ),
               TextButton(
                 onPressed: device.busy
                     ? null
                     : () => command(DeviceAction.refresh),
-                child: const Text('Refresh device status'),
+                child: const UiText('Refresh device status'),
               ),
               TextButton(
                 onPressed: () => command(DeviceAction.disconnect),
-                child: const Text('Disconnect'),
+                child: const UiText('Disconnect'),
               ),
             ] else ...[
               if (device.identifier.isNotEmpty)
@@ -409,24 +410,26 @@ class _DevicePageState extends State<DevicePage> {
                           id: device.identifier,
                           name: device.name,
                         ),
-                  child: const Text('Reconnect saved recorder'),
+                  child: const UiText('Reconnect saved recorder'),
                 ),
               FilledButton(
                 onPressed: selecting || device.scanning
                     ? null
                     : () => command(DeviceAction.scan),
-                child: Text(device.scanning ? 'Scanning…' : 'Find my recorder'),
+                child: UiText(
+                  device.scanning ? 'Scanning…' : 'Scan for recorders',
+                ),
               ),
               TextButton(
                 onPressed: selecting || device.scanning
                     ? null
                     : () => command(DeviceAction.compatibilityScan),
-                child: const Text('Compatibility scan'),
+                child: const UiText('Compatibility scan'),
               ),
               if (candidates.any((row) => candidateRank(row) < 4))
                 const Padding(
                   padding: EdgeInsets.only(top: 12),
-                  child: Text(
+                  child: UiText(
                     'Matching recorders',
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
@@ -438,6 +441,7 @@ class _DevicePageState extends State<DevicePage> {
                   Icons.bluetooth,
                   text(candidate['name']),
                   selecting ? null : () => connect(candidate),
+                  localizeTitle: false,
                   subtitle: pendingProbe == candidate['address']
                       ? 'Checking recording service…'
                       : candidate['has_key'] == true
@@ -456,8 +460,8 @@ class _DevicePageState extends State<DevicePage> {
                       setState(() => showOtherDevices = !showOtherDevices),
                   child: Text(
                     showOtherDevices
-                        ? 'Hide other devices'
-                        : 'Other Bluetooth devices ($otherCount)',
+                        ? ui(context, 'Hide other devices')
+                        : context.strings.otherDeviceCount(otherCount),
                   ),
                 ),
             ],
@@ -469,22 +473,22 @@ class _DevicePageState extends State<DevicePage> {
                     : null,
               ),
               const SizedBox(height: 10),
-              const Text(
+              const UiText(
                 'Receiving and verifying the complete recording. Originals stay on your recorder.',
                 style: TextStyle(color: muted),
               ),
               TextButton(
                 onPressed: () => command(DeviceAction.cancelTransfer),
-                child: const Text('Pause transfer'),
+                child: const UiText('Pause transfer'),
               ),
             ],
             const SizedBox(height: 24),
             if (model.signedIn)
               TextButton(
                 onPressed: () => startPhone(context, model),
-                child: const Text('Record with phone'),
+                child: const UiText('Record with phone'),
               ),
-            const Text(
+            const UiText(
               'Reconnecting does not start a recording. If Bluetooth disconnects, check the recorder before starting another recording.',
               textAlign: TextAlign.center,
               style: TextStyle(color: muted, fontSize: 12),
@@ -609,7 +613,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                       ).colorScheme.surfaceContainerLowest,
                     ),
                     onPressed: active ? () => control(false) : null,
-                    child: Text(c.phase == 'paused' ? 'Resume' : 'Pause'),
+                    child: UiText(c.phase == 'paused' ? 'Resume' : 'Pause'),
                   ),
                   Flexible(
                     child: Text(
@@ -632,13 +636,13 @@ class _RecorderSheetState extends State<RecorderSheet> {
                       ).colorScheme.surfaceContainerLowest,
                     ),
                     onPressed: active ? () => control(true) : null,
-                    child: const Text('Stop'),
+                    child: const UiText('Stop'),
                   ),
                 ],
               ),
               if (!keyboardOpen) ...[
                 const SizedBox(height: 14),
-                const Text(
+                const UiText(
                   'Recording highlights',
                   style: TextStyle(
                     fontSize: 29,
@@ -650,7 +654,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                 const SizedBox(height: 10),
                 if (!['recording', 'paused'].contains(c.phase))
                   Text(
-                    c.status,
+                    ui(context, c.status),
                     style: const TextStyle(fontSize: 12, color: muted),
                   ),
               ],
@@ -659,11 +663,11 @@ class _RecorderSheetState extends State<RecorderSheet> {
                   children: [
                     ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      title: const Text(
+                      title: const UiText(
                         'Live transcript',
                         style: TextStyle(fontSize: 14),
                       ),
-                      subtitle: Text(
+                      subtitle: UiText(
                         c.previewStatus ??
                             (widget.model.runtime!.session.livePreview
                                 ? 'Preview · Final transcript follows processing'
@@ -675,7 +679,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                       children: [
                         const Padding(
                           padding: EdgeInsets.only(bottom: 12),
-                          child: Text(
+                          child: UiText(
                             'Live text is a preview. The complete recording is processed after it is saved and uploaded.',
                             style: TextStyle(fontSize: 12, color: muted),
                           ),
@@ -710,7 +714,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                           );
                         },
                         decoration: const InputDecoration(
-                          hintText: 'Type main ideas',
+                          hint: UiText('Type main ideas'),
                         ),
                       ),
                     if (!writing && notes.text.isEmpty)
@@ -749,7 +753,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      hint.$2,
+                                      ui(context, hint.$2),
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: subtle(context),
@@ -770,7 +774,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                   child: TextButton(
                     onPressed: () =>
                         FocusManager.instance.primaryFocus?.unfocus(),
-                    child: const Text('Close keyboard'),
+                    child: const UiText('Close keyboard'),
                   ),
                 )
               else if (c.phase == 'interrupted')
@@ -786,7 +790,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                         ),
                       );
                     },
-                    child: const Text('Reconnect recorder'),
+                    child: const UiText('Reconnect recorder'),
                   ),
                 )
               else if (finished)
@@ -808,7 +812,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                           ),
                         );
                     },
-                    child: const Text('Done'),
+                    child: const UiText('Done'),
                   ),
                 )
               else
@@ -824,7 +828,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                           size: 60,
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        const UiText(
                           'Type',
                           style: TextStyle(color: muted, fontSize: 12),
                         ),
@@ -847,7 +851,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                             size: 60,
                           ),
                           const SizedBox(height: 8),
-                          const Text(
+                          const UiText(
                             'Photo',
                             style: TextStyle(color: muted, fontSize: 12),
                           ),
@@ -874,7 +878,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                           size: 60,
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        const UiText(
                           'Highlight',
                           style: TextStyle(color: muted, fontSize: 12),
                         ),

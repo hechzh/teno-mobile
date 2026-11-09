@@ -1,3 +1,4 @@
+import '../l10n/ui_strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,9 +27,7 @@ class PersonalRecordingPage extends StatefulWidget {
   final int? seekMs;
   final bool transcriptOnly;
   @override
-  State<PersonalRecordingPage> createState() => model.webExperience
-      ? _WebRecordingPageState()
-      : _PersonalRecordingPageState();
+  State<PersonalRecordingPage> createState() => _WebRecordingPageState();
 }
 
 class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
@@ -175,7 +174,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                 children: [
                   heading('Name speakers'),
                   if (controllers.isEmpty)
-                    const Text(
+                    const UiText(
                       'No speaker labels are available for this transcript.',
                     ),
                   for (final entry in controllers.entries)
@@ -184,13 +183,13 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                       child: TextField(
                         controller: entry.value,
                         decoration: InputDecoration(
-                          labelText: 'Speaker ${entry.key}',
+                          labelText: context.strings.speakerLabel(entry.key),
                         ),
                       ),
                     ),
                   FilledButton(
                     onPressed: () => Navigator.pop(sheet, true),
-                    child: const Text('Save'),
+                    child: const UiText('Save'),
                   ),
                 ],
               ),
@@ -221,29 +220,31 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
       final accepted = await showDialog<bool>(
         context: context,
         builder: (dialog) => AlertDialog(
-          title: const Text('Find & replace'),
+          title: const UiText('Find & replace'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: find,
-                decoration: const InputDecoration(labelText: 'Find'),
+                decoration: const InputDecoration(label: UiText('Find')),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: replace,
-                decoration: const InputDecoration(labelText: 'Replace with'),
+                decoration: const InputDecoration(
+                  label: UiText('Replace with'),
+                ),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialog, false),
-              child: const Text('Cancel'),
+              child: const UiText('Cancel'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(dialog, true),
-              child: const Text('Replace all'),
+              child: const UiText('Replace all'),
             ),
           ],
         ),
@@ -435,7 +436,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.ios_share_outlined, size: 25),
-                  tooltip: 'Share',
+                  tooltip: ui(context, 'Share'),
                   onPressed: () => personalShare(
                     context,
                     widget.model,
@@ -444,7 +445,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                   ),
                 ),
                 PopupMenuButton<String>(
-                  tooltip: 'Recording options',
+                  tooltip: ui(context, 'Recording options'),
                   icon: const Icon(Icons.more_horiz),
                   onSelected: menu,
                   itemBuilder: (_) => [
@@ -467,7 +468,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                       ('export', 'Export as'),
                       ('trash', 'Move to trash'),
                     ])
-                      PopupMenuItem(value: entry.$1, child: Text(entry.$2)),
+                      PopupMenuItem(value: entry.$1, child: UiText(entry.$2)),
                   ],
                 ),
               ],
@@ -504,7 +505,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                 );
                 await load();
               }),
-              child: const Text('Retry processing'),
+              child: const UiText('Retry processing'),
             ),
         ],
         if (text(processing['message']).isNotEmpty)
@@ -526,7 +527,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
               ActionChip(
                 avatar: const Icon(Icons.calendar_today_outlined, size: 14),
                 label: Text(
-                  coreDate(record['created_at'], time: true),
+                  coreDate(record['created_at'], time: true, context: context),
                   style: const TextStyle(fontSize: 11),
                 ),
                 onPressed: () => menu('calendar'),
@@ -541,21 +542,24 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
               ),
               ActionChip(
                 avatar: const Icon(Icons.folder_outlined, size: 15),
-                label: const Text('Recordings', style: TextStyle(fontSize: 11)),
+                label: const UiText(
+                  'Recordings',
+                  style: TextStyle(fontSize: 11),
+                ),
                 onPressed: () => menu('move'),
               ),
             ],
           ),
         ],
         if (audio) ...[
-          Text(
+          UiText(
             'Chapters',
             style: TextStyle(fontSize: 13, color: subtle(context)),
           ),
           if (notes.isNotEmpty &&
               rows(object(notes.first['data'])['chapters']).isNotEmpty)
             PopupMenuButton<int>(
-              tooltip: 'Chapters',
+              tooltip: ui(context, 'Chapters'),
               onSelected: (ms) {
                 final chapter = rows(object(notes.first['data'])['chapters'])
                     .where(
@@ -639,14 +643,14 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                 children: [
                   Icon(Icons.article_outlined, size: 21),
                   SizedBox(width: 10),
-                  Text(
+                  UiText(
                     'Transcript',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
               PopupMenuButton<String>(
-                tooltip: 'Transcript version',
+                tooltip: ui(context, 'Transcript version'),
                 onSelected: (v) {
                   setState(() => variant = v);
                   unawaited(load());
@@ -657,7 +661,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                     ('edited', 'Edited text'),
                     ('cleaned', 'Cleaned-up text'),
                   ])
-                    PopupMenuItem(value: v.$1, child: Text(v.$2)),
+                    PopupMenuItem(value: v.$1, child: UiText(v.$2)),
                 ],
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -691,7 +695,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                   await push(context, PersonalJobPage(widget.model, job));
                 await load();
               }),
-              child: const Text('Generate cleaned-up text'),
+              child: const UiText('Generate cleaned-up text'),
             ),
           for (var i = 0; i < rows(transcript['segments']).length; i++)
             segment(rows(transcript['segments'])[i], i),
@@ -710,7 +714,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                 OutlinedButton.icon(
                   onPressed: generate,
                   icon: const Icon(Icons.add, size: 16),
-                  label: const Text('New note'),
+                  label: const UiText('New note'),
                 )
               else ...[
                 Expanded(
@@ -734,7 +738,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                 TextButton.icon(
                   onPressed: generate,
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('New note'),
+                  label: const UiText('New note'),
                 ),
               ],
             ],
@@ -768,7 +772,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        const UiText(
                           'Audio & transcript',
                           style: TextStyle(fontSize: 16),
                         ),
@@ -823,14 +827,14 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                 );
                 await load();
               },
-              child: const Text('Open note · Edit and versions'),
+              child: const UiText('Open note · Edit and versions'),
             ),
           ] else
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 28),
               child: Column(
                 children: [
-                  Text(
+                  UiText(
                     record['status'] == 'transcribed' &&
                             rows(transcript['segments']).isEmpty
                         ? 'No speech recognized'
@@ -841,7 +845,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                     onPressed: rows(transcript['segments']).isEmpty
                         ? null
                         : generate,
-                    child: const Text('Generate summary'),
+                    child: const UiText('Generate summary'),
                   ),
                 ],
               ),
@@ -1023,12 +1027,12 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                               if (variant != 'original')
                                 ListTile(
                                   leading: const Icon(Icons.edit_outlined),
-                                  title: const Text('Edit'),
+                                  title: const UiText('Edit'),
                                   onTap: () => Navigator.pop(sheet, 'edit'),
                                 ),
                               ListTile(
                                 leading: const Icon(Icons.copy_outlined),
-                                title: const Text('Copy'),
+                                title: const UiText('Copy'),
                                 onTap: () => Navigator.pop(sheet, 'copy'),
                               ),
                             ],
@@ -1134,7 +1138,7 @@ class PersonalAudioPlayer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                tooltip: 'Play or pause',
+                tooltip: ui(context, 'Play or pause'),
                 color: Theme.of(context).colorScheme.onSurface,
                 onPressed: () => act(
                   context,
@@ -1151,7 +1155,7 @@ class PersonalAudioPlayer extends StatelessWidget {
                 ),
               ),
               IconButton(
-                tooltip: 'Back 15 seconds',
+                tooltip: ui(context, 'Back 15 seconds'),
                 color: Theme.of(context).colorScheme.onSurface,
                 onPressed: () => act(
                   context,
@@ -1164,13 +1168,13 @@ class PersonalAudioPlayer extends StatelessWidget {
                     Icon(Icons.replay, size: 29),
                     Padding(
                       padding: EdgeInsets.only(top: 4),
-                      child: Text('15', style: TextStyle(fontSize: 8)),
+                      child: UiText('15', style: TextStyle(fontSize: 8)),
                     ),
                   ],
                 ),
               ),
               IconButton(
-                tooltip: 'Forward 15 seconds',
+                tooltip: ui(context, 'Forward 15 seconds'),
                 color: Theme.of(context).colorScheme.onSurface,
                 onPressed: () => act(
                   context,
@@ -1186,7 +1190,7 @@ class PersonalAudioPlayer extends StatelessWidget {
                     ),
                     const Padding(
                       padding: EdgeInsets.only(top: 4),
-                      child: Text('15', style: TextStyle(fontSize: 8)),
+                      child: UiText('15', style: TextStyle(fontSize: 8)),
                     ),
                   ],
                 ),

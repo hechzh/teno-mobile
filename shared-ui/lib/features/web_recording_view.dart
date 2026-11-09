@@ -1,7 +1,7 @@
 part of 'personal_recording.dart';
 
-// Web-only presentation of the existing recording/note contracts. Native keeps
-// its original state and layout. No prompts, generated text or timestamps here.
+// Shared personal Notes presentation. Native and Web use the same version-safe
+// content rendering; browser caches remain an optional runtime capability.
 class _WebRecordingPageState extends _PersonalRecordingPageState {
   final _noteScroll = ScrollController(),
       _transcriptScroll = ScrollController();
@@ -15,13 +15,12 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
 
   @override
   bool get audio => _transcriptTab;
-  bool get _dark => Theme.of(context).brightness == Brightness.dark;
-  Color get _paper => _dark ? const Color(0xFF16211C) : Colors.white;
-  Color get _ink => _dark ? const Color(0xFFECF2ED) : const Color(0xFF1C2925);
-  Color get _muted => _dark ? const Color(0xFFA2B3A7) : const Color(0xFF7B897F);
-  Color get _green => _dark ? const Color(0xFFABD5B9) : const Color(0xFF2D6552);
-  Color get _sage => _dark ? const Color(0xFF23382C) : const Color(0xFFF1F6F2);
-  Color get _line => _dark ? const Color(0xFF34473A) : const Color(0xFFE9EEEB);
+  Color get _paper => Theme.of(context).colorScheme.surface;
+  Color get _ink => Theme.of(context).colorScheme.onSurface;
+  Color get _muted => Theme.of(context).colorScheme.onSurfaceVariant;
+  Color get _green => Theme.of(context).colorScheme.primary;
+  Color get _sage => Theme.of(context).colorScheme.surfaceContainerLow;
+  Color get _line => Theme.of(context).colorScheme.outlineVariant;
   Json get _note => notes.isEmpty ? {} : notes[noteIndex];
   List<Json> _chapters(Json note) => rows(
     object(note['data'])['chapters'],
@@ -47,7 +46,11 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         foregroundColor: _green,
         minimumSize: const Size(36, 40),
         padding: const EdgeInsets.symmetric(horizontal: 6),
-        textStyle: const TextStyle(fontFamily: 'Inter', fontSize: 12),
+        textStyle: const TextStyle(
+          fontFamily: 'Inter',
+          fontFamilyFallback: ['NotoSansSC'],
+          fontSize: 13,
+        ),
       ),
     ),
   );
@@ -99,6 +102,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   }
 
   Future<Json> _readCache(String requestedVariant) async {
+    if (!widget.model.webExperience) return {};
     try {
       return await widget.model.command('recording_cache', {
         'action': 'read',
@@ -261,7 +265,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     setState(() {
       _shares = values[0] == null ? null : rows(values[0]!['items']);
       _folderTitle = folder.isEmpty
-          ? 'Recordings'
+          ? ui(context, 'Recordings')
           : text(object(values[1]?['data'])['title']);
       if (values[2] != null)
         peaks = (values[2]!['peaks'] as List? ?? [])
@@ -297,59 +301,23 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   }
 
   Future<T?> _panel<T>(String title, Widget Function(BuildContext) content) =>
-      showModalBottomSheet<T>(
-        context: context,
-        isScrollControlled: true,
-        showDragHandle: true,
-        backgroundColor: _paper,
-        constraints: const BoxConstraints(maxWidth: 760),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        builder: (sheet) => Theme(
+      showCoreSheet<T>(
+        context,
+        Theme(
           data: _theme,
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                21,
-                0,
-                21,
-                MediaQuery.viewInsetsOf(sheet).bottom + 20,
-              ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.sizeOf(sheet).height * .78,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            title,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: 'Close panel',
-                          onPressed: () => Navigator.pop(sheet),
-                          icon: const Icon(Icons.close, size: 18),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Flexible(child: content(sheet)),
-                  ],
-                ),
+          child: Builder(
+            builder: (sheet) => CoreFrame(
+              title: title,
+              sheet: true,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: content(sheet),
               ),
             ),
           ),
         ),
+        height: MediaQuery.sizeOf(context).height * .78,
+        edgeToEdge: true,
       );
 
   Future<void> _chooseNote() async {
@@ -362,7 +330,9 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(text(note['title'])),
-                subtitle: Text('Version ${note['revision'] ?? 1}'),
+                subtitle: Text(
+                  context.strings.versionLabel(text(note['revision'] ?? 1)),
+                ),
                 trailing: note['id'] == _note['id']
                     ? Icon(Icons.check, color: _green, size: 18)
                     : null,
@@ -371,7 +341,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.add),
-              title: const Text('New note'),
+              title: const UiText('New note'),
               onTap: () => Navigator.pop(sheet, '__new'),
             ),
           ],
@@ -403,7 +373,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              '${chapters.length} topics',
+              context.strings.topicCount(chapters.length),
               style: TextStyle(color: _muted, fontSize: 12),
             ),
           ),
@@ -458,13 +428,15 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(
-                'Version ${value['selected_revision'] ?? value['revision']}',
+                context.strings.versionLabel(
+                  text(value['selected_revision'] ?? value['revision']),
+                ),
               ),
               subtitle: Text(dateLabel(value['updated_at'])),
               trailing:
                   (value['selected_revision'] ?? value['revision']) ==
                       _note['revision']
-                  ? const Text('Current', style: TextStyle(fontSize: 11))
+                  ? const UiText('Current', style: TextStyle(fontSize: 11))
                   : null,
               onTap: () => Navigator.pop(sheet, value),
             ),
@@ -478,7 +450,9 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     );
     if (!mounted || selected == null) return;
     await _panel<void>(
-      'Version ${selected['selected_revision'] ?? selected['revision']}',
+      context.strings.versionLabel(
+        text(selected['selected_revision'] ?? selected['revision']),
+      ),
       (_) => SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,7 +463,9 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             ),
             const SizedBox(height: 8),
             Text(
-              'Saved version · ${dateLabel(selected['updated_at'])}',
+              context.strings.savedVersionDate(
+                coreDate(selected['updated_at'], context: context),
+              ),
               style: TextStyle(fontSize: 12, color: _muted),
             ),
             const SizedBox(height: 20),
@@ -500,56 +476,92 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     );
   });
 
-  Future<void> _share() async {
-    await personalShare(context, widget.model, {
-      ...record,
-      'type': 'recording',
-      'id': widget.id,
-    }, noteId: notes.isEmpty ? null : text(_note['id']));
-    if (mounted) unawaited(_loadRelated(_loadStamp));
-  }
+  Future<void> _share() => _shareCenter(includeLink: true);
+  Future<void> _copyExport() => _shareCenter(includeLink: false);
 
-  Future<void> _copyExport() async {
+  Future<void> _shareCenter({required bool includeLink}) async {
     final choice = await _panel<String>(
-      'Copy / Export',
+      includeLink ? 'Share' : 'Copy / Export',
       (sheet) => ListView(
         shrinkWrap: true,
         children: [
+          if (includeLink) ...[
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.link),
+              title: const UiText('Share link'),
+              trailing: const Icon(Icons.chevron_right, size: 18),
+              onTap: () => Navigator.pop(sheet, 'link'),
+            ),
+            const Divider(),
+          ],
+          heading('Copy to clipboard'),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.copy_outlined),
+            title: const UiText('Copy transcript'),
+            trailing: const Icon(Icons.chevron_right, size: 18),
+            onTap: () => Navigator.pop(sheet, 'copy-transcript'),
+          ),
           if (notes.isNotEmpty)
             ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.copy_outlined),
-              title: const Text('Copy note'),
+              title: const UiText('Copy note'),
+              trailing: const Icon(Icons.chevron_right, size: 18),
               onTap: () => Navigator.pop(sheet, 'copy'),
             ),
-          if (notes.isNotEmpty)
+          heading('Export files'),
+          for (final entry in [
+            ('audio', 'Export audio', Icons.graphic_eq),
+            ('transcript', 'Export transcript', Icons.article_outlined),
+            if (notes.isNotEmpty)
+              ('note', 'Export note', Icons.description_outlined),
+          ])
             ListTile(
-              leading: const Icon(Icons.description_outlined),
-              title: const Text('Export note'),
-              onTap: () => Navigator.pop(sheet, 'note'),
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(entry.$3),
+              title: UiText(entry.$2),
+              trailing: const Icon(Icons.chevron_right, size: 18),
+              onTap: () => Navigator.pop(sheet, entry.$1),
             ),
-          ListTile(
-            leading: const Icon(Icons.article_outlined),
-            title: const Text('Export transcript'),
-            onTap: () => Navigator.pop(sheet, 'transcript'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.audio_file_outlined),
-            title: const Text('Export audio'),
-            onTap: () => Navigator.pop(sheet, 'audio'),
+          const SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: () => Navigator.pop(sheet),
+            child: const UiText('Cancel'),
           ),
         ],
       ),
     );
     if (!mounted || choice == null) return;
-    if (choice == 'copy') {
+    if (choice == 'link') {
+      await personalShare(context, widget.model, {
+        ...record,
+        'type': 'recording',
+        'id': widget.id,
+      }, noteId: notes.isEmpty ? null : text(_note['id']));
+      if (mounted) unawaited(_loadRelated(_loadStamp));
+      return;
+    }
+    if (choice == 'copy' || choice == 'copy-transcript') {
       await perform(context, () async {
-        await Clipboard.setData(
-          ClipboardData(text: editableNoteText(object(_note['data']))),
-        );
+        final value = choice == 'copy'
+            ? editableNoteText(object(_note['data']))
+            : rows(transcript['segments'])
+                  .map(
+                    (s) =>
+                        '${coreTimestamp(s['start_ms'])} ${text(s['speaker_name'] ?? s['speaker'])}\n${text(s['text'])}',
+                  )
+                  .join('\n\n');
+        await Clipboard.setData(ClipboardData(text: value));
         if (mounted)
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Note copied')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: UiText(
+                choice == 'copy' ? 'Note copied' : 'Transcript copied',
+              ),
+            ),
+          );
       });
       return;
     }
@@ -564,6 +576,27 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
       ),
       height: 560,
     );
+  }
+
+  @override
+  Future<void> generate() async {
+    final template = await push<String>(
+      context,
+      PersonalTemplatePicker(widget.model, allowTranscript: true),
+    );
+    if (!mounted || template == null) return;
+    if (template == '__transcript__') {
+      _tab(true);
+      return;
+    }
+    await perform(context, () async {
+      final job = await widget.model.api('POST', '$path/notes', {
+        'client_id': requestId(),
+        if (template.isNotEmpty) 'template_id': template,
+      });
+      if (mounted) await push(context, PersonalJobPage(widget.model, job));
+      await load();
+    });
   }
 
   @override
@@ -731,7 +764,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      UiText(
                         'Transcript excerpt',
                         style: TextStyle(color: _muted, fontSize: 11),
                       ),
@@ -753,7 +786,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                   onPressed: () => showSource(source),
                   iconAlignment: IconAlignment.end,
                   icon: const Icon(Icons.north_east, size: 12),
-                  label: const Text('View source'),
+                  label: const UiText('View source'),
                 ),
             ],
           ),
@@ -785,7 +818,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                UiText(
                   '•  ',
                   style: TextStyle(fontSize: 15.5, height: 1.85, color: _green),
                 ),
@@ -822,64 +855,58 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   }
 
   Widget _header() => Padding(
-    padding: const EdgeInsets.only(bottom: 20),
+    padding: const EdgeInsets.only(bottom: 22),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(Icons.folder_outlined, size: 14, color: _muted),
-            const SizedBox(width: 5),
-            Expanded(
-              child: Text(
-                _folderTitle.isEmpty
-                    ? (text(record['folder_id']).isEmpty
-                          ? 'Recordings'
-                          : 'Folder')
-                    : _folderTitle,
-                style: TextStyle(fontSize: 11.5, color: _muted),
-              ),
-            ),
-            if (_shares != null) ...[
-              Icon(
-                _shared ? Icons.link : Icons.lock_outline,
-                size: 13,
-                color: _muted,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                _shared ? 'Shared' : 'Private',
-                style: TextStyle(fontSize: 11, color: _muted),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 11),
         Text(
           text(record['title']),
           style: const TextStyle(
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.w600,
-            height: 1.4,
-            letterSpacing: -.5,
+            height: 1.5,
           ),
         ),
-        const SizedBox(height: 9),
+        const SizedBox(height: 10),
         Wrap(
-          spacing: 7,
-          runSpacing: 4,
+          spacing: 8,
+          runSpacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(
-              coreDate(record['created_at'], time: true),
-              style: TextStyle(fontSize: 11.5, color: _muted),
+              coreDate(record['created_at'], time: true, context: context),
+              style: TextStyle(fontSize: 12, color: _muted),
             ),
-            Text('·', style: TextStyle(color: _muted)),
             Text(
-              duration(_duration),
-              style: TextStyle(fontSize: 11.5, color: _muted),
+              '· ${duration(_duration)}',
+              style: TextStyle(fontSize: 12, color: _muted),
             ),
+            if (_shares != null)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _shared ? Icons.link : Icons.lock_outline,
+                    size: 14,
+                    color: _muted,
+                  ),
+                  const SizedBox(width: 4),
+                  UiText(
+                    _shared ? 'Shared' : 'Private',
+                    style: TextStyle(fontSize: 12, color: _muted),
+                  ),
+                ],
+              ),
           ],
         ),
+        if (_folderTitle.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              _folderTitle,
+              style: TextStyle(fontSize: 12, color: _muted),
+            ),
+          ),
       ],
     ),
   );
@@ -898,6 +925,51 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         children: [
           ..._notices(),
           if (record.isNotEmpty) _header(),
+          if (notes.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  TextButton.icon(
+                    onPressed: _chooseNote,
+                    icon: const Icon(Icons.keyboard_arrow_down, size: 18),
+                    label: Text(
+                      selectedTitle.isEmpty ||
+                              selectedTitle == text(record['title'])
+                          ? ui(context, 'Meeting notes')
+                          : selectedTitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: generate,
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const UiText('New note'),
+                  ),
+                  TextButton(
+                    onPressed: _versions,
+                    child: const UiText('Version'),
+                  ),
+                ],
+              ),
+            ),
+          if (overview)
+            Row(
+              children: [
+                const Expanded(
+                  child: UiText(
+                    'Overview',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                TextButton(onPressed: _editNote, child: const UiText('Edit')),
+              ],
+            ),
+          if (overview) const SizedBox(height: 12),
           if (overview)
             Container(
               width: double.infinity,
@@ -909,31 +981,12 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.auto_awesome_outlined,
-                        size: 15,
-                        color: _green,
-                      ),
-                      const SizedBox(width: 7),
-                      Text(
-                        'At a glance',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: _green,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
                   SelectableText(
                     text(data['summary']),
                     style: TextStyle(fontSize: 15, height: 1.8, color: _ink),
                   ),
                   const SizedBox(height: 12),
-                  Text(
+                  UiText(
                     'AI-generated · Review key details',
                     style: TextStyle(fontSize: 10, color: _muted),
                   ),
@@ -954,10 +1007,10 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                     const Icon(Icons.format_list_bulleted, size: 17),
                     const SizedBox(width: 8),
                     const Expanded(
-                      child: Text('Topics', style: TextStyle(fontSize: 13)),
+                      child: UiText('Topics', style: TextStyle(fontSize: 13)),
                     ),
                     Text(
-                      '${chapters.length} ${chapters.length == 1 ? 'topic' : 'topics'}',
+                      context.strings.topicCount(chapters.length),
                       style: TextStyle(fontSize: 11, color: _muted),
                     ),
                     const SizedBox(width: 6),
@@ -970,84 +1023,34 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           if (notes.isNotEmpty) ...[
             Row(
               children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: _chooseNote,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              selectedTitle.isEmpty ||
-                                      selectedTitle == text(record['title'])
-                                  ? 'Meeting notes'
-                                  : selectedTitle,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -.4,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          const Icon(Icons.keyboard_arrow_down, size: 15),
-                        ],
-                      ),
-                    ),
+                const Expanded(
+                  child: UiText(
+                    'Full meeting notes',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                 ),
-                TextButton.icon(
-                  onPressed: _editNote,
-                  icon: const Icon(Icons.edit_outlined, size: 13),
-                  label: const Text('Edit'),
+                TextButton(
+                  onPressed: _copyExport,
+                  child: const UiText('Copy / Export'),
                 ),
+                if (!overview)
+                  IconButton(
+                    onPressed: _editNote,
+                    tooltip: ui(context, 'Edit'),
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                  ),
               ],
             ),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: _line)),
-              ),
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 18,
-                runSpacing: 0,
-                children: [
-                  Text(
-                    'Full note · v${_note['revision'] ?? 1}',
-                    style: TextStyle(fontSize: 11, color: _muted),
-                  ),
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      TextButton(
-                        onPressed: _versions,
-                        child: const Text(
-                          'Version',
-                          style: TextStyle(fontSize: 11),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: _copyExport,
-                        child: const Text(
-                          'Copy / Export',
-                          style: TextStyle(fontSize: 11),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            Text(
+              context.strings.fullNoteVersion(text(_note['revision'] ?? 1)),
+              style: TextStyle(fontSize: 12, color: _muted),
             ),
+            const SizedBox(height: 16),
             ..._document(_note, overviewShown: overview, anchors: true),
             Padding(
               padding: const EdgeInsets.only(top: 28),
               child: Center(
-                child: Text(
+                child: UiText(
                   'End of note',
                   style: TextStyle(fontSize: 11, color: _muted),
                 ),
@@ -1068,7 +1071,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                 child: TextButton.icon(
                   onPressed: generate,
                   icon: const Icon(Icons.add),
-                  label: const Text('New note'),
+                  label: const UiText('New note'),
                 ),
               ),
           ],
@@ -1113,7 +1116,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             );
             await load();
           }),
-          child: const Text('Retry processing'),
+          child: const UiText('Retry processing'),
         ),
     ],
     if (text(processing['message']).isNotEmpty)
@@ -1136,7 +1139,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         spacing: 12,
         children: [
           PopupMenuButton<String>(
-            tooltip: 'Transcript version',
+            tooltip: ui(context, 'Transcript version'),
             initialValue: variant,
             onSelected: (v) {
               setState(() => variant = v);
@@ -1148,14 +1151,14 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                 ('edited', 'Edited text'),
                 ('cleaned', 'Cleaned-up text'),
               ])
-                PopupMenuItem(value: item.$1, child: Text(item.$2)),
+                PopupMenuItem(value: item.$1, child: UiText(item.$2)),
             ],
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 14),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  UiText(
                     {
                       'original': 'Original text',
                       'edited': 'Edited text',
@@ -1171,13 +1174,13 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           TextButton.icon(
             onPressed: speakers,
             icon: const Icon(Icons.people_outline, size: 16),
-            label: const Text('Speakers'),
+            label: const UiText('Speakers'),
           ),
         ],
       ),
       Divider(color: _line, height: 12),
       if (variant == 'cleaned' && transcript['available'] == false) ...[
-        const Text('Cleaned-up text is not available yet.'),
+        const UiText('Cleaned-up text is not available yet.'),
         TextButton(
           onPressed: () => perform(context, () async {
             final job = await widget.model.api(
@@ -1188,7 +1191,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
               await push(context, PersonalJobPage(widget.model, job));
             await load();
           }),
-          child: const Text('Generate cleaned-up text'),
+          child: const UiText('Generate cleaned-up text'),
         ),
       ] else ...[
         for (var i = 0; i < rows(transcript['segments']).length; i++)
@@ -1278,9 +1281,12 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                 Row(
                   children: [
                     IconButton.filled(
-                      tooltip: current && p.playing
-                          ? 'Pause recording'
-                          : 'Play recording',
+                      tooltip: ui(
+                        context,
+                        current && p.playing
+                            ? 'Pause recording'
+                            : 'Play recording',
+                      ),
                       style: IconButton.styleFrom(
                         backgroundColor: _green,
                         foregroundColor: _paper,
@@ -1309,7 +1315,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                     Expanded(
                       child: Semantics(
                         button: true,
-                        label: 'Open audio player',
+                        label: ui(context, 'Open audio player'),
                         child: InkWell(
                           onTap: _player,
                           child: Padding(
@@ -1356,7 +1362,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                         ),
                       ),
                       icon: const Icon(Icons.auto_awesome_outlined, size: 15),
-                      label: const Text(
+                      label: const UiText(
                         'Ask Teno',
                         style: TextStyle(
                           fontSize: 12,
@@ -1374,6 +1380,49 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     },
   );
 
+  Widget _tabs() => Row(
+    children: [
+      for (final tab in [(true, 'Source'), (false, 'Notes')])
+        Expanded(
+          child: Semantics(
+            selected: audio == tab.$1,
+            button: true,
+            child: InkWell(
+              onTap: () => _tab(tab.$1),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 48),
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    UiText(
+                      tab.$2,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: audio == tab.$1 ? _ink : _muted,
+                        fontWeight: audio == tab.$1
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 32,
+                      height: 2,
+                      color: audio == tab.$1 ? _green : Colors.transparent,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+    ],
+  );
+
   @override
   Widget build(BuildContext context) => Theme(
     data: _theme,
@@ -1383,29 +1432,26 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         backgroundColor: _paper,
         foregroundColor: _ink,
         surfaceTintColor: Colors.transparent,
-        toolbarHeight: 52,
+        toolbarHeight: MediaQuery.textScalerOf(context).scale(1) > 1.2
+            ? 72
+            : 60,
+        leadingWidth: 48,
+        titleSpacing: 0,
         leading: IconButton(
-          tooltip: 'Back to library',
+          tooltip: ui(context, 'Back to library'),
           icon: const Icon(Icons.chevron_left, size: 25),
           onPressed: () => Navigator.maybePop(context),
         ),
-        title: const Text(
-          'Teno',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -.5,
-          ),
-        ),
+        title: _tabs(),
         centerTitle: true,
         actions: [
           IconButton(
-            tooltip: 'Share recording',
+            tooltip: ui(context, 'Share recording'),
             icon: const Icon(Icons.ios_share_outlined, size: 21),
             onPressed: loading ? null : _share,
           ),
           PopupMenuButton<String>(
-            tooltip: 'Recording options',
+            tooltip: ui(context, 'Recording options'),
             icon: const Icon(Icons.more_horiz, size: 23),
             onSelected: menu,
             itemBuilder: (_) => [
@@ -1424,7 +1470,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                 ('export', 'Export as'),
                 ('trash', 'Move to trash'),
               ])
-                PopupMenuItem(value: item.$1, child: Text(item.$2)),
+                PopupMenuItem(value: item.$1, child: UiText(item.$2)),
             ],
           ),
           const SizedBox(width: 8),
@@ -1435,62 +1481,58 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         bottom: false,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 760),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.sizeOf(context).width >= 1100 ? 980 : 760,
+            ),
             child: Column(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: _line)),
-                  ),
+                Expanded(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (final tab in [
-                        (false, 'Notes'),
-                        (true, 'Transcript'),
-                      ])
-                        Semantics(
-                          selected: audio == tab.$1,
-                          button: true,
-                          child: InkWell(
-                            onTap: () => _tab(tab.$1),
-                            child: Container(
-                              constraints: const BoxConstraints(
-                                minWidth: 100,
-                                minHeight: 44,
+                      Expanded(child: audio ? _transcriptView() : _notesView()),
+                      if (!audio &&
+                          MediaQuery.sizeOf(context).width >= 1100 &&
+                          _chapters(_note).isNotEmpty)
+                        Container(
+                          width: 230,
+                          padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                          decoration: BoxDecoration(
+                            border: Border(left: BorderSide(color: _line)),
+                          ),
+                          child: ListView(
+                            children: [
+                              const UiText(
+                                'Topics',
+                                style: TextStyle(fontWeight: FontWeight.w600),
                               ),
-                              padding: const EdgeInsets.fromLTRB(10, 12, 10, 0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    tab.$2,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: audio == tab.$1 ? _ink : _muted,
-                                      fontWeight: audio == tab.$1
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
-                                    ),
+                              const SizedBox(height: 12),
+                              for (var i = 0; i < _chapters(_note).length; i++)
+                                ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  title: Text(
+                                    text(_chapters(_note)[i]['title']),
+                                    style: const TextStyle(fontSize: 13),
                                   ),
-                                  const SizedBox(height: 12),
-                                  Container(
-                                    width: 32,
-                                    height: 2,
-                                    color: audio == tab.$1
-                                        ? _green
-                                        : Colors.transparent,
-                                  ),
-                                ],
-                              ),
-                            ),
+                                  onTap: () {
+                                    final anchor =
+                                        _topicKeys[i]?.currentContext;
+                                    if (anchor != null)
+                                      Scrollable.ensureVisible(
+                                        anchor,
+                                        alignment: .04,
+                                        duration: const Duration(
+                                          milliseconds: 250,
+                                        ),
+                                      );
+                                  },
+                                ),
+                            ],
                           ),
                         ),
                     ],
                   ),
                 ),
-                Expanded(child: audio ? _transcriptView() : _notesView()),
                 _dock(),
               ],
             ),

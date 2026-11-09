@@ -53,9 +53,7 @@ Future<void> openDevice(WidgetTester tester, JwdHost host) async {
   host.state.device.candidatesJson = jsonEncode(candidates);
   final model = personal.coreModel(host)..changed(host.state);
   await tester.pumpWidget(TenoApp(model: model, initialize: false));
-  await tester.tap(find.byTooltip('Create'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('Start recording'));
+  await tester.tap(find.byTooltip('Start recording'));
   await tester.pumpAndSettle();
 }
 
@@ -241,11 +239,9 @@ void main() {
         host.state.capture.previewStatus = status;
         final model = personal.coreModel(host)..changed(host.state);
         await tester.pumpWidget(TenoApp(model: model, initialize: false));
-        await tester.tap(find.byTooltip('Create'));
+        await tester.tap(find.byTooltip('Start recording'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Start recording'));
-        await tester.pumpAndSettle();
-        await tapVisible(tester, find.text('Return to recording'));
+
         final preview = find.text(status);
         await tester.scrollUntilVisible(
           preview,
@@ -309,10 +305,9 @@ void main() {
           child: TenoApp(model: model, initialize: false),
         ),
       );
-      await tester.tap(find.byTooltip('Create'));
+      await tester.tap(find.byTooltip('Start recording'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Start recording'));
-      await tester.pumpAndSettle();
+
       await tester.scrollUntilVisible(
         find.text('HQ-10_P_FIXTURE'),
         180,

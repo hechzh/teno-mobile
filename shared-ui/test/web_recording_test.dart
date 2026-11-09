@@ -293,7 +293,7 @@ void main() {
     (tester) async {
       final host = NotesHost();
       await openNotes(tester, host);
-      expect(find.text('At a glance'), findsOneWidget);
+      expect(find.text('Overview'), findsOneWidget);
       expect(find.text(object(note['data'])['summary']), findsOneWidget);
       expect(find.text('1 topic'), findsOneWidget);
       expect(
@@ -317,12 +317,15 @@ void main() {
     },
   );
 
-  testWidgets('native keeps its existing recording layout', (tester) async {
-    await openNotes(tester, NotesHost(), web: false);
-    expect(find.text('At a glance'), findsNothing);
-    expect(find.text('Audio & transcript'), findsOneWidget);
-    expect(find.byTooltip('Play recording'), findsNothing);
-  });
+  testWidgets(
+    'native shares complete Notes presentation without browser-only controls',
+    (tester) async {
+      await openNotes(tester, NotesHost(), web: false);
+      expect(find.text('Overview'), findsOneWidget);
+      expect(find.text('Source'), findsOneWidget);
+      expect(find.byTooltip('Play recording'), findsOneWidget);
+    },
+  );
 
   for (final stale in [true, false]) {
     testWidgets('old note never quotes a newer transcript (stale=$stale)', (
@@ -356,7 +359,7 @@ void main() {
       };
       await openNotes(tester, host);
       expect(find.text('Saved manual note.'), findsOneWidget);
-      expect(find.text('At a glance'), findsNothing);
+      expect(find.text('Overview'), findsNothing);
       expect(find.text('Topics'), findsNothing);
     },
   );
@@ -440,7 +443,7 @@ void main() {
     await tester.tap(find.text('Version 2'));
     await tester.pumpAndSettle();
     expect(find.text('Earlier saved wording.'), findsOneWidget);
-    await tester.tap(find.byTooltip('Close panel'));
+    await tester.tap(find.byTooltip('Close'));
     await tester.pumpAndSettle();
     expect(find.text('Full note · v1'), findsOneWidget);
     expect(host.requests.where((r) => !r.startsWith('GET ')), isEmpty);
@@ -455,7 +458,7 @@ void main() {
       await tester.tap(find.text('View source'));
       await tester.pumpAndSettle();
       expect(host.playbackCalls.single, (PlaybackAction.play, 'record-1', 0));
-      expect(find.text('At a glance'), findsNothing);
+      expect(find.text('Overview'), findsNothing);
       host.state.playback = PlaybackState(
         ready: true,
         playing: true,
@@ -499,9 +502,9 @@ void main() {
       await tester.tap(find.text('Topics'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      await tester.tap(find.byTooltip('Close panel'));
+      await tester.tap(find.byTooltip('Close'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Transcript'));
+      await tester.tap(find.text('Source'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });
