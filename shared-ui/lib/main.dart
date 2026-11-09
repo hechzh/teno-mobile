@@ -52,9 +52,9 @@ class _TenoAppState extends State<TenoApp> {
           : const Locale('en'),
       debugShowCheckedModeBanner: false,
       theme:
-          widget.model.personalCore ||
-              ((widget.model.webExperience ||
-                      defaultTargetPlatform == TargetPlatform.android) &&
+          widget.model.webExperience ||
+              widget.model.personalCore ||
+              (defaultTargetPlatform == TargetPlatform.android &&
                   !widget.model.signedIn)
           ? personalTheme(false, webExperience: widget.model.webExperience)
           : tenoTheme(),

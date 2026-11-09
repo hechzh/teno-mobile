@@ -37,25 +37,30 @@ class _DeferredContentState extends State<DeferredContent> {
   Widget build(BuildContext context) {
     if (ready) return widget.builder(context);
     final zh = Localizations.localeOf(context).languageCode == 'zh';
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!failed) const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(
-              failed
-                  ? (zh
-                        ? '页面未能加载，请检查网络后重试。'
-                        : 'This page could not load. Check your connection and retry.')
-                  : (zh ? '正在加载页面…' : 'Loading this page…'),
-              textAlign: TextAlign.center,
-            ),
-            if (failed)
-              TextButton(onPressed: load, child: const UiText('Retry')),
-          ],
+    // The route's Scaffold is still in the unloaded module. Supply Material's
+    // text style here as well, so localized loading text uses bundled fonts.
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!failed) const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                failed
+                    ? (zh
+                          ? '页面未能加载，请检查网络后重试。'
+                          : 'This page could not load. Check your connection and retry.')
+                    : (zh ? '正在加载页面…' : 'Loading this page…'),
+                textAlign: TextAlign.center,
+              ),
+              if (failed)
+                TextButton(onPressed: load, child: const UiText('Retry')),
+            ],
+          ),
         ),
       ),
     );

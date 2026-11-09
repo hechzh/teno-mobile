@@ -21,6 +21,20 @@ TenoModel browserModel({bool signedIn = true}) {
 }
 
 void main() {
+  testWidgets('browser theme keeps bundled fonts while capabilities load', (
+    tester,
+  ) async {
+    final model = browserModel()..personalCore = false;
+    await tester.pumpWidget(TenoApp(model: model, initialize: false));
+    final theme = tester.widget<MaterialApp>(find.byType(MaterialApp)).theme!;
+    expect(
+      theme.textTheme.bodyMedium!.fontFamilyFallback,
+      contains('NotoSansSC'),
+    );
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+  });
+
   for (final web in [true, false]) {
     testWidgets('chat history uses the ${web ? "Web" : "native"} contract', (
       tester,
