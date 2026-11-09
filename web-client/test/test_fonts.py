@@ -32,5 +32,16 @@ class FontPartitions(unittest.TestCase):
         self.assertNotIn('asset: assets/fonts/NotoSansSC-Regular.woff2', pubspec)
         self.assertIn('assets/fonts/NotoSansSC-Regular.ttf', (ROOT/'shared-ui/pubspec.yaml').read_text())
 
+    def test_authored_ui_glyphs_need_no_content_download(self):
+        manifest = json.loads((FONTS/'manifest.json').read_text(encoding='utf-8'))
+        initial = set(manifest['initial']['chars'])
+        supported = initial | set(''.join(chunk['chars'] for chunk in manifest['chunks']))
+        # Loading/error labels render before dynamic content fonts can load.
+        # Catch new authored characters that were added after font generation.
+        for folder in ['shared-ui/lib', 'web-client/lib']:
+            for file in (ROOT/folder).rglob('*.dart'):
+                missing = (set(file.read_text(encoding='utf-8')) & supported) - initial
+                self.assertFalse(missing, f'{file.relative_to(ROOT)}: regenerate UI font for {missing}')
+
 
 if __name__ == '__main__': unittest.main()

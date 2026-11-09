@@ -151,7 +151,7 @@ class ContentFontNotice extends StatelessWidget {
                               ? (zh
                                     ? '部分文字显示资源未能加载。'
                                     : 'Some text display resources could not load.')
-                              : (zh ? '正在准备文字显示…' : 'Preparing text…'),
+                              : (zh ? '正在加载文字…' : 'Preparing text…'),
                         ),
                       ),
                       if (failed)
