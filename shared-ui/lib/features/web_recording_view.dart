@@ -1442,7 +1442,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           icon: const Icon(Icons.chevron_left, size: 25),
           onPressed: () => Navigator.maybePop(context),
         ),
-        title: _tabs(),
+        title: SizedBox(width: 280, child: _tabs()),
         centerTitle: true,
         actions: [
           IconButton(

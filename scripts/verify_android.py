@@ -18,6 +18,10 @@ external = '/sdcard/Android/data/'+package+'/files/'
 def install(file):
     assert 'Success' in run('install','-r',*(['--abi',args.abi] if args.abi else []),str(file))
 def instrument(mode):
+    if mode != 'seed':
+        installed_path=run('shell','pm','path',package).strip().splitlines()[0].removeprefix('package:')
+        actual_hash=run('shell','sha256sum',installed_path).split()[0]
+        assert actual_hash==hashlib.sha256(apk.read_bytes()).hexdigest(), 'Installed APK differs from the tested release artifact'
     output = run('shell','am','instrument','-w','-e','mode',mode,'-e','baseline',args.baseline,
         package+'.test/com.teno.app.RuntimeInstrumentation')
     run('pull', external+mode+'-runtime-report.json', str(qa/(mode+'-runtime-report.json')))
@@ -34,6 +38,9 @@ if args.mode == 'upgrade':
     instrument('seed'); install(apk); instrument('full')
     for name in ('01-home-upgrade','02-runtime-finished'): run('pull', external+name+'.png', str(qa/(name+'.png')))
 elif args.mode == 'regression':
+    # Test the exact APK whose hash is written into the report, including rebuilds.
+    install(apk)
+    install(ROOT/'app/build/outputs/apk/androidTest/release/app-release-androidTest.apk')
     instrument('regression')
     for name in ('03-import-entry-android','05-system-files-android','06-system-photos-android','07-system-keyboard-android'):
         run('pull', external+name+'.png', str(qa/(name+'.png')))

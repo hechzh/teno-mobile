@@ -6,3 +6,5 @@ Validation: Flutter analyze, 362 Flutter tests, 33 browser runtime tests; same-s
 Review: design-baseline/v0.7.0/index.html (481 screenshots; 87 regression states + bilingual/responsive core flows). Differences and hardware limits are explicit in differences-and-acceptance.txt. No full-page 4dp acceptance claim.
 
 Install dist/Teno-0.7.0.apk over the current Teno without uninstalling or clearing data. Original signer retained; non-debuggable. Magic4 Pro, real JWD and iPhone Safari remain pending. Candidate only; confirmed Android0.6.2/iOS0.5.0 baselines remain. No main merge, iOS artifact or store release. Web candidate is independent of the current /app/ deployment.
+
+Final desktop tab geometry refinement: 44 targeted Flutter checks passed. Upgrade evidence retains the prior candidate SHA; final native regression and install reports identify the exact rebuilt APK. Browser: actual Chromium reads of existing Notes/Source, sharing entry, cached reopen and persistent language passed (208ms cached reopen, one waveform request); no business writes or generation calls.
