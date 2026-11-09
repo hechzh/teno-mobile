@@ -7,12 +7,17 @@ CDNs fall back to the retained origin bundle. API requests and account/import
 storage continue to use the original service. `?teno_assets=origin` explicitly
 uses the original server. A global CDN is not a promise of mainland China nodes
 or measured Shanghai/iPhone performance.
+The source is remembered after a successful first frame for that exact build,
+so a reload reuses its HTTP cache instead of racing into another CDN hostname.
 
 The startup CJK subset is 85,160 bytes, versus the previous 4,045,808-byte font.
 The remaining 28,521 glyphs are in 112 disjoint subsets, fetched for incoming
 content or IME input. Each subset has its own family in the Web fallback list;
 native keeps the original single-family/full-TTF configuration. Failed fonts
 show a retry notice without turning a successful save/upload into a failure.
+Reads wait for the glyphs in that response; cached pages do not wait for fonts
+requested by unrelated pages. A slow text download has a visible progress notice,
+and a failed read offers retry instead of rendering a note with missing characters.
 
 Home, library, search, import, notes/templates, recording detail, Ask and settings
 use conditional Web deferred routes. Native exports still resolve to their

@@ -6,6 +6,7 @@
   const expected = meta('teno-main-sha');
   const alternatives = meta('teno-cdn').split(',').filter(Boolean).map(v => new URL(v));
   let selected = origin, source = 'origin', ready;
+  const preferenceKey = 'teno.web.asset-source';
   async function fetchTimed(url, timeout) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
@@ -18,17 +19,32 @@
   }
   async function select() {
     if (new URL(location.href).searchParams.get('teno_assets') !== 'origin' && expected && alternatives.length) {
+      const probe = async base => {
+        const bytes = await fetchTimed(new URL('asset-proof.json', base), 5000);
+        if (JSON.parse(new TextDecoder().decode(bytes)).main !== expected) throw new Error('asset-version-mismatch');
+        return base;
+      };
       try {
-        selected = await Promise.any(alternatives.map(async base => {
-          const bytes = await fetchTimed(new URL('asset-proof.json', base), 5000);
-          if (JSON.parse(new TextDecoder().decode(bytes)).main !== expected) throw new Error('asset-version-mismatch');
-          return base;
-        }));
+        // Reuse the source that reached first frame for this exact build. Racing
+        // two cached probes on every reload would defeat each host's HTTP cache.
+        let preferred;
+        try {
+          const saved = JSON.parse(localStorage.getItem(preferenceKey) || 'null');
+          if (saved?.main === expected) preferred = alternatives.find(base => base.href === saved.base);
+        } catch (_) {}
+        if (preferred) {
+          try { selected = await probe(preferred); }
+          catch (_) { selected = await Promise.any(alternatives.filter(base => base !== preferred).map(probe)); }
+        } else selected = await Promise.any(alternatives.map(probe));
         source = selected.host;
       } catch (_) { /* A blocked CDN cannot trap startup; original assets remain available. */ }
     }
     return selected;
   }
+  addEventListener('flutter-first-frame', () => {
+    if (selected.href === origin.href) return;
+    try { localStorage.setItem(preferenceKey, JSON.stringify({main: expected, base: selected.href})); } catch (_) {}
+  }, {once: true});
   async function bytes(relative) {
     // Callers cannot turn this into a cross-origin data request.
     if (!/^assets\/fonts\/subsets\/[a-z0-9.-]+\.(woff2|json)$/.test(relative)) throw new Error('invalid-font-asset');

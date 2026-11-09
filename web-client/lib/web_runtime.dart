@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'dart:js_interop';
 import 'package:teno_mobile/core/model.dart';
 import 'package:teno_mobile/platform/runtime.g.dart';
@@ -16,9 +17,21 @@ class WebRuntime extends RuntimeHost {
       method.toJS,
       jsonEncode(args).toJS,
     ).toDart).toDart;
-    await ContentFonts.instance
-        .ensure(result)
-        .timeout(const Duration(seconds: 2), onTimeout: () {});
+    // Reads wait for their own glyphs so a slow font cannot silently erase
+    // characters from displayed notes. A successful mutation must never turn
+    // into a retryable failure because of an unrelated display download.
+    final reading =
+        (method == 'request' && args['method'] == 'GET') ||
+        (method == 'recording_cache' && args['action'] == 'read');
+    if (reading) {
+      if (!await ContentFonts.instance.ensure(result)) {
+        throw StateError(
+          'Text display resources could not load. Please retry.',
+        );
+      }
+    } else {
+      unawaited(ContentFonts.instance.ensure(result));
+    }
     return result;
   }
 

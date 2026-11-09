@@ -20,6 +20,9 @@ class ContentFonts {
   final Set<String> _loaded = {};
   final Set<int> _requested = {};
   final failed = ValueNotifier<bool>(false);
+  final loading = ValueNotifier<bool>(false);
+  int _active = 0;
+  Timer? _loadingHint;
   Timer? _typing;
 
   void listen() {
@@ -58,9 +61,13 @@ class ContentFonts {
     }
   }
 
-  Future<void> ensure(String content) async {
-    _requested.addAll(content.runes.where((c) => c > 255));
-    if (_requested.isEmpty) return;
+  Future<bool> ensure(String content) async {
+    final needed = content.isEmpty
+        ? Set<int>.of(_requested)
+        : content.runes.where((c) => c > 255).toSet();
+    _requested.addAll(needed);
+    if (needed.isEmpty) return true;
+    var active = false;
     try {
       try {
         await (_index ??= _readIndex());
@@ -68,13 +75,17 @@ class ContentFonts {
         _index = null;
         rethrow;
       }
-      final names = _requested
-          .map((c) => _glyphs[c])
-          .whereType<String>()
-          .toSet();
+      final names = needed.map((c) => _glyphs[c]).whereType<String>().toSet();
       // Limit concurrent transfers on mobile networks. Repeated API/cache/IME
       // text shares in-flight work; a failed chunk stays retryable next time.
       final pending = names.where((name) => !_loaded.contains(name)).toList();
+      if (pending.isNotEmpty) {
+        active = true;
+        _active++;
+        _loadingHint ??= Timer(const Duration(milliseconds: 300), () {
+          if (_active > 0) loading.value = true;
+        });
+      }
       for (var offset = 0; offset < pending.length; offset += 4) {
         await Future.wait(
           pending
@@ -89,10 +100,18 @@ class ContentFonts {
           .every(_loaded.contains)) {
         failed.value = false;
       }
+      return true;
     } catch (_) {
       // A font outage must not convert a successful upload/save into a failed
       // operation or hide already cached notes. Subsequent reads/typing retry.
       failed.value = true;
+      return false;
+    } finally {
+      if (active && --_active == 0) {
+        _loadingHint?.cancel();
+        _loadingHint = null;
+        loading.value = false;
+      }
     }
   }
 }
@@ -101,10 +120,15 @@ class ContentFontNotice extends StatelessWidget {
   const ContentFontNotice({super.key, required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
-    valueListenable: ContentFonts.instance.failed,
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: Listenable.merge([
+      ContentFonts.instance.failed,
+      ContentFonts.instance.loading,
+    ]),
     child: child,
-    builder: (context, failed, child) {
+    builder: (context, child) {
+      final failed = ContentFonts.instance.failed.value;
+      final loading = ContentFonts.instance.loading.value;
       final zh = Localizations.localeOf(context).languageCode == 'zh';
       return Column(
         // Paint the notice after Navigator so a modal route cannot suppress
@@ -112,7 +136,7 @@ class ContentFontNotice extends StatelessWidget {
         verticalDirection: VerticalDirection.up,
         children: [
           Expanded(child: child!),
-          if (failed)
+          if (failed || loading)
             Material(
               color: Theme.of(context).colorScheme.surfaceContainerLow,
               child: SafeArea(
@@ -123,15 +147,18 @@ class ContentFontNotice extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          zh
-                              ? '部分文字显示资源未能加载。'
-                              : 'Some text display resources could not load.',
+                          failed
+                              ? (zh
+                                    ? '部分文字显示资源未能加载。'
+                                    : 'Some text display resources could not load.')
+                              : (zh ? '正在准备文字显示…' : 'Preparing text…'),
                         ),
                       ),
-                      TextButton(
-                        onPressed: () => ContentFonts.instance.ensure(''),
-                        child: Text(zh ? '重试' : 'Retry'),
-                      ),
+                      if (failed)
+                        TextButton(
+                          onPressed: () => ContentFonts.instance.ensure(''),
+                          child: Text(zh ? '重试' : 'Retry'),
+                        ),
                     ],
                   ),
                 ),
