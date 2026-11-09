@@ -1,13 +1,14 @@
 {{flutter_js}}
 {{flutter_build_config}}
-const bundle = new URL(document.querySelector('meta[name="teno-assets"]')?.content || './', document.baseURI);
+(async () => {
+const bundle = await globalThis.tenoAssets.select();
 const config = {
     entrypointBaseUrl: bundle.href,
     assetBase: bundle.href,
     canvasKitBaseUrl: new URL('canvaskit/', bundle).href,
     canvasKitForceCpuOnly: new URL(location.href).searchParams.get('teno_render') === 'cpu',
 };
-_flutter.loader.load({
+await _flutter.loader.load({
   config,
   onEntrypointLoaded: async function(engineInitializer) {
     try {
@@ -18,3 +19,4 @@ _flutter.loader.load({
     } catch (_) { globalThis.tenoStartup?.fail('engine-or-interface-error'); }
   }
 }).catch(() => globalThis.tenoStartup?.fail('loader-error'));
+})();

@@ -1,4 +1,41 @@
-# Teno Web 0.2.1 candidate
+# Teno Web 0.2.2 candidate
+
+Web-only delivery update for slow mobile connections. The UI base stays 0.7.0.
+Public compiled code, rendering files and fonts can load from exact-commit CDN
+URLs. A bounded, version-checked probe chooses a working source; unavailable
+CDNs fall back to the retained origin bundle. API requests and account/import
+storage continue to use the original service. `?teno_assets=origin` explicitly
+uses the original server. A global CDN is not a promise of mainland China nodes
+or measured Shanghai/iPhone performance.
+
+The startup CJK subset is 85,160 bytes, versus the previous 4,045,808-byte font.
+The remaining 28,521 glyphs are in 112 disjoint subsets, fetched for incoming
+content or IME input. Each subset has its own family in the Web fallback list;
+native keeps the original single-family/full-TTF configuration. Failed fonts
+show a retry notice without turning a successful save/upload into a failure.
+
+Home, library, search, import, notes/templates, recording detail, Ask and settings
+use conditional Web deferred routes. Native exports still resolve to their
+original widgets. The pinned Dart compiler's small fragments are grouped into
+one shared page bundle and route-specific bundles; loading a page does not create
+dozens of individual requests. Failed page loads keep navigation and offer retry.
+
+Build with the existing Flutter 3.47.9 JS/CanvasKit pipeline, then run
+`python ../scripts/prepare_web_assets.py`. Do not skip preparation: it captures
+deferred parts and their grouping map under the same immutable directory.
+To regenerate fonts, install `fonttools[woff]==4.61.1` and run
+`python scripts/subset_web_fonts.py` from the repository root. The script retains
+the OFL notice, checks input hashes and leaves native fonts intact.
+
+For CDN publication, `scripts/publish_web_assets.py` creates a separate
+`assets/teno-web-*` commit/archive containing only public generated resources
+and font licenses. Scan/review before pushing that asset branch. Pass one or
+more `--cdn-base https://…/<exact-commit>/bundle/` arguments to the Web packaging
+script; it generates the matching narrow CSP allowlist. Never use moving branch
+or latest-version CDN URLs. Preserve previous origin bundles when deploying.
+See [release notes](RELEASE-0.2.2.txt).
+
+# Teno Web 0.2.1 candidate history
 
 Startup recovery and static delivery update; the shared interface remains 0.7.0.
 See [startup release notes](RELEASE-0.2.1.txt). Startup displays download, engine/font

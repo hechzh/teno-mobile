@@ -48,7 +48,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         padding: const EdgeInsets.symmetric(horizontal: 6),
         textStyle: const TextStyle(
           fontFamily: 'Inter',
-          fontFamilyFallback: ['NotoSansSC'],
+          fontFamilyFallback: tenoFontFallbacks,
           fontSize: 13,
         ),
       ),

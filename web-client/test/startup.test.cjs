@@ -59,6 +59,7 @@ test('a restricted sessionStorage getter and BroadcastChannel cannot prevent run
 test('custom initializer receives the exact asset and rendering configuration',async()=>{
  const stages=[];let loaderConfig,engineConfig;
  const context={URL,document:{baseURI:'https://teno.example/app-preview/',querySelector:()=>({content:'_static/abcd/'})},
+   tenoAssets:{async select(){return new URL('https://teno.example/app-preview/_static/abcd/')}},
    location:{href:'https://teno.example/app-preview/?teno_render=cpu'},
    tenoStartup:{stage:s=>stages.push(s),fail:s=>assert.fail(s)},
    _flutter:{loader:{async load({config,onEntrypointLoaded}){loaderConfig=config;await onEntrypointLoaded({async initializeEngine(c){engineConfig=c;return {async runApp(){}}}})}}}};

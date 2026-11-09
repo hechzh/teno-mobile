@@ -1,7 +1,7 @@
 name: teno_web
 description: Teno browser preview using the shared mobile interface.
 publish_to: none
-version: 0.2.1+6
+version: 0.2.2+7
 environment:
   sdk: '>=3.10.0 <4.0.0'
 dependencies:
@@ -21,6 +21,7 @@ flutter:
         - asset: ../shared-ui/assets/fonts/InterVariable.ttf
     - family: NotoSansSC
       fonts:
-        - asset: assets/fonts/NotoSansSC-Regular.woff2
+        - asset: assets/fonts/subsets/ui.woff2
   assets:
     - assets/fonts/OFL-NotoSansSC.txt
+    - assets/fonts/subsets/

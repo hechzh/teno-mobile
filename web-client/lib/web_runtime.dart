@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:js_interop';
 import 'package:teno_mobile/core/model.dart';
 import 'package:teno_mobile/platform/runtime.g.dart';
+import 'content_fonts.dart';
 
 @JS('tenoWeb.call')
 external JSPromise<JSString> _call(JSString method, JSString arguments);
@@ -10,8 +11,16 @@ external void _listen(JSFunction listener);
 
 /// The browser host implements the existing bridge without native channels.
 class WebRuntime extends RuntimeHost {
-  Future<String> call(String method, [Json args = const {}]) async =>
-      (await _call(method.toJS, jsonEncode(args).toJS).toDart).toDart;
+  Future<String> call(String method, [Json args = const {}]) async {
+    final result = (await _call(
+      method.toJS,
+      jsonEncode(args).toJS,
+    ).toDart).toDart;
+    await ContentFonts.instance
+        .ensure(result)
+        .timeout(const Duration(seconds: 2), onTimeout: () {});
+    return result;
+  }
 
   void listen(void Function(RuntimeState) onChange) =>
       _listen(((JSString value) => onChange(state(value.toDart))).toJS);

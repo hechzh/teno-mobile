@@ -4,8 +4,8 @@ import '../core/model.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'detail.dart';
-import 'personal_library.dart';
-import 'personal_recording.dart';
+import 'routes/personal_library.dart';
+import 'routes/personal_recording.dart';
 
 Future<void> showPersonalImport(
   BuildContext context,

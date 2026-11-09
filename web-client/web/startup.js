@@ -13,7 +13,7 @@
     timeout: '加载尚未完成', offline: '网络已断开', error: '应用未能启动',
     failed: '请重新加载。若仍失败，可复制诊断信息协助排查。',
     offlineHint: '请连接网络后重新加载。', retry: '重新加载', compatible: '尝试兼容模式',
-    copy: '复制诊断信息', copied: '已复制', manual: '请复制下方诊断信息',
+    copy: '复制诊断信息', copied: '已复制', manual: '请复制下方诊断信息', origin: '使用原站线路',
     privacy: '诊断仅包含启动阶段和资源加载情况，不含账号或录音内容。'
   } : {
     download: 'Downloading the app…', engine: 'Preparing display components and fonts…', interface: 'Opening the app…',
@@ -21,7 +21,7 @@
     timeout: 'Loading has not finished', offline: 'You are offline', error: 'Teno could not start',
     failed: 'Reload to try again. If it fails again, copy the diagnostics for support.',
     offlineHint: 'Reconnect to the internet, then reload.', retry: 'Reload', compatible: 'Try compatibility mode',
-    copy: 'Copy diagnostics', copied: 'Copied', manual: 'Copy the diagnostics below',
+    copy: 'Copy diagnostics', copied: 'Copied', manual: 'Copy the diagnostics below', origin: 'Use original server',
     privacy: 'Diagnostics contain startup stages and resource timings, without account or recording content.'
   };
   const el = id => document.getElementById('loading-' + id);
@@ -32,12 +32,12 @@
   const base = new URL(assetPath, document.baseURI);
   // Only paths inside this app's static bundle may appear in diagnostics.
   function resourcePath(value) {
-    try { const url = new URL(value, document.baseURI); return url.origin === location.origin &&
-      (url.pathname.startsWith(base.pathname) || url.pathname.startsWith(new URL(document.baseURI).pathname)) &&
+    try { const url = new URL(value, document.baseURI); return ((url.origin === location.origin &&
+      (url.pathname.startsWith(base.pathname) || url.pathname.startsWith(new URL(document.baseURI).pathname))) || globalThis.tenoAssets?.isResource(url.href)) &&
       /\.(?:js|wasm|json|ttf|otf|woff2?)$/.test(url.pathname) ? url.pathname : ''; } catch (_) { return ''; }
   }
   function record(stage) { trace.push({stage, ms: Math.round(performance.now() - start)}); }
-  function showActions() { el('actions').hidden = false; el('compatible').hidden = current === 'download'; }
+  function showActions() { el('actions').hidden = false; el('compatible').hidden = current === 'download'; if (el('origin')) el('origin').hidden = !globalThis.tenoAssets || globalThis.tenoAssets.source === 'origin'; }
   function status(kind) { el('status').textContent = words[kind]; }
   function fail(code, path = '') {
     if (done) return;
@@ -64,7 +64,7 @@
     root.remove();
   }
   function diagnostics() {
-    return JSON.stringify({app: 'Teno', bundle: base.pathname, stage: current, reason,
+    return JSON.stringify({app: 'Teno', bundle: base.pathname, source: globalThis.tenoAssets?.source || 'origin', stage: current, reason,
       elapsedMs: Math.round(performance.now() - start), online: navigator.onLine,
       compatibilityMode: new URL(location.href).searchParams.get('teno_render') === 'cpu', stages: trace,
       resources: performance.getEntriesByType('resource').filter(e => resourcePath(e.name)).map(e => ({
@@ -75,6 +75,12 @@
   el('retry').textContent = words.retry;
   el('compatible').textContent = words.compatible;
   el('copy').textContent = words.copy;
+  if (el('origin')) {
+    el('origin').textContent = words.origin;
+    el('origin').addEventListener('click', () => {
+      const url = new URL(location.href); url.searchParams.set('teno_assets', 'origin'); location.replace(url.href);
+    });
+  }
   el('retry').addEventListener('click', () => location.reload());
   el('compatible').addEventListener('click', () => {
     const url = new URL(location.href); url.searchParams.set('teno_render', 'cpu'); location.replace(url.href);

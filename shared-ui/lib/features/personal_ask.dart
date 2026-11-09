@@ -5,7 +5,7 @@ import '../core/model.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
-import 'personal_notes.dart';
+import 'routes/personal_notes.dart';
 
 class PersonalChatHistory extends StatelessWidget {
   const PersonalChatHistory(this.model, {super.key});

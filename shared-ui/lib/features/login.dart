@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
-import 'recorder.dart';
+import 'routes/recorder.dart';
 import 'interface_language.dart';
 import '../l10n/ui_strings.dart';
 

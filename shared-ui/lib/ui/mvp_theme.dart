@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'font_families.dart';
 
 /// Teno MVP tokens, shared by the browser and native Flutter surfaces.
 ThemeData mvpTheme(bool dark) {
@@ -40,7 +41,7 @@ ThemeData mvpTheme(bool dark) {
     colorScheme: colors,
     scaffoldBackgroundColor: paper,
     fontFamily: 'Inter',
-    fontFamilyFallback: const ['NotoSansSC'],
+    fontFamilyFallback: tenoFontFallbacks,
     textTheme: TextTheme(
       headlineLarge: TextStyle(
         fontSize: 30,
@@ -85,7 +86,7 @@ ThemeData mvpTheme(bool dark) {
       toolbarHeight: 60,
       titleTextStyle: TextStyle(
         fontFamily: 'Inter',
-        fontFamilyFallback: const ['NotoSansSC'],
+        fontFamilyFallback: tenoFontFallbacks,
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: ink,
@@ -115,7 +116,7 @@ ThemeData mvpTheme(bool dark) {
       showCheckmark: false,
       labelStyle: TextStyle(
         fontFamily: 'Inter',
-        fontFamilyFallback: const ['NotoSansSC'],
+        fontFamilyFallback: tenoFontFallbacks,
         fontSize: 13,
         color: ink,
       ),

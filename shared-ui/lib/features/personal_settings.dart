@@ -1,15 +1,15 @@
 import 'dart:async';
 import '../core/calendar_view.dart';
-import 'personal_ask.dart';
+import 'routes/personal_ask.dart';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
-import 'personal_library.dart';
-import 'personal_import.dart';
-import 'recorder.dart';
+import 'routes/personal_library.dart';
+import 'routes/personal_import.dart';
+import 'routes/recorder.dart';
 import 'interface_language.dart';
-import 'personal_notes.dart';
+import 'routes/personal_notes.dart';
 import '../l10n/ui_strings.dart';
 
 Widget settingsGroup(BuildContext context, String title) => Padding(
