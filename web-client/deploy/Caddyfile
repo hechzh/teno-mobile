@@ -2,7 +2,9 @@
     root * /srv/current
     encode gzip zstd
     @internal path /deploy /deploy/*
-    respond @internal 404
+    handle @internal {
+        respond 404
+    }
     header {
         Cache-Control "no-cache"
         X-Content-Type-Options nosniff

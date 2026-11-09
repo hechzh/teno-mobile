@@ -27,7 +27,8 @@ test('slow startup becomes actionable, and timeout preserves the in-flight attem
  const p=page();assert.match(p.nodes['loading-status'].textContent,/下载/);
  p.tick(15000);assert.equal(p.nodes['loading-actions'].hidden,false);
  p.tick(45000);assert.match(p.nodes['loading-status'].textContent,/尚未完成/);assert.equal(p.nodes.loading.removed,false);
- p.context.tenoStartup.stage('engine');p.fire('flutter-first-frame');assert.equal(p.nodes.loading.removed,true);assert.equal(p.timers.size,0);assert.equal(p.writes,0);
+ p.context.tenoStartup.stage('engine');assert.match(p.nodes['loading-hint'].textContent,/加载时间较长/);
+ p.fire('flutter-first-frame');assert.equal(p.nodes.loading.removed,true);assert.equal(p.timers.size,0);assert.equal(p.writes,0);
 });
 test('failed static resources produce a retry and diagnostic without clearing any storage',()=>{
  const p=page();p.fire('error',{target:{src:'https://teno.example/app-preview/_static/abcd/main.dart.js?secret=HIDDEN'}});

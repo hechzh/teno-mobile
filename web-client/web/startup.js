@@ -50,7 +50,7 @@
   function stage(next) {
     if (done) return;
     current = next; record(next);
-    if (!terminal) { status(next); el('hint').textContent = words.first; }
+    if (!terminal) { status(next); el('hint').textContent = performance.now() - start >= 15000 ? words.slow : words.first; }
     if (!el('actions').hidden) showActions();
   }
   const slowTimer = setTimeout(() => { if (!done && !terminal) { el('hint').textContent = words.slow; showActions(); } }, 15000);
