@@ -100,15 +100,23 @@
     constructor(options = {}) {
       this.fetch = options.fetch || globalThis.fetch.bind(globalThis);
       this.origin = options.origin || location.origin;
-      this.storage = options.storage || sessionStorage;
+      try { this.storage = options.storage || sessionStorage; } catch (_) {
+        // Some private/embedded browsers reject even reading sessionStorage.
+        // The session can still live in memory for this tab.
+        const values = new Map();
+        this.storage = {getItem: k => values.get(k) ?? null,
+          setItem: (k, v) => values.set(k, v), removeItem: k => values.delete(k)};
+      }
       this.store = options.store || new BrowserStore();
       this.readCache = options.readCache || new RecordingCache(); this.cacheGeneration = 0;
       this.reads = new Map();
       if (typeof document !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
-        this.cacheChannel = new BroadcastChannel('teno-web-read-cache-v1');
-        this.cacheChannel.onmessage = event => {
-          if (event.data?.scope === this.session?.id) this.invalidateCache(false);
-        };
+        try {
+          this.cacheChannel = new BroadcastChannel('teno-web-read-cache-v1');
+          this.cacheChannel.onmessage = event => {
+            if (event.data?.scope === this.session?.id) this.invalidateCache(false);
+          };
+        } catch (_) { /* Restricted browsers keep the account-scoped in-tab cache. */ }
       }
       this.session = null; this.epoch = 0; this.sequence = 0; this.drafts = [];
       this.controllers = new Set(); this.uploads = new Map(); this.settings = {};

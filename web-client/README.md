@@ -1,4 +1,22 @@
-# Teno Web 0.2.0 candidate
+# Teno Web 0.2.1 candidate
+
+Startup recovery and static delivery update; the shared interface remains 0.7.0.
+See [startup release notes](RELEASE-0.2.1.txt). Startup displays download, engine/font
+and first-frame stages, with a slow-network hint after 15 seconds, recovery controls
+after 45 seconds, and immediate errors for failed scripts. It never clears retained
+imports or login data. Diagnostics are copied locally on request and contain only
+static resource paths/timings, without query strings, account data or recording content.
+
+`prepare_web_assets.py` puts compiled code, fonts and rendering assets under a
+content-derived `_static/<hash>/` path. Run it after every release build; it also
+precompresses resources with Brotli/gzip using Node. The deployment retains these
+immutable directories in `/srv/static`; entry HTML/bootstrap/release metadata still
+revalidate. Missing assets return 404. No service worker or offline-app claim is added.
+The initial visit still needs a network download; cache reuse applies after a
+successful download. A nearby static delivery region/CDN remains an infrastructure
+option if the user's network path to the existing server is slow.
+
+# Teno Web 0.2.0 candidate history
 
 Uses shared UI base 0.7.0, with Chinese/English/system language, MVP styling and responsive layouts. See [candidate release notes](RELEASE-0.2.0.txt). The production `/app/` remains on 0.1.3 until real iPhone Safari acceptance; the candidate uses its own entry. Existing cache, accounts, API and prompts remain.
 

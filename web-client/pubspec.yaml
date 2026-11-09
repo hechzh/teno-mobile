@@ -1,7 +1,7 @@
 name: teno_web
 description: Teno browser preview using the shared mobile interface.
 publish_to: none
-version: 0.2.0+5
+version: 0.2.1+6
 environment:
   sdk: '>=3.10.0 <4.0.0'
 dependencies:

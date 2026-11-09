@@ -8,12 +8,13 @@
   <meta name="theme-color" content="#FBFAF6">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Teno">
+  <meta name="teno-assets" content="./">
   <title>Teno</title>
-  <style>html,body{margin:0;background:#FBFAF6;color:#252C24;font-family:system-ui,sans-serif}#loading{height:100dvh;display:grid;place-content:center;text-align:center}#loading h1{font-size:46px;font-weight:600;letter-spacing:-2px;margin:0 0 16px}#loading p{color:#666}</style>
+  <style>html,body{margin:0;background:#FBFAF6;color:#252C24;font-family:system-ui,sans-serif}#loading{position:fixed;inset:0;z-index:2147483647;overflow:auto;background:#FBFAF6;min-height:100vh;min-height:100dvh;box-sizing:border-box;display:grid;align-content:center;justify-items:center;padding:28px;text-align:center}#loading h1{font-size:46px;font-weight:600;letter-spacing:-2px;margin:0 0 16px}#loading p{color:#586653;max-width:30em;line-height:1.6;margin:8px 0}#loading-status{font-size:18px}#loading-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:20px}#loading [hidden]{display:none!important}#loading button{font:inherit;min-height:44px;padding:10px 18px;border:1px solid #2C5845;border-radius:24px;color:#2C5845;background:transparent;cursor:pointer}#loading #loading-retry{background:#2C5845;color:white}#loading button:focus-visible{outline:3px solid #88A986;outline-offset:3px}#loading-diagnostics{box-sizing:border-box;max-width:100%;width:32em;height:10em;margin-top:16px;font-size:12px}#loading-hint{font-size:14px}noscript{max-width:30em;line-height:1.6}</style>
 </head>
 <body>
-  <div id="loading" role="status"><h1>Teno</h1><p>Opening your workspace…</p><noscript>Enable JavaScript to open Teno.</noscript></div>
-  <script src="locale_bootstrap.js"></script>
+  <main id="loading" aria-busy="true"><h1>Teno</h1><p id="loading-status" role="status" aria-live="polite">Loading Teno…</p><p id="loading-hint">The first visit downloads the app. Please keep this page open.</p><div id="loading-actions" hidden><button id="loading-retry" type="button">Reload</button><button id="loading-compatible" type="button" hidden>Try compatibility mode</button><button id="loading-copy" type="button">Copy diagnostics</button></div><textarea id="loading-diagnostics" readonly hidden aria-label="Startup diagnostics"></textarea><noscript>Enable JavaScript to open Teno. 请启用 JavaScript 后重新加载。</noscript></main>
+  <script src="startup.js"></script>
   <script src="runtime.js"></script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

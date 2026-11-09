@@ -19,10 +19,11 @@ version, build_number = re.search(r'^version:\s*([^+\s]+)\+(\d+)', (root/'pubspe
 commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True).strip()
 assert not subprocess.check_output(['git', 'status', '--porcelain', '--', 'shared-ui', 'web-client'], cwd=repo), 'Commit Web sources before packaging'
 build = root/'build/web'
-assert (build/'main.dart.js').is_file(), 'Run flutter build web first'
+assert (build/'main.dart.js').is_file() or (build/'startup-assets.json').is_file(), 'Run flutter build web first'
 sys.path.insert(0,str(repo/'scripts'))
 from prepare_web_assets import prepare
 prepare(build)
+subprocess.run(['node', str(repo/'scripts/compress_web_assets.cjs'), str(build)], check=True)
 shutil.copytree(root/'deploy', build/'deploy', dirs_exist_ok=True)
 files = {p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
          for p in sorted(build.rglob('*')) if p.is_file() and p.name != 'release.json'}
@@ -43,7 +44,8 @@ artifacts.append(args.output/(prefix+'.tar.gz'))
 source = args.output/(prefix+'-source.zip')
 subprocess.run(['git', 'archive', '--format=zip', '--output='+str(source), 'HEAD',
                 'web-client', 'shared-ui', '.github/workflows/web.yml',
-                '.gitattributes', 'scripts/secret_audit.py'], cwd=repo, check=True)
+                '.gitattributes', 'scripts/secret_audit.py', 'scripts/prepare_web_assets.py',
+                'scripts/compress_web_assets.cjs'], cwd=repo, check=True)
 artifacts.append(source)
 hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in artifacts}
 (args.output/(prefix+'-manifest.json')).write_text(json.dumps({**manifest, 'artifacts': hashes}, indent=2)+'\n', encoding='utf-8')

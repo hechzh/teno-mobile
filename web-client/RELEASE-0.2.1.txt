@@ -1,0 +1,34 @@
+Teno Web 0.2.1 / 6 — startup recovery candidate, app_ui_base 0.7.0
+
+Scope: Web bootstrap, static delivery and restricted-browser storage access only.
+Existing shared UI, Android APK, backend, accounts, upload queue, Notes and prompts
+are unchanged. Production /app/ remains 0.1.3; candidate /app-preview/ is separate.
+
+Startup: download / engine and fonts / first frame; 15-second slow hint; 45-second
+recovery actions while the existing attempt may continue; immediate script failures;
+manual reload; explicit CPU rendering fallback; local-copy diagnostics without
+account data, recording content, query strings or credentials. No automatic reload,
+logout, cache purge, data deletion or background model invocation.
+
+Delivery: deterministic Brotli and gzip files; content-derived static paths with
+immutable cache headers; entry files revalidate; old static bundles remain for
+existing tabs and rollback. This cache is separate from account-scoped Notes caches.
+First visits still download assets and require a working connection.
+
+Observed before the change: on this workstation, both deployed UI generations'
+large files exceeded 40 seconds; the candidate main script/Wasm were still pending
+while HTML and small scripts finished. The same files downloaded on the deployment
+host in about 0.16/0.29 seconds. This proves a delivery-path bottleneck here, not the
+complete cause on the user's uninstrumented phone. Browser/engine/storage issues
+are additional possibilities now made observable. No iPhone hardware pass is claimed.
+
+Checks: 40 JavaScript runtime/startup tests and 2 immutable-asset tests; release
+build; actual Chromium at 360/390px with both CanvasKit variants, restrictive CSP,
+CPU mode, blocked session storage, cache reuse, offline/slow/missing-file recovery.
+The handoff records final deployed measurements separately from local results.
+
+Build: flutter build web --release --base-href /app/ --no-web-resources-cdn
+       python ../scripts/prepare_web_assets.py
+Package: python web-client/scripts/package.py (from repository root, after commit)
+Rollback: restore the previous candidate bind/config; keep static bundles and all
+business volumes. Do not change production /app/, main branches or Android baselines.
