@@ -8,13 +8,14 @@ import shutil
 import subprocess
 import zipfile
 from pathlib import Path
+from ios_metadata import metadata as ios_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def prepare(frameworks: Path, output: Path) -> Path:
-    version = re.search(r'versionName\s+[\'"]([^\'"]+)', (ROOT / 'app/build.gradle').read_text())[1]
-    folder = output / f'Teno-iOS-{version}-Xcode'
+    identity = ios_metadata(); version = identity['version']; build = identity['build']; bundle_id = identity['bundle_id']
+    folder = output / identity['source_name']
     folder.mkdir(parents=True, exist_ok=False)
     files = subprocess.check_output(['git', 'ls-files', '-z'], cwd=ROOT).decode().split('\0')
     for name in files:
@@ -62,12 +63,12 @@ def prepare(frameworks: Path, output: Path) -> Path:
     project = project.replace('    run:\n      config: Debug', '    run:\n      config: Release')
     (folder / 'ios/project.yml').write_text(project)
     subprocess.run(['xcodegen', 'generate', '--spec', str(folder / 'ios/project.yml')], check=True)
-    readme = f'''Teno iOS {version} / 15 · Xcode 签名源码包
+    readme = f'''Teno iOS {version} / Build {build} · Xcode 签名源码包
 
 使用 macOS 与 Xcode 16.4 或更新兼容版本，部署目标 iOS 15。
 1. 解压整个目录，直接打开 ios/Teno.xcodeproj，选择 Teno scheme。
-2. 在 Teno target 的 Signing & Capabilities 中选择自己的 Team。现有包名 com.teno.app；
-   如果签名方没有该标识的权限，请使用自己拥有的标识，并在 Apple 后台创建对应 App。
+2. 在 Teno target 的 Signing & Capabilities 中选择自己的 Team。包名 {bundle_id}；
+   签名方需拥有该标识的权限，并使用对应的 Apple App 记录。
 3. 选择 iPhone 真机或 Any iOS Device，Product > Archive，再由签名方上传。
 4. 首次安装允许蓝牙/麦克风等实际使用的权限。真实 iPhone/JWD 测试仍需验收。
 
@@ -82,9 +83,11 @@ ios/project.development.yml 保留 Flutter 开发集成规格；它不用于本�
 不显示蓝牙选择列表；不会重置设备或绕过已有绑定，拒绝时需要恢复原设备码。
 账号、处理接口与现有后端共用。后台传输由 iOS 调度，处理状态在前台定期更新。
 不包含 Apple 账号、证书、描述文件、私钥或真实用户数据；本包尚未签名或上传商店。
+此标识与旧 com.teno.app 不同，本机文件和设备码不会跨应用身份自动迁移。
+现有服务器账号继续使用；请保留旧 App 资料，已有 JWD 绑定按需恢复原设备码。
 '''
     (folder / '开始使用.txt').write_text(readme, encoding='utf-8')
-    metadata = {'version':version,'version_code':15,'commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+    metadata = {'version':version,'version_code':int(build),'bundle_id':bundle_id,'app_ui_base':'0.7.1','commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         'flutter':'3.47.9','signing':'recipient','framework_mode':'Release device + Debug simulator','xcode_only':True,
         'hardware_acceptance':'pending: physical iPhone and JWD'}
     (folder / 'manifest.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2),encoding='utf-8')

@@ -106,7 +106,15 @@ def ci_envelope(platform, status, outbox):
     cached = Path(outbox) / (number + '-prepared.json')
     if cached.exists(): return json.loads(cached.read_text(encoding='utf-8'))
     commit = os.environ['GITHUB_SHA']
-    version = re.search(r"versionName\s+['\"]([^'\"]+)", (ROOT / 'app/build.gradle').read_text())[1]
+    identity = None
+    if platform == 'ios':
+        from ios_metadata import metadata
+        identity = metadata()
+        # The existing history API uses three numeric version components. Keep
+        # Apple's exact marketing version in the title/evidence, not the binary.
+        version = identity['version'] + ('.0' if identity['version'].count('.') == 1 else '')
+    else:
+        version = re.search(r"versionName\s+['\"]([^'\"]+)", (ROOT / 'app/build.gradle').read_text())[1]
     ref = f'https://github.com/hechzh/teno-mobile/actions/runs/{run}'
     states = json.loads(os.environ.get('TENO_DEVELOPMENT_STEPS', '{}'))
     definitions = {'shared': ('Flutter 分析与自动测试', 'Flutter analysis and tests', 'unit'),
@@ -125,10 +133,13 @@ def ci_envelope(platform, status, outbox):
               'tests': tests, 'sources': [{'label': 'GitHub Actions', 'reference': ref}],
               'pending': [words('真实设备与 JWD 联调须单独验收。', 'Physical device and JWD validation requires separate acceptance.')], 'assets': []}
     files = []
+    if identity:
+        report['title'] = words(f"iOS {identity['version']} / Build {identity['build']}：CI 验证", f"iOS {identity['version']} / Build {identity['build']}: CI verification")
+        report['changes'] = [words(f"Bundle ID：{identity['bundle_id']}；App 内版本：{identity['version']}；Build：{identity['build']}。", f"Bundle ID: {identity['bundle_id']}; Apple marketing version: {identity['version']}; build: {identity['build']}.")]
     # CI debug APKs are not promoted into the installation area. The run link is
     # retained as build evidence. Only successful, audited unsigned IPA is sent.
-    ipa = ROOT / f'ios/build/Teno-{version}-unsigned.ipa'
-    if platform == 'ios' and status == 'success' and ipa.exists():
+    ipa = ROOT / 'ios/build' / identity['ipa_name'] if identity else ROOT / f'ios/build/Teno-{version}-unsigned.ipa'
+    if platform == 'ios' and identity['bundle_id'] == 'com.teno.app' and identity['version'] == version and status == 'success' and ipa.exists():
         report['distribution'] = 'unsigned'
         report['installation'] = words('未签名 IPA，需使用自己的 Apple 账号通过 AltStore 等工具重签；不能直接点开安装。实际 iPhone 安装尚待验收。保持原账号与安装标识，覆盖更新，不要先卸载。', 'Unsigned IPA: sign locally with your own Apple account using AltStore or equivalent. It cannot be installed directly. Physical iPhone installation is still pending. Preserve the same account and app identity; update without uninstalling.')
         files.append({'path': str(ipa), 'sha256': sha(ipa), 'kind': 'ipa', 'label': words('iOS 未签名设备构建', 'Unsigned iOS device build')})

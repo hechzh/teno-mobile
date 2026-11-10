@@ -51,8 +51,8 @@ targets:
       path: Teno/Info.plist
       properties:
         CFBundleDisplayName: Teno
-        CFBundleShortVersionString: "0.7.1"
-        CFBundleVersion: "15"
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "11"
         LSRequiresIPhoneOS: true
         UILaunchScreen: {}
         NSCameraUsageDescription: Add a photo to your recording notes.
@@ -75,10 +75,10 @@ targets:
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.teno.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.jwd.ZhiYan
         TARGETED_DEVICE_FAMILY: "1,2"
-        MARKETING_VERSION: "0.7.1"
-        CURRENT_PROJECT_VERSION: "15"
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "11"
         "CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]": Teno/Simulator.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_OBJC_BRIDGING_HEADER: Teno/Teno-Bridging-Header.h
@@ -105,7 +105,7 @@ targets:
       - target: Teno
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.teno.app.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.jwd.ZhiYan.tests
         GENERATE_INFOPLIST_FILE: YES
 schemes:
   Teno:

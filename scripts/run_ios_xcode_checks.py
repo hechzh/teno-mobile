@@ -6,9 +6,11 @@ from pathlib import Path
 import signal
 import subprocess
 import sys
+from ios_metadata import metadata as ios_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
-PROJECT = '/tmp/teno-xcode-relocated/Teno-iOS-0.7.1-Xcode/ios/Teno.xcodeproj'
+IDENTITY = ios_metadata()
+PROJECT = str(Path('/tmp/teno-xcode-relocated')/IDENTITY['source_name']/'ios/Teno.xcodeproj')
 BUILD = ROOT / 'ios/build'
 
 
@@ -61,7 +63,8 @@ def simulator():
         '-maximum-test-execution-time-allowance','90','-resultBundlePath',str(BUILD/'TestResults.xcresult'),
         'test-without-building'],'ios-tests.log',600)
     run(['xcrun','simctl','install',selected,str(ROOT/'ios/DerivedData/Build/Products/Debug-iphonesimulator/Teno.app')],'ios-install.log',120)
-    run(['xcrun','simctl','launch',selected,'com.teno.app'],'ios-launch.log',90)
+    subprocess.run(['xcrun','simctl','terminate',selected,IDENTITY['bundle_id']],capture_output=True,timeout=30)
+    run(['xcrun','simctl','launch',selected,IDENTITY['bundle_id']],'ios-launch.log',90)
     (BUILD/'screenshots').mkdir(exist_ok=True)
     run(['swiftc','scripts/capture_ios.swift','-o',str(BUILD/'capture-ios')],'ios-capture-compile.log',180)
     run([str(BUILD/'capture-ios'),selected,str(BUILD/'screenshots/01-login.png')],'ios-capture.log',180)

@@ -32,7 +32,7 @@ import Flutter
         do { try runtime.personal.importer.receiveExternal(url); return true } catch { return false }
     }
     override func application(_ application: UIApplication,handleEventsForBackgroundURLSession identifier: String,completionHandler: @escaping () -> Void) {
-        if identifier == "com.teno.app.uploads" { runtime?.uploads.backgroundCompletion = completionHandler }
+        if identifier == UploadQueue.backgroundIdentifier { runtime?.uploads.backgroundCompletion = completionHandler }
         else { completionHandler() }
     }
 }

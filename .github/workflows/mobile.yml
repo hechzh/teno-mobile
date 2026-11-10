@@ -85,6 +85,9 @@ jobs:
           path: ios/build/frameworks
           key: teno-ios-frameworks-v2-3.47.9-${{ hashFiles('shared-ui/lib/**', 'shared-ui/pubspec.*', 'shared-ui/assets/**') }}
           restore-keys: teno-ios-frameworks-3.47.9-${{ hashFiles('shared-ui/lib/**', 'shared-ui/pubspec.*', 'shared-ui/assets/**') }}
+      - name: Read iOS identity
+        id: identity
+        run: python3 scripts/ios_metadata.py >> "$GITHUB_OUTPUT"
       - name: Prepare native host
         id: release
         run: |
@@ -100,9 +103,8 @@ jobs:
           fi
           cd ..
           python3 scripts/package_ios_xcode.py --frameworks ios/build/frameworks
-          python3 scripts/package_ios_xcode.py --archive ios/build/handoff/Teno-iOS-0.7.1-Xcode
-          python3 -m zipfile -e ios/build/handoff/Teno-iOS-0.7.1-Xcode.zip /tmp/teno-xcode-relocated
-          python3 scripts/ci_metadata.py >> "$GITHUB_OUTPUT"
+          python3 scripts/package_ios_xcode.py --archive ios/build/handoff/${{ steps.identity.outputs.source_name }}
+          python3 -m zipfile -e ios/build/handoff/${{ steps.identity.outputs.source_name }}.zip /tmp/teno-xcode-relocated
       - uses: actions/cache/save@v4
         if: always() && steps.ios-framework-cache.outputs.cache-hit != 'true' && hashFiles('ios/build/frameworks/Release/App.xcframework/Info.plist') != ''
         with:
@@ -116,22 +118,22 @@ jobs:
           mkdir -p ios/build/Payload
           cp -R ios/DerivedData/Build/Products/Release-iphoneos/Teno.app ios/build/Payload/
           cd ios/build
-          zip -qr Teno-0.7.1-unsigned.ipa Payload
+          zip -qr "${{ steps.identity.outputs.ipa_name }}" Payload
       - name: Compile and test iOS Simulator
         id: simulator
         timeout-minutes: 25
         run: python3 scripts/run_ios_xcode_checks.py simulator
       - name: Package verified Xcode source
         run: |
-          python3 scripts/secret_audit.py --artifact ios/build/handoff/Teno-iOS-0.7.1-Xcode.zip
+          python3 scripts/secret_audit.py --artifact ios/build/handoff/${{ steps.identity.outputs.source_name }}.zip
       - name: Scan unsigned IPA
-        run: python3 scripts/secret_audit.py --artifact ios/build/Teno-0.7.1-unsigned.ipa
+        run: python3 scripts/secret_audit.py --artifact ios/build/${{ steps.identity.outputs.ipa_name }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Teno-iOS
           path: |
-            ios/build/Teno-0.7.1-unsigned.ipa
+            ios/build/${{ steps.identity.outputs.ipa_name }}
             ios/build/screenshots
             ios/build/TestResults.xcresult
             ios/build/handoff/*.zip

@@ -1,3 +1,13 @@
+# Teno Android 0.7.1 and iOS 1.0 / Build 11
+
+Native login now distinguishes incorrect credentials from an expired session. JWD connection has no Bluetooth selection page: first use tries candidates by signal strength, verifies JWD channels, saves a secure device code and authenticates; subsequent use reconnects the last successful recorder. Existing binding rejection uses original-code recovery. Recording still starts explicitly.
+
+Android stays `com.teno.app`, `0.7.1 /15`, with the original signer. Install [the reviewed APK](dist/Teno-0.7.1.apk) over the existing app. iOS uses `com.jwd.ZhiYan`, marketing version **1.0**, build **11**, with current bilingual UI and personal-core native support. [iOS signing instructions](ios/INSTALL.txt) describe the portable `Teno-iOS-1.0-build11-Xcode.zip`: open `ios/Teno.xcodeproj`, select the recipient's Team, and Archive. Prebuilt device/simulator Flutter dependencies are included; Apple credentials are not. Changing from the old iOS bundle identifier does not automatically migrate its local files or device codes.
+
+See [scope and checks](RELEASE-0.7.1.txt). Android verification and iOS Xcode/Simulator verification are recorded separately. Physical iPhone/Magic4 Pro/JWD acceptance is pending. Backend/Web, generation prompts and formal baselines remain unchanged; no main merge or store upload.
+
+Previous release history follows.
+
 # Teno Android 0.7.0 candidate
 
 The MVP visual refresh adds Chinese/English switching and shares its Notes UI with Web 0.2.0. See [release notes](RELEASE-0.7.0.txt) and [481-page capture gallery](design-baseline/v0.7.0/index.html). Install the original-signer candidate APK without uninstalling. Physical Magic4 Pro/JWD acceptance is pending; confirmed baselines remain unchanged.

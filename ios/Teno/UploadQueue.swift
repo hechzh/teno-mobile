@@ -5,6 +5,7 @@ import UserNotifications
 
 /// Background URLSession owns transfers. Draft JSON is the durable source of truth.
 @MainActor final class UploadQueue: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
+    static let backgroundIdentifier = (Bundle.main.bundleIdentifier ?? "com.jwd.ZhiYan") + ".uploads"
     let store: NativeStore
     let api: SessionTransport
     private var responses: [Int: Data] = [:]
@@ -18,7 +19,7 @@ import UserNotifications
     private(set) var activeId = "", status = ""
     var backgroundCompletion: (() -> Void)?
     private lazy var session: URLSession = {
-        let config = URLSessionConfiguration.background(withIdentifier: "com.teno.app.uploads")
+        let config = URLSessionConfiguration.background(withIdentifier: Self.backgroundIdentifier)
         config.sessionSendsLaunchEvents = true; config.isDiscretionary = false
         config.timeoutIntervalForResource = 60 * 60
         config.httpMaximumConnectionsPerHost = 1

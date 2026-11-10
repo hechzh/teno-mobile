@@ -65,5 +65,17 @@ class ReportingTests(unittest.TestCase):
             self.assertEqual(envelope['files'],[])
             self.assertEqual(report.ci_envelope('android','failure',tmp),envelope)
 
+    def test_ios_identity_is_independent_and_exact_in_evidence(self):
+        env={'GITHUB_RUN_ID':'123457','GITHUB_SHA':'b'*40,'TENO_DEVELOPMENT_STEPS':'{"device":"success"}'}
+        with tempfile.TemporaryDirectory() as tmp,patch.dict(os.environ,env,clear=True):
+            envelope=report.ci_envelope('ios','success',tmp)
+            self.assertEqual(envelope['report']['version'],'1.0.0')
+            self.assertIn('1.0 / Build 11',envelope['report']['title']['en'])
+            self.assertIn('com.jwd.ZhiYan',envelope['report']['changes'][0]['en'])
+            self.assertEqual(envelope['report']['distribution'],'evidence')
+            self.assertEqual(envelope['files'],[])
+            android=report.ci_envelope('android','success',tmp)
+            self.assertEqual(android['report']['version'],'0.7.1')
+
 
 if __name__=='__main__':unittest.main()
