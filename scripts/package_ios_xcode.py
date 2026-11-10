@@ -75,7 +75,7 @@ def archive(folder: Path) -> Path:
         if file.is_file() and file.name != 'SHA256SUMS.txt' and 'xcuserdata' not in file.parts:
             lines.append(hashlib.sha256(file.read_bytes()).hexdigest() + '  ' + file.relative_to(folder).as_posix())
     (folder / 'SHA256SUMS.txt').write_text('\n'.join(lines)+'\n')
-    target = folder.with_suffix('.zip')
+    target = folder.with_name(folder.name + '.zip')
     with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as bundle:
         for file in sorted(folder.rglob('*')):
             if file.is_file() and 'xcuserdata' not in file.parts:

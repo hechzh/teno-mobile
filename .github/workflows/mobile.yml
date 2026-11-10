@@ -100,7 +100,7 @@ jobs:
           python3 -m zipfile -e ios/build/handoff/Teno-iOS-0.7.1-Xcode.zip /tmp/teno-xcode-relocated
           python3 scripts/ci_metadata.py >> "$GITHUB_OUTPUT"
       - uses: actions/cache/save@v4
-        if: steps.ios-framework-cache.outputs.cache-hit != 'true'
+        if: always() && steps.ios-framework-cache.outputs.cache-hit != 'true' && hashFiles('ios/build/frameworks/Release/App.xcframework/Info.plist') != ''
         with:
           path: ios/build/frameworks
           key: ${{ steps.ios-framework-cache.outputs.cache-primary-key }}

@@ -143,8 +143,10 @@ import Vision
                     try FileManager.default.setAttributes([.protectionKey:FileProtectionType.completeUntilFirstUserAuthentication],ofItemAtPath:target.path)
                 }
                 if kind == "recording" {
-                    let duration = try await AVURLAsset(url:target).load(.duration).seconds
-                    guard duration.isFinite && duration > 0 && duration <= 7200 else { throw RuntimeFailure("AUDIO_DURATION", "Choose valid audio or video up to 120 minutes.") }
+                    let asset = AVURLAsset(url:target)
+                    let tracks = try await asset.loadTracks(withMediaType:.audio)
+                    let duration = try await asset.load(.duration).seconds
+                    guard !tracks.isEmpty, duration.isFinite && duration > 0 && duration <= 7200 else { throw RuntimeFailure("AUDIO_DURATION", "Choose valid audio or video with an audio track, up to 120 minutes.") }
                     draft["duration_ms"] = Int64(duration * 1000)
                 } else if ext == "pdf" {
                     guard let document = PDFDocument(url:target), document.pageCount > 0 && document.pageCount <= 200 else { throw RuntimeFailure("DOCUMENT_LIMIT", "Choose a valid PDF up to 200 pages.") }
