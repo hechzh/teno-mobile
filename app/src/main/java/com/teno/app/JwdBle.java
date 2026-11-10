@@ -18,6 +18,15 @@ final class JwdBle implements JwdTransport {
     private final Runnable handshakeTimeout=()->fail("Connection timed out. Keep the recorder nearby and close other recorder apps before retrying.");
     private final Runnable writeTimeout=()->fail("Bluetooth command timed out. Reconnect the recorder.");
     JwdBle(android.content.Context c,Handler h,Listener l){context=c;handler=h;listener=l;}
+    static boolean matchesProfile(BluetoothGattService service){
+        if(service==null||!service.getUuid().equals(JwdProtocol.SERVICE))return false;
+        BluetoothGattCharacteristic write=service.getCharacteristic(JwdProtocol.WRITE);
+        if(write==null||(write.getProperties()&(BluetoothGattCharacteristic.PROPERTY_WRITE|BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE))==0)return false;
+        for(UUID id:Arrays.asList(JwdProtocol.AUDIO,JwdProtocol.COMMAND)){
+            BluetoothGattCharacteristic channel=service.getCharacteristic(id);
+            if(channel==null||(channel.getProperties()&BluetoothGattCharacteristic.PROPERTY_NOTIFY)==0||channel.getDescriptor(JwdProtocol.CCCD)==null)return false;
+        }return true;
+    }
     public void connect(BluetoothDevice device){connect(device,false);}
     public void probe(BluetoothDevice device){connect(device,true);}
     private void connect(BluetoothDevice device,boolean probe){
@@ -38,9 +47,7 @@ final class JwdBle implements JwdTransport {
             writer=service.getCharacteristic(JwdProtocol.WRITE);notifications.clear();
             notifications.add(service.getCharacteristic(JwdProtocol.AUDIO));notifications.add(service.getCharacteristic(JwdProtocol.COMMAND));
             if(writer==null||notifications.contains(null)){if(probeOnly){close();listener.serviceChecked(false,"Recording channels are missing. This device is not supported.");}else fail("Required Bluetooth channels are missing");return;}
-            boolean writable=(writer.getProperties()&(BluetoothGattCharacteristic.PROPERTY_WRITE|BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE))!=0;
-            boolean notifiable=true;for(BluetoothGattCharacteristic c:notifications)notifiable&=(c.getProperties()&BluetoothGattCharacteristic.PROPERTY_NOTIFY)!=0&&c.getDescriptor(JwdProtocol.CCCD)!=null;
-            if(!writable||!notifiable){if(probeOnly){close();listener.serviceChecked(false,"The recorder channels do not match the JWD protocol.");}else fail("The recorder channels do not match the JWD protocol.");return;}
+            if(!matchesProfile(service)){if(probeOnly){close();listener.serviceChecked(false,"The recorder channels do not match the JWD protocol.");}else fail("The recorder channels do not match the JWD protocol.");return;}
             listener.stage("jwd_service_verified");
             // Discovery only: no CCCD writes, no bond request, and no APP&SK or other commands.
             if(probeOnly){close();listener.serviceChecked(true,"Recording service verified. You can now connect.");return;}

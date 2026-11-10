@@ -1,3 +1,13 @@
+Teno 0.7.1 /15 · 当前 iOS Xcode 源码交付
+
+本轮使用 dist/Teno-iOS-0.7.1-Xcode.zip。完整解压后直接打开 ios/Teno.xcodeproj，选择 Teno scheme，在 Signing & Capabilities 中设置签名方自己的 Team，再选真机运行或 Archive。包内含完整原生/共享UI源码，以及配套预编译的 App/Flutter XCFramework；编译签名不需要本机 Flutter。修改 Dart 时才需要 Flutter3.47.9 重建框架。详细说明见源码包“开始使用.txt”。
+
+新版本保留 com.teno.app；签名方需拥有该标识权限。覆盖更新应保持相同签名/应用身份，不先删除已有App。若更换包名/签名身份，新安装与旧包的数据继承由 iOS 签名规则决定，不能承诺原Keychain/本机文件自动迁移。Apple账号/证书/描述文件不包含在本包，不由CI保存或使用。
+
+界面同步当前双语MVP与个人资料库功能。设备入口只显示自动连接进度、结果和重试：首次按信号强弱核验JWD通道，设备码先安全保存再授权；重连上次成功设备。已有绑定拒绝新码时恢复原码，不自动重置设备。真实iPhone/JWD的签名安装、蓝牙、录音、后台和升级验收仍待完成；macOS编译/模拟器不替代实机。
+
+下文保留0.5.0历史AltStore安装说明；该历史文件名不是当前交付包。
+
 Teno 0.5.0 iPhone 内测安装（Windows / AltStore Classic）
 更新：2026-11-05
 

@@ -47,7 +47,7 @@ import Foundation
             var request = try self.makeRequest("POST", "/api/v1/auth/refresh", token: "")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try jsonData(["refresh_token": refreshToken])
-            let (bytes, response) = try await session.data(for: request)
+            let (bytes, response) = try await self.session.data(for: request)
             try self.validate(response, data: bytes)
             guard owner == self.store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.") }
             try self.store.saveTokens(jsonObject(bytes))

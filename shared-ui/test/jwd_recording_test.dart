@@ -54,6 +54,8 @@ Future<void> openDevice(WidgetTester tester, JwdHost host) async {
   final model = personal.coreModel(host)..changed(host.state);
   await tester.pumpWidget(TenoApp(model: model, initialize: false));
   await tester.tap(find.byTooltip('Start recording'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 500));
   await tester.pump(const Duration(milliseconds: 500));
 }
 

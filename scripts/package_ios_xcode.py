@@ -37,7 +37,7 @@ def prepare(frameworks: Path, output: Path) -> Path:
     project = re.sub(r'^        FLUTTER_.*\n', '', project, flags=re.M)
     project = re.sub(r'    postBuildScripts:\n.*?(?=  TenoTests:)', '', project, flags=re.S)
     project = re.sub(r'      preActions:\n.*?(?=    run:)', '', project, flags=re.S)
-    project = project.replace('config: Debug', 'config: Release')
+    project = project.replace('    run:\n      config: Debug', '    run:\n      config: Release')
     (folder / 'ios/project.yml').write_text(project)
     subprocess.run(['xcodegen', 'generate', '--spec', str(folder / 'ios/project.yml')], check=True)
     readme = f'''Teno iOS {version} / 15 · Xcode 签名源码包

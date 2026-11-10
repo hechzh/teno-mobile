@@ -40,5 +40,5 @@
   ],
   "process_arch": "aarch64",
   "evidence": "Dedicated API 35 emulator; synthetic account and loopback backend. JWD vendor decoder uses ARM translation. No physical JWD, iPhone or Azure accuracy claims.",
-  "apk_sha256": "ae948ad90f5053e08f23ff298bdfa352a10f2c86df503ecddb60b0b5a4d83d1b"
+  "apk_sha256": "6a854602dcc47c47509ef65b4f3dd31e362840d89fb96f25856b9dad8396056d"
 }

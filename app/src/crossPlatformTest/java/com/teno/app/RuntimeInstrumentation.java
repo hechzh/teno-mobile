@@ -41,6 +41,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
             if(!android.os.Build.HARDWARE.contains("ranchu")&&!android.os.Build.HARDWARE.contains("goldfish"))throw new IOException("Dedicated emulator required");
             if(mode.equals("seed"))seed();
             else if(mode.equals("auth-errors"))LoginErrorChecks.run(this,context);
+            else if(mode.equals("jwd-auto"))JwdAutomaticChecks.run(this);
             else new RuntimeChecks(this).run();
             passed=true;
         } catch(Throwable e){try{report.put("failure",e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}

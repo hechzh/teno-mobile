@@ -1,7 +1,7 @@
 {
   "all_passed": true,
-  "device": "emulator-5554 dedicated API35 emulator",
-  "apk_sha256": "ae948ad90f5053e08f23ff298bdfa352a10f2c86df503ecddb60b0b5a4d83d1b",
+  "device": "emulator-5556 dedicated API35 emulator",
+  "apk_sha256": "6a854602dcc47c47509ef65b4f3dd31e362840d89fb96f25856b9dad8396056d",
   "package": "com.teno.app",
   "version": "0.7.1",
   "uninstalled": false,

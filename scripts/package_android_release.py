@@ -76,6 +76,12 @@ def package(version,evidence_dir=None,private_values=(),report_enabled=True):
         assert auth['all_passed'] and auth['apk_sha256']==sha(apk)
         manifest['auth_error_checks']=len(auth['checks'])
         manifest['localized_login_error_screenshots']=2
+        automatic=read(qa/'jwd-auto-runtime-report.json')
+        assert automatic['all_passed'] and automatic['apk_sha256']==sha(apk)
+        manifest['jwd_automatic_connection_checks']=len(automatic['checks'])
+        manifest['jwd_selection_ui']=False
+        manifest['jwd_first_connection']='strongest candidate, verified GATT channels, persisted secure code, protocol authorization'
+        manifest['jwd_reconnection']='last successfully authorized recorder, existing code'
     for name in ('release-manifest.json',f'Teno-{version}-release-manifest.json'):(dist/name).write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
     (qa/'release-signature.txt').write_text(signature,encoding='utf-8');(qa/'release-badging.txt').write_text(badging,encoding='utf-8')
     (dist/'SHA256SUMS.txt').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in sorted(dist.iterdir()) if p.suffix in ('.apk','.ipa','.zip')),encoding='utf-8')

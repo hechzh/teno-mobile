@@ -18,12 +18,14 @@ import Vision
     func open(source: String, parent: String = "", atMs: Int64 = 0) async throws -> JSONObject {
         guard continuation == nil, !store.scope.isEmpty, var view = presenter() else { throw RuntimeFailure("IMPORT_BUSY", "Sign in and close the current import before trying again.") }
         while let shown = view.presentedViewController { view = shown }
+        let requestedOwner = store.scope
         if source == "camera" {
             guard UIImagePickerController.isSourceTypeAvailable(.camera) else { throw RuntimeFailure("CAMERA", "A camera is not available on this device.") }
             let granted = await AVCaptureDevice.requestAccess(for:.video)
             guard granted else { throw RuntimeFailure("CAMERA_PERMISSION", "Allow camera access in Settings.") }
         }
-        owner = store.scope; self.parent = parent; self.atMs = max(0,atMs)
+        guard requestedOwner == store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.") }
+        owner = requestedOwner; self.parent = parent; self.atMs = max(0,atMs)
         return try await withCheckedThrowingContinuation { result in
             continuation = result
             if source == "camera" {

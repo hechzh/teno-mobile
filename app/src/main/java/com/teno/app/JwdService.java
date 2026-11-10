@@ -203,6 +203,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             if(!match&&!candidate)return;String remove=null;for(Map.Entry<String,JSONObject> item:found.entrySet())if(!item.getValue().optBoolean("jwd")&&!item.getValue().optBoolean("name_match")){remove=item.getKey();break;}
             if(remove==null)return;found.remove(remove);
         }
+        if(rssi==127)rssi=-200;
         found.put(d.getAddress(),new JSONObject().put("name",name).put("address",d.getAddress()).put("rssi",rssi).put("jwd",match).put("name_match",candidate).put("scan_source",source).put("gatt_status",previous==null?"unknown":previous.optString("gatt_status","unknown")));publish();
         if(autoDiscovery&&scanning&&d.getAddress().equals(preferredRecorder))handler.post(this::selectAutomaticRecorder);
     }catch(Exception ignored){}}

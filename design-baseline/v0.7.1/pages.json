@@ -144,17 +144,17 @@
       {
         "name": "light",
         "screenshot": "screenshots/android/light/07-device-connect.png",
-        "sha256": "5c12318b98b97fe66bb5be7e7e6153386da612ce7b3f6f10b8f7c33b8491cdf9"
+        "sha256": "7ce05f8ad98be2e000a23efb7ceeba42a4311e7f2ffa1c7d1b8b44ba985f54cc"
       },
       {
         "name": "dark",
         "screenshot": "screenshots/android/dark/07-device-connect.png",
-        "sha256": "8f5a01859c6d4c949bf553d677d3076b3437df3146427b11e82c9c89aa71be97"
+        "sha256": "58d37bf15f77bdff70d94f43b1689946da5cca830b55180c43d6fea984614c32"
       },
       {
         "name": "large",
         "screenshot": "screenshots/android/large/07-device-connect.png",
-        "sha256": "ad7abdbdc23eea802bae4536b3ca913d10f089ed9ea9fffd1bcc8014c8088950"
+        "sha256": "f30b20905fdb8da2d48c044cf604f2dd5150af2751b0b8786c51d5403a7f3493"
       }
     ],
     "evidence": "0.7.1 fresh Flutter render; synthetic data; English; not physical hardware",
@@ -1823,17 +1823,17 @@
       {
         "name": "light",
         "screenshot": "screenshots/android/light/85-calendar-events.png",
-        "sha256": "e33a0f6a1e625e35e2a5a7df4eae94cb03e6adf26474fac6892ef0780ff63698"
+        "sha256": "be02e3a636a3d218b941e27b23404acc3ed9ae2949f5e32991e874e4c38178bc"
       },
       {
         "name": "dark",
         "screenshot": "screenshots/android/dark/85-calendar-events.png",
-        "sha256": "3e4d1d06e6832e78728425ab0d06805d381647de67f71a36d6cc81daf6df3227"
+        "sha256": "418454901dc6ddd5f5d5f94bc6f24cee05ee5346d99403ab49d4829bf0f8f1c6"
       },
       {
         "name": "large",
         "screenshot": "screenshots/android/large/85-calendar-events.png",
-        "sha256": "6026bc022d46cc725ff85106d0d748845c7b04233e85d39aae884e10c426cc49"
+        "sha256": "ee4cb1d8f72b78d1fd2691997477a649938f44222346b71214807776b4c66258"
       }
     ],
     "evidence": "0.7.1 fresh Flutter render; synthetic data; English; not physical hardware",
@@ -1841,72 +1841,81 @@
   },
   {
     "id": "90-jwd-matches",
-    "title": "JWD 优先匹配",
+    "title": "JWD 自动查找",
     "variants": [
       {
         "name": "light",
         "screenshot": "screenshots/android/light/90-jwd-matches.png",
-        "sha256": "fe1784cb07739eba5aef87e1fffed3352899fc8c52e38e596f949038cb1d81f8"
+        "sha256": "a4fdea9dd526f684c52cf1c8a03a1ff0293fba3607a49ba0a97a0da7ddf20e3e"
       },
       {
         "name": "dark",
         "screenshot": "screenshots/android/dark/90-jwd-matches.png",
-        "sha256": "e18da11f2a4ad96136970ac51193faf4959757dfd16b196cee30eb54468e562d"
+        "sha256": "c0d9b9798586f14c353aa88a011af0fdc0d5ff3112f2ee878de9d1b2442e57a9"
       },
       {
         "name": "large",
         "screenshot": "screenshots/android/large/90-jwd-matches.png",
-        "sha256": "b18a4e4ea81d25e52fdbffd28cca3df97ea68c46479d94db04515c02c998d1c4"
+        "sha256": "1c726b024b600e4921bfa0366fa41d483cbb5bab7454f8f0685f97cadc9075a0"
       }
     ],
-    "evidence": "0.7.1 fresh Flutter render; synthetic data; English; not physical hardware",
-    "reference": "MVP shared components extension; original Plaud classification is historical"
+    "evidence": "Current Flutter navigation with synthetic BLE states. No Bluetooth selection list. Physical JWD pending.",
+    "reference": "MVP shared components extension; original Plaud classification is historical",
+    "category": "missing",
+    "reference_classification": "新版自动连接状态",
+    "inferred_state": true
   },
   {
     "id": "91-jwd-verifying",
-    "title": "JWD 服务核实",
+    "title": "JWD 自动核验协议",
     "variants": [
       {
         "name": "light",
         "screenshot": "screenshots/android/light/91-jwd-verifying.png",
-        "sha256": "86276d56fea9361921b179e6189d614027dcc57d053bbfe38be4325bd9fbab33"
+        "sha256": "84ebc9f061919b8b12bdb47b1d388eecdaa3be192f828f7d800d27ba4f3bb66d"
       },
       {
         "name": "dark",
         "screenshot": "screenshots/android/dark/91-jwd-verifying.png",
-        "sha256": "0cf82b175817f18afc6e03176331aa8dcaa1fed186856346c9c4d45d654cfbaf"
+        "sha256": "4d8333ffc4f4b275dd825fa596c384c4c2a96e8dc7de2bccea53347a26442399"
       },
       {
         "name": "large",
         "screenshot": "screenshots/android/large/91-jwd-verifying.png",
-        "sha256": "5e195c4f32f3bd43c3338dc18a950926670031c1de2908bec1493180661c6f73"
+        "sha256": "6cc3ed05d33b4d711f4b7744fff437e3e1993c5936adc7f299c64502f69fd255"
       }
     ],
-    "evidence": "0.7.1 fresh Flutter render; synthetic data; English; not physical hardware",
-    "reference": "MVP shared components extension; original Plaud classification is historical"
+    "evidence": "Current Flutter navigation with synthetic BLE states. No Bluetooth selection list. Physical JWD pending.",
+    "reference": "MVP shared components extension; original Plaud classification is historical",
+    "category": "missing",
+    "reference_classification": "新版自动连接状态",
+    "inferred_state": true
   },
   {
     "id": "92-jwd-binding",
-    "title": "JWD 密钥确认",
+    "title": "JWD 原设备码恢复",
     "variants": [
       {
         "name": "light",
         "screenshot": "screenshots/android/light/92-jwd-binding.png",
-        "sha256": "784168f7d58b0161c792496ff40e97ee04f874b136795fb42a36eba6f71c06ce"
+        "sha256": "088e2ab8c940d526b1c3eab7631fc92e83445f4010e5c7e9ba4f42f32853f9e2"
       },
       {
         "name": "dark",
         "screenshot": "screenshots/android/dark/92-jwd-binding.png",
-        "sha256": "27ab22cb40a1b0c5ec97633ad03b6c35e778ebd5913601180ebcc1607d8e30cf"
+        "sha256": "8b0fc4a438f01ebec904792c39e289392977288adda23e21ffe1c2a182e63570"
       },
       {
         "name": "large",
         "screenshot": "screenshots/android/large/92-jwd-binding.png",
-        "sha256": "3b66e7fcc269e3345ecbe26ff9f72d46b35b635a6d0ee463b5ccc23ee171939c"
+        "sha256": "e767f00744f3a9446bda4423456e684adb39aef73f78f3b5f39e1a5c430d80a8"
       }
     ],
-    "evidence": "0.7.1 fresh Flutter render; synthetic data; English; not physical hardware",
-    "reference": "MVP shared components extension; original Plaud classification is historical"
+    "evidence": "Current Flutter navigation with synthetic BLE states. No Bluetooth selection list. Physical JWD pending.",
+    "reference": "MVP shared components extension; original Plaud classification is historical",
+    "category": "missing",
+    "reference_classification": "新版自动连接状态",
+    "inferred_state": true
   },
   {
     "id": "93-jwd-preview-waiting",
@@ -1984,17 +1993,17 @@
       {
         "name": "light",
         "screenshot": "screenshots/android/light/96-jwd-preview-text.png",
-        "sha256": "6af44e02d9e34eee4a2d3f0fd8d2fd01112eafae803c6e5d30b482d46b66dda3"
+        "sha256": "20bf460abe6a37c6422c26cec884da5ad0c13b02262fb35b1b62efb55294a514"
       },
       {
         "name": "dark",
         "screenshot": "screenshots/android/dark/96-jwd-preview-text.png",
-        "sha256": "84280f08888feea23cd0dc603bcb398b6a9ff98d0ae44cc163730421e007af85"
+        "sha256": "fc2af6b09e93fe96c2187f6f9d99ce0adaf88d4ca6cb550e83d36b04a4b55d90"
       },
       {
         "name": "large",
         "screenshot": "screenshots/android/large/96-jwd-preview-text.png",
-        "sha256": "98b206abb7e38ffaf086cdd2c8fd5eab1405366f7ee6f23177dfc97da30007ab"
+        "sha256": "7498d1be4d4fcbc8736d50c46a3ee93ba26245169d8d22cc14d0ccbf075aa2e4"
       }
     ],
     "evidence": "0.7.1 fresh Flutter render; synthetic data; English; not physical hardware",

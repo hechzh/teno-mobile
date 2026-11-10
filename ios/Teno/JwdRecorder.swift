@@ -236,7 +236,7 @@ import JwdVtrSDK
         guard candidates.count < 40 || candidates[id] != nil else { return }
         discovered[id] = peripheral
         var candidate = candidates[id] ?? ["gatt_status": "unknown"]
-        candidate["address"] = id; candidate["name"] = name; candidate["rssi"] = RSSI
+        candidate["address"] = id; candidate["name"] = name; candidate["rssi"] = RSSI.intValue == 127 ? -200 : RSSI.intValue
         candidate["has_key"] = !((try? store.deviceKey(id)) ?? "").isEmpty; candidates[id] = candidate
         if automatic && id == preferred && !busy { selectAutomatic() }
     }

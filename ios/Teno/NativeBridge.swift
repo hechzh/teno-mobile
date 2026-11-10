@@ -18,6 +18,9 @@ import Foundation
     func request(method: String,path: String,jsonBody: String?) async throws -> String {
         try await bridgeOperation { try await runtime.request(method:method,path:path,jsonBody:jsonBody) }
     }
+    func platformCommand(command: String,jsonBody: String?) async throws -> String {
+        try await bridgeOperation { try await runtime.platformCommand(command:command,jsonBody:jsonBody) }
+    }
     func configure(cloudUpload: Bool,wifiOnly: Bool,livePreview: Bool) async throws {
         try await bridgeOperation { try await runtime.configure(cloudUpload:cloudUpload,wifiOnly:wifiOnly,livePreview:livePreview) }
     }
