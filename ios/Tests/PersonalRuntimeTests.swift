@@ -52,6 +52,20 @@ final class PersonalRuntimeTests: XCTestCase {
         store.identity("second","two"); XCTAssertTrue(store.cloudUpload)
         store.identity("first","one"); XCTAssertFalse(store.cloudUpload); XCTAssertTrue(store.wifiOnly)
     }
+    @MainActor func testSuccessfulLoginDoesNotRewriteAccountLanguagePreferences() async throws {
+        let (store,api) = try fixture(); var methods: [String] = []
+        FixtureProtocol.respond = { request in
+            methods.append(request.httpMethod! + " " + request.url!.path)
+            if request.url!.path.hasSuffix("/login") { return (200,["access_token":"fixture","refresh_token":"fixture-refresh"]) }
+            if request.httpMethod == "GET", request.url!.path == "/api/v1/me" {
+                return (200,["id":"fixture-user","settings":["language":"auto","summary_language":"zh-CN","timezone":"Asia/Shanghai"]])
+            }
+            return (500,["code":"UNEXPECTED_REQUEST"])
+        }
+        try await api.login(server:store.base,username:"fixture",password:"fixture")
+        XCTAssertTrue(store.state().signedIn)
+        XCTAssertEqual(methods,["POST /api/v1/auth/login","GET /api/v1/me"])
+    }
     @MainActor func testSecureDeviceCodeAndLastDevicePolicy() throws {
         let (store,_) = try fixture()
         let code = try JwdRecorder.newDeviceCode()

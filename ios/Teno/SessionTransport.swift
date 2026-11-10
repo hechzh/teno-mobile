@@ -86,13 +86,9 @@ import Foundation
             try store.saveTokens(tokens)
             let me = try await json("GET", "/api/v1/me")
             store.identity(username, string(me["id"]))
-            let marker = "native_preferences." + store.scope
-            if !store.preferences.bool(forKey: marker) {
-                let settings = me["settings"] as? JSONObject ?? [:]
-                _ = try await json("PATCH", "/api/v1/me", body: ["language": "auto", "summary_language": "en-US",
-                    "timezone": settings["timezone"] ?? TimeZone.current.identifier])
-                store.preferences.set(true, forKey: marker)
-            }
+            // Interface language is device-local. A fresh iOS installation must not
+            // overwrite this account's existing transcription/summary preferences.
+            store.preferences.set(true, forKey: "native_preferences." + store.scope)
         } catch { try? store.logout(); throw error }
     }
     /// Small user-initiated voice/calendar requests; large imports use file-backed background uploads.
