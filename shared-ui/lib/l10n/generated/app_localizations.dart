@@ -4657,6 +4657,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid username or password. Check your Teno account and try again.'**
   String get loginInvalidCredentials;
+
+  /// No description provided for @autoJwdHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting your JWD recorder'**
+  String get autoJwdHeading;
+
+  /// No description provided for @autoJwdProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching, verifying and connecting automatically.'**
+  String get autoJwdProgress;
+
+  /// No description provided for @autoJwdCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel connection'**
+  String get autoJwdCancel;
+
+  /// No description provided for @autoJwdRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry connection'**
+  String get autoJwdRetry;
+
+  /// No description provided for @autoJwdRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore original device code'**
+  String get autoJwdRestore;
+
+  /// No description provided for @autoJwdSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching for your JWD recorder'**
+  String get autoJwdSearching;
+
+  /// No description provided for @autoJwdVerifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying recorder protocol'**
+  String get autoJwdVerifying;
+
+  /// No description provided for @autoJwdConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting automatically'**
+  String get autoJwdConnecting;
+
+  /// No description provided for @autoJwdNoDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'No JWD recorder found. Wake your recorder and try again.'**
+  String get autoJwdNoDevice;
+
+  /// No description provided for @autoJwdLastMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last recorder is unavailable. Wake it up and try again.'**
+  String get autoJwdLastMissing;
+
+  /// No description provided for @autoJwdKeyRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Device key was rejected. Use the original key; the recorder was not reset.'**
+  String get autoJwdKeyRejected;
+
+  /// No description provided for @autoJwdSaveCode.
+  ///
+  /// In en, this message translates to:
+  /// **'The device code could not be saved. Try connecting again.'**
+  String get autoJwdSaveCode;
+
+  /// No description provided for @autoJwdAuth.
+  ///
+  /// In en, this message translates to:
+  /// **'Authorizing recorder'**
+  String get autoJwdAuth;
+
+  /// No description provided for @autoJwdChannels.
+  ///
+  /// In en, this message translates to:
+  /// **'The recorder channels do not match the JWD protocol.'**
+  String get autoJwdChannels;
 }
 
 class _AppLocalizationsDelegate

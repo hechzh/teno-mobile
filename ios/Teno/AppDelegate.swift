@@ -18,6 +18,16 @@ import Flutter
         }
         return super.application(application,didFinishLaunchingWithOptions:launchOptions)
     }
+    override func applicationDidEnterBackground(_ application: UIApplication) {
+        runtime?.personal.lockForBackground(); super.applicationDidEnterBackground(application)
+    }
+    override func applicationDidBecomeActive(_ application: UIApplication) {
+        super.applicationDidBecomeActive(application); runtime?.personal.authenticateIfNeeded()
+    }
+    override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        guard url.isFileURL, let runtime else { return false }
+        do { try runtime.personal.importer.receiveExternal(url); return true } catch { return false }
+    }
     override func application(_ application: UIApplication,handleEventsForBackgroundURLSession identifier: String,completionHandler: @escaping () -> Void) {
         if identifier == "com.teno.app.uploads" { runtime?.uploads.backgroundCompletion = completionHandler }
         else { completionHandler() }

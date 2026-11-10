@@ -1,0 +1,7 @@
+"NSMicrophoneUsageDescription" = "使用手机录音或语音输入，并先保存本机副本。";
+"NSBluetoothAlwaysUsageDescription" = "自动连接 JWD 录音器、控制录音并同步完整音频。";
+"NSCameraUsageDescription" = "拍照并添加到当前录音的笔记。";
+"NSPhotoLibraryUsageDescription" = "将你选择的照片导入私人资料库。";
+"NSCalendarsUsageDescription" = "读取你选择关联的日历事件。";
+"NSCalendarsFullAccessUsageDescription" = "读取日历事件，供你选择关联到录音。";
+"NSFaceIDUsageDescription" = "解锁 Teno 或查看录音器的私密设备码。";

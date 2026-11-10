@@ -112,59 +112,33 @@ class DevicePage extends StatefulWidget {
 
 class _DevicePageState extends State<DevicePage> {
   TenoModel get model => widget.model;
-  bool showOtherDevices = false, probeWasBusy = false;
-  String? pendingProbe;
-  Timer? probeTimeout;
-
+  bool initiating = false;
   @override
   void initState() {
     super.initState();
-    model.addListener(deviceChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final device = model.runtime!.device;
-      if (!device.connected && !device.busy && !device.scanning) {
-        command(DeviceAction.scan);
+      if (mounted &&
+          !model.runtime!.device.authorized &&
+          !model.runtime!.device.busy &&
+          !model.runtime!.device.scanning) {
+        connectAutomatically();
       }
     });
   }
 
   @override
   void dispose() {
-    model.removeListener(deviceChanged);
-    probeTimeout?.cancel();
-    super.dispose();
-  }
-
-  void deviceChanged() {
-    if (pendingProbe == null || !mounted) return;
-    final device = model.runtime!.device;
-    probeWasBusy = probeWasBusy || device.busy;
-    final matches = jsonRows(
-      device.candidatesJson,
-    ).where((row) => row['address'] == pendingProbe);
-    if (matches.isNotEmpty && matches.first['gatt_status'] == 'verified') {
-      final candidate = matches.first;
-      pendingProbe = null;
-      probeTimeout?.cancel();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) connect(candidate);
-      });
-    } else if ((matches.isNotEmpty &&
-            matches.first['gatt_status'] == 'unsupported') ||
-        (probeWasBusy && !device.busy)) {
-      setState(() => pendingProbe = null);
-      probeTimeout?.cancel();
+    final device = model.runtime?.device;
+    if (device != null &&
+        !device.authorized &&
+        (initiating || device.scanning || device.busy)) {
+      unawaited(
+        model.host
+            .controlDevice(DeviceAction.disconnect, '', '')
+            .catchError((_) {}),
+      );
     }
-  }
-
-  int candidateRank(Json candidate) {
-    if (candidate['gatt_status'] == 'unsupported') return 4;
-    if (candidate['gatt_status'] == 'verified') return 0;
-    if (candidate['has_key'] == true) return 1;
-    if (candidate['jwd'] == true) return 2;
-    if (candidate['name_match'] == true) return 3;
-    return 4;
+    super.dispose();
   }
 
   Future<void> command(
@@ -172,70 +146,40 @@ class _DevicePageState extends State<DevicePage> {
     String id = '',
     String name = '',
   }) => perform(context, () => model.host.controlDevice(action, id, name));
+  Future<void> connectAutomatically() async {
+    if (initiating) return;
+    setState(() => initiating = true);
+    try {
+      await command(DeviceAction.scan);
+    } finally {
+      if (mounted) setState(() => initiating = false);
+    }
+  }
 
-  Future<void> connect(Json candidate) async {
-    final id = text(candidate['address']), name = text(candidate['name']);
-    if (candidate['has_key'] == true) {
-      await command(DeviceAction.connect, id: id, name: name);
-      return;
-    }
-    if (candidate['gatt_status'] != 'verified') {
-      setState(() {
-        pendingProbe = id;
-        probeWasBusy = false;
-      });
-      probeTimeout?.cancel();
-      probeTimeout = Timer(const Duration(seconds: 30), () {
-        if (mounted) setState(() => pendingProbe = null);
-      });
-      await perform(context, () async {
-        try {
-          await model.host.controlDevice(DeviceAction.probe, id, name);
-        } catch (_) {
-          probeTimeout?.cancel();
-          if (mounted) setState(() => pendingProbe = null);
-          rethrow;
-        }
-      });
-      return;
-    }
+  Future<void> restoreDeviceCode() async {
     final key = TextEditingController();
-    final choice = await showDialog<String>(
+    final accepted = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
         scrollable: true,
-        title: const UiText('Connect your recorder'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const UiText(
-              'For a recorder already used with Teno, enter its original device key. A new key is only for an unbound recorder.',
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: key,
-              obscureText: true,
-              autocorrect: false,
-              enableSuggestions: false,
-              maxLength: 16,
-              decoration: const InputDecoration(
-                label: UiText('Original 16-character key'),
-              ),
-            ),
-          ],
+        title: const UiText('Restore original device code'),
+        content: TextField(
+          controller: key,
+          obscureText: true,
+          autocorrect: false,
+          enableSuggestions: false,
+          maxLength: 16,
+          decoration: const InputDecoration(
+            label: UiText('Original 16-character key'),
+          ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialog),
+            onPressed: () => Navigator.pop(dialog, false),
             child: const UiText('Cancel'),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialog, 'new'),
-            child: const UiText('New unbound recorder'),
-          ),
           FilledButton(
-            onPressed: () => Navigator.pop(dialog, 'existing'),
+            onPressed: () => Navigator.pop(dialog, true),
             child: const UiText('Use original key'),
           ),
         ],
@@ -245,10 +189,11 @@ class _DevicePageState extends State<DevicePage> {
     key.clear();
     await Future<void>.delayed(const Duration(milliseconds: 300));
     key.dispose();
-    if (choice == null || !mounted) return;
+    if (accepted != true || !mounted) return;
+    final device = model.runtime!.device;
     await perform(
       context,
-      () => model.host.bindDevice(id, name, value, choice == 'new'),
+      () => model.host.bindDevice(device.identifier, device.name, value, false),
     );
   }
 
@@ -257,18 +202,10 @@ class _DevicePageState extends State<DevicePage> {
     animation: model,
     builder: (context, _) {
       final device = model.runtime!.device;
-      final candidates = jsonRows(device.candidatesJson)
-        ..sort((a, b) {
-          final rank = candidateRank(a).compareTo(candidateRank(b));
-          if (rank != 0) return rank;
-          return ((b['rssi'] as num?) ?? -127).compareTo(
-            (a['rssi'] as num?) ?? -127,
-          );
-        });
-      final otherCount = candidates
-          .where((row) => candidateRank(row) == 4)
-          .length;
-      final selecting = device.busy || pendingProbe != null;
+      final connecting = initiating || device.busy || device.scanning;
+      final needsCode = jsonRows(
+        device.candidatesJson,
+      ).any((row) => row['key_rejected'] == true);
       if (device.receiving) {
         return PageFrame(
           title: 'Saving recording',
@@ -285,7 +222,7 @@ class _DevicePageState extends State<DevicePage> {
               ),
               const SizedBox(height: 20),
               Text(
-                device.status,
+                ui(context, device.status),
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: muted),
               ),
@@ -337,13 +274,13 @@ class _DevicePageState extends State<DevicePage> {
             Text(
               device.authorized
                   ? device.name
-                  : 'Bring your JWD recorder closer',
+                  : ui(context, 'Connecting your JWD recorder'),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             Text(
-              device.status,
+              ui(context, device.status),
               textAlign: TextAlign.center,
               style: const TextStyle(color: muted),
             ),
@@ -401,69 +338,28 @@ class _DevicePageState extends State<DevicePage> {
                 child: const UiText('Disconnect'),
               ),
             ] else ...[
-              if (device.identifier.isNotEmpty)
-                OutlinedButton(
-                  onPressed: selecting
-                      ? null
-                      : () => command(
-                          DeviceAction.connect,
-                          id: device.identifier,
-                          name: device.name,
-                        ),
-                  child: const UiText('Reconnect saved recorder'),
+              if (connecting) ...[
+                const Center(child: CircularProgressIndicator()),
+                const SizedBox(height: 20),
+                const UiText(
+                  'Searching, verifying and connecting automatically.',
+                  textAlign: TextAlign.center,
                 ),
-              FilledButton(
-                onPressed: selecting || device.scanning
-                    ? null
-                    : () => command(DeviceAction.scan),
-                child: UiText(
-                  device.scanning ? 'Scanning…' : 'Scan for recorders',
-                ),
-              ),
-              TextButton(
-                onPressed: selecting || device.scanning
-                    ? null
-                    : () => command(DeviceAction.compatibilityScan),
-                child: const UiText('Compatibility scan'),
-              ),
-              if (candidates.any((row) => candidateRank(row) < 4))
-                const Padding(
-                  padding: EdgeInsets.only(top: 12),
-                  child: UiText(
-                    'Matching recorders',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              for (final candidate in candidates.where(
-                (row) => showOtherDevices || candidateRank(row) < 4,
-              ))
-                MenuRow(
-                  Icons.bluetooth,
-                  text(candidate['name']),
-                  selecting ? null : () => connect(candidate),
-                  localizeTitle: false,
-                  subtitle: pendingProbe == candidate['address']
-                      ? 'Checking recording service…'
-                      : candidate['has_key'] == true
-                      ? 'Saved recorder · Connect'
-                      : candidate['gatt_status'] == 'verified'
-                      ? 'Recording service verified · Connect'
-                      : candidate['gatt_status'] == 'unsupported'
-                      ? 'Recording service unavailable'
-                      : candidateRank(candidate) < 4
-                      ? 'JWD candidate · Tap to verify and connect'
-                      : 'Unrecognized device · Check recording service',
-                ),
-              if (otherCount > 0)
                 TextButton(
-                  onPressed: () =>
-                      setState(() => showOtherDevices = !showOtherDevices),
-                  child: Text(
-                    showOtherDevices
-                        ? ui(context, 'Hide other devices')
-                        : context.strings.otherDeviceCount(otherCount),
-                  ),
+                  onPressed: () => command(DeviceAction.disconnect),
+                  child: const UiText('Cancel connection'),
                 ),
+              ] else ...[
+                FilledButton(
+                  onPressed: connectAutomatically,
+                  child: const UiText('Retry connection'),
+                ),
+                if (needsCode)
+                  TextButton(
+                    onPressed: restoreDeviceCode,
+                    child: const UiText('Restore original device code'),
+                  ),
+              ],
             ],
             if (device.receiving) ...[
               const SizedBox(height: 20),

@@ -832,5 +832,19 @@
   "labelc691c2b42bd2": "Upload result was incomplete. Retry safely.",
   "label6122f155474f": "Upload or request stopped. Retry when ready.",
   "label8c7103817ec7": "Connection interrupted. Check your internet connection and retry.",
-  "loginInvalidCredentials": "Invalid username or password. Check your Teno account and try again."
+  "loginInvalidCredentials": "Invalid username or password. Check your Teno account and try again.",
+  "autoJwdHeading": "Connecting your JWD recorder",
+  "autoJwdProgress": "Searching, verifying and connecting automatically.",
+  "autoJwdCancel": "Cancel connection",
+  "autoJwdRetry": "Retry connection",
+  "autoJwdRestore": "Restore original device code",
+  "autoJwdSearching": "Searching for your JWD recorder",
+  "autoJwdVerifying": "Verifying recorder protocol",
+  "autoJwdConnecting": "Connecting automatically",
+  "autoJwdNoDevice": "No JWD recorder found. Wake your recorder and try again.",
+  "autoJwdLastMissing": "Your last recorder is unavailable. Wake it up and try again.",
+  "autoJwdKeyRejected": "Device key was rejected. Use the original key; the recorder was not reset.",
+  "autoJwdSaveCode": "The device code could not be saved. Try connecting again.",
+  "autoJwdAuth": "Authorizing recorder",
+  "autoJwdChannels": "The recorder channels do not match the JWD protocol."
 }

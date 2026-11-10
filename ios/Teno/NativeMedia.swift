@@ -108,6 +108,7 @@ import LocalAuthentication
         try share([file])
     }
     func shareText(_ text: String) throws { try share([text]) }
+    func shareFiles(_ files: [URL]) throws { try share(files) }
     private func share(_ items: [Any]) throws {
         let view = try front(), activity = UIActivityViewController(activityItems:items,applicationActivities:nil)
         activity.popoverPresentationController?.sourceView = view.view

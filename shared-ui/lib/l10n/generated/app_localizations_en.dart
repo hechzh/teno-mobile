@@ -2467,4 +2467,52 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get loginInvalidCredentials =>
       'Invalid username or password. Check your Teno account and try again.';
+
+  @override
+  String get autoJwdHeading => 'Connecting your JWD recorder';
+
+  @override
+  String get autoJwdProgress =>
+      'Searching, verifying and connecting automatically.';
+
+  @override
+  String get autoJwdCancel => 'Cancel connection';
+
+  @override
+  String get autoJwdRetry => 'Retry connection';
+
+  @override
+  String get autoJwdRestore => 'Restore original device code';
+
+  @override
+  String get autoJwdSearching => 'Searching for your JWD recorder';
+
+  @override
+  String get autoJwdVerifying => 'Verifying recorder protocol';
+
+  @override
+  String get autoJwdConnecting => 'Connecting automatically';
+
+  @override
+  String get autoJwdNoDevice =>
+      'No JWD recorder found. Wake your recorder and try again.';
+
+  @override
+  String get autoJwdLastMissing =>
+      'Your last recorder is unavailable. Wake it up and try again.';
+
+  @override
+  String get autoJwdKeyRejected =>
+      'Device key was rejected. Use the original key; the recorder was not reset.';
+
+  @override
+  String get autoJwdSaveCode =>
+      'The device code could not be saved. Try connecting again.';
+
+  @override
+  String get autoJwdAuth => 'Authorizing recorder';
+
+  @override
+  String get autoJwdChannels =>
+      'The recorder channels do not match the JWD protocol.';
 }

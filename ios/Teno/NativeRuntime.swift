@@ -5,6 +5,7 @@ import UIKit
 @MainActor final class NativeRuntime: RuntimeHost {
     let store: NativeStore, api: SessionTransport, uploads: UploadQueue
     let phone: PhoneRecorder, recorder: JwdRecorder, media: NativeMedia
+    lazy var personal = NativePersonal(self)
     private let events: RuntimeEvents
     private var ticker: Task<Void,Never>?
     private var sequence: Int64 = 0
@@ -20,7 +21,10 @@ import UIKit
         RuntimeHostSetup.setUp(binaryMessenger:messenger,api:NativeBridge(self))
         ticker = Task { [weak self] in
             while !Task.isCancelled {
-                if let self, UIApplication.shared.applicationState == .active { try? await self.events.changed(state:self.state()) }
+                if let self, UIApplication.shared.applicationState == .active {
+                    try? await self.events.changed(state:self.state())
+                    await self.uploads.pollProcessing()
+                }
                 try? await Task.sleep(nanoseconds:500_000_000)
             }
         }
@@ -44,7 +48,7 @@ import UIKit
         else if !id.isEmpty { notes = string((try? store.draft(id))?["notes"]) }
         let capture = CaptureState(source:useDevice ? "device" : "phone",phase:useDevice ? recorder.phase : phone.phase,
             elapsedMs:useDevice ? recorder.elapsed : phone.elapsed,localId:id,status:useDevice ? recorder.status : phone.status,
-            partial:preview?.partial ?? "",segmentsJson:jsonString(preview?.segments ?? []),notes:notes)
+            partial:preview?.partial ?? "",segmentsJson:jsonString(preview?.segments ?? []),notes:notes,previewStatus:useDevice && recorder.active && preview == nil ? "Waiting for recorder audio" : preview?.status ?? "")
         let drafts = store.drafts().map { value -> JSONObject in var item = value; item.removeValue(forKey:"path"); return item }
         return RuntimeState(sequence:sequence,session:store.state(),capture:capture,device:recorder.state(),playback:media.state(),
             draftsJson:jsonString(drafts),uploadStatus:uploads.status,openRoute:"")
@@ -61,6 +65,7 @@ import UIKit
         try accountIdle(); switching = true; defer { switching = false }
         await uploads.pauseAccount()
         _ = try? await api.json("POST","/api/v1/auth/logout",body:[:])
+        personal.cancelAccountUI()
         media.stop(); phone.preview?.close(); phone.preview=nil; recorder.preview?.close(); recorder.preview=nil
         try store.logout()
     }
@@ -69,6 +74,7 @@ import UIKit
         guard ["GET","POST","PATCH","DELETE"].contains(method) else { throw RuntimeFailure("API_METHOD","Unsupported request method.") }
         let body = try jsonBody.map { try jsonObject(Data($0.utf8)) }
         let bytes = try await api.data(method,path,body:body)
+        if method == "POST", path.hasSuffix("/retry"), let result = try? jsonObject(bytes) { uploads.processingRetry(path, result:result) }
         return bytes.isEmpty ? "{}" : String(data:bytes,encoding:.utf8) ?? "{}"
     }
     func configure(cloudUpload: Bool,wifiOnly: Bool,livePreview: Bool) async throws {
@@ -119,7 +125,8 @@ import UIKit
     }
     func importAudio() async throws -> String? { try signedIn(); return try await media.importAudio() }
     func platformCommand(command: String,jsonBody: String?) async throws -> String {
-        throw RuntimeFailure("PLATFORM_UNAVAILABLE","This feature is available in the Android 0.6.0 release.")
+        let args = try jsonBody.map { try jsonObject(Data($0.utf8)) } ?? [:]
+        return jsonString(try await personal.command(command,args))
     }
     func playback(action: PlaybackAction,mediaId: String,local: Bool,positionMs: Int64,speed: Double) async throws {
         try signedIn()

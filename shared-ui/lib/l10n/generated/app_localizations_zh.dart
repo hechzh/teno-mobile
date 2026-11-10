@@ -2317,4 +2317,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get loginInvalidCredentials => '用户名或密码不正确，请检查 Teno 账号后重试。';
+
+  @override
+  String get autoJwdHeading => '正在连接 JWD 录音器';
+
+  @override
+  String get autoJwdProgress => '正在自动查找、核验并连接设备。';
+
+  @override
+  String get autoJwdCancel => '取消连接';
+
+  @override
+  String get autoJwdRetry => '重试连接';
+
+  @override
+  String get autoJwdRestore => '恢复原设备码';
+
+  @override
+  String get autoJwdSearching => '正在查找你的 JWD 录音器';
+
+  @override
+  String get autoJwdVerifying => '正在核验录音器协议';
+
+  @override
+  String get autoJwdConnecting => '正在自动连接';
+
+  @override
+  String get autoJwdNoDevice => '未找到 JWD 录音器，请唤醒设备后重试。';
+
+  @override
+  String get autoJwdLastMissing => '上次连接的录音器暂不可用，请唤醒设备后重试。';
+
+  @override
+  String get autoJwdKeyRejected => '设备码未被接受，请使用原设备码。录音器未被重置。';
+
+  @override
+  String get autoJwdSaveCode => '无法保存设备码，请重新连接。';
+
+  @override
+  String get autoJwdAuth => '正在验证设备码';
+
+  @override
+  String get autoJwdChannels => '设备通道不符合 JWD 协议。';
 }

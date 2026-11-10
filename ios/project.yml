@@ -8,7 +8,7 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     IPHONEOS_DEPLOYMENT_TARGET: "15.0"
-    CODE_SIGNING_ALLOWED: NO
+    CODE_SIGN_STYLE: Automatic
     ENABLE_USER_SCRIPT_SANDBOXING: NO
     CLANG_ENABLE_MODULES: YES
 packages:
@@ -25,6 +25,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.teno.vendor.jwd
         GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
         DEFINES_MODULE: YES
         SKIP_INSTALL: YES
         HEADER_SEARCH_PATHS:
@@ -50,24 +51,34 @@ targets:
       path: Teno/Info.plist
       properties:
         CFBundleDisplayName: Teno
-        CFBundleShortVersionString: "0.5.0"
-        CFBundleVersion: "10"
+        CFBundleShortVersionString: "0.7.1"
+        CFBundleVersion: "15"
         LSRequiresIPhoneOS: true
         UILaunchScreen: {}
-        UIUserInterfaceStyle: Light
+        NSCameraUsageDescription: Add a photo to your recording notes.
+        NSPhotoLibraryUsageDescription: Import selected photos into your private Teno library.
+        NSCalendarsUsageDescription: Link selected calendar events to recordings.
+        NSCalendarsFullAccessUsageDescription: Read calendar events you choose to connect with your recordings.
         UIViewControllerBasedStatusBarAppearance: true
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         NSMicrophoneUsageDescription: Record audio on your phone and save a local copy.
         NSBluetoothAlwaysUsageDescription: Connect your recorder, control recording, and sync complete audio files.
         NSFaceIDUsageDescription: Authenticate before viewing your recorder's private device key.
         UIBackgroundModes: [audio, bluetooth-central]
+        LSSupportsOpeningDocumentsInPlace: true
+        CFBundleLocalizations: [en, zh-Hans]
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Teno import
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes: [public.audio, public.movie, public.image, public.text, com.adobe.pdf, org.openxmlformats.wordprocessingml.document, org.openxmlformats.presentationml.presentation, public.calendar-event]
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.teno.app
         TARGETED_DEVICE_FAMILY: "1,2"
-        MARKETING_VERSION: "0.5.0"
-        CURRENT_PROJECT_VERSION: "10"
+        MARKETING_VERSION: "0.7.1"
+        CURRENT_PROJECT_VERSION: "15"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_OBJC_BRIDGING_HEADER: Teno/Teno-Bridging-Header.h
         FLUTTER_SWIFT_PACKAGE_OUTPUT: "$(SRCROOT)/../shared-ui/build/ios/SwiftPackages"

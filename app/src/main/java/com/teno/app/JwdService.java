@@ -24,6 +24,10 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private final ExecutorService decoder=Executors.newSingleThreadExecutor();
     private BluetoothLeScanner scanner;private BluetoothAdapter adapter;private PowerManager.WakeLock wake;
     private boolean scanning,compatibilityScanning,connected,authorized,converting,destroyed;
+    private boolean autoDiscovery,autoProbing;
+    private final ArrayDeque<String> autoQueue=new ArrayDeque<>();
+    private final HashSet<String> autoTried=new HashSet<>();
+    private String preferredRecorder="";
     private boolean pairingRequested,gattVerified;private int pairingVariant=-1;
     private String connectionStage="",pairingStage="";
     private String address="",deviceName="",message="Not connected",firmware="",capacity="",battery="Not received",directory="",pending="",recordName="",lastDraft="";
@@ -75,18 +79,20 @@ public final class JwdService extends Service implements JwdBle.Listener {
         String action=i.getAction();if(action==null)return;
         if(action.equals("prepare_recording")){deferSync=true;syncing=false;syncFiles.clear();publish();return;}
         if(action.equals("resume_sync")){deferSync=false;if(authorized&&recordState==0&&pending.isEmpty()&&receiver==null&&!converting)startSync();return;}
-        if(action.equals("disconnect")){if(converting)throw new IOException("Wait for the decoded file to finish saving before disconnecting");stopLive(false);stopScan();abortTransfer();resetSync();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;message="Disconnected. Check the recorder: it may still be recording.";publish();stopSelf();return;}
+        if(action.equals("disconnect")){cancelAutomaticConnection();if(converting)throw new IOException("Wait for the decoded file to finish saving before disconnecting");stopLive(false);stopScan();abortTransfer();resetSync();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;message="Disconnected. Check the recorder: it may still be recording.";publish();stopSelf();return;}
         if(action.equals("scan")||action.equals("scan_compat")){scan(action.equals("scan_compat"));return;}
         if(action.equals("probe")){
+            if(!i.getBooleanExtra("automatic",false))cancelAutomaticConnection();
             if(connected||converting||receiver!=null||!pending.isEmpty())throw new IOException("Disconnect the current device or wait for verification to finish");
             String candidate=i.getStringExtra("address");if(!BluetoothAdapter.checkBluetoothAddress(candidate))throw new IOException("Invalid Bluetooth address");
             if(adapter==null||!adapter.isEnabled())throw new IOException("Turn on Bluetooth");
             stopScan();address=candidate;deviceName=i.getStringExtra("name");if(deviceName==null)deviceName="Unnamed device";
             pairingRequested=false;pairingVariant=-1;pairingStage="";gattVerified=false;connectionStage="connecting";
             authorized=false;recordState=-1;firmware="";battery="Not received";capacity="";dirs.clear();files.clear();directory="";
-            begin("probe","Checking "+deviceName+" for the recording service",27000);log("Checking device services");ble.probe(adapter.getRemoteDevice(address));publish();return;
+            begin("probe","Verifying recorder protocol",27000);log("Checking device services");ble.probe(adapter.getRemoteDevice(address));publish();return;
         }
         if(action.equals("connect")){
+            if(!i.getBooleanExtra("automatic",false))cancelAutomaticConnection();
             if(converting||receiver!=null)throw new IOException("Finish or cancel the current transfer first");
             lastDraft="";syncTarget="";
             stopScan();ble.close();abortTransfer();resetSync();deferSync=i.getBooleanExtra("defer_sync",false);operation++;pending="";authorized=false;connected=false;recordState=-1;recordName="";firmware="";capacity="";battery="Not received";dirs.clear();files.clear();directory="";
@@ -95,7 +101,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             if(!BluetoothAdapter.checkBluetoothAddress(address))throw new IOException("Invalid Bluetooth address");
             if(store.deviceKey(address).isEmpty())throw new IOException("Save a device key before connecting");
             if(adapter==null||!adapter.isEnabled())throw new IOException("Turn on Bluetooth");
-            begin("connect","Connecting to "+deviceName,27000);log("Connecting recorder");ble.connect(adapter.getRemoteDevice(address));handler.postDelayed(()->{if(deferSync){deferSync=false;if(authorized&&recordState==0&&pending.isEmpty())try{startSync();}catch(Exception e){syncFailed(e.getMessage());}}},45000);publish();return;
+            begin("connect","Connecting automatically",27000);log("Connecting recorder");ble.connect(adapter.getRemoteDevice(address));handler.postDelayed(()->{if(deferSync){deferSync=false;if(authorized&&recordState==0&&pending.isEmpty())try{startSync();}catch(Exception e){syncFailed(e.getMessage());}}},45000);publish();return;
         }
         if(!authorized)throw new IOException("Connect and authorize the recorder first");
         if(action.equals("cancel")){
@@ -132,13 +138,52 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private void scan(boolean compatibility)throws Exception{
         if(connected||converting||!pending.isEmpty())throw new IOException("Disconnect the current device or wait for verification to finish");
         if(adapter==null)throw new IOException("Bluetooth is unavailable");if(!adapter.isEnabled())throw new IOException("Turn on Bluetooth first");
-        stopScan();found.clear();scanning=true;compatibilityScanning=compatibility;
-        message=compatibility?"Compatibility scan · 15 seconds":"Scanning · Keep the recorder available for connection";
+        stopScan();cancelAutomaticConnection();found.clear();autoDiscovery=true;preferredRecorder=store.recorderAddress();scanning=true;compatibilityScanning=compatibility;
+        message="Searching for your JWD recorder";
         if(compatibility){if(!adapter.startDiscovery()){scanning=false;compatibilityScanning=false;throw new IOException("Device discovery could not start. Try again.");}}
         else{scanner=adapter.getBluetoothLeScanner();if(scanner==null){scanning=false;throw new IOException("Bluetooth scanning is unavailable");}scanner.startScan(null,new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build(),scanCallback);}
-        handler.postDelayed(scanStop,15000);publish();
+        handler.postDelayed(scanStop,15000);handler.postDelayed(autoPick,4000);publish();
     }
-    private final Runnable scanStop=()->{stopScan();message=found.isEmpty()?"No recorder found. Wake the recorder and close other recorder apps, then try again.":"Scan complete. Verify the service before connecting.";publish();};
+    private final Runnable scanStop=()->{if(autoDiscovery)selectAutomaticRecorder();else{stopScan();publish();}};
+    private final Runnable autoPick=()->{if(scanning&&autoDiscovery&&!found.isEmpty())selectAutomaticRecorder();};
+    private void cancelAutomaticConnection(){autoDiscovery=false;autoProbing=false;autoQueue.clear();autoTried.clear();if(handler!=null)handler.removeCallbacks(autoPick);}
+    private void selectAutomaticRecorder(){
+        if(!autoDiscovery||autoProbing||!scanning)return;
+        stopScan();autoQueue.clear();
+        if(!preferredRecorder.isEmpty()){
+            if(!found.containsKey(preferredRecorder))try{found.put(preferredRecorder,new JSONObject().put("address",preferredRecorder).put("name",store.recorderName()).put("rssi",-200).put("gatt_status","unknown"));}catch(Exception ignored){}
+            autoQueue.add(preferredRecorder);
+        }else{
+            ArrayList<JSONObject> sorted=new ArrayList<>(found.values());
+            sorted.sort((a,b)->Integer.compare(b.optInt("rssi",-200),a.optInt("rssi",-200)));
+            for(JSONObject item:sorted)autoQueue.add(item.optString("address"));
+        }
+        nextAutomaticProbe();
+    }
+    private void nextAutomaticProbe(){
+        if(!autoDiscovery||destroyed)return;
+        while(!autoQueue.isEmpty()){
+            String id=autoQueue.removeFirst();if(!autoTried.add(id))continue;
+            JSONObject item=found.get(id);if(item==null)continue;
+            try{
+                handle(new Intent().setAction("probe").putExtra("address",id).putExtra("name",item.optString("name","JWD recorder")).putExtra("automatic",true));
+                autoProbing=true;return;
+            }catch(Exception e){autoProbing=false;}
+        }
+        autoDiscovery=false;
+        message=preferredRecorder.isEmpty()?"No JWD recorder found. Wake your recorder and try again.":"Your last recorder is unavailable. Wake it up and try again.";publish();
+    }
+    private void automaticProbeFinished(boolean matches){
+        if(!autoDiscovery||!autoProbing)return;
+        autoProbing=false;
+        if(!matches){nextAutomaticProbe();return;}
+        try{
+            // Persist before APP&SK, then reuse the same code after retries/restarts.
+            if(store.deviceKey(address).isEmpty())store.deviceKey(address,JwdProtocol.newKey());
+            autoDiscovery=false;autoQueue.clear();
+            handle(new Intent().setAction("connect").putExtra("address",address).putExtra("name",deviceName).putExtra("automatic",true));
+        }catch(Exception e){cancelAutomaticConnection();problem("The device code could not be saved. Try connecting again.");}
+    }
     private final ScanCallback scanCallback=new ScanCallback(){
         @Override public void onScanResult(int type,ScanResult result){handler.post(()->{
             if(!scanning||compatibilityScanning)return;try{
@@ -152,14 +197,16 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private void recordFound(BluetoothDevice d,String name,int rssi,boolean match,String source){try{
         JSONObject previous=found.get(d.getAddress());if(name==null)name=d.getName();if(name==null&&previous!=null)name=previous.optString("name",null);if(name==null)name="Unnamed Bluetooth device";
         // Scan responses may omit UUIDs present in an earlier advertisement. Keep that evidence.
-        match=match||previous!=null&&previous.optBoolean("jwd");boolean candidate=JwdProtocol.candidateName(name);
+        match=match||previous!=null&&previous.optBoolean("jwd");boolean candidate=JwdProtocol.candidateName(name)||d.getAddress().equals(store.recorderAddress());
+        if(!match&&!candidate)return;
         if(found.size()>=100&&previous==null){
             if(!match&&!candidate)return;String remove=null;for(Map.Entry<String,JSONObject> item:found.entrySet())if(!item.getValue().optBoolean("jwd")&&!item.getValue().optBoolean("name_match")){remove=item.getKey();break;}
             if(remove==null)return;found.remove(remove);
         }
         found.put(d.getAddress(),new JSONObject().put("name",name).put("address",d.getAddress()).put("rssi",rssi).put("jwd",match).put("name_match",candidate).put("scan_source",source).put("gatt_status",previous==null?"unknown":previous.optString("gatt_status","unknown")));publish();
+        if(autoDiscovery&&scanning&&d.getAddress().equals(preferredRecorder))handler.post(this::selectAutomaticRecorder);
     }catch(Exception ignored){}}
-    private void stopScan(){handler.removeCallbacks(scanStop);boolean cancelDiscovery=compatibilityScanning;scanning=false;compatibilityScanning=false;if(scanner!=null)try{scanner.stopScan(scanCallback);}catch(Exception ignored){}scanner=null;if(cancelDiscovery&&adapter!=null)try{adapter.cancelDiscovery();}catch(Exception ignored){}}
+    private void stopScan(){handler.removeCallbacks(scanStop);handler.removeCallbacks(autoPick);boolean cancelDiscovery=compatibilityScanning;scanning=false;compatibilityScanning=false;if(scanner!=null)try{scanner.stopScan(scanCallback);}catch(Exception ignored){}scanner=null;if(cancelDiscovery&&adapter!=null)try{adapter.cancelDiscovery();}catch(Exception ignored){}}
     @Override public void stage(String stage){
         connectionStage=stage;if(stage.equals("jwd_service_verified"))gattVerified=true;
         String label;
@@ -169,14 +216,14 @@ public final class JwdService extends Service implements JwdBle.Listener {
     @Override public void serviceChecked(boolean matches,String reason){
         done("probe");connected=false;authorized=false;recordState=-1;
         JSONObject item=found.get(address);if(item!=null)try{item.put("gatt_status",matches?"verified":"unsupported");}catch(JSONException ignored){}
-        message=reason;log(reason);publish();
+        message=reason;log(reason);publish();automaticProbeFinished(matches);
     }
     @Override public void ready(){
         connected=true;connectionStage="app_key_auth";try{begin("auth","Connected. Checking device key…",15000);ble.send("APP&SK&"+store.deviceKey(address));publish();}catch(Exception e){problem("The key could not be read. Enter the original key again.");ble.close();connected=false;publish();}
     }
     @Override public void closed(String reason){
         stopLive(false);
-        abortTransfer();syncFailed(reason);connected=false;authorized=false;recordState=-1;pending="";operation++;message=(pairingRequested?"Android requested a PIN. Cancel the prompt and export diagnostics. ":"")+reason;log(reason);publish();
+        abortTransfer();syncFailed(reason);connected=false;authorized=false;recordState=-1;pending="";operation++;if(autoProbing){autoProbing=false;nextAutomaticProbe();return;}message=(pairingRequested?"Android requested a PIN. Cancel the prompt and export diagnostics. ":"")+reason;log(reason);publish();
     }
     private void begin(String kind,String text,long timeout){
         pending=kind;message=text;long generation=++operation;
@@ -186,7 +233,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             String old=pending;pending="";message="Recorder did not confirm the action ("+old+"). Refresh device status or reconnect.";
             if(syncing)syncFailed(message);
             if(old.equals("auth")||old.equals("start")||old.equals("stop")||old.equals("probe")||old.equals("connect")){stopLive(false);ble.close();authorized=false;connected=false;recordState=-1;}
-            log(message);publish();
+            log(message);publish();if(old.equals("probe"))automaticProbeFinished(false);
         },timeout);
     }
     private void done(String kind){if(pending.equals(kind)){pending="";operation++;}}
@@ -203,8 +250,8 @@ public final class JwdService extends Service implements JwdBle.Listener {
         if(type.equals("SK")){
             if(p.length<3)return;
             if(p[2].equals("OK")&&pending.equals("auth")){
-                done("auth");authorized=true;store.rememberRecorder(address,deviceName);syncTarget=store.pendingDeviceRecord(address);log("Recorder authorized");ble.send("APP&T&"+new SimpleDateFormat("yyyyMMddHHmmss",Locale.ROOT).format(new Date()));refresh();
-            }else if(p[2].equals("ERR")){abortTransfer();ble.close();connected=false;authorized=false;pending="";operation++;message="Device key not accepted. Enter the original 16-character key, or check Recorder help before resetting the device.";log(message);}
+                done("auth");authorized=true;if(found.containsKey(address))found.get(address).put("key_rejected",false);store.rememberRecorder(address,deviceName);syncTarget=store.pendingDeviceRecord(address);log("Recorder authorized");ble.send("APP&T&"+new SimpleDateFormat("yyyyMMddHHmmss",Locale.ROOT).format(new Date()));refresh();
+            }else if(p[2].equals("ERR")){abortTransfer();ble.close();connected=false;authorized=false;pending="";operation++;if(found.containsKey(address))found.get(address).put("key_rejected",true);cancelAutomaticConnection();message="Device key was rejected. Use the original key; the recorder was not reset.";log(message);}
             publish();return;
         }
         if(!authorized)return;
@@ -347,7 +394,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     }
     private void publish(){
         if(destroyed)return;try{
-            JSONObject s=new JSONObject().put("message",message).put("connection_stage",connectionStage).put("jwd_service_verified",gattVerified).put("system_pairing_requested",pairingRequested).put("system_pairing_variant",pairingVariant).put("system_pairing_stage",pairingStage).put("scanning",scanning).put("compatibility_scan",compatibilityScanning).put("connected",connected).put("authorized",authorized).put("name",deviceName).put("address",address).put("battery",battery).put("firmware",firmware).put("capacity",capacity).put("record_state",recordState).put("record_name",recordName).put("record_start",recordStart).put("directory",directory).put("pending",pending).put("converting",converting).put("last_draft",lastDraft).put("busy",converting||receiver!=null||!pending.isEmpty()).put("receiving",receiver!=null||pending.equals("download")).put("received",receiver==null?0:receiver.received()).put("expected",receiver==null?0:receiver.expected).put("devices",new JSONArray(found.values())).put("dirs",new JSONArray(dirs)).put("files",new JSONArray(files)).put("log",new JSONArray(logs));
+            JSONObject s=new JSONObject().put("message",message).put("connection_stage",connectionStage).put("jwd_service_verified",gattVerified).put("system_pairing_requested",pairingRequested).put("system_pairing_variant",pairingVariant).put("system_pairing_stage",pairingStage).put("scanning",scanning).put("compatibility_scan",compatibilityScanning).put("connected",connected).put("authorized",authorized).put("name",deviceName).put("address",address).put("battery",battery).put("firmware",firmware).put("capacity",capacity).put("record_state",recordState).put("record_name",recordName).put("record_start",recordStart).put("directory",directory).put("pending",pending).put("converting",converting).put("last_draft",lastDraft).put("busy",converting||receiver!=null||!pending.isEmpty()).put("receiving",receiver!=null||pending.equals("download")).put("received",receiver==null?0:receiver.received()).put("expected",receiver==null?0:receiver.expected).put("devices",verifiedDevices()).put("dirs",new JSONArray(dirs)).put("files",new JSONArray(files)).put("log",new JSONArray(logs));
             s.put("syncing",syncing).put("sync_target",syncTarget).put("sync_error",syncError).put("busy",syncing||converting||receiver!=null||!pending.isEmpty());
             long now=SystemClock.elapsedRealtime();
             long elapsed=recordState>0?Math.max(0,(recordState==2?recordPausedAt:now)-recordStart-recordPausedTotal)
@@ -355,6 +402,9 @@ public final class JwdService extends Service implements JwdBle.Listener {
             s.put("elapsed_ms",elapsed).put("elapsed_at",now);
             snapshot=s.toString();if(now-lastPublish>500){((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(13,notification(message));}lastPublish=now;
         }catch(Exception ignored){}
+    }
+    private JSONArray verifiedDevices(){
+        JSONArray result=new JSONArray();for(JSONObject item:found.values())if(item.optString("gatt_status").equals("verified"))result.put(item);return result;
     }
     @Override public void onDestroy(){
         try{unregisterReceiver(pairingReceiver);}catch(IllegalArgumentException ignored){}

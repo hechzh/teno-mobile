@@ -1,0 +1,7 @@
+"NSMicrophoneUsageDescription" = "Record audio or a voice question and save a local copy first.";
+"NSBluetoothAlwaysUsageDescription" = "Connect your JWD recorder automatically, control recording, and sync complete audio files.";
+"NSCameraUsageDescription" = "Add a photo to your recording notes.";
+"NSPhotoLibraryUsageDescription" = "Import selected photos into your private library.";
+"NSCalendarsUsageDescription" = "Read calendar events you choose to link with recordings.";
+"NSCalendarsFullAccessUsageDescription" = "Read calendar events you choose to link with recordings.";
+"NSFaceIDUsageDescription" = "Unlock Teno or view your recorder's private device code.";

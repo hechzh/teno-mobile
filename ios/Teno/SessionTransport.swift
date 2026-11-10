@@ -4,7 +4,8 @@ import Foundation
 @MainActor final class SessionTransport {
     let store: NativeStore
     private var refreshTask: Task<Void, Error>?
-    init(_ store: NativeStore) { self.store = store }
+    private let session: URLSession
+    init(_ store: NativeStore, session: URLSession = .shared) { self.store = store; self.session = session }
     static func validateBase(_ value: String) throws -> String {
         guard let url = URLComponents(string: value.trimmingCharacters(in: .whitespacesAndNewlines)),
               let host = url.host, url.user == nil, url.password == nil, url.query == nil, url.fragment == nil,
@@ -33,7 +34,7 @@ import Foundation
         if (200..<300).contains(http.statusCode) { return }
         let body = (try? jsonObject(data)) ?? [:]
         throw RuntimeFailure(string(body["code"]).isEmpty ? "HTTP_" + String(http.statusCode) : string(body["code"]),
-            http.statusCode == 401 ? "Your session expired. Sign in again." :
+            http.statusCode == 401 && string(body["code"]) != "INVALID_CREDENTIALS" ? "Your session expired. Sign in again." :
                 string(body["message"]).isEmpty ? "Request failed (" + String(http.statusCode) + ")." : string(body["message"]))
     }
     func refresh(after oldToken: String) async throws {
@@ -46,7 +47,7 @@ import Foundation
             var request = try self.makeRequest("POST", "/api/v1/auth/refresh", token: "")
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try jsonData(["refresh_token": refreshToken])
-            let (bytes, response) = try await URLSession.shared.data(for: request)
+            let (bytes, response) = try await session.data(for: request)
             try self.validate(response, data: bytes)
             guard owner == self.store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.") }
             try self.store.saveTokens(jsonObject(bytes))
@@ -61,7 +62,7 @@ import Foundation
             let old = authenticated ? try store.token("access_token") : ""
             var request = try makeRequest(method, path, token: old)
             if let body { request.httpBody = try jsonData(body); request.setValue("application/json", forHTTPHeaderField: "Content-Type") }
-            let (bytes, response) = try await URLSession.shared.data(for: request)
+            let (bytes, response) = try await session.data(for: request)
             if (response as? HTTPURLResponse)?.statusCode == 401 && authenticated && attempt == 0 {
                 try await refresh(after: old); continue
             }
@@ -77,7 +78,11 @@ import Foundation
     func login(server: String, username: String, password: String) async throws {
         store.base = try Self.validateBase(server)
         do {
-            let tokens = try await json("POST", "/api/v1/auth/login", body: ["username": username, "password": password], authenticated: false)
+            let tokens: JSONObject
+            do { tokens = try await json("POST", "/api/v1/auth/login", body: ["username": username, "password": password], authenticated: false) }
+            catch let error as RuntimeFailure where ["INVALID_CREDENTIALS", "HTTP_401", "UNAUTHORIZED"].contains(error.code) {
+                throw RuntimeFailure("INVALID_CREDENTIALS", "Invalid username or password. Check your Teno account and try again.")
+            }
             try store.saveTokens(tokens)
             let me = try await json("GET", "/api/v1/me")
             store.identity(username, string(me["id"]))
@@ -90,12 +95,31 @@ import Foundation
             }
         } catch { try? store.logout(); throw error }
     }
+    /// Small user-initiated voice/calendar requests; large imports use file-backed background uploads.
+    func uploadSmall(_ path: String, file: URL, filename: String) async throws -> JSONObject {
+        let size = try file.resourceValues(forKeys:[.fileSizeKey]).fileSize ?? 0
+        guard size > 0 && size <= 2_000_000 else { throw RuntimeFailure("UPLOAD_LIMIT", "This file exceeds the upload limit.") }
+        let owner = store.scope, boundary = "Teno-" + UUID().uuidString
+        let safe = filename.replacingOccurrences(of:"\"",with:"_").replacingOccurrences(of:"\r",with:"_").replacingOccurrences(of:"\n",with:"_")
+        var payload = Data("--\(boundary)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(safe)\"\r\nContent-Type: application/octet-stream\r\n\r\n".utf8)
+        payload.append(try Data(contentsOf:file)); payload.append(Data("\r\n--\(boundary)--\r\n".utf8))
+        for attempt in 0..<2 {
+            let old = try store.token("access_token"); var request = try makeRequest("POST",path,token:old)
+            request.setValue("multipart/form-data; boundary=" + boundary,forHTTPHeaderField:"Content-Type"); request.httpBody = payload
+            let (bytes,response) = try await session.data(for:request)
+            if (response as? HTTPURLResponse)?.statusCode == 401 && attempt == 0 { try await refresh(after:old); continue }
+            try validate(response,data:bytes)
+            guard owner == store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.") }
+            return try jsonObject(bytes)
+        }
+        throw RuntimeFailure("UNAUTHORIZED", "Sign in again.")
+    }
     func download(_ path: String, destination: URL) async throws {
         let owner = store.scope
         for attempt in 0..<2 {
             let old = try store.token("access_token")
             let request = try makeRequest("GET", path, token: old)
-            let (temporary, response) = try await URLSession.shared.download(for: request)
+            let (temporary, response) = try await session.download(for: request)
             if (response as? HTTPURLResponse)?.statusCode == 401 && attempt == 0 { try await refresh(after: old); continue }
             try validate(response, data: Data())
             guard owner == store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.") }

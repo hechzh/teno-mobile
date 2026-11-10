@@ -752,6 +752,21 @@ final class UiLocaleLabels {
       case "Upload result was incomplete. Retry safely.": return R.string.ui_labelc691c2b42bd2;
       case "Upload or request stopped. Retry when ready.": return R.string.ui_label6122f155474f;
       case "Connection interrupted. Check your internet connection and retry.": return R.string.ui_label8c7103817ec7;
+      case "Invalid username or password. Check your Teno account and try again.": return R.string.ui_logininvalidcredentials;
+      case "Connecting your JWD recorder": return R.string.ui_autojwdheading;
+      case "Searching, verifying and connecting automatically.": return R.string.ui_autojwdprogress;
+      case "Cancel connection": return R.string.ui_autojwdcancel;
+      case "Retry connection": return R.string.ui_autojwdretry;
+      case "Restore original device code": return R.string.ui_autojwdrestore;
+      case "Searching for your JWD recorder": return R.string.ui_autojwdsearching;
+      case "Verifying recorder protocol": return R.string.ui_autojwdverifying;
+      case "Connecting automatically": return R.string.ui_autojwdconnecting;
+      case "No JWD recorder found. Wake your recorder and try again.": return R.string.ui_autojwdnodevice;
+      case "Your last recorder is unavailable. Wake it up and try again.": return R.string.ui_autojwdlastmissing;
+      case "Device key was rejected. Use the original key; the recorder was not reset.": return R.string.ui_autojwdkeyrejected;
+      case "The device code could not be saved. Try connecting again.": return R.string.ui_autojwdsavecode;
+      case "Authorizing recorder": return R.string.ui_autojwdauth;
+      case "The recorder channels do not match the JWD protocol.": return R.string.ui_autojwdchannels;
       default: return 0;
     }
   }

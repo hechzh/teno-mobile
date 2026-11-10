@@ -856,5 +856,23 @@ String lookupUiMessage(AppLocalizations l, String source) => switch (source) {
     l.label8c7103817ec7,
   "Invalid username or password. Check your Teno account and try again." =>
     l.loginInvalidCredentials,
+  "Connecting your JWD recorder" => l.autoJwdHeading,
+  "Searching, verifying and connecting automatically." => l.autoJwdProgress,
+  "Cancel connection" => l.autoJwdCancel,
+  "Retry connection" => l.autoJwdRetry,
+  "Restore original device code" => l.autoJwdRestore,
+  "Searching for your JWD recorder" => l.autoJwdSearching,
+  "Verifying recorder protocol" => l.autoJwdVerifying,
+  "Connecting automatically" => l.autoJwdConnecting,
+  "No JWD recorder found. Wake your recorder and try again." =>
+    l.autoJwdNoDevice,
+  "Your last recorder is unavailable. Wake it up and try again." =>
+    l.autoJwdLastMissing,
+  "Device key was rejected. Use the original key; the recorder was not reset." =>
+    l.autoJwdKeyRejected,
+  "The device code could not be saved. Try connecting again." =>
+    l.autoJwdSaveCode,
+  "Authorizing recorder" => l.autoJwdAuth,
+  "The recorder channels do not match the JWD protocol." => l.autoJwdChannels,
   _ => source,
 };

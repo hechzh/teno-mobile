@@ -19,7 +19,7 @@ class JwdHost extends personal.CoreHost {
     String id,
     String name,
   ) async {
-    if (denyProbe && action == DeviceAction.probe)
+    if (denyProbe && action == DeviceAction.scan)
       throw StateError('Nearby devices permission denied');
     await super.controlDevice(action, id, name);
   }
@@ -54,7 +54,7 @@ Future<void> openDevice(WidgetTester tester, JwdHost host) async {
   final model = personal.coreModel(host)..changed(host.state);
   await tester.pumpWidget(TenoApp(model: model, initialize: false));
   await tester.tap(find.byTooltip('Start recording'));
-  await tester.pumpAndSettle();
+  await tester.pump(const Duration(milliseconds: 500));
 }
 
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
@@ -85,123 +85,81 @@ void main() {
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
-  testWidgets(
-    'entry scans automatically and ranks recorder matches above unrelated Bluetooth devices',
-    (tester) async {
-      final host = JwdHost();
-      await openDevice(tester, host);
-      expect(host.calls.where((call) => call == 'device:scan').length, 1);
-      expect(find.text('Unrelated headphones'), findsNothing);
-      expect(find.text('Unsupported recorder'), findsNothing);
-      expect(find.text('Saved recorder'), findsOneWidget);
-      await tester.scrollUntilVisible(
-        find.text('HQ-10_P_FIXTURE'),
-        180,
-        scrollable: find
-            .descendant(
-              of: find.byType(DevicePage),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
-      expect(find.text('HQ-10_P_FIXTURE'), findsOneWidget);
-      await tapVisible(tester, find.text('Other Bluetooth devices (2)'));
-      expect(find.text('Unrelated headphones'), findsOneWidget);
-      expect(find.text('Unsupported recorder'), findsOneWidget);
-      expect(host.calls.where((call) => call == 'phone'), isEmpty);
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-  );
-
-  testWidgets(
-    'saved recorder connects with its existing key without a new binding dialog',
-    (tester) async {
-      final host = JwdHost();
-      await openDevice(tester, host);
-      await tapVisible(tester, find.text('Saved recorder'));
-      expect(host.calls, contains('device:connect'));
-      expect(host.calls, isNot(contains('device:probe')));
-      expect(host.calls.where((call) => call.startsWith('bind:')), isEmpty);
-      expect(find.text('New unbound recorder'), findsNothing);
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-  );
-
-  testWidgets('one tap verifies a new recorder before offering binding', (
+  testWidgets('entry starts automatic connection with no device choices', (
+    tester,
+  ) async {
+    final host = JwdHost();
+    await openDevice(tester, host);
+    expect(host.calls.where((call) => call == 'device:scan').length, 1);
+    for (final row in candidates) {
+      expect(find.text(row['name'] as String), findsNothing);
+    }
+    expect(find.textContaining('Other Bluetooth'), findsNothing);
+    expect(find.text('Compatibility scan'), findsNothing);
+    expect(find.text('Retry connection'), findsOneWidget);
+    expect(host.calls, isNot(contains('device:start')));
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  testWidgets('retry restarts automatic discovery without a selection page', (
+    tester,
+  ) async {
+    final host = JwdHost();
+    await openDevice(tester, host);
+    await tapVisible(tester, find.text('Retry connection'));
+    expect(host.calls.where((call) => call == 'device:scan').length, 2);
+    expect(host.calls.where((call) => call.startsWith('bind:')), isEmpty);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  testWidgets('leaving automatic verification cancels late connections', (
+    tester,
+  ) async {
+    final host = JwdHost();
+    await openDevice(tester, host);
+    final page = find.byType(DevicePage),
+        model = tester.widget<DevicePage>(find.byType(DevicePage)).model;
+    final state = reviewState(sequence: 2);
+    state.device.busy = true;
+    state.device.status = 'Verifying recorder protocol';
+    model.changed(state);
+    await tester.pump(const Duration(milliseconds: 300));
+    Navigator.of(tester.element(page)).pop();
+    await tester.pumpAndSettle();
+    expect(host.calls, contains('device:disconnect'));
+    expect(host.calls, isNot(contains('device:start')));
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  testWidgets('rejected code offers only original-code recovery', (
     tester,
   ) async {
     final host = JwdHost();
     await openDevice(tester, host);
     final model = tester.widget<DevicePage>(find.byType(DevicePage)).model;
-    await tapVisible(tester, find.text('HQ-10_P_FIXTURE'));
-    expect(host.calls, contains('device:probe'));
+    final state = reviewState(sequence: 2);
+    state.device.identifier = 'hq';
+    state.device.candidatesJson = jsonEncode([
+      {'address': 'hq', 'gatt_status': 'verified', 'key_rejected': true},
+    ]);
+    model.changed(state);
+    await tester.pumpAndSettle();
+    await tapVisible(tester, find.text('Restore original device code'));
     expect(find.text('New unbound recorder'), findsNothing);
-    final state = reviewState(sequence: 2);
-    state.device.candidatesJson = jsonEncode([
-      {...candidates[1], 'gatt_status': 'verified'},
-    ]);
-    model.changed(state);
+    await tester.enterText(find.byType(TextField), 'FixtureCode12345');
+    await tester.tap(find.text('Use original key'));
     await tester.pumpAndSettle();
-    expect(find.text('Connect your recorder'), findsOneWidget);
-    await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
-    expect(host.calls.where((call) => call.startsWith('bind:')), isEmpty);
-    expect(host.calls, isNot(contains('device:start')));
+    expect(host.calls, contains('bind:false'));
+    expect(host.calls, isNot(contains('bind:true')));
     await tester.pumpWidget(const SizedBox.shrink());
   });
-
-  testWidgets('leaving discovery cancels the pending connection flow', (
-    tester,
-  ) async {
-    final host = JwdHost();
-    await openDevice(tester, host);
-    final page = find.byType(DevicePage);
-    final model = tester.widget<DevicePage>(page).model;
-    await tapVisible(tester, find.text('HQ-10_P_FIXTURE'));
-    Navigator.of(tester.element(page)).pop();
-    await tester.pumpAndSettle();
-    final state = reviewState(sequence: 2);
-    state.device.candidatesJson = jsonEncode([
-      {...candidates[1], 'gatt_status': 'verified'},
-    ]);
-    model.changed(state);
-    await tester.pumpAndSettle();
-    expect(find.text('Connect your recorder'), findsNothing);
-    expect(host.calls.where((call) => call.startsWith('bind:')), isEmpty);
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
-
   testWidgets(
-    'failed service verification does not offer binding or start a recording',
-    (tester) async {
-      final host = JwdHost();
-      await openDevice(tester, host);
-      final model = tester.widget<DevicePage>(find.byType(DevicePage)).model;
-      await tapVisible(tester, find.text('HQ-10_P_FIXTURE'));
-      final state = reviewState(sequence: 2);
-      state.device.candidatesJson = jsonEncode([
-        {...candidates[1], 'gatt_status': 'unsupported'},
-      ]);
-      model.changed(state);
-      await tester.pumpAndSettle();
-      expect(find.text('Connect your recorder'), findsNothing);
-      expect(host.calls, isNot(contains('device:connect')));
-      expect(host.calls, isNot(contains('device:start')));
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-  );
-
-  testWidgets(
-    'permission failure releases the pending connection immediately',
+    'scan permission failure can retry without binding or recording',
     (tester) async {
       final host = JwdHost()..denyProbe = true;
       await openDevice(tester, host);
-      await tapVisible(tester, find.text('HQ-10_P_FIXTURE'));
-      expect(find.text('Checking recording service…'), findsNothing);
       expect(
         find.textContaining('Nearby devices permission denied'),
         findsOneWidget,
       );
+      expect(find.text('Retry connection'), findsOneWidget);
       expect(host.calls.where((call) => call.startsWith('bind:')), isEmpty);
       await tester.pumpWidget(const SizedBox.shrink());
     },
@@ -277,7 +235,7 @@ void main() {
       addTearDown(() => debugDisableShadows = true);
       final boundary = GlobalKey();
       Future<void> capture(String name) async {
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 500));
         expect(tester.takeException(), isNull);
         final directory = Platform.environment['TENO_PERSONAL_SCREENSHOTS'];
         if (directory == null) return;
@@ -308,29 +266,25 @@ void main() {
       await tester.tap(find.byTooltip('Start recording'));
       await tester.pumpAndSettle();
 
-      await tester.scrollUntilVisible(
-        find.text('HQ-10_P_FIXTURE'),
-        180,
-        scrollable: find
-            .descendant(
-              of: find.byType(DevicePage),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
+      final scanning = reviewState(sequence: 2);
+      scanning.device.scanning = true;
+      scanning.device.status = 'Searching for your JWD recorder';
+      model.changed(scanning);
       await capture('90-jwd-matches');
-      await tapVisible(tester, find.text('Other Bluetooth devices (2)'));
-      await tapVisible(tester, find.text('HQ-10_P_FIXTURE'));
+      scanning.device.scanning = false;
+      scanning.device.busy = true;
+      scanning.device.status = 'Verifying recorder protocol';
+      model.changed(scanning);
       await capture('91-jwd-verifying');
-      final verified = reviewState(sequence: 2);
-      verified.device.identifier = '';
-      verified.device.candidatesJson = jsonEncode([
-        {...candidates[1], 'gatt_status': 'verified'},
+      scanning.device.busy = false;
+      scanning.device.identifier = 'hq';
+      scanning.device.status =
+          'Device key was rejected. Use the original key; the recorder was not reset.';
+      scanning.device.candidatesJson = jsonEncode([
+        {'address': 'hq', 'gatt_status': 'verified', 'key_rejected': true},
       ]);
-      model.changed(verified);
+      model.changed(scanning);
       await capture('92-jwd-binding');
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
       final recording = reviewState(
         sequence: 3,
         phase: 'recording',

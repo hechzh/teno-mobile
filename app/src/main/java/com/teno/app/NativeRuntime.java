@@ -26,7 +26,7 @@ final class NativeRuntime implements RuntimeHost {
     private final RuntimeEvents events;
     private boolean closed,visible;
     private volatile boolean phoneStarting;
-    private long sequence;
+    private long sequence,deviceRequestGeneration;
     private String route="",lastSource="phone",pendingPhoneId="";
     NativeRuntime(MainActivity activity,BinaryMessenger messenger){
         this.activity=activity;this.messenger=messenger;store=new Store(activity);api=new Api(store);
@@ -178,7 +178,9 @@ final class NativeRuntime implements RuntimeHost {
             .putExtra("name",name).putExtra("live",session().getSignedIn()&&store.liveDefault()));
     }
     @Override public void controlDevice(DeviceAction action,String id,String name,VoidResult result){
-        activity.permissions(bluetoothPermissions(),()->ui(result,()->sendDevice(action,id,name)),e->result.error(failure(e)));
+        long generation=++deviceRequestGeneration;
+        if(action==DeviceAction.DISCONNECT){ui(result,()->sendDevice(action,id,name));return;}
+        activity.permissions(bluetoothPermissions(),()->ui(result,()->{if(generation==deviceRequestGeneration)sendDevice(action,id,name);}),e->result.error(failure(e)));
     }
     @Override public void bindDevice(String id,String name,String key,Boolean createNew,VoidResult result){
         work(new Result<Boolean>(){public void error(Throwable e){result.error(e);}public void success(Boolean value){ui(result,()->sendDevice(DeviceAction.CONNECT,id,name));}},()->{

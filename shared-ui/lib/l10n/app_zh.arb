@@ -811,5 +811,19 @@
   "labelc691c2b42bd2": "上传结果不完整，请重试。",
   "label6122f155474f": "上传或请求已停止，可稍后重试。",
   "label8c7103817ec7": "连接已中断，请检查网络后重试。",
-  "loginInvalidCredentials": "用户名或密码不正确，请检查 Teno 账号后重试。"
+  "loginInvalidCredentials": "用户名或密码不正确，请检查 Teno 账号后重试。",
+  "autoJwdHeading": "正在连接 JWD 录音器",
+  "autoJwdProgress": "正在自动查找、核验并连接设备。",
+  "autoJwdCancel": "取消连接",
+  "autoJwdRetry": "重试连接",
+  "autoJwdRestore": "恢复原设备码",
+  "autoJwdSearching": "正在查找你的 JWD 录音器",
+  "autoJwdVerifying": "正在核验录音器协议",
+  "autoJwdConnecting": "正在自动连接",
+  "autoJwdNoDevice": "未找到 JWD 录音器，请唤醒设备后重试。",
+  "autoJwdLastMissing": "上次连接的录音器暂不可用，请唤醒设备后重试。",
+  "autoJwdKeyRejected": "设备码未被接受，请使用原设备码。录音器未被重置。",
+  "autoJwdSaveCode": "无法保存设备码，请重新连接。",
+  "autoJwdAuth": "正在验证设备码",
+  "autoJwdChannels": "设备通道不符合 JWD 协议。"
 }

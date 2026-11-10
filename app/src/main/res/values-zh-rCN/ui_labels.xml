@@ -750,4 +750,19 @@
   <string name="ui_labelc691c2b42bd2" formatted="false">上传结果不完整，请重试。</string>
   <string name="ui_label6122f155474f" formatted="false">上传或请求已停止，可稍后重试。</string>
   <string name="ui_label8c7103817ec7" formatted="false">连接已中断，请检查网络后重试。</string>
+  <string name="ui_logininvalidcredentials" formatted="false">用户名或密码不正确，请检查 Teno 账号后重试。</string>
+  <string name="ui_autojwdheading" formatted="false">正在连接 JWD 录音器</string>
+  <string name="ui_autojwdprogress" formatted="false">正在自动查找、核验并连接设备。</string>
+  <string name="ui_autojwdcancel" formatted="false">取消连接</string>
+  <string name="ui_autojwdretry" formatted="false">重试连接</string>
+  <string name="ui_autojwdrestore" formatted="false">恢复原设备码</string>
+  <string name="ui_autojwdsearching" formatted="false">正在查找你的 JWD 录音器</string>
+  <string name="ui_autojwdverifying" formatted="false">正在核验录音器协议</string>
+  <string name="ui_autojwdconnecting" formatted="false">正在自动连接</string>
+  <string name="ui_autojwdnodevice" formatted="false">未找到 JWD 录音器，请唤醒设备后重试。</string>
+  <string name="ui_autojwdlastmissing" formatted="false">上次连接的录音器暂不可用，请唤醒设备后重试。</string>
+  <string name="ui_autojwdkeyrejected" formatted="false">设备码未被接受，请使用原设备码。录音器未被重置。</string>
+  <string name="ui_autojwdsavecode" formatted="false">无法保存设备码，请重新连接。</string>
+  <string name="ui_autojwdauth" formatted="false">正在验证设备码</string>
+  <string name="ui_autojwdchannels" formatted="false">设备通道不符合 JWD 协议。</string>
 </resources>

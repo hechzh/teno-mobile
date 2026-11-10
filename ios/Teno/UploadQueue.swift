@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import Network
+import UserNotifications
 
 /// Background URLSession owns transfers. Draft JSON is the durable source of truth.
 @MainActor final class UploadQueue: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
@@ -52,7 +53,7 @@ import Network
     }
     func enqueue(_ id: String, automatic: Bool) throws {
         var draft = try store.draft(id)
-        guard string(draft["recording_id"]).isEmpty else { return }
+        guard !Self.remote(draft) else { return }
         guard !["recording", "invalid"].contains(string(draft["status"])),
               FileManager.default.fileExists(atPath: string(draft["path"])) else {
             throw RuntimeFailure("INVALID_AUDIO", "No complete audio is available to upload.")
@@ -63,8 +64,9 @@ import Network
         draft.removeValue(forKey: "error"); try store.save(draft); resume()
     }
     private func requested(_ draft: JSONObject) -> Bool {
-        draft["upload_requested"] as? Bool == true && string(draft["recording_id"]).isEmpty &&
-            (draft["upload_automatic"] as? Bool != true || store.cloudUpload)
+        draft["upload_requested"] as? Bool == true && !Self.remote(draft) &&
+            (draft["upload_automatic"] as? Bool != true || store.cloudUpload) &&
+            (string(draft["parent_local_id"]).isEmpty || !parentRecording(draft).isEmpty)
     }
     func resume() {
         guard restored, !paused, !pumping, activeId.isEmpty, store.state().signedIn, hasNetwork,
@@ -89,8 +91,9 @@ import Network
                 let old = try store.token("access_token")
                 try await api.refresh(after: old)
                 guard owner == store.scope, attemptGeneration == generation, !paused else { return }
-                let payload = try multipart(next)
-                var request = try api.makeRequest("POST", "/api/v1/recordings")
+                guard let current = try? store.draft(id), requested(current) else { return }
+                let payload = try multipart(current)
+                var request = try api.makeRequest("POST", string(next["kind"]) == "file" ? "/api/v1/files" : "/api/v1/recordings")
                 request.setValue("multipart/form-data; boundary=" + payload.boundary, forHTTPHeaderField: "Content-Type")
                 request.allowsCellularAccess = !store.wifiOnly
                 request.allowsExpensiveNetworkAccess = !store.wifiOnly
@@ -103,6 +106,70 @@ import Network
             } catch {
                 if attemptGeneration == generation, !paused { failed(id, owner: owner, message: error.localizedDescription, retryable: true) }
             }
+        }
+    }
+    static func remote(_ draft: JSONObject) -> Bool { !string(draft["recording_id"]).isEmpty || !string(draft["file_id"]).isEmpty }
+    func parentRecording(_ draft: JSONObject) -> String {
+        let remote = string(draft["recording_id_parent"]), parent = string(draft["parent_local_id"])
+        if !remote.isEmpty { return remote }
+        if parent.hasPrefix("jwd:") {
+            let parts = parent.dropFirst(4).split(separator:"|",maxSplits:1).map(String.init)
+            guard parts.count == 2 else { return "" }
+            return store.drafts().first { string($0["jwd_device"]) == parts[0] && string($0["jwd_file"]) == parts[1] }.map { string($0["recording_id"]) } ?? ""
+        }
+        return (try? store.draft(parent)).map { string($0["recording_id"]) } ?? ""
+    }
+    func fields(_ draft: JSONObject) -> [(String,String)] {
+        var values = [("client_id",string(draft["id"]))]
+        if string(draft["kind"]) == "file" {
+            let parent = parentRecording(draft)
+            if !parent.isEmpty { values.append(("recording_id",parent)) }
+            if let position = draft["at_ms"] as? NSNumber { values.append(("at_ms",position.stringValue)) }
+        } else {
+            values += [("title",string(draft["title"])),("language","auto"),("personal_mode","true"),("source",string(draft["source"]) == "import" ? "import" : string(draft["source"]) == "jwd_ble" ? "device" : "phone")]
+            if !string(draft["live_session_id"]).isEmpty { values.append(("live_session_id",string(draft["live_session_id"]))) }
+        }
+        return values
+    }
+    private func safeFilename(_ value: String) -> String {
+        value.replacingOccurrences(of:"\"",with:"_").replacingOccurrences(of:"\r",with:"_").replacingOccurrences(of:"\n",with:"_").replacingOccurrences(of:"/",with:"_").replacingOccurrences(of:"\\",with:"_")
+    }
+    func cancel(_ id: String) async {
+        guard var draft = try? store.draft(id), !Self.remote(draft) else { return }
+        draft["upload_requested"] = false; draft["status"] = "local"; draft.removeValue(forKey:"error"); try? store.save(draft)
+        for task in await session.allTasks where metadata(task).map({ string($0["scope"]) == store.scope && string($0["id"]) == id }) == true { task.cancel() }
+        if activeId == id { activeId = ""; status = "Local copy kept" }
+        resume()
+    }
+    func processingRetry(_ path: String, result: JSONObject) {
+        let recording = string(result["recording_id"])
+        let file = path.hasPrefix("/api/v1/files/") ? String(path.dropFirst("/api/v1/files/".count).dropLast("/retry".count)) : ""
+        for var draft in store.drafts() where (!recording.isEmpty && recording == string(draft["recording_id"])) || (!file.isEmpty && file == string(draft["file_id"])) {
+            draft["status"] = "processing"; draft["ready_notified"] = false; draft.removeValue(forKey:"error"); try? store.save(draft)
+        }
+    }
+    private var checkingProcessing = false
+    private var lastProcessingCheck = Date.distantPast
+    func pollProcessing() async {
+        guard !paused, !checkingProcessing, hasNetwork, store.state().signedIn, Date().timeIntervalSince(lastProcessingCheck) >= 15 else { return }
+        checkingProcessing = true; lastProcessingCheck = Date(); let owner = store.scope
+        defer { checkingProcessing = false }
+        for item in store.drafts() where Self.remote(item) && item["ready_notified"] as? Bool != true {
+            guard owner == store.scope, !paused else { return }
+            do {
+                let file = !string(item["file_id"]).isEmpty
+                let state = try await api.json("GET",file ? "/api/v1/files/" + string(item["file_id"]) : "/api/v1/personal/recordings/" + string(item["recording_id"]) + "/processing")
+                guard owner == store.scope, ["ready","failed"].contains(string(state["status"])), var draft = try? store.draft(string(item["id"])) else { continue }
+                let failed = string(state["status"]) == "failed"
+                draft["status"] = failed ? "processing_failed" : "ready"; draft["ready_notified"] = true
+                if failed { draft["error"] = string((state["error"] as? JSONObject)?["message"]) }
+                else { draft.removeValue(forKey:"error"); draft["processing_message"] = string(state["message"]) }
+                try store.save(draft)
+                if store.preferences.object(forKey:"personal." + owner + ".notifications") as? Bool != false {
+                    let content = UNMutableNotificationContent(); content.title = failed ? "Teno · Processing needs attention" : "Teno · Ready"; content.body = string(draft["title"])
+                    try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier:string(draft["id"]),content:content,trigger:nil))
+                }
+            } catch { /* A later foreground check retries without creating any generation jobs. */ }
         }
     }
     /// Called before credentials change; completion from old tasks can never write to a new scope.
@@ -125,11 +192,11 @@ import Network
             attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication])
         let out = try FileHandle(forWritingTo: file); defer { try? out.close() }
         func write(_ value: String) throws { try out.write(contentsOf: Data(value.utf8)) }
-        for (name,value) in [("client_id",string(draft["id"])),("title",string(draft["title"])),("language","auto")] {
+        for (name,value) in fields(draft) {
             try write("--\(boundary)\r\nContent-Disposition: form-data; name=\"\(name)\"\r\n\r\n\(value)\r\n")
         }
         let source = URL(fileURLWithPath: string(draft["path"]))
-        try write("--\(boundary)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"audio.\(source.pathExtension)\"\r\nContent-Type: application/octet-stream\r\n\r\n")
+        try write("--\(boundary)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(safeFilename(string(draft["filename"]).isEmpty ? string(draft["title"]) + "." + source.pathExtension : string(draft["filename"])))\"\r\nContent-Type: application/octet-stream\r\n\r\n")
         let input = try FileHandle(forReadingFrom: source); defer { try? input.close() }
         while let bytes = try input.read(upToCount: 256 * 1024), !bytes.isEmpty { try out.write(contentsOf: bytes) }
         try write("\r\n--\(boundary)--\r\n"); try out.synchronize()
@@ -140,7 +207,7 @@ import Network
         return try? jsonObject(bytes)
     }
     private func failed(_ id: String, owner: String, message: String, retryable: Bool) {
-        guard owner == store.scope, var draft = try? store.draft(id), string(draft["recording_id"]).isEmpty else { return }
+        guard owner == store.scope, var draft = try? store.draft(id), !Self.remote(draft) else { return }
         let attempts = draft["upload_attempts"] as? Int ?? 0
         let again = retryable && attempts < 3
         draft["upload_requested"] = again; draft["status"] = again ? "queued" : "failed"; draft["error"] = message
@@ -173,9 +240,10 @@ import Network
             guard let response = task.response else { throw RuntimeFailure("UPLOAD", "No upload response received.") }
             try api.validate(response, data: bytes)
             let result = try jsonObject(bytes)
-            guard !string(result["recording_id"]).isEmpty else { throw RuntimeFailure("UPLOAD", "Invalid upload response. Retry safely with the same recording ID.") }
             var draft = try store.draft(id)
-            draft["recording_id"] = result["recording_id"]; draft["job_id"] = string(result["job_id"])
+            let remoteKey = string(draft["kind"]) == "file" ? "file_id" : "recording_id"
+            guard !string(result[remoteKey]).isEmpty else { throw RuntimeFailure("UPLOAD", "Invalid upload response. Retry safely with the same file ID.") }
+            draft[remoteKey] = result[remoteKey]; draft["job_id"] = string(result["job_id"])
             draft["status"] = string(result["job_id"]).isEmpty ? "uploaded" : "processing"; draft["upload_requested"] = false
             try store.save(draft); status = "Processing recording · Local copy kept"
             Task { await uploadNotes(draft, owner: owner); resume() }
@@ -187,7 +255,7 @@ import Network
     }
     private func uploadNotes(_ draft: JSONObject, owner: String) async {
         let note = string(draft["notes"])
-        guard !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, owner == store.scope else { return }
+        guard !string(draft["recording_id"]).isEmpty, !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, owner == store.scope else { return }
         do {
             let boundary = "Teno-" + UUID().uuidString
             var request = try api.makeRequest("POST", "/api/v1/recordings/" + string(draft["recording_id"]) + "/attachments")

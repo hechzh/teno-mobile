@@ -21,7 +21,8 @@ struct RuntimeFailure: Error, LocalizedError {
 
 /// Keychain items stay on this device; no cloud keychain access group is required.
 final class KeyVault {
-    private let service = "com.teno.runtime"
+    private let service: String
+    init(service: String = "com.teno.runtime") { self.service = service }
     func data(_ name: String) throws -> Data? {
         let query: JSONObject = [kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service, kSecAttrAccount as String: name,
@@ -51,15 +52,16 @@ final class KeyVault {
 }
 
 @MainActor final class NativeStore {
-    let preferences = UserDefaults.standard
-    let vault = KeyVault()
+    let preferences: UserDefaults
+    let vault: KeyVault
     let root: URL
-    init() throws {
-        root = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    init(preferences: UserDefaults = .standard, root: URL? = nil, vault: KeyVault = KeyVault()) throws {
+        self.preferences = preferences; self.vault = vault
+        self.root = try root ?? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
             .appendingPathComponent("Teno", isDirectory: true)
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: self.root, withIntermediateDirectories: true)
         var noBackup = URLResourceValues(); noBackup.isExcludedFromBackup = true
-        var location = root; try location.setResourceValues(noBackup)
+        var location = self.root; try location.setResourceValues(noBackup)
     }
     var base: String {
         get { preferences.string(forKey: "server") ?? "https://54-214-180-183.sslip.io" }
@@ -67,7 +69,7 @@ final class KeyVault {
     }
     var scope: String { preferences.string(forKey: "scope") ?? "" }
     var username: String { preferences.string(forKey: "username") ?? "" }
-    var cloudUpload: Bool { preferences.bool(forKey: "auto_upload." + scope) }
+    var cloudUpload: Bool { preferences.object(forKey: "auto_upload." + scope) as? Bool ?? true }
     var wifiOnly: Bool { preferences.bool(forKey: "wifi_upload." + scope) }
     var livePreview: Bool { preferences.object(forKey: "live_default") as? Bool ?? true }
     var optionsSet: Bool { preferences.bool(forKey: "recording_options." + scope) }

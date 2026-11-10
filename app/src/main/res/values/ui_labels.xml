@@ -750,4 +750,19 @@
   <string name="ui_labelc691c2b42bd2" formatted="false">Upload result was incomplete. Retry safely.</string>
   <string name="ui_label6122f155474f" formatted="false">Upload or request stopped. Retry when ready.</string>
   <string name="ui_label8c7103817ec7" formatted="false">Connection interrupted. Check your internet connection and retry.</string>
+  <string name="ui_logininvalidcredentials" formatted="false">Invalid username or password. Check your Teno account and try again.</string>
+  <string name="ui_autojwdheading" formatted="false">Connecting your JWD recorder</string>
+  <string name="ui_autojwdprogress" formatted="false">Searching, verifying and connecting automatically.</string>
+  <string name="ui_autojwdcancel" formatted="false">Cancel connection</string>
+  <string name="ui_autojwdretry" formatted="false">Retry connection</string>
+  <string name="ui_autojwdrestore" formatted="false">Restore original device code</string>
+  <string name="ui_autojwdsearching" formatted="false">Searching for your JWD recorder</string>
+  <string name="ui_autojwdverifying" formatted="false">Verifying recorder protocol</string>
+  <string name="ui_autojwdconnecting" formatted="false">Connecting automatically</string>
+  <string name="ui_autojwdnodevice" formatted="false">No JWD recorder found. Wake your recorder and try again.</string>
+  <string name="ui_autojwdlastmissing" formatted="false">Your last recorder is unavailable. Wake it up and try again.</string>
+  <string name="ui_autojwdkeyrejected" formatted="false">Device key was rejected. Use the original key; the recorder was not reset.</string>
+  <string name="ui_autojwdsavecode" formatted="false">The device code could not be saved. Try connecting again.</string>
+  <string name="ui_autojwdauth" formatted="false">Authorizing recorder</string>
+  <string name="ui_autojwdchannels" formatted="false">The recorder channels do not match the JWD protocol.</string>
 </resources>

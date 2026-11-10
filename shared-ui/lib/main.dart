@@ -6,7 +6,6 @@ import 'features/home.dart';
 import 'features/login.dart';
 import 'features/personal_home.dart';
 import 'ui/personal_widgets.dart';
-import 'package:flutter/foundation.dart';
 import 'l10n/ui_strings.dart';
 
 void main() {
@@ -44,11 +43,7 @@ class _TenoAppState extends State<TenoApp> {
           ? const Locale('zh')
           : const Locale('en'),
       debugShowCheckedModeBanner: false,
-      theme:
-          widget.model.personalCore ||
-              ((widget.model.webExperience ||
-                      defaultTargetPlatform == TargetPlatform.android) &&
-                  !widget.model.signedIn)
+      theme: widget.model.personalCore || !widget.model.signedIn
           ? personalTheme(false, webExperience: widget.model.webExperience)
           : tenoTheme(),
       darkTheme: personalTheme(true, webExperience: widget.model.webExperience),
@@ -73,9 +68,7 @@ class _TenoAppState extends State<TenoApp> {
               ),
             )
           : widget.model.signedIn
-          ? widget.model.personalCore &&
-                    (widget.model.webExperience ||
-                        defaultTargetPlatform == TargetPlatform.android)
+          ? widget.model.personalCore
                 ? PersonalHome(widget.model)
                 : HomePage(widget.model)
           : LoginPage(widget.model),
