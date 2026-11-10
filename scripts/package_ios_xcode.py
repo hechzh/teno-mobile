@@ -34,6 +34,11 @@ def prepare(frameworks: Path, output: Path) -> Path:
         # debug kernel. Pair the release device slice with the real Debug
         # simulator slice so this one portable project also runs in Simulator.
         target = folder / 'ios/Frameworks' / source.name
+        # This is a new mixed container, rather than the publisher's original
+        # XCFramework. Remove only the old container signature before changing
+        # its manifest; the unmodified framework slices retain their signatures.
+        if (target/'_CodeSignature').is_dir():
+            subprocess.run(['codesign','--remove-signature',str(target)],check=True)
         info = plistlib.loads((target/'Info.plist').read_bytes())
         debug = frameworks/'Debug'/source.name
         debug_info = plistlib.loads((debug/'Info.plist').read_bytes())
