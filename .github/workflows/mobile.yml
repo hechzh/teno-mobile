@@ -96,7 +96,8 @@ jobs:
           fi
           cd ..
           python3 scripts/package_ios_xcode.py --frameworks ios/build/frameworks
-          cp -R ios/build/handoff/Teno-iOS-0.7.1-Xcode /tmp/teno-xcode-relocated
+          python3 scripts/package_ios_xcode.py --archive ios/build/handoff/Teno-iOS-0.7.1-Xcode
+          python3 -m zipfile -e ios/build/handoff/Teno-iOS-0.7.1-Xcode.zip /tmp/teno-xcode-relocated
           python3 scripts/ci_metadata.py >> "$GITHUB_OUTPUT"
       - uses: actions/cache/save@v4
         if: steps.ios-framework-cache.outputs.cache-hit != 'true'
@@ -107,7 +108,7 @@ jobs:
         id: simulator
         run: |
           DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(v["udid"] for a in d["devices"].values() for v in a if v["name"].startswith("iPhone")))')
-          xcodebuild -project /tmp/teno-xcode-relocated/ios/Teno.xcodeproj -scheme Teno -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath ios/DerivedData -resultBundlePath ios/build/TestResults.xcresult CODE_SIGNING_ALLOWED=NO test > ios-build.log 2>&1 || { tail -200 ios-build.log; exit 1; }
+          FLUTTER_ROOT=/not-installed xcodebuild -project /tmp/teno-xcode-relocated/Teno-iOS-0.7.1-Xcode/ios/Teno.xcodeproj -scheme Teno -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath ios/DerivedData -resultBundlePath ios/build/TestResults.xcresult CODE_SIGNING_ALLOWED=NO test > ios-build.log 2>&1 || { tail -200 ios-build.log; exit 1; }
           mkdir -p ios/build/screenshots
           # XCTest can use a temporary clone and leave the selected device shut down.
           xcrun simctl boot "$DEVICE" || true
@@ -118,14 +119,13 @@ jobs:
       - name: Build unsigned iPhone IPA
         id: device
         run: |
-          xcodebuild -project /tmp/teno-xcode-relocated/ios/Teno.xcodeproj -scheme Teno -configuration Release -destination "generic/platform=iOS" -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO build > ios-release.log 2>&1 || { tail -200 ios-release.log; exit 1; }
+          FLUTTER_ROOT=/not-installed xcodebuild -project /tmp/teno-xcode-relocated/Teno-iOS-0.7.1-Xcode/ios/Teno.xcodeproj -scheme Teno -configuration Release -destination "generic/platform=iOS" -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO build > ios-release.log 2>&1 || { tail -200 ios-release.log; exit 1; }
           mkdir -p ios/build/Payload
           cp -R ios/DerivedData/Build/Products/Release-iphoneos/Teno.app ios/build/Payload/
           cd ios/build
           zip -qr Teno-0.7.1-unsigned.ipa Payload
       - name: Package verified Xcode source
         run: |
-          python3 scripts/package_ios_xcode.py --archive ios/build/handoff/Teno-iOS-0.7.1-Xcode
           python3 scripts/secret_audit.py --artifact ios/build/handoff/Teno-iOS-0.7.1-Xcode.zip
       - name: Scan unsigned IPA
         run: python3 scripts/secret_audit.py --artifact ios/build/Teno-0.7.1-unsigned.ipa

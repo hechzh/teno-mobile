@@ -1,0 +1,64 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "first_connection_probes_strongest_candidate",
+      "passed": true
+    },
+    {
+      "name": "name_and_rssi_do_not_generate_or_send_device_code",
+      "passed": true
+    },
+    {
+      "name": "unsupported_protocol_is_skipped_without_binding",
+      "passed": true
+    },
+    {
+      "name": "verified_device_gets_persisted_secure_code_before_connect",
+      "passed": true
+    },
+    {
+      "name": "authorization_reads_the_saved_code",
+      "passed": true
+    },
+    {
+      "name": "rejected_code_is_preserved_without_reset_or_fallthrough",
+      "passed": true
+    },
+    {
+      "name": "only_verified_device_state_reaches_shared_ui",
+      "passed": true
+    },
+    {
+      "name": "last_successful_device_has_priority_over_stronger_rssi",
+      "passed": true
+    },
+    {
+      "name": "reconnect_reuses_original_device_code",
+      "passed": true
+    },
+    {
+      "name": "cancel_fences_late_verified_callback",
+      "passed": true
+    },
+    {
+      "name": "automatic_connection_never_records_or_resets",
+      "passed": true
+    },
+    {
+      "name": "jwd_uuid_without_notification_descriptors_is_rejected",
+      "passed": true
+    },
+    {
+      "name": "complete_writable_and_notifiable_jwd_profile_is_verified",
+      "passed": true
+    },
+    {
+      "name": "unrelated_service_is_rejected",
+      "passed": true
+    }
+  ],
+  "process_arch": "aarch64",
+  "evidence": "Dedicated API 35 emulator; synthetic account and loopback backend. JWD vendor decoder uses ARM translation. No physical JWD, iPhone or Azure accuracy claims.",
+  "apk_sha256": "6a854602dcc47c47509ef65b4f3dd31e362840d89fb96f25856b9dad8396056d"
+}
