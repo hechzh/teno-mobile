@@ -23,6 +23,9 @@ import QuickLook
     private var exportDirectory: URL {
         store.root.appendingPathComponent("exports", isDirectory: true).appendingPathComponent(store.scope.isEmpty ? "signed-out" : store.scope, isDirectory: true)
     }
+    private var cacheDirectories: [URL] {
+        [exportDirectory,store.root.appendingPathComponent("playback",isDirectory:true).appendingPathComponent(store.scope,isDirectory:true)]
+    }
     func command(_ command: String, _ args: JSONObject) async throws -> JSONObject {
         if command == "interface_locale" {
             if let locale = args["locale"] as? String {
@@ -50,10 +53,10 @@ import QuickLook
             values = Array(values.prefix(10)); store.preferences.set(values,forKey:key("history")); return ["items":values]
         case "storage":
             let bytes = store.drafts().reduce(Int64(0)) { $0 + fileSize(URL(fileURLWithPath:string($1["path"]))) }
-            return ["local_bytes":bytes,"cache_bytes":directorySize(exportDirectory)]
+            return ["local_bytes":bytes,"cache_bytes":cacheDirectories.reduce(Int64(0)) { $0 + directorySize($1) }]
         case "clear_cache":
-            runtime.media.stop(); let bytes = directorySize(exportDirectory)
-            if FileManager.default.fileExists(atPath:exportDirectory.path) { try FileManager.default.removeItem(at:exportDirectory) }
+            runtime.media.stop(); let bytes = cacheDirectories.reduce(Int64(0)) { $0 + directorySize($1) }
+            for folder in cacheDirectories where FileManager.default.fileExists(atPath:folder.path) { try FileManager.default.removeItem(at:folder) }
             return ["bytes":bytes]
         case "notifications":
             let enabled = args["enabled"] as? Bool ?? false

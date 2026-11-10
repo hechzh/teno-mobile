@@ -134,6 +134,7 @@ jobs:
             ios-build.log
             ios-release.log
             ios-tests.log
+            ios-simulator-signing.log
             ios-boot.log
             ios-launch.log
             ios-capture.log

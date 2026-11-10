@@ -32,7 +32,8 @@ def run(args, log, timeout=600):
 
 def xcode(configuration, destination):
     return ['xcodebuild','-project',PROJECT,'-scheme','Teno','-configuration',configuration,
-        '-destination',destination,'-derivedDataPath',str(ROOT/'ios/DerivedData'),'CODE_SIGNING_ALLOWED=NO']
+        '-destination',destination,'-derivedDataPath',str(ROOT/'ios/DerivedData')]+(
+        ['CODE_SIGNING_ALLOWED=YES','CODE_SIGN_IDENTITY=-'] if 'Simulator' in destination else ['CODE_SIGNING_ALLOWED=NO'])
 
 
 def simulator():
@@ -54,6 +55,7 @@ def simulator():
     run(['xcrun','simctl','bootstatus',selected,'-b'],'ios-boot.log',180)
     args = xcode('Debug','platform=iOS Simulator,id='+selected)
     run(args+['build-for-testing'],'ios-build.log',600)
+    run(['codesign','-d','--entitlements',':-',str(ROOT/'ios/DerivedData/Build/Products/Debug-iphonesimulator/Teno.app')],'ios-simulator-signing.log',30)
     run(args+['-parallel-testing-enabled','NO','-maximum-concurrent-test-simulator-destinations','1',
         '-test-timeouts-enabled','YES','-default-test-execution-time-allowance','45',
         '-maximum-test-execution-time-allowance','90','-resultBundlePath',str(BUILD/'TestResults.xcresult'),
