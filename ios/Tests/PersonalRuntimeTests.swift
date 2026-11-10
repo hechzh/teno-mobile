@@ -73,4 +73,16 @@ final class PersonalRuntimeTests: XCTestCase {
         store.identity("second","two"); XCTAssertTrue(store.drafts().isEmpty); XCTAssertThrowsError(try store.save(draft))
         store.identity("first","one"); XCTAssertEqual(store.drafts().count,1)
     }
+    @MainActor func testPreviewConnectionDoesNotClaimRecorderAudioHasArrived() {
+        XCTAssertEqual(JwdRecorder.audioPreviewStatus(connection:"Live",bytes:0,elapsed:2,silence:2),"Waiting for recorder audio · Transcription connected")
+        XCTAssertTrue(JwdRecorder.audioPreviewStatus(connection:"Live",bytes:0,elapsed:11,silence:11).hasPrefix("No live audio"))
+        XCTAssertTrue(JwdRecorder.audioPreviewStatus(connection:"Live",bytes:640,elapsed:20,silence:11).hasPrefix("Recorder audio interrupted"))
+        XCTAssertEqual(JwdRecorder.audioPreviewStatus(connection:"Live",bytes:640,elapsed:2,silence:0),"Live")
+    }
+    @MainActor func testIdleRTReplyIsNotMistakenForAnActiveRecording() {
+        XCTAssertTrue(JwdRecorder.isStoppedReply(3,fileName:"0",seconds:0))
+        XCTAssertTrue(JwdRecorder.isStoppedReply(0,fileName:nil,seconds:0))
+        XCTAssertFalse(JwdRecorder.isStoppedReply(3,fileName:"recording.opus",seconds:0))
+        XCTAssertFalse(JwdRecorder.isStoppedReply(1,fileName:"recording.opus",seconds:0))
+    }
 }

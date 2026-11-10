@@ -26,14 +26,30 @@ import JwdVtrSDK
     private var requestGeneration = 0
     private var deadline: Task<Void,Never>?
     private var commands: [() -> Void] = []
-    private var draining = false
+    private var commandTask: Task<Void,Never>?
     private var connectionGeneration = 0
     private(set) var authorized = false, busy = false, receiving = false
     private(set) var identifier = "", name = "", battery = "Not received"
     private(set) var status = "Connect your recorder to get started.", phase = "idle", recordName = "", lastDraft = ""
     private var recordStarted: TimeInterval?, accumulated: Int64 = 0
     private var waiting = ""
+    private var recordStateKnown = false
     var preview: LivePreview?
+    private var previewStarted: TimeInterval = 0, lastPreviewAudio: TimeInterval = 0
+    private var previewBytes = 0
+    var previewStatus: String {
+        guard active else { return preview?.status ?? "" }
+        guard store.livePreview else { return "Live preview is off · Settings > Recorder" }
+        if phase == "paused" { return "Preview paused" }
+        return Self.audioPreviewStatus(connection:preview?.status ?? "Connecting", bytes:previewBytes,
+            elapsed:ProcessInfo.processInfo.systemUptime-previewStarted, silence:ProcessInfo.processInfo.systemUptime-lastPreviewAudio)
+    }
+    static func audioPreviewStatus(connection: String, bytes: Int, elapsed: TimeInterval, silence: TimeInterval) -> String {
+        let state = connection == "Live" ? "Transcription connected" : connection
+        if bytes == 0 { return (elapsed >= 10 ? "No live audio received from recorder" : "Waiting for recorder audio") + " · " + state }
+        if silence >= 10 { return "Recorder audio interrupted · " + state }
+        return connection
+    }
     private var directories: [String] = [], files: [JSONObject] = [], transferQueue: [JSONObject] = []
     private var transfer: JSONObject?, transferFile: URL?, transferHandle: FileHandle?
     private var transferOwner = ""
@@ -71,22 +87,25 @@ import JwdVtrSDK
     }
     private func send(_ work: @escaping () -> Void) {
         commands.append(work)
-        guard !draining else { return }
-        draining = true; let generation = connectionGeneration
-        Task {
-            defer { draining = false }
-            while !commands.isEmpty, connected, generation == connectionGeneration {
+        guard commandTask == nil else { return }
+        let generation = connectionGeneration
+        commandTask = Task {
+            defer { if generation == connectionGeneration { commandTask = nil } }
+            while !Task.isCancelled, !commands.isEmpty, connected, generation == connectionGeneration {
                 let command = commands.removeFirst(); command()
                 try? await Task.sleep(nanoseconds: 850_000_000)
             }
-            if generation != connectionGeneration { commands.removeAll() }
         }
     }
     func command(_ action: DeviceAction, id: String, name: String) async throws {
         if action == .disconnect {
             requestGeneration += 1; cancelAutomatic(); central?.stopScan()
-            if let peripheral { central?.cancelPeripheralConnection(peripheral) }
-            status = "Disconnected"; return
+            if let device = peripheral {
+                central?.cancelPeripheralConnection(device); disconnected(device,error:nil)
+            } else {
+                deadline?.cancel(); commands.removeAll(); connectionGeneration += 1; commandTask?.cancel(); commandTask = nil; busy = false; authorized = false
+            }
+            if !active { status = "Disconnected" }; return
         }
         let generation = requestGeneration
         initializeBluetooth()
@@ -126,8 +145,9 @@ import JwdVtrSDK
         switch action {
         case .refresh:
             send { self.sdk.getBattery() }
-            if phase != "paused" { send { self.sdk.getRecordInfo() } }
+            if phase != "paused" { send { self.sdk.getRecordStatus() } }
         case .start:
+            guard recordStateKnown else { throw RuntimeFailure("DEVICE_STATE", "Reconnect and wait for the recorder status before starting.") }
             guard !active else { throw RuntimeFailure("RECORDING_ACTIVE", "Check the existing recording before starting another.") }
             waiting = "start"; busy = true; phase = "starting"; lastDraft = ""; recordName = ""
             status = "Waiting for the recorder to start"; send { self.sdk.startRecord() }
@@ -143,7 +163,7 @@ import JwdVtrSDK
             busy = true; waiting = "stop"; phase = "stopping"; status = "Waiting for the recorder to stop"
             send { self.sdk.stopRecord() }; timeout("Stop was not confirmed. The recorder may still be recording.")
         case .sync:
-            guard !active, store.state().signedIn else { throw RuntimeFailure("SYNC", "Stop the recording and sign in before syncing.") }
+            guard recordStateKnown, !active, store.state().signedIn else { throw RuntimeFailure("SYNC", "Confirm the recorder is stopped and sign in before syncing.") }
             beginSync()
         default: break
         }
@@ -285,8 +305,8 @@ import JwdVtrSDK
         guard peripheral?.identifier == device.identifier else { return }
         let continueSelection = automatic && autoProbing
         autoProbing = false
-        sdk.onPeripheralDisconnected(device,error:error); connectionGeneration += 1; commands.removeAll()
-        deadline?.cancel(); authorized = false; busy = false; peripheral = nil
+        sdk.onPeripheralDisconnected(device,error:error); connectionGeneration += 1; commands.removeAll(); commandTask?.cancel(); commandTask = nil
+        deadline?.cancel(); authorized = false; busy = false; recordStateKnown = false; peripheral = nil
         if active { accumulated = elapsed; recordStarted = nil; phase = "interrupted"; status = "Connection interrupted. The recorder may still be recording." }
         else if !probeOnly { status = "Recorder disconnected" }
         preview?.close(); discardTransfer()
@@ -297,7 +317,7 @@ import JwdVtrSDK
         // Some vendor versions report readiness before the second CCCD completes.
         Task {
             for _ in 0..<40 {
-                guard connected else { return }
+                guard self.peripheral === peripheral, connected else { return }
                 let notifications = peripheral.services?.flatMap { $0.characteristics ?? [] }.filter { $0.uuid == Self.characteristics[0] || $0.uuid == Self.characteristics[2] } ?? []
                 if notifications.count == 2 && notifications.allSatisfy({ $0.isNotifying }) {
                     if waiting == "auth" || authorized { return }
@@ -318,10 +338,11 @@ import JwdVtrSDK
     func onBleError(_ errorCode: Int32) { status = "Recorder connection error (\(errorCode))."; busy = false }
     func onAuthSuccess() {
         guard waiting == "auth", connected else { return }
-        deadline?.cancel(); waiting = ""; authorized = true; busy = false; status = "Recorder connected"
+        deadline?.cancel(); waiting = "state"; authorized = true; busy = true; recordStateKnown = false; status = "Checking recorder status"
         candidates[identifier]?["key_rejected"] = false
         store.preferences.set(identifier,forKey:"recorder.id"); store.preferences.set(name,forKey:"recorder.name")
-        send { self.sdk.getRecordInfo() }; send { self.sdk.getBattery() }; send { self.sdk.syncTime() }
+        send { self.sdk.getRecordStatus() }; send { self.sdk.getBattery() }; send { self.sdk.syncTime() }
+        timeout("Recorder status did not arrive. Wake the recorder and reconnect.",disconnect:true)
     }
     func onAuthFailed() {
         deadline?.cancel(); waiting = ""; busy = false; authorized = false; cancelAutomatic()
@@ -330,10 +351,15 @@ import JwdVtrSDK
         if let peripheral { central.cancelPeripheralConnection(peripheral) }
     }
     func onBatteryLevel(_ level: Int32) { battery = level >= 0 && level <= 100 ? "\(level)%" : "Not received" }
+    static func isStoppedReply(_ raw: Int, fileName: String?, seconds: Int) -> Bool {
+        raw == 0 || (raw == 3 || raw == 4) && fileName == "0" && seconds == 0
+    }
     func onRecordStateReply(_ state: JWDRecordState, fileName: String?, currentTime: Int) {
+        guard authorized, connected else { return }
         let value = state.rawValue
         if value < 0 { deadline?.cancel(); waiting = ""; busy = false; phase = "interrupted"; status = "The recorder reported an error. Check storage and the physical recorder."; return }
-        if value == 0 {
+        recordStateKnown = true
+        if Self.isStoppedReply(value,fileName:fileName,seconds:currentTime) {
             let stoppedByUs = waiting == "stop"
             accumulated = elapsed; recordStarted = nil; deadline?.cancel(); waiting = ""; busy = false; phase = "idle"
             preview?.finish(); status = "Recorder stopped"
@@ -345,23 +371,38 @@ import JwdVtrSDK
             if phase != "paused" { accumulated = Int64(max(0,currentTime)) * 1000; recordStarted = ProcessInfo.processInfo.systemUptime; phase = "recording" }
             status = phase == "paused" ? "Recorder paused" : "Recording on your recorder"
             if newlyStarted, store.state().signedIn, store.livePreview {
+                previewBytes = 0; previewStarted = ProcessInfo.processInfo.systemUptime; lastPreviewAudio = previewStarted
+                preview?.close()
                 preview = LivePreview(api: api,id:"jwd-" + UUID().uuidString,title:recordName)
             }
         }
     }
     func onRecordStateCheck(_ status: Int32) {
-        if status == 0 && waiting.isEmpty && !receiving { phase = "idle"; recordName = ""; recordStarted = nil }
-        else if status == 1 { send { self.sdk.getRecordInfo() } }
+        guard authorized, connected else { return }
+        if status == 0 && (waiting.isEmpty || waiting == "state") && !receiving {
+            deadline?.cancel(); waiting = ""; busy = false; recordStateKnown = true
+            phase = "idle"; recordName = ""; recordStarted = nil; self.status = "Recorder connected"
+        } else if status == 1 {
+            waiting = "state"; busy = true; send { self.sdk.getRecordInfo() }
+            timeout("Recorder status did not arrive. Wake the recorder and reconnect.",disconnect:true)
+        }
     }
     func onRecordPaused() {
+        guard authorized, connected else { return }
         accumulated = elapsed; recordStarted = nil; phase = "paused"; waiting = ""; busy = false
         deadline?.cancel(); status = "Recorder paused"; preview?.pause(true)
     }
     func onRecordResumed() {
+        guard authorized, connected else { return }
         recordStarted = ProcessInfo.processInfo.systemUptime; phase = "recording"; waiting = ""; busy = false
         deadline?.cancel(); status = "Recording on your recorder"; preview?.pause(false)
     }
-    func onRecordStream(_ data: Data) { if phase == "recording" { preview?.feed(data) } }
+    func onRecordStream(_ data: Data) {
+        // JWDReplyParser routes its active MP3/Opus decoder's 16kHz mono PCM here.
+        if phase == "recording", !data.isEmpty, data.count.isMultiple(of:2) {
+            previewBytes += data.count; lastPreviewAudio = ProcessInfo.processInfo.systemUptime; preview?.feed(data)
+        }
+    }
     private func beginSync() {
         phase = "saving"; busy = true; directories = []; files = []; transferQueue = []
         status = "Reading recorder files"; send { self.sdk.getFileDirs() }; timeout("The recorder file list did not arrive.")

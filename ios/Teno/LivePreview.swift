@@ -56,13 +56,15 @@ import Foundation
                     }
                     partial = ""
                 case "completed": status = "Preview complete"; close(); return
-                case "error", "interrupted": throw RuntimeFailure("LIVE_UNAVAILABLE", "Live preview is unavailable. Audio is still saved locally.")
+                case "error", "interrupted":
+                    let code = string(event["code"])
+                    throw RuntimeFailure(code.isEmpty ? "LIVE_UNAVAILABLE" : code, code == "ASR_BUSY" ? "Transcription service busy · Complete audio is kept" : "Live preview is unavailable. Audio is still saved locally.")
                 default: break
                 }
             }
         } catch {
             guard !closed, generation == attempt else { return }
-            status = "Live preview interrupted · Complete audio is kept"
+            status = (error as? RuntimeFailure)?.message ?? "Live preview interrupted · Complete audio is kept"
             ready = false; partial = ""; frames.removeAll(); bytesQueued = 0
             socket?.cancel(with: .goingAway, reason: nil)
             scheduleRetry()

@@ -48,7 +48,7 @@ import UIKit
         else if !id.isEmpty { notes = string((try? store.draft(id))?["notes"]) }
         let capture = CaptureState(source:useDevice ? "device" : "phone",phase:useDevice ? recorder.phase : phone.phase,
             elapsedMs:useDevice ? recorder.elapsed : phone.elapsed,localId:id,status:useDevice ? recorder.status : phone.status,
-            partial:preview?.partial ?? "",segmentsJson:jsonString(preview?.segments ?? []),notes:notes,previewStatus:useDevice && recorder.active && preview == nil ? "Waiting for recorder audio" : preview?.status ?? "")
+            partial:preview?.partial ?? "",segmentsJson:jsonString(preview?.segments ?? []),notes:notes,previewStatus:useDevice ? recorder.previewStatus : preview?.status ?? "")
         let drafts = store.drafts().map { value -> JSONObject in var item = value; item.removeValue(forKey:"path"); return item }
         return RuntimeState(sequence:sequence,session:store.state(),capture:capture,device:recorder.state(),playback:media.state(),
             draftsJson:jsonString(drafts),uploadStatus:uploads.status,openRoute:"")
