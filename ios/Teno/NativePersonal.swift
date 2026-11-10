@@ -127,7 +127,8 @@ import QuickLook
         return preference == "zh" || preference == "system" && Locale.preferredLanguages.first?.hasPrefix("zh") == true ? zh : en
     }
     func lockForBackground() {
-        guard store.state().signedIn, store.preferences.bool(forKey:key("lock")), privacyCover == nil, let view = runtime.media.presenter?.view else { return }
+        guard store.state().signedIn, store.preferences.bool(forKey:key("lock")), privacyCover == nil,
+              let view = runtime.media.presenter?.view.window ?? runtime.media.presenter?.view else { return }
         let cover = UIView(frame:view.bounds); cover.autoresizingMask = [.flexibleWidth,.flexibleHeight]; cover.backgroundColor = UIColor(red:0.984,green:0.98,blue:0.965,alpha:1)
         let button = UIButton(type:.system); button.setTitle(label("Unlock Teno","解锁 Teno"),for:.normal)
         button.addTarget(self,action:#selector(unlockPressed),for:.touchUpInside); button.frame = CGRect(x:40,y:view.bounds.midY-28,width:view.bounds.width-80,height:56); button.autoresizingMask = [.flexibleWidth,.flexibleTopMargin,.flexibleBottomMargin]

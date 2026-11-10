@@ -10,7 +10,10 @@ import Flutter
         flutter.run(); engine = flutter
         let controller = FlutterViewController(engine:flutter,nibName:nil,bundle:nil)
         window = UIWindow(frame:UIScreen.main.bounds); window?.rootViewController = controller; window?.makeKeyAndVisible()
-        do { runtime = try NativeRuntime(messenger:flutter.binaryMessenger,presenter:controller) }
+        do {
+            runtime = try NativeRuntime(messenger:flutter.binaryMessenger,presenter:controller)
+            runtime?.personal.lockForBackground()
+        }
         catch {
             let alert = UIAlertController(title:"Teno could not open local storage",message:"Unlock your phone and reopen Teno. Existing recordings have not been deleted.",preferredStyle:.alert)
             alert.addAction(UIAlertAction(title:"OK",style:.default))
