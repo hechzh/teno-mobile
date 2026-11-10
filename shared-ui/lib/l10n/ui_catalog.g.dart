@@ -854,5 +854,7 @@ String lookupUiMessage(AppLocalizations l, String source) => switch (source) {
   "Upload or request stopped. Retry when ready." => l.label6122f155474f,
   "Connection interrupted. Check your internet connection and retry." =>
     l.label8c7103817ec7,
+  "Invalid username or password. Check your Teno account and try again." =>
+    l.loginInvalidCredentials,
   _ => source,
 };

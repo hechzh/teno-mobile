@@ -831,5 +831,6 @@
   "label009a19b41a91": "This request is not a Teno API request.",
   "labelc691c2b42bd2": "Upload result was incomplete. Retry safely.",
   "label6122f155474f": "Upload or request stopped. Retry when ready.",
-  "label8c7103817ec7": "Connection interrupted. Check your internet connection and retry."
+  "label8c7103817ec7": "Connection interrupted. Check your internet connection and retry.",
+  "loginInvalidCredentials": "Invalid username or password. Check your Teno account and try again."
 }

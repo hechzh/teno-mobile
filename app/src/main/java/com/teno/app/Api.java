@@ -35,7 +35,7 @@ public final class Api {
         if(status>=300){String code="HTTP_"+status,message="Request failed ("+status+")";
             try{JSONObject o=new JSONObject(new String(bytes,StandardCharsets.UTF_8));code=o.optString("code",code);message=o.optString("message",message);}catch(Exception ignored){}
             if(message.matches("(?s).*[\\p{IsHan}].*")){String[] parts=message.split(" / ");message="Request could not be completed ("+code+").";for(String p:parts)if(!p.matches("(?s).*[\\p{IsHan}].*"))message=p;}
-            if(status==401)message="Your session expired. Sign in again.";
+            if(status==401&&!code.equals("INVALID_CREDENTIALS"))message="Your session expired. Sign in again.";
             throw new Failure(status,code,message);
         }return bytes;
     }
@@ -76,7 +76,15 @@ public final class Api {
         }throw new IOException("Request failed");
     }
     public void login(String username,String password)throws Exception{
-        JSONObject tokens=post("/api/v1/auth/login",new JSONObject().put("username",username).put("password",password));store.tokens(tokens);
+        JSONObject tokens;
+        try{tokens=post("/api/v1/auth/login",new JSONObject().put("username",username).put("password",password));}
+        catch(Failure e){
+            // A rejected sign-in is not an expired authenticated session, even
+            // when an older server returns a 401 without a structured body.
+            if(e.status==401)throw new Failure(401,"INVALID_CREDENTIALS","Invalid username or password. Check your Teno account and try again.");
+            throw e;
+        }
+        store.tokens(tokens);
         JSONObject me=get("/api/v1/me");store.identity(username,me.getString("id"));
     }
     public void ensureNativePreferences()throws Exception{

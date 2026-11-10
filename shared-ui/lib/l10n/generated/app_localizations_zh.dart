@@ -2314,4 +2314,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get label8c7103817ec7 => '连接已中断，请检查网络后重试。';
+
+  @override
+  String get loginInvalidCredentials => '用户名或密码不正确，请检查 Teno 账号后重试。';
 }

@@ -4651,6 +4651,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connection interrupted. Check your internet connection and retry.'**
   String get label8c7103817ec7;
+
+  /// No description provided for @loginInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid username or password. Check your Teno account and try again.'**
+  String get loginInvalidCredentials;
 }
 
 class _AppLocalizationsDelegate

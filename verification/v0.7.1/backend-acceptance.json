@@ -1,0 +1,51 @@
+{
+  "all_passed": true,
+  "android_version": "0.7.1",
+  "deployed_version": "1.5.2",
+  "isolated_tests": 0,
+  "real_provider_checks": 0,
+  "backend_modified": false,
+  "checks": [
+    {
+      "name": "Existing backend healthy",
+      "passed": true
+    },
+    {
+      "name": "Valid existing account login",
+      "passed": true
+    },
+    {
+      "name": "/api/v1/me",
+      "passed": true
+    },
+    {
+      "name": "/api/v1/capabilities",
+      "passed": true
+    },
+    {
+      "name": "/api/v1/library/items?limit=1",
+      "passed": true
+    },
+    {
+      "name": "/api/v1/library/search/options",
+      "passed": true
+    },
+    {
+      "name": "/api/v1/personal/preferences",
+      "passed": true
+    },
+    {
+      "name": "/api/v1/folders",
+      "passed": true
+    },
+    {
+      "name": "/api/v1/personal/templates",
+      "passed": true
+    },
+    {
+      "name": "Only probe session logged out",
+      "passed": true
+    }
+  ],
+  "environment": "Public HTTPS from deployment host, ordinary account; no model calls"
+}

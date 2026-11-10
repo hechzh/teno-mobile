@@ -1,0 +1,12 @@
+[
+  {
+    "path": "auth/login-invalid-en.png",
+    "sha256": "2052f75f3f1f32ecdf0e1a37cf2789eb76138d44af27bbd0e734430f21e5e731",
+    "evidence": "390px Flutter render, synthetic account, not a physical device"
+  },
+  {
+    "path": "auth/login-invalid-zh.png",
+    "sha256": "2db7863fbc8483a733f63afd067796fd1117decc33cf2b468fb4e48236cc5f06",
+    "evidence": "390px Flutter render, synthetic account, not a physical device"
+  }
+]

@@ -2463,4 +2463,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get label8c7103817ec7 =>
       'Connection interrupted. Check your internet connection and retry.';
+
+  @override
+  String get loginInvalidCredentials =>
+      'Invalid username or password. Check your Teno account and try again.';
 }

@@ -1,0 +1,280 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "current_release_retains_original_device_key",
+      "passed": true
+    },
+    {
+      "name": "current_release_retains_original_audio_bytes",
+      "passed": true
+    },
+    {
+      "name": "current_release_retains_local_document_bytes",
+      "passed": true
+    },
+    {
+      "name": "flutter_host_reads_native_session",
+      "passed": true
+    },
+    {
+      "name": "bridge_does_not_expose_private_file_paths",
+      "passed": true
+    },
+    {
+      "name": "missing_cloud_key_defaults_on_without_first_recording_dialog",
+      "passed": true
+    },
+    {
+      "name": "old_unrequested_file_is_never_retroactively_queued",
+      "passed": true
+    },
+    {
+      "name": "new_import_joins_durable_queue_by_default",
+      "passed": true
+    },
+    {
+      "name": "existing_explicit_cloud_on_is_preserved",
+      "passed": true
+    },
+    {
+      "name": "explicit_off_is_persisted_and_stops_automatic_queue",
+      "passed": true
+    },
+    {
+      "name": "queue_explains_manual_opt_out",
+      "passed": true
+    },
+    {
+      "name": "manual_processing_works_when_cloud_default_is_off",
+      "passed": true
+    },
+    {
+      "name": "wifi_restriction_is_visible_in_queue_state",
+      "passed": true
+    },
+    {
+      "name": "app_lock_defaults_off",
+      "passed": true
+    },
+    {
+      "name": "generic_file_sharing_discovers_teno",
+      "passed": true
+    },
+    {
+      "name": "duplicate_uri_in_one_share_is_staged_once",
+      "passed": true
+    },
+    {
+      "name": "consumed_intent_is_not_imported_twice",
+      "passed": true
+    },
+    {
+      "name": "repeated_delivery_preserves_one_pending_copy",
+      "passed": true
+    },
+    {
+      "name": "shared_document_is_fully_copied_before_processing",
+      "passed": true
+    },
+    {
+      "name": "shared_import_respects_explicit_off",
+      "passed": true
+    },
+    {
+      "name": "accepted_share_clears_pending_staging",
+      "passed": true
+    },
+    {
+      "name": "import_commit_replay_keeps_stable_client_id_and_one_local_file",
+      "passed": true
+    },
+    {
+      "name": "retry_resumes_persisted_completion_monitoring",
+      "passed": true
+    },
+    {
+      "name": "system_files_picker_opens_and_cancels_without_losing_files",
+      "passed": true
+    },
+    {
+      "name": "system_photos_picker_opens_and_cancels_without_losing_files",
+      "passed": true
+    },
+    {
+      "name": "pause_does_not_append_audio",
+      "passed": true
+    },
+    {
+      "name": "native_locale_resources_and_persistence",
+      "passed": true
+    },
+    {
+      "name": "locale_does_not_recreate_runtime_or_recording",
+      "passed": true
+    },
+    {
+      "name": "locale_keeps_account_cloud_off_and_draft_identity",
+      "passed": true
+    },
+    {
+      "name": "recording_continues_when_flutter_is_backgrounded",
+      "passed": true
+    },
+    {
+      "name": "stop_retains_complete_local_wave_without_cloud",
+      "passed": true
+    },
+    {
+      "name": "timestamped_note_saved_with_draft",
+      "passed": true
+    },
+    {
+      "name": "local_wave_is_playable",
+      "passed": true
+    },
+    {
+      "name": "temporary_upload_failure_is_durable_and_keeps_audio",
+      "passed": true
+    },
+    {
+      "name": "retry_reuses_original_client_id",
+      "passed": true
+    },
+    {
+      "name": "successful_upload_preserves_local_original",
+      "passed": true
+    },
+    {
+      "name": "completed_upload_is_not_enqueued_again",
+      "passed": true
+    },
+    {
+      "name": "jwd_vendor_names_are_candidates",
+      "passed": true
+    },
+    {
+      "name": "unrelated_names_are_not_jwd_matches",
+      "passed": true
+    },
+    {
+      "name": "start_waits_for_device_confirmation",
+      "passed": true
+    },
+    {
+      "name": "jwd_clock_advances_without_additional_ble_events",
+      "passed": true
+    },
+    {
+      "name": "disabled_live_preference_is_visible",
+      "passed": true
+    },
+    {
+      "name": "jwd_clock_freezes_on_confirmed_pause",
+      "passed": true
+    },
+    {
+      "name": "jwd_clock_resumes_without_counting_pause",
+      "passed": true
+    },
+    {
+      "name": "device_time_query_reanchors_clock",
+      "passed": true
+    },
+    {
+      "name": "jwd_clock_catches_up_after_background",
+      "passed": true
+    },
+    {
+      "name": "disconnect_freezes_last_confirmed_clock_and_reports_uncertainty",
+      "passed": true
+    },
+    {
+      "name": "reconnect_uses_reported_device_duration",
+      "passed": true
+    },
+    {
+      "name": "stop_requires_and_accepts_device_confirmation",
+      "passed": true
+    },
+    {
+      "name": "connected_preview_does_not_claim_audio_has_arrived",
+      "passed": true
+    },
+    {
+      "name": "jwd_preview_requests_automatic_language_and_preview_only",
+      "passed": true
+    },
+    {
+      "name": "synthetic_opus_fixture_is_valid",
+      "passed": true
+    },
+    {
+      "name": "fragmented_jwd_stream_decodes_all_samples_and_streams_pcm",
+      "passed": true
+    },
+    {
+      "name": "live_transcript_reaches_flutter_bridge",
+      "passed": true
+    },
+    {
+      "name": "pause_is_visible_and_reaches_websocket",
+      "passed": true
+    },
+    {
+      "name": "resume_restores_live_preview",
+      "passed": true
+    },
+    {
+      "name": "decoder_failure_is_visible_instead_of_blank_transcript",
+      "passed": true
+    },
+    {
+      "name": "preview_failure_does_not_stop_hardware_recording",
+      "passed": true
+    },
+    {
+      "name": "preview_does_not_replace_verified_complete_file",
+      "passed": true
+    },
+    {
+      "name": "backend_busy_reason_is_visible_in_preview",
+      "passed": true
+    },
+    {
+      "name": "device_disconnect_never_claims_stopped",
+      "passed": true
+    },
+    {
+      "name": "sign_out_clears_visible_account",
+      "passed": true
+    },
+    {
+      "name": "sign_out_stops_active_native_upload",
+      "passed": true
+    },
+    {
+      "name": "other_account_cannot_see_original_drafts",
+      "passed": true
+    },
+    {
+      "name": "new_account_without_preference_defaults_to_cloud_on",
+      "passed": true
+    },
+    {
+      "name": "returning_account_keeps_pending_original_recording",
+      "passed": true
+    },
+    {
+      "name": "account_switch_preserves_paused_upload_and_local_audio",
+      "passed": true
+    },
+    {
+      "name": "android_system_keyboard_opens_for_login",
+      "passed": true
+    }
+  ],
+  "process_arch": "aarch64",
+  "evidence": "Dedicated API 35 emulator; synthetic account and loopback backend. JWD vendor decoder uses ARM translation. No physical JWD, iPhone or Azure accuracy claims.",
+  "apk_sha256": "ae948ad90f5053e08f23ff298bdfa352a10f2c86df503ecddb60b0b5a4d83d1b"
+}

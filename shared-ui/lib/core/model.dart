@@ -229,6 +229,8 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
   static String friendly(Object error) {
     if (error is PlatformException) {
       final stable = switch (error.code.toUpperCase()) {
+        'INVALID_CREDENTIALS' =>
+          'Invalid username or password. Check your Teno account and try again.',
         'UNAUTHORIZED' ||
         'AUTH_EXPIRED' ||
         'HTTP_401' => 'Your session expired. Sign in again.',

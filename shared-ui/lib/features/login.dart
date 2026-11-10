@@ -88,6 +88,8 @@ class _LoginPageState extends State<LoginPage> {
                       controller: username,
                       enabled: !busy,
                       autofillHints: const [AutofillHints.username],
+                      autocorrect: false,
+                      enableSuggestions: false,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
                         label: UiText('Username'),

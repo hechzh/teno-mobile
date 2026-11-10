@@ -39,7 +39,9 @@ public final class RuntimeInstrumentation extends Instrumentation {
         boolean passed=false;JSONObject report=new JSONObject();context=getTargetContext();store=new Store(context);
         try {
             if(!android.os.Build.HARDWARE.contains("ranchu")&&!android.os.Build.HARDWARE.contains("goldfish"))throw new IOException("Dedicated emulator required");
-            if(mode.equals("seed"))seed();else new RuntimeChecks(this).run();
+            if(mode.equals("seed"))seed();
+            else if(mode.equals("auth-errors"))LoginErrorChecks.run(this,context);
+            else new RuntimeChecks(this).run();
             passed=true;
         } catch(Throwable e){try{report.put("failure",e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}
         try {

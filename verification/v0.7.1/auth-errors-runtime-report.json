@@ -1,0 +1,44 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "name": "invalid_login_401_is_credentials_not_expiry",
+      "passed": true
+    },
+    {
+      "name": "empty_login_401_is_credentials_not_expiry",
+      "passed": true
+    },
+    {
+      "name": "failed_login_does_not_refresh_old_session",
+      "passed": true
+    },
+    {
+      "name": "login_rate_limit_keeps_its_classification",
+      "passed": true
+    },
+    {
+      "name": "password_bytes_and_intentional_whitespace_are_preserved",
+      "passed": true
+    },
+    {
+      "name": "valid_login_sets_account_and_encrypted_tokens",
+      "passed": true
+    },
+    {
+      "name": "expired_access_token_refreshes_and_retries",
+      "passed": true
+    },
+    {
+      "name": "genuine_expiry_stays_distinct_from_bad_password",
+      "passed": true
+    },
+    {
+      "name": "network_failure_is_not_session_expiry",
+      "passed": true
+    }
+  ],
+  "process_arch": "aarch64",
+  "evidence": "Dedicated API 35 emulator; synthetic account and loopback backend. JWD vendor decoder uses ARM translation. No physical JWD, iPhone or Azure accuracy claims.",
+  "apk_sha256": "ae948ad90f5053e08f23ff298bdfa352a10f2c86df503ecddb60b0b5a4d83d1b"
+}

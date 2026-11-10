@@ -7,7 +7,7 @@ from report_development import ROOT, sha
 CERT='56291d8fefaf737b522f88b075960ecddfe8f2d1e6794d538d4f46ad2b1d1291'
 def read(path):return json.loads(path.read_text(encoding='utf-8'))
 
-def package(version,evidence_dir=None,private_values=()):
+def package(version,evidence_dir=None,private_values=(),report_enabled=True):
     build=(ROOT/'app/build.gradle').read_text();code=int(re.search(r'versionCode\s+(\d+)',build)[1])
     assert re.search(r"versionName\s+['\"]([^'\"]+)",build)[1]==version
     assert subprocess.run(['git','diff','--quiet','HEAD','--'],cwd=ROOT).returncode==0,'Commit reviewed source before packaging'
@@ -71,12 +71,17 @@ def package(version,evidence_dir=None,private_values=()):
         'physical_android_tested':False,'physical_jwd_tested':False,'near_120_min_provider_call_tested':False,
         'no_test_runners_in_apk':True,'private_credential_scan_passed':True,'ios':None,'baseline_promoted':False,
         'review':f'../design-baseline/v{version}/index.html','validation':f'../RELEASE-{version}.txt'}
+    if version=='0.7.1':
+        auth=read(qa/'auth-errors-runtime-report.json')
+        assert auth['all_passed'] and auth['apk_sha256']==sha(apk)
+        manifest['auth_error_checks']=len(auth['checks'])
+        manifest['localized_login_error_screenshots']=2
     for name in ('release-manifest.json',f'Teno-{version}-release-manifest.json'):(dist/name).write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
     (qa/'release-signature.txt').write_text(signature,encoding='utf-8');(qa/'release-badging.txt').write_text(badging,encoding='utf-8')
     (dist/'SHA256SUMS.txt').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in sorted(dist.iterdir()) if p.suffix in ('.apk','.ipa','.zip')),encoding='utf-8')
     print(json.dumps({'status':'pass','version':version,'apk_sha256':sha(deliverable),'flutter_tests':total,'lint_errors':errors,'lint_warnings':warnings}))
     credential=pathlib.Path.home()/'.ssh/teno-development-local.json'
-    if credential.is_file() or os.environ.get('TENO_DEVELOPMENT_TOKEN'):
+    if report_enabled and (credential.is_file() or os.environ.get('TENO_DEVELOPMENT_TOKEN')):
         from publish_development_release import normalize
         from report_development import configuration,send
         for envelope in normalize(dist/f'Teno-{version}-release-manifest.json',pathlib.Path.home()/'.teno/development-releases'):

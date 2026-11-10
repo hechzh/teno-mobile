@@ -136,6 +136,18 @@ def normalize(manifest_path, output, baseline=False):
         evidence(qa/'backend-acceptance.json','已有后端只读兼容验证','Existing backend read-only compatibility','server')
         tests.append({'name':words('Flutter共享界面回归','Shared Flutter regression'),'status':'passed','environment':'unit','count':manifest['flutter_tests'],'source':release.name})
         report['pending'].append(words('按计划完成Safari、Magic4 Pro/JWD验收后再正式发布；不提升基线。','Formal release follows Safari/Magic4 Pro/JWD acceptance; no baseline promotion.'))
+    if version=='0.7.1':
+        report['title']=words('Android 0.7.1：登录错误提示修复包','Android 0.7.1: login error classification fix')
+        report['implementation']='implemented'
+        report['changes']=[words('登录401显示账号密码校验失败，不再一律改成会话过期；保留真实续期失败的独立提示。','Rejected sign-in credentials no longer appear as expired sessions; genuine refresh failures retain their own message.'),words('中英文错误提示、关闭用户名自动纠错；保留密码原始字符。','Chinese/English error messages and no username autocorrection; password characters are preserved exactly.')]
+        report['modules']=[{'key':key,'scope':words(zh,en),'implementation':'implemented','verification':'partial','pending':words('真实手机复测待完成','Physical-phone retest pending')} for key,zh,en in [('settings','登录错误分类与中英提示','Login error classification and bilingual messages'),('library','覆盖安装保留账号、录音与设备密钥','Update retains account, recordings and device keys'),('distribution','原签名0.7.1修复包；当前正式基线0.7.0保持','Original-signer 0.7.1 fix; confirmed 0.7.0 baseline retained')]]
+        report['dependency']=words('已有共享后端1.5.2；本轮没有部署后端或Web，不改变账号密码。','Existing backend 1.5.2; no backend/Web deployment or account password change.')
+        report['pending']=[words('需在实际手机复测登录；修复错误提示不放宽凭据校验，不代表真实JWD验收通过。','Retest sign-in on the physical phone. Error-message correction does not bypass credentials or certify JWD hardware.')]
+        for name,zh,en,count in [('full-runtime-report.json','0.7.0覆盖升级保留','Upgrade retention from 0.7.0',manifest['upgrade_runtime_checks']),('regression-runtime-report.json','最终APK原生回归','Final APK native regression',manifest['regression_runtime_checks']),('auth-errors-runtime-report.json','真实Android HTTP登录与续期错误分类','Android HTTP login/refresh classification',9)]:
+            evidence(qa/name,zh,en,'emulator',count)
+        evidence(qa/'final-install-report.json','原签名覆盖安装及冷启动','Signed update and cold launch','emulator')
+        evidence(qa/'backend-acceptance.json','已有API只读兼容检查','Existing API read-only compatibility','server')
+        tests.append({'name':words('Flutter完整回归','Complete Flutter regression'),'status':'passed','environment':'unit','count':manifest['flutter_tests'],'source':release.name})
     def asset(path,kind,zh,en):return {'path':str(path.resolve()),'kind':kind,'sha256':sha(path),'label':words(zh,en)}
     summary_path=output/f'Teno-{version}-android-evidence.txt'
     summary_path.write_text(json.dumps({'version':version,'platform':'android','source_commit':commit,'apk_sha256':manifest['sha256'],'physical_device_tested':False,'verification':summaries},ensure_ascii=False,indent=2),encoding='utf-8')
