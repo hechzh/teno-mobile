@@ -63,7 +63,8 @@ def simulator():
     run(['xcrun','simctl','install',selected,str(ROOT/'ios/DerivedData/Build/Products/Debug-iphonesimulator/Teno.app')],'ios-install.log',120)
     run(['xcrun','simctl','launch',selected,'com.teno.app'],'ios-launch.log',90)
     (BUILD/'screenshots').mkdir(exist_ok=True)
-    run(['swift','scripts/capture_ios.swift',selected,str(BUILD/'screenshots/01-login.png')],'ios-capture.log',120)
+    run(['swiftc','scripts/capture_ios.swift','-o',str(BUILD/'capture-ios')],'ios-capture-compile.log',180)
+    run([str(BUILD/'capture-ios'),selected,str(BUILD/'screenshots/01-login.png')],'ios-capture.log',180)
 
 
 if __name__ == '__main__':

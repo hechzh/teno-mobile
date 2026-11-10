@@ -83,7 +83,8 @@ jobs:
         id: ios-framework-cache
         with:
           path: ios/build/frameworks
-          key: teno-ios-frameworks-3.47.9-${{ hashFiles('shared-ui/lib/**', 'shared-ui/pubspec.*', 'shared-ui/assets/**') }}
+          key: teno-ios-frameworks-v2-3.47.9-${{ hashFiles('shared-ui/lib/**', 'shared-ui/pubspec.*', 'shared-ui/assets/**') }}
+          restore-keys: teno-ios-frameworks-3.47.9-${{ hashFiles('shared-ui/lib/**', 'shared-ui/pubspec.*', 'shared-ui/assets/**') }}
       - name: Prepare native host
         id: release
         run: |
@@ -93,6 +94,9 @@ jobs:
           flutter pub get --enforce-lockfile
           if [ ! -d ../ios/build/frameworks/Release/App.xcframework ]; then
             flutter build ios-framework --no-codesign --no-debug --no-profile --no-plugins --output="$GITHUB_WORKSPACE/ios/build/frameworks"
+          fi
+          if [ ! -d ../ios/build/frameworks/Debug/App.xcframework ]; then
+            flutter build ios-framework --no-codesign --no-release --no-profile --no-plugins --output="$GITHUB_WORKSPACE/ios/build/frameworks"
           fi
           cd ..
           python3 scripts/package_ios_xcode.py --frameworks ios/build/frameworks
@@ -138,6 +142,7 @@ jobs:
             ios-boot.log
             ios-launch.log
             ios-capture.log
+            ios-capture-compile.log
             ios/build/simulator-inventory.json
             ios/build/simulator-selection.json
       - name: Report iOS development result

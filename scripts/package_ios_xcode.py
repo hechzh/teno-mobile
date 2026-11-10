@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import plistlib
 import re
 import shutil
 import subprocess
@@ -29,6 +30,22 @@ def prepare(frameworks: Path, output: Path) -> Path:
         if not source.is_dir():
             raise RuntimeError('Missing prebuilt framework: ' + name)
         shutil.copytree(source, folder / 'ios/Frameworks' / source.name, symlinks=True)
+        # Flutter's release ios-framework output has a simulator stub without a
+        # debug kernel. Pair the release device slice with the real Debug
+        # simulator slice so this one portable project also runs in Simulator.
+        target = folder / 'ios/Frameworks' / source.name
+        info = plistlib.loads((target/'Info.plist').read_bytes())
+        debug = frameworks/'Debug'/source.name
+        debug_info = plistlib.loads((debug/'Info.plist').read_bytes())
+        for library in debug_info['AvailableLibraries']:
+            if library.get('SupportedPlatformVariant') != 'simulator':
+                continue
+            identifier = library['LibraryIdentifier']
+            shutil.copytree(debug/identifier,target/identifier,symlinks=True,dirs_exist_ok=True)
+            info['AvailableLibraries'] = [row for row in info['AvailableLibraries'] if row.get('SupportedPlatformVariant') != 'simulator']+[library]
+        (target/'Info.plist').write_bytes(plistlib.dumps(info))
+        if name == 'App':
+            assert list(target.glob('*/App.framework/flutter_assets/kernel_blob.bin')), 'Missing runnable simulator kernel'
     project = (ROOT / 'ios/project.yml').read_text()
     (folder / 'ios/project.development.yml').write_text(project)
     project = re.sub(r'packages:\n.*?(?=targets:)', '', project, flags=re.S)
@@ -49,7 +66,7 @@ def prepare(frameworks: Path, output: Path) -> Path:
 3. 选择 iPhone 真机或 Any iOS Device，Product > Archive，再由签名方上传。
 4. 首次安装允许蓝牙/麦克风等实际使用的权限。真实 iPhone/JWD 测试仍需验收。
 
-Frameworks 已包含当前 shared-ui 的 Release App 与 Flutter 引擎、设备及模拟器切片；
+Frameworks 已包含当前 shared-ui 的设备 Release 与模拟器 Debug App/Flutter 切片；
 打开、编译、签名此交付包不需要安装 Flutter、CocoaPods 或 XcodeGen，也不需要 CI 路径。
 原生 Swift/Objective-C 源码可直接编辑。修改 Dart UI 后需要 Flutter 3.47.9 重新生成
 App.xcframework，并同时使用配套 Flutter.xcframework；shared-ui/ 为完整共享 UI 源码。
@@ -63,7 +80,7 @@ ios/project.development.yml 保留 Flutter 开发集成规格；它不用于本�
 '''
     (folder / '开始使用.txt').write_text(readme, encoding='utf-8')
     metadata = {'version':version,'version_code':15,'commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
-        'flutter':'3.47.9','signing':'recipient','framework_mode':'Release','xcode_only':True,
+        'flutter':'3.47.9','signing':'recipient','framework_mode':'Release device + Debug simulator','xcode_only':True,
         'hardware_acceptance':'pending: physical iPhone and JWD'}
     (folder / 'manifest.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2),encoding='utf-8')
     return folder
