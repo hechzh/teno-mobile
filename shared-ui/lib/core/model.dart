@@ -138,7 +138,32 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
     notifyListeners();
   }
 
+  final Map<String, Future<Json>> _generations = {};
+  final Map<String, String> _generationIds = {};
   Future<Json> api(String method, String path, [Json? body]) async {
+    if (method == 'POST' &&
+        body?.containsKey('client_id') == true &&
+        (path.endsWith('/notes') || path == '/api/v1/notes/generate')) {
+      final intent = {...body!}..remove('client_id');
+      final key = '${runtime?.session.scope}:$path:${jsonEncode(intent)}';
+      final existing = _generations[key];
+      if (existing != null) return existing;
+      final id = _generationIds.putIfAbsent(key, () => text(body['client_id']));
+      final future = _request(method, path, {...intent, 'client_id': id})
+          .then((result) {
+            _generationIds.remove(key);
+            return result;
+          })
+          .whenComplete(() {
+            _generations.remove(key);
+          });
+      _generations[key] = future;
+      return future;
+    }
+    return _request(method, path, body);
+  }
+
+  Future<Json> _request(String method, String path, [Json? body]) async {
     final scope = runtime?.session.scope;
     final result = await host.request(
       method,

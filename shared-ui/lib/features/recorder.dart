@@ -6,6 +6,8 @@ import '../platform/runtime.g.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'detail.dart';
+import 'note_templates.dart';
+import 'personal_import.dart';
 
 Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
   if (model.personalCore) return true;
@@ -118,6 +120,7 @@ class _DevicePageState extends State<DevicePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted &&
+          model.signedIn &&
           !model.runtime!.device.authorized &&
           !model.runtime!.device.busy &&
           !model.runtime!.device.scanning) {
@@ -147,7 +150,7 @@ class _DevicePageState extends State<DevicePage> {
     String name = '',
   }) => perform(context, () => model.host.controlDevice(action, id, name));
   Future<void> connectAutomatically() async {
-    if (initiating) return;
+    if (initiating || !model.signedIn) return;
     setState(() => initiating = true);
     try {
       await command(DeviceAction.scan);
@@ -157,6 +160,7 @@ class _DevicePageState extends State<DevicePage> {
   }
 
   Future<void> restoreDeviceCode() async {
+    if (!model.signedIn) return;
     final key = TextEditingController();
     final accepted = await showDialog<bool>(
       context: context,
@@ -202,6 +206,11 @@ class _DevicePageState extends State<DevicePage> {
     animation: model,
     builder: (context, _) {
       final device = model.runtime!.device;
+      if (!model.signedIn)
+        return const PageFrame(
+          title: 'Recorder',
+          child: Center(child: UiText('Sign in to continue.')),
+        );
       final connecting = initiating || device.busy || device.scanning;
       final needsCode = jsonRows(
         device.candidatesJson,
@@ -410,6 +419,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
   Timer? debounce;
   bool preview = false, writing = false;
   String ownerId = '';
+  String template = '@default';
   @override
   void initState() {
     super.initState();
@@ -536,6 +546,27 @@ class _RecorderSheetState extends State<RecorderSheet> {
                   ),
                 ],
               ),
+              if (!keyboardOpen && active)
+                NoteTemplateChoice(
+                  widget.model,
+                  value: template,
+                  onChanged: (value) async {
+                    await widget.model.command('note_template', {
+                      'id': c.localId,
+                      'template_id': value,
+                    });
+                    if (mounted) setState(() => template = value);
+                  },
+                ),
+              if (!keyboardOpen &&
+                  finished &&
+                  c.localId.isNotEmpty &&
+                  !c.localId.startsWith('jwd:'))
+                TextButton(
+                  onPressed: () =>
+                      push(context, PersonalLocalPage(widget.model, c.localId)),
+                  child: const UiText('Saved recording & template'),
+                ),
               if (!keyboardOpen) ...[
                 const SizedBox(height: 14),
                 const UiText(

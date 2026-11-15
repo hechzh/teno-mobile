@@ -287,7 +287,7 @@
       if (token) await this.raw('/api/v1/auth/logout', {method: 'POST', headers: {Authorization: `Bearer ${token}`}}, 10000).catch(() => {});
       return {};
     }
-    async pick({source}) {
+    async pick({source, template_id = '@default'}) {
       const epoch = this.epoch; this.check(epoch);
       // The picker must open in the original user gesture before any awaits.
       const files = await new Promise((resolve) => {
@@ -300,9 +300,9 @@
         input.click();
       });
       this.check(epoch);
-      return this.stage(files, epoch);
+      return this.stage(files, epoch, template_id);
     }
-    async stage(files, epoch = this.epoch) {
+    async stage(files, epoch = this.epoch, template_id = '@default') {
       this.check(epoch);
       if (files.length > 20) throw new Error('Choose up to 20 files at a time.');
       const checked = files.map(file => ({file, ...fileInfo(file)}));
@@ -311,7 +311,7 @@
         for (const {file, kind} of checked) {
           this.check(epoch);
           const d = {id: crypto.randomUUID(), scope: this.session.id, title: file.name, kind, status: 'local',
-            created_at: new Date().toISOString(), size: file.size, blob: file, error: '', recording_id: '', file_id: ''};
+            created_at: new Date().toISOString(), size: file.size, blob: file, error: '', recording_id: '', file_id: '', template_id};
           await this.store.put(d); this.check(epoch); items.push({id: d.id, type: 'local', title: d.title});
         }
       } finally { await this.loadDrafts(); this.emit(); }
@@ -332,12 +332,12 @@
         const current = await this.owned(id);
         if (current.recording_id || current.file_id) { await this.loadDrafts(); this.emit(); return; }
         const controller = new AbortController(); this.uploads.set(id, controller);
-        d.status = 'uploading'; d.error = ''; await this.store.put(d); await this.loadDrafts(); this.emit();
+        d.status = 'uploading'; d.template_frozen = true; d.error = ''; await this.store.put(d); await this.loadDrafts(); this.emit();
         try {
           const form = new FormData(); form.append('file', d.blob, d.title); form.append('client_id', d.id);
           if (d.kind === 'recording') {
             form.append('title', d.title); form.append('language', 'auto');
-            form.append('personal_mode', 'true'); form.append('source', 'import');
+            form.append('personal_mode', 'true'); form.append('source', 'import'); form.append('template_id', d.template_id || '@default');
           }
           const r = await this.authorized(d.kind === 'recording' ? '/api/v1/recordings' : '/api/v1/files', {method: 'POST', body: form}, 1200000, controller.signal);
           const result = await r.json();
@@ -445,6 +445,12 @@
         case 'recording_cache': return this.recordingCache(args);
         case 'pending_imports': return {items: []};
         case 'import': return this.pick(args);
+        case 'note_template': {
+          const epoch = this.epoch, d = await this.owned(args.id);
+          if (this.uploads.has(args.id) || d.template_frozen || d.recording_id) throw new Error('Processing has started. Generate a new note from recording details.');
+          if (typeof args.template_id !== 'string' || !args.template_id || args.template_id.length > 128) throw new Error('Select a template.');
+          d.template_id = args.template_id; this.check(epoch); await this.store.put(d); await this.loadDrafts(); this.emit(); return {};
+        }
         case 'retryUpload': return this.retryUpload(args);
         case 'deleteLocal': return this.deleteLocal(args);
         case 'cancelUpload': this.uploads.get(args.id)?.abort(); return {};

@@ -1,4 +1,5 @@
 # Track only native source, build configuration, tests and project documentation.
+!/RELEASE-0.8.0.txt
 *
 !/.gitignore
 !/.gitattributes

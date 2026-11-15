@@ -14,13 +14,48 @@ Future<void> openPersonalItem(
   Json item, [
   Json? match,
 ]) async {
+  if (item['type'] == 'recording' && match?['revision'] != null) {
+    final pinned = await model.api(
+      'GET',
+      '/api/v1/personal/recordings/${item['id']}/transcript?revision=${match!['revision']}',
+    );
+    if (!context.mounted) return;
+    final segments = rows(pinned['segments']);
+    final exact = segments.where((s) => s['id'] == match['source_id']).toList();
+    await showCoreSheet<void>(
+      context,
+      CoreFrame(
+        title: 'Source transcript',
+        sheet: true,
+        child: ListView(
+          padding: const EdgeInsets.all(21),
+          children: [
+            Text(context.strings.versionLabel(text(pinned['revision']))),
+            for (final segment in exact.isEmpty ? segments : exact)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: SelectableText(
+                  '${duration(segment['start_ms'])} ${text(segment['speaker_name'])}\n${text(segment['text'])}',
+                ),
+              ),
+          ],
+        ),
+      ),
+      height: MediaQuery.sizeOf(context).height * .75,
+    );
+    return;
+  }
   await push(context, switch (text(item['type'])) {
     'folder' => PersonalListPage(
       model,
       title: text(item['title']),
       folderId: text(item['id']),
     ),
-    'note' => PersonalNotePage(model, text(item['id'])),
+    'note' => PersonalNotePage(
+      model,
+      text(item['id']),
+      initialRevision: (match?['revision'] as num?)?.toInt(),
+    ),
     'file' => PersonalFilePage(
       model,
       text(item['id']),
@@ -165,7 +200,10 @@ class _PersonalExportPageState extends State<PersonalExportPage> {
         onPressed: () => perform(context, () async {
           final path =
               '/api/v1/personal/exports/${widget.item['type']}/${widget.item['id']}?content=$content&format=$format&timestamps=$timestamps&speakers=$speakers&highlights=$highlights&cover=$cover' +
-              (widget.noteId == null ? '' : '&note_id=${widget.noteId}');
+              (widget.noteId == null ? '' : '&note_id=${widget.noteId}') +
+              (widget.item['note_revision'] == null
+                  ? ''
+                  : '&note_revision=${widget.item['note_revision']}');
           await widget.model.command('export', {
             'path': path,
             'format': format,
@@ -376,6 +414,8 @@ class _PersonalSharePageState extends State<PersonalSharePage> {
       final value = await widget.model.api('POST', '/api/v1/shares', {
         'source': {'type': widget.item['type'], 'id': widget.item['id']},
         if (widget.noteId != null) 'note_id': widget.noteId,
+        if (widget.item['note_revision'] != null)
+          'note_revision': widget.item['note_revision'],
         'include_summary': summary,
         'include_transcript': transcript,
         'include_audio': audio,

@@ -63,6 +63,7 @@ import UIKit
     }
     func logout() async throws {
         try accountIdle(); switching = true; defer { switching = false }
+        recorder.cancelAccountConnection()
         await uploads.pauseAccount()
         _ = try? await api.json("POST","/api/v1/auth/logout",body:[:])
         personal.cancelAccountUI()
@@ -94,6 +95,7 @@ import UIKit
         }
     }
     func controlDevice(action: DeviceAction,identifier: String,name: String) async throws {
+        if action != .disconnect && action != .stop && action != .cancelTransfer { try signedIn() }
         if action == .start {
             try signedIn()
             guard !phone.active else { throw RuntimeFailure("PHONE_RECORDING","Finish the phone recording first.") }
@@ -103,6 +105,7 @@ import UIKit
         try await recorder.command(action,id:identifier,name:name)
     }
     func bindDevice(identifier: String,name: String,key: String,createNew: Bool) async throws {
+        try signedIn()
         try await recorder.bind(id:identifier,name:name,key:key,createNew:createNew)
     }
     func showDeviceKey() async throws { try await media.showDeviceKey(recorder.identifier) }

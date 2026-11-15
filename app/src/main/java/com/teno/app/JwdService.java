@@ -17,6 +17,12 @@ import java.util.concurrent.*;
 @SuppressLint("MissingPermission")
 public final class JwdService extends Service implements JwdBle.Listener {
     public static volatile boolean active=false;
+    static volatile boolean accountClosing;
+    static final java.util.concurrent.atomic.AtomicLong sessionEpoch=new java.util.concurrent.atomic.AtomicLong();
+    private long connectionEpoch;
+    private String connectionOwner="";
+    private boolean signedIn(){return !accountClosing&&!store.scope().isEmpty()&&!store.token("access_token").isEmpty();}
+    private boolean sessionCurrent(){return signedIn()&&connectionEpoch==sessionEpoch.get()&&connectionOwner.equals(store.scope());}
     public static volatile String snapshot="{}";
     static volatile JwdLiveSession live;
     private boolean requestLive;
@@ -77,6 +83,10 @@ public final class JwdService extends Service implements JwdBle.Listener {
     }
     private void handle(Intent i)throws Exception{
         String action=i.getAction();if(action==null)return;
+        if(!Arrays.asList("disconnect","stop","cancel").contains(action)){
+            if(!signedIn()||i.getLongExtra("session_epoch",sessionEpoch.get())!=sessionEpoch.get())throw new IOException("Sign in to connect your recorder.");
+            if(Arrays.asList("scan","scan_compat","connect","probe").contains(action)){connectionEpoch=sessionEpoch.get();connectionOwner=store.scope();}
+        }
         if(action.equals("prepare_recording")){deferSync=true;syncing=false;syncFiles.clear();publish();return;}
         if(action.equals("resume_sync")){deferSync=false;if(authorized&&recordState==0&&pending.isEmpty()&&receiver==null&&!converting)startSync();return;}
         if(action.equals("disconnect")){cancelAutomaticConnection();if(converting)throw new IOException("Wait for the decoded file to finish saving before disconnecting");stopLive(false);stopScan();abortTransfer();resetSync();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;message="Disconnected. Check the recorder: it may still be recording.";publish();stopSelf();return;}
@@ -148,7 +158,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private final Runnable autoPick=()->{if(scanning&&autoDiscovery&&!found.isEmpty())selectAutomaticRecorder();};
     private void cancelAutomaticConnection(){autoDiscovery=false;autoProbing=false;autoQueue.clear();autoTried.clear();if(handler!=null)handler.removeCallbacks(autoPick);}
     private void selectAutomaticRecorder(){
-        if(!autoDiscovery||autoProbing||!scanning)return;
+        if(!sessionCurrent()||!autoDiscovery||autoProbing||!scanning)return;
         stopScan();autoQueue.clear();
         if(!preferredRecorder.isEmpty()){
             if(!found.containsKey(preferredRecorder))try{found.put(preferredRecorder,new JSONObject().put("address",preferredRecorder).put("name",store.recorderName()).put("rssi",-200).put("gatt_status","unknown"));}catch(Exception ignored){}
@@ -161,7 +171,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         nextAutomaticProbe();
     }
     private void nextAutomaticProbe(){
-        if(!autoDiscovery||destroyed)return;
+        if(!sessionCurrent()||!autoDiscovery||destroyed)return;
         while(!autoQueue.isEmpty()){
             String id=autoQueue.removeFirst();if(!autoTried.add(id))continue;
             JSONObject item=found.get(id);if(item==null)continue;
@@ -174,7 +184,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         message=preferredRecorder.isEmpty()?"No JWD recorder found. Wake your recorder and try again.":"Your last recorder is unavailable. Wake it up and try again.";publish();
     }
     private void automaticProbeFinished(boolean matches){
-        if(!autoDiscovery||!autoProbing)return;
+        if(!sessionCurrent()||!autoDiscovery||!autoProbing)return;
         autoProbing=false;
         if(!matches){nextAutomaticProbe();return;}
         try{
@@ -220,6 +230,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         message=reason;log(reason);publish();automaticProbeFinished(matches);
     }
     @Override public void ready(){
+        if(!sessionCurrent()){ble.close();return;}
         connected=true;connectionStage="app_key_auth";try{begin("auth","Connected. Checking device key…",15000);ble.send("APP&SK&"+store.deviceKey(address));publish();}catch(Exception e){problem("The key could not be read. Enter the original key again.");ble.close();connected=false;publish();}
     }
     @Override public void closed(String reason){
@@ -243,12 +254,14 @@ public final class JwdService extends Service implements JwdBle.Listener {
         ble.send("APP&FW");ble.send("APP&BAT");ble.send("APP&SPACE");ble.send("APP&RT");ble.send("APP&LIST_DIRS");
     }
     @Override public void command(byte[] data){
+        if(!sessionCurrent()&&!authorized)return;
         try{for(String value:JwdProtocol.replies(data))if(!value.isEmpty())reply(value.trim());}
         catch(Exception e){if(receiver!=null||pending.equals("download"))transferFailed("Invalid device response: "+e.getMessage());else{syncFailed(e.getMessage());problem("Invalid device response: "+e.getMessage());}}
     }
     private void reply(String value)throws Exception{
         String[] p=value.split("&",-1);if(p.length<2)return;String type=p[1];
         if(type.equals("SK")){
+            if(!sessionCurrent())return;
             if(p.length<3)return;
             if(p[2].equals("OK")&&pending.equals("auth")){
                 done("auth");authorized=true;if(found.containsKey(address))found.get(address).put("key_rejected",false);store.rememberRecorder(address,deviceName);syncTarget=store.pendingDeviceRecord(address);log("Recorder authorized");ble.send("APP&T&"+new SimpleDateFormat("yyyyMMddHHmmss",Locale.ROOT).format(new Date()));refresh();
@@ -371,6 +384,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             try{
                 if(!identity.equals(store.scope()))throw new IOException("The account changed. The original file was kept without adding it to another account.");
                 JSONObject draft=JwdAudio.importVerified(store,source,mac,dir,name,seconds,verification,percent->handler.post(()->{if(!destroyed){message="Decoding audio "+percent+"%";publish();}}));
+                draft.put("template_id",store.recorderTemplate("jwd:"+mac+"|"+name));store.save(draft);
                 String notes=store.recorderNotes(mac,name);if(!notes.isEmpty()){draft.put("notes",notes);store.save(draft);}
                 store.deviceRecordSynced(mac,dir,name,seconds,draft.optString("id"));
                 try{UploadQueue.saved(this,draft);}catch(Exception ignored){/* The verified local draft remains available for manual retry. */}

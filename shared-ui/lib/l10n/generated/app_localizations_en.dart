@@ -2515,4 +2515,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get autoJwdChannels =>
       'The recorder channels do not match the JWD protocol.';
+
+  @override
+  String get noteTemplate => 'Note template';
+
+  @override
+  String get templateAccountDefault => 'Account default';
+
+  @override
+  String get templateGeneral => 'General notes';
+
+  @override
+  String get templateInterview => 'Interview insights';
+
+  @override
+  String get templateLecture => 'Lecture notes';
+
+  @override
+  String get templateInspiration => 'Inspiration';
+
+  @override
+  String get templateActions => 'Action items';
+
+  @override
+  String get templateBrief => 'Concise recap';
+
+  @override
+  String get templateCustom => 'Custom template';
+
+  @override
+  String get templateAnother => 'Generate with another template';
+
+  @override
+  String get templateProcessing =>
+      'Processing uses the selected template. Another template creates a new note.';
+
+  @override
+  String get templateSaved => 'Saved recording & template';
+
+  @override
+  String get askSelectedNote => 'Ask this note';
 }

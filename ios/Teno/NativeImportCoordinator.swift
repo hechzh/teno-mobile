@@ -10,12 +10,12 @@ import Vision
     let store: NativeStore, uploads: UploadQueue
     let presenter: () -> UIViewController?
     private var continuation: CheckedContinuation<JSONObject,Error>?
-    private var owner = "", parent = ""
+    private var owner = "", parent = "", template = "@default"
     private var atMs: Int64 = 0
     init(store: NativeStore, uploads: UploadQueue, presenter: @escaping () -> UIViewController?) {
         self.store = store; self.uploads = uploads; self.presenter = presenter
     }
-    func open(source: String, parent: String = "", atMs: Int64 = 0) async throws -> JSONObject {
+    func open(source: String, parent: String = "", atMs: Int64 = 0, template: String = "@default") async throws -> JSONObject {
         guard continuation == nil, !store.scope.isEmpty, var view = presenter() else { throw RuntimeFailure("IMPORT_BUSY", "Sign in and close the current import before trying again.") }
         while let shown = view.presentedViewController { view = shown }
         let requestedOwner = store.scope
@@ -25,7 +25,7 @@ import Vision
             guard granted else { throw RuntimeFailure("CAMERA_PERMISSION", "Allow camera access in Settings.") }
         }
         guard requestedOwner == store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.") }
-        owner = requestedOwner; self.parent = parent; self.atMs = max(0,atMs)
+        owner = requestedOwner; self.parent = parent; self.atMs = max(0,atMs); self.template = template
         return try await withCheckedThrowingContinuation { result in
             continuation = result
             if source == "camera" {
@@ -72,10 +72,10 @@ import Vision
     }
     private func finish(_ urls: [URL], removeCopies: Bool = false) {
         guard let result = continuation else { return }; continuation = nil
-        let scope = owner, parent = self.parent, position = atMs
+        let scope = owner, parent = self.parent, position = atMs, chosenTemplate = template
         Task {
             defer { if removeCopies { urls.forEach { try? FileManager.default.removeItem(at:$0) } } }
-            do { result.resume(returning:try await stage(urls, owner:scope, parent:parent, atMs:position)) }
+            do { result.resume(returning:try await stage(urls, owner:scope, parent:parent, atMs:position, template:chosenTemplate)) }
             catch { result.resume(throwing:error) }
         }
     }
@@ -95,7 +95,7 @@ import Vision
         if ext == "ics" { return "calendar" }
         return nil
     }
-    func stage(_ urls: [URL], owner: String, parent: String = "", atMs: Int64 = 0, incoming: [String:JSONObject] = [:]) async throws -> JSONObject {
+    func stage(_ urls: [URL], owner: String, parent: String = "", atMs: Int64 = 0, incoming: [String:JSONObject] = [:], template: String = "@default") async throws -> JSONObject {
         guard owner == store.scope, !owner.isEmpty else { throw RuntimeFailure("ACCOUNT_CHANGED", "Sign in to the original account before importing.") }
         guard urls.count <= 20 else { throw RuntimeFailure("IMPORT_LIMIT", "Choose up to 20 files at a time.") }
         var created: [JSONObject] = [], results: [JSONObject] = []
@@ -118,6 +118,7 @@ import Vision
                     uploads.saved(id); results.append(existing); continue
                 }
                 var draft = try store.newDraft(title,ext:ext,id:id)
+                draft["template_id"] = template
                 let target = URL(fileURLWithPath:string(draft["path"]))
                 created.append(draft)
                 if kind == "image" {

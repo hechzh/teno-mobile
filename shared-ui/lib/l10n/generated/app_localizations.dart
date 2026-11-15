@@ -4741,6 +4741,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The recorder channels do not match the JWD protocol.'**
   String get autoJwdChannels;
+
+  /// No description provided for @noteTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Note template'**
+  String get noteTemplate;
+
+  /// No description provided for @templateAccountDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Account default'**
+  String get templateAccountDefault;
+
+  /// No description provided for @templateGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General notes'**
+  String get templateGeneral;
+
+  /// No description provided for @templateInterview.
+  ///
+  /// In en, this message translates to:
+  /// **'Interview insights'**
+  String get templateInterview;
+
+  /// No description provided for @templateLecture.
+  ///
+  /// In en, this message translates to:
+  /// **'Lecture notes'**
+  String get templateLecture;
+
+  /// No description provided for @templateInspiration.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspiration'**
+  String get templateInspiration;
+
+  /// No description provided for @templateActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Action items'**
+  String get templateActions;
+
+  /// No description provided for @templateBrief.
+  ///
+  /// In en, this message translates to:
+  /// **'Concise recap'**
+  String get templateBrief;
+
+  /// No description provided for @templateCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom template'**
+  String get templateCustom;
+
+  /// No description provided for @templateAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate with another template'**
+  String get templateAnother;
+
+  /// No description provided for @templateProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing uses the selected template. Another template creates a new note.'**
+  String get templateProcessing;
+
+  /// No description provided for @templateSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved recording & template'**
+  String get templateSaved;
+
+  /// No description provided for @askSelectedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask this note'**
+  String get askSelectedNote;
 }
 
 class _AppLocalizationsDelegate

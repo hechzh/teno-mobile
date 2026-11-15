@@ -20,15 +20,24 @@ final class JwdAutomaticChecks {
         SharedPreferences prefs=context.getSharedPreferences("teno",0);
         String strong="00:00:00:00:07:11",weak="00:00:00:00:07:12";
         Map<String,Object> saved=new HashMap<>();
-        for(String key:Arrays.asList("jwd.key."+strong,"jwd.key."+weak,"jwd.last_address","jwd.last_name"))saved.put(key,prefs.getAll().get(key));
+        for(String key:Arrays.asList("jwd.key."+strong,"jwd.key."+weak,"jwd.last_address","jwd.last_name","scope","username","session"))saved.put(key,prefs.getAll().get(key));
         String snapshot=JwdService.snapshot;
         JwdService service=new JwdService();Method attach=ContextWrapper.class.getDeclaredMethod("attachBaseContext",Context.class);attach.setAccessible(true);attach.invoke(service,context);
         test.runOnMainSync(service::onCreate);Handler handler=(Handler)get(service,"handler");
         List<String> probes=new CopyOnWriteArrayList<>(),connections=new CopyOnWriteArrayList<>(),commands=new CopyOnWriteArrayList<>();
         java.util.function.Consumer<Work> call=work->{CountDownLatch done=new CountDownLatch(1);AtomicReference<Throwable> error=new AtomicReference<>();handler.post(()->{try{work.run();}catch(Throwable e){error.set(e);}finally{done.countDown();}});try{if(!done.await(5,TimeUnit.SECONDS))throw new Exception("Handler timeout");if(error.get()!=null)throw new Exception(error.get());}catch(Exception e){throw new RuntimeException(e);}};
         try{
+            store.logout();JwdService.accountClosing=false;
+            Method handle=JwdService.class.getDeclaredMethod("handle",Intent.class);handle.setAccessible(true);
+            for(String action:Arrays.asList("scan","scan_compat","probe","connect")){
+                boolean rejected=false;try{handle.invoke(service,new Intent().setAction(action));}catch(InvocationTargetException e){rejected=e.getCause() instanceof java.io.IOException;}
+                test.check(rejected,"signed_out_service_rejects_"+action);
+            }
+            store.identity("Synthetic JWD login gate","jwd-auth-fixture");
+            store.tokens(new JSONObject().put("access_token","synthetic-jwd-fixture"));
             prefs.edit().remove("jwd.key."+strong).remove("jwd.key."+weak).commit();
             call.accept(()->{
+                set(service,"connectionOwner",store.scope());set(service,"connectionEpoch",JwdService.sessionEpoch.get());JwdService.accountClosing=false;
                 set(service,"ble",new JwdTransport(){public void connect(BluetoothDevice d){connections.add(d.getAddress());}public void probe(BluetoothDevice d){probes.add(d.getAddress());}public void close(){}public void send(String v){commands.add(v);}});
                 @SuppressWarnings("unchecked") Map<String,JSONObject> found=(Map<String,JSONObject>)get(service,"found");
                 found.put(strong,new JSONObject().put("address",strong).put("name","HQ-10_P_STRONG").put("rssi",-30));
@@ -54,6 +63,14 @@ final class JwdAutomaticChecks {
             test.check(store.deviceKey(weak).equals(key),"reconnect_reuses_original_device_code");
             call.accept(()->{invoke(service,"cancelAutomaticConnection");set(service,"pending","probe");service.serviceChecked(true,"Late verification");});
             test.check(connections.size()==2,"cancel_fences_late_verified_callback");
+            int beforeCommands=commands.size(), beforeConnections=connections.size(), beforeProbes=probes.size();
+            JwdService.accountClosing=true;JwdService.sessionEpoch.incrementAndGet();
+            call.accept(()->{set(service,"autoDiscovery",true);set(service,"autoProbing",true);set(service,"pending","probe");
+                service.serviceChecked(true,"Late verification after logout");service.ready();
+                set(service,"pending","auth");service.command("MCU&SK&OK".getBytes(java.nio.charset.StandardCharsets.US_ASCII));});
+            test.check(commands.size()==beforeCommands&&connections.size()==beforeConnections&&probes.size()==beforeProbes,"logout_fences_late_probe_ready_and_auth_callbacks");
+            test.check(!(boolean)get(service,"authorized"),"logout_cannot_restore_authorized_connection");
+            JwdService.accountClosing=false;
             test.check(commands.stream().noneMatch(v->v.equals("APP&STA")||v.contains("RESET")),"automatic_connection_never_records_or_resets");
             BluetoothGattService gatt=new BluetoothGattService(JwdProtocol.SERVICE,BluetoothGattService.SERVICE_TYPE_PRIMARY);
             BluetoothGattCharacteristic write=new BluetoothGattCharacteristic(JwdProtocol.WRITE,BluetoothGattCharacteristic.PROPERTY_WRITE,0);gatt.addCharacteristic(write);
@@ -64,6 +81,7 @@ final class JwdAutomaticChecks {
             test.check(JwdBle.matchesProfile(gatt),"complete_writable_and_notifiable_jwd_profile_is_verified");
             test.check(!JwdBle.matchesProfile(new BluetoothGattService(UUID.randomUUID(),0)),"unrelated_service_is_rejected");
         }finally{
+            JwdService.accountClosing=false;
             test.runOnMainSync(service::onDestroy);((Thread)get(service,"thread")).join(3000);JwdService.snapshot=snapshot;
             SharedPreferences.Editor edit=prefs.edit();for(Map.Entry<String,Object> item:saved.entrySet()){if(item.getValue()==null)edit.remove(item.getKey());else edit.putString(item.getKey(),(String)item.getValue());}edit.commit();
         }

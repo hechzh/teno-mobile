@@ -6,6 +6,7 @@ import '../ui/personal_widgets.dart';
 import 'detail.dart';
 import 'personal_library.dart';
 import 'personal_recording.dart';
+import 'note_templates.dart';
 
 Future<void> showPersonalImport(
   BuildContext context,
@@ -36,13 +37,17 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
   bool busy = false;
   List<Json> imported = [];
   String error = '';
+  String template = '@default';
   Future<void> pick(String source) async {
     setState(() {
       busy = true;
       error = '';
     });
     try {
-      final value = await widget.model.command('import', {'source': source});
+      final value = await widget.model.command('import', {
+        'source': source,
+        'template_id': template,
+      });
       if (!mounted) return;
       setState(() => imported = rows(value['items']));
       widget.model.changed(await widget.model.host.snapshot());
@@ -67,6 +72,14 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
       children: [
         if (error.isNotEmpty) ErrorNotice(error),
         if (busy) const LinearProgressIndicator(minHeight: 2),
+        NoteTemplateChoice(
+          widget.model,
+          value: template,
+          enabled: !busy,
+          onChanged: (value) async {
+            setState(() => template = value);
+          },
+        ),
         for (final row in [
           ('files', 'From Files', Icons.folder_outlined),
           ('photos', 'From Photos', Icons.photo_library_outlined),
@@ -283,6 +296,35 @@ class PersonalLocalPage extends StatelessWidget {
               ),
             ],
             if (!file) AudioPlayerBar(model, id, local: true),
+            if (!file && remote.isEmpty && draft['template_frozen'] != true)
+              NoteTemplateChoice(
+                model,
+                value: text(draft['template_id']).isEmpty
+                    ? '@default'
+                    : text(draft['template_id']),
+                onChanged: (value) async {
+                  await model.command('note_template', {
+                    'id': id,
+                    'template_id': value,
+                  });
+                  model.changed(await model.host.snapshot());
+                },
+              ),
+            if (!file &&
+                (remote.isNotEmpty || draft['template_frozen'] == true)) ...[
+              const UiText(
+                'Processing uses the selected template. Another template creates a new note.',
+              ),
+              if (remote.isNotEmpty)
+                TextButton.icon(
+                  onPressed: () => perform(
+                    context,
+                    () => generateAnotherNote(context, model, remote),
+                  ),
+                  icon: const Icon(Icons.add),
+                  label: const UiText('Generate with another template'),
+                ),
+            ],
             if (text(draft['error']).isNotEmpty)
               ErrorNotice(text(draft['error'])),
             if (text(draft['processing_message']).isNotEmpty)

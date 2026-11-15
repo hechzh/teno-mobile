@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
-import 'recorder.dart';
 import 'interface_language.dart';
 import '../l10n/ui_strings.dart';
 
@@ -118,13 +117,6 @@ class _LoginPageState extends State<LoginPage> {
                 child: UiText(busy ? 'Signing in…' : 'Sign in'),
               ),
               const SizedBox(height: 12),
-              if (!widget.model.webExperience)
-                TextButton(
-                  onPressed: busy
-                      ? null
-                      : () => push(context, DevicePage(widget.model)),
-                  child: const UiText('Connect a recorder without signing in'),
-                ),
               if (!widget.model.webExperience)
                 TextButton(
                   onPressed: () => setState(() => advanced = !advanced),

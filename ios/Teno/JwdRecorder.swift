@@ -98,6 +98,9 @@ import JwdVtrSDK
         }
     }
     func command(_ action: DeviceAction, id: String, name: String) async throws {
+        if action != .disconnect && action != .stop && action != .cancelTransfer {
+            guard store.state().signedIn else { throw RuntimeFailure("SIGN_IN", "Sign in to connect your recorder.") }
+        }
         if action == .disconnect {
             requestGeneration += 1; cancelAutomatic(); central?.stopScan()
             if let device = peripheral {
@@ -115,7 +118,7 @@ import JwdVtrSDK
             guard Date() < until else { throw RuntimeFailure("BLUETOOTH", "Bluetooth is not ready. Allow access and try again.") }
             try await Task.sleep(nanoseconds: 100_000_000)
         }
-        guard generation == requestGeneration else { return }
+        guard generation == requestGeneration, store.state().signedIn else { return }
         if action == .scan || action == .compatibilityScan {
             guard central.state == .poweredOn else { throw RuntimeFailure("BLUETOOTH", "Turn on Bluetooth and allow Teno access in iOS Settings.") }
             guard !connected && !busy else { throw RuntimeFailure("DEVICE_BUSY", "Finish the current device operation first.") }
@@ -172,8 +175,16 @@ import JwdVtrSDK
         automatic = false; autoProbing = false
         autoQueue.removeAll(); scanTimer?.cancel(); earlySelection?.cancel()
     }
+    func cancelAccountConnection() {
+        requestGeneration += 1; connectionGeneration += 1
+        cancelAutomatic(); central?.stopScan(); deadline?.cancel()
+        commands.removeAll(); commandTask?.cancel(); commandTask = nil
+        if let device = peripheral { central?.cancelPeripheralConnection(device) }
+        peripheral = nil; authorized = false; busy = false; waiting = ""
+        status = "Sign in to connect your recorder."
+    }
     private func selectAutomatic() {
-        guard automatic, !autoProbing, !busy else { return }
+        guard store.state().signedIn, automatic, !autoProbing, !busy else { return }
         central.stopScan(); scanTimer?.cancel(); earlySelection?.cancel()
         if !preferred.isEmpty {
             if discovered[preferred] == nil, let id = UUID(uuidString: preferred) {
@@ -186,7 +197,7 @@ import JwdVtrSDK
         nextAutomaticProbe()
     }
     private func nextAutomaticProbe() {
-        guard automatic else { return }
+        guard store.state().signedIn, automatic else { return }
         while !autoQueue.isEmpty {
             let id = autoQueue.removeFirst()
             guard autoTried.insert(id).inserted, let device = discovered[id] else { continue }
@@ -221,6 +232,7 @@ import JwdVtrSDK
         return String(bytes: result, encoding: .ascii)!
     }
     func bind(id: String, name: String, key: String, createNew: Bool) async throws {
+        guard store.state().signedIn else { throw RuntimeFailure("SIGN_IN", "Sign in to connect your recorder.") }
         guard string(candidates[id]?["gatt_status"]) == "verified" else { throw RuntimeFailure("DEVICE_UNVERIFIED", "Check the recording service first.") }
         var credential = key
         if createNew {
@@ -261,7 +273,7 @@ import JwdVtrSDK
         if automatic && id == preferred && !busy { selectAutomatic() }
     }
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        guard self.peripheral === peripheral, busy else { central.cancelPeripheralConnection(peripheral); return }; verify(peripheral)
+        guard store.state().signedIn, self.peripheral === peripheral, busy else { central.cancelPeripheralConnection(peripheral); return }; verify(peripheral)
     }
     private func verify(_ device: CBPeripheral) {
         peripheral = device; busy = true; authorized = false
@@ -273,6 +285,7 @@ import JwdVtrSDK
         peripheral.discoverCharacteristics(Self.characteristics, for: service)
     }
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        guard store.state().signedIn else { cancelAccountConnection(); return }
         guard self.peripheral === peripheral, busy else { return }
         guard error == nil, let chars = service.characteristics, Self.characteristics.allSatisfy({ id in chars.contains { $0.uuid == id } }) else { unsupported(peripheral); return }
         guard chars.contains(where: { $0.uuid == Self.characteristics[1] && (!$0.properties.intersection([.write,.writeWithoutResponse]).isEmpty) }),
@@ -317,7 +330,7 @@ import JwdVtrSDK
         // Some vendor versions report readiness before the second CCCD completes.
         Task {
             for _ in 0..<40 {
-                guard self.peripheral === peripheral, connected else { return }
+                guard store.state().signedIn, self.peripheral === peripheral, connected else { return }
                 let notifications = peripheral.services?.flatMap { $0.characteristics ?? [] }.filter { $0.uuid == Self.characteristics[0] || $0.uuid == Self.characteristics[2] } ?? []
                 if notifications.count == 2 && notifications.allSatisfy({ $0.isNotifying }) {
                     if waiting == "auth" || authorized { return }
@@ -337,7 +350,7 @@ import JwdVtrSDK
     func onBleDisConnected(_ peripheral: CBPeripheral) {}
     func onBleError(_ errorCode: Int32) { status = "Recorder connection error (\(errorCode))."; busy = false }
     func onAuthSuccess() {
-        guard waiting == "auth", connected else { return }
+        guard store.state().signedIn, waiting == "auth", connected else { return }
         deadline?.cancel(); waiting = "state"; authorized = true; busy = true; recordStateKnown = false; status = "Checking recorder status"
         candidates[identifier]?["key_rejected"] = false
         store.preferences.set(identifier,forKey:"recorder.id"); store.preferences.set(name,forKey:"recorder.name")
@@ -477,6 +490,7 @@ import JwdVtrSDK
                         try? FileManager.default.removeItem(at:output); throw RuntimeFailure("INVALID_AUDIO","Recorder audio is invalid or longer than 60 minutes.")
                     }
                     draft["duration_ms"] = Int64(duration * 1000); draft["notes"] = note
+                    draft["template_id"] = store.preferences.string(forKey:"note.template." + store.scope + ".jwd:" + deviceId + "|" + string(entry["name"])) ?? "@default"
                     draft["source"] = "jwd_ble"; draft["jwd_device"] = deviceId; draft["jwd_file"] = string(entry["name"])
                     draft["validation"] = (crc32 ?? "").isEmpty ? "length + end marker (firmware supplied no CRC)" : "length + end marker + CRC32"
                     try store.save(draft); saved(stableId)

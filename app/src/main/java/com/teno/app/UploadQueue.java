@@ -98,12 +98,12 @@ final class UploadQueue {
         activeApi=api;if(accountPaused){api.cancel();return;}
         try{
             JSONObject draft;
-            synchronized(Store.class){draft=store.draft(id);draft.put("status","uploading").put("upload_attempts",draft.optInt("upload_attempts")+1).remove("error");store.save(draft);}
+            synchronized(Store.class){draft=store.draft(id);draft.put("template_frozen",true).put("status","uploading").put("upload_attempts",draft.optInt("upload_attempts")+1).remove("error");store.save(draft);}
             File audio=new File(draft.getString("path"));if(!audio.isFile()||audio.length()==0)throw new IOException("No valid audio file found");
             boolean document=draft.optString("kind").equals("file");
             JSONObject fields=new JSONObject().put("client_id",id);
             if(document){String parent=parentRecording(store,draft);if(!parent.isEmpty())fields.put("recording_id",parent);if(draft.has("at_ms"))fields.put("at_ms",String.valueOf(draft.getLong("at_ms")));}
-            else fields.put("title",draft.getString("title")).put("language",store.language()).put("personal_mode","true").put("source",draft.optString("source").equals("import")?"import":draft.optString("source").equals("jwd_ble")?"device":"phone");
+            else fields.put("title",draft.getString("title")).put("language",store.language()).put("personal_mode","true").put("template_id",draft.optString("template_id","@default")).put("source",draft.optString("source").equals("import")?"import":draft.optString("source").equals("jwd_ble")?"device":"phone");
             if(!draft.optString("live_session_id").isEmpty())fields.put("live_session_id",draft.getString("live_session_id"));
             JSONObject result=api.upload(document?"/api/v1/files":"/api/v1/recordings",audio,document?draft.getString("title"):audio.getName(),fields,(sent,total)->{TransferService.message="Uploading "+(total==0?0:sent*100/total)+"%";progress.update(TransferService.message);});
             if(!owner.equals(store.scope()))return;

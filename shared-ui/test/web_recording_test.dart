@@ -483,7 +483,12 @@ void main() {
       expect(
         tester.widget<PersonalChatPage>(find.byType(PersonalChatPage)).initial,
         [
-          {'type': 'recording', 'id': 'record-1'},
+          {
+            'type': 'note',
+            'id': 'note-1',
+            'revision': 1,
+            'include_source': true,
+          },
         ],
       );
       expect(tester.takeException(), isNull);

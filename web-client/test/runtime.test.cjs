@@ -22,6 +22,27 @@ function host(fetch) {
   runtime.session = {...user}; runtime.validated = true; return runtime;
 }
 const file = (name = 'acceptance.txt') => new File(['Synthetic Teno acceptance content.'], name, {type: 'text/plain'});
+test('template selection persists locally, freezes at upload and retry preserves it', async () => {
+  const submitted = []; let fail = true;
+  const r = host(async (url, options) => {
+    if (url.endsWith('/recordings')) {
+      submitted.push({id: options.body.get('client_id'), template: options.body.get('template_id')});
+      if (fail) throw new Error('Network interrupted');
+      return response({recording_id:'record', job_id:'job'},202);
+    }
+    return response({status:'ready'});
+  });
+  const {items} = await r.stage([file('meeting.wav')],r.epoch,'teno:lecture');
+  const id=items[0].id;
+  await r.call('note_template',{id,template_id:'teno:interview'});
+  assert.equal((await r.store.get(id)).template_id,'teno:interview');
+  await r.retryUpload({id});
+  assert.equal((await r.store.get(id)).status, 'failed');
+  await assert.rejects(r.call('note_template',{id,template_id:'teno:actions'}),/Processing has started/);
+  fail=false; await r.retryUpload({id});
+  assert.deepEqual(submitted,[{id,template:'teno:interview'},{id,template:'teno:interview'}]);
+  assert.ok((await r.store.get(id)).blob.size);
+});
 test('only supported types and true byte limits enter browser storage', () => {
   assert.equal(fileInfo(file()).kind, 'file');
   assert.equal(fileInfo({name: 'MEETING.M4A', size: 100}).kind, 'recording');

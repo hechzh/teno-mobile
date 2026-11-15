@@ -1,0 +1,26 @@
+Teno 0.8.0 / 16 · implementation candidate
+
+Android retains com.teno.app and the original signer. iOS source delivery uses
+com.jwd.ZhiYan, Apple version 1.1 / Build 12. Web candidate is 0.3.0 / 8.
+Requires compatible shared backend 1.6.0 for versioned templates and note Ask.
+
+Sign in before recorder discovery, connection and protocol authorization.
+Logout cancels pending connection requests. Existing device codes and automatic
+connection policy remain. Device/account binding, SN support and unbinding are deferred.
+
+Meeting, interview, lecture, inspiration and action templates retain evidence,
+uncertainty and missing fields. General notes, concise recap and custom templates
+remain available. Account default and per-recording choices are separate.
+Original files save independently; upload queues persist their template choice.
+Changing templates creates a new note; explicit regeneration keeps revisions.
+Ask uses the selected note version and matching transcript. Sharing and exports
+pin the selected version. Old notes and manual edits remain readable.
+
+Implementation checks: Flutter analysis and 366 tests, 32 Web runtime tests,
+Android Release compilation and Lint; isolated backend suite 386 tests.
+Native upgrade completion, iOS CI, actual small-batch model checks, online
+compatibility and delivery receipts are being collected for the final handoff.
+These implementation results are not physical Magic4 Pro/JWD/iPhone acceptance.
+
+Development history only. No main merge, app-store release, formal Android
+baseline promotion or replacement of the formal Web entry is authorized here.

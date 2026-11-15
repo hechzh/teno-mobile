@@ -51,6 +51,12 @@ final class PersonalRuntime {
                 if(args.has("locale"))UiLocale.set(activity,args.getString("locale"));
                 result.success(new JSONObject().put("locale",UiLocale.preference(activity)).toString());return;
             }
+            if(command.equals("note_template")){runtime.work(result,()->{runtime.signedIn();String id=args.getString("id"),template=args.getString("template_id");
+                if(template.length()>128)throw new IOException("Invalid template.");
+                if(id.startsWith("jwd:")){store.recorderTemplate(id,template);return "{}";}
+                synchronized(Store.class){JSONObject d=store.draft(id);if(!store.scope().equals(d.optString("scope")))throw new IOException("Account changed.");
+                    if(d.optBoolean("template_frozen")||!d.optString("recording_id").isEmpty())throw new IOException("Processing has started. Generate a new note from recording details.");
+                    d.put("template_id",template);store.save(d);}return "{}";});return;}
             if(command.equals("preferences")){result.success(new JSONObject().put("personal_core",true).put("settings",new JSONObject(prefs.getString(key("settings"),"{}"))).put("app_lock",prefs.getBoolean(key("lock"),false)).put("pending_imports",pending().length()).toString());return;}
             if(command.equals("cache_preferences")){runtime.signedIn();prefs.edit().putString(key("settings"),args.toString()).putBoolean(key("notifications"),args.optBoolean("notifications",true)).commit();result.success("{}");return;}
             if(command.equals("app_lock")){setLock(args.optBoolean("enabled"),result);return;}
@@ -174,6 +180,7 @@ final class PersonalRuntime {
                 if(args.has("local_id"))draft.put("parent_local_id",args.getString("local_id"));
                 if(args.has("at_ms"))draft.put("at_ms",args.getLong("at_ms"));
             }
+            draft.put("template_id",args.optString("template_id","@default"));
             if(!owner.equals(store.scope()))throw new IOException("Account changed during import.");store.save(draft);done=true;applyImportQueue(id);
             return new JSONObject().put("id",draft.getString("id")).put("type","local").put("title",title);
         }finally{if(!done)file.delete();}

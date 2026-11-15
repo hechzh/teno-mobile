@@ -7,15 +7,22 @@ import 'personal_actions.dart';
 import 'personal_ask.dart';
 
 class PersonalNotePage extends StatefulWidget {
-  const PersonalNotePage(this.model, this.id, {super.key});
+  const PersonalNotePage(
+    this.model,
+    this.id, {
+    super.key,
+    this.initialRevision,
+  });
   final TenoModel model;
   final String id;
+  final int? initialRevision;
   @override
   State<PersonalNotePage> createState() => _PersonalNotePageState();
 }
 
 class _PersonalNotePageState extends State<PersonalNotePage> {
-  int? revision;
+  late int? revision = widget.initialRevision;
+  int? displayedRevision;
   @override
   Widget build(BuildContext context) => CoreFrame(
     title: 'Note',
@@ -26,6 +33,7 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
         () => personalShare(context, widget.model, {
           'id': widget.id,
           'type': 'note',
+          if (displayedRevision != null) 'note_revision': displayedRevision,
         }),
       ),
       PopupMenuButton<String>(
@@ -34,7 +42,7 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
         onSelected: (value) => perform(context, () async {
           final note = await widget.model.api(
             'GET',
-            '/api/v1/notes/${widget.id}',
+            '/api/v1/notes/${widget.id}${value == 'export' && displayedRevision != null ? '?revision=$displayedRevision' : ''}',
           );
           if (!context.mounted) return;
           if (value == 'edit') {
@@ -45,6 +53,8 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
               'id': widget.id,
               'type': 'note',
               ...note,
+              'note_revision':
+                  revision ?? note['selected_revision'] ?? note['revision'],
             });
           else if (value == 'versions') {
             final values = await widget.model.list(
@@ -73,7 +83,7 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
               ),
             );
             if (chosen != null && mounted) setState(() => revision = chosen);
-          } else if (value == 'regenerate') {
+          } else if (value == 'regenerate' || value == 'another') {
             final template = await push<String>(
               context,
               PersonalTemplatePicker(widget.model),
@@ -110,8 +120,8 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
                   : '/api/v1/recordings/$rec/notes',
               {
                 'client_id': requestId(),
-                'note_id': widget.id,
-                'base_revision': note['revision'],
+                if (value == 'regenerate') 'note_id': widget.id,
+                if (value == 'regenerate') 'base_revision': note['revision'],
                 if (rec.isEmpty) 'contexts': sources,
                 if (template.isNotEmpty) 'template_id': template,
               },
@@ -124,6 +134,10 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
         itemBuilder: (_) => const [
           PopupMenuItem(value: 'edit', child: UiText('Edit')),
           PopupMenuItem(value: 'versions', child: UiText('Version history')),
+          PopupMenuItem(
+            value: 'another',
+            child: UiText('Generate with another template'),
+          ),
           PopupMenuItem(value: 'regenerate', child: UiText('Regenerate')),
           PopupMenuItem(value: 'export', child: UiText('Export as')),
         ],
@@ -135,25 +149,47 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
         'GET',
         '/api/v1/notes/${widget.id}${revision == null ? '' : '?revision=$revision'}',
       ),
-      builder: (context, note, reload) => ListView(
-        padding: const EdgeInsets.all(21),
-        children: [
-          Text(
-            text(note['title']),
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            dateLabel(note['created_at']),
-            style: TextStyle(fontSize: 12, color: subtle(context)),
-          ),
-          if (note['stale'] == true)
-            const ErrorNotice(
-              'The source transcript has changed. This note retains its earlier version.',
+      builder: (context, note, reload) {
+        displayedRevision =
+            (note['selected_revision'] ?? note['revision']) as int?;
+        return ListView(
+          padding: const EdgeInsets.all(21),
+          children: [
+            Text(
+              text(note['title']),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-          NoteContent(note, widget.model),
-        ],
-      ),
+            const SizedBox(height: 10),
+            Text(
+              dateLabel(note['created_at']),
+              style: TextStyle(fontSize: 12, color: subtle(context)),
+            ),
+            if (note['stale'] == true)
+              const ErrorNotice(
+                'The source transcript has changed. This note retains its earlier version.',
+              ),
+            NoteContent(note, widget.model),
+            TextButton.icon(
+              onPressed: () => push(
+                context,
+                PersonalChatPage(
+                  widget.model,
+                  initial: [
+                    {
+                      'type': 'note',
+                      'id': widget.id,
+                      'revision': note['selected_revision'] ?? note['revision'],
+                      'include_source': true,
+                    },
+                  ],
+                ),
+              ),
+              icon: const Icon(Icons.auto_awesome_outlined),
+              label: const UiText('Ask this note'),
+            ),
+          ],
+        );
+      },
     ),
   );
 }
@@ -620,7 +656,10 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
             ),
             const SizedBox(height: 9),
             Text(
-              text(item['title']),
+              item['recommended'] == true &&
+                      Localizations.localeOf(context).languageCode == 'zh'
+                  ? text(item['title_zh'] ?? item['title'])
+                  : text(item['title']),
               maxLines: compact ? 2 : null,
               overflow: compact ? TextOverflow.ellipsis : null,
               style: const TextStyle(

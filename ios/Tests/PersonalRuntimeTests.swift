@@ -16,6 +16,18 @@ private final class FixtureProtocol: URLProtocol {
 }
 
 final class PersonalRuntimeTests: XCTestCase {
+    @MainActor func testLoggedOutRecorderRejectsNativeCommandsBeforeBluetooth() async throws {
+        let (store,api) = try fixture()
+        let recorder = JwdRecorder(store:store,api:api,saved:{ _ in })
+        for action in [DeviceAction.scan,.compatibilityScan,.probe,.connect] {
+            do { try await recorder.command(action,id:"",name:""); XCTFail("Expected sign-in guard") }
+            catch let error as RuntimeFailure { XCTAssertEqual(error.code,"SIGN_IN") }
+        }
+        do { try await recorder.bind(id:UUID().uuidString,name:"Fixture",key:"1234567890123456",createNew:false); XCTFail("Expected sign-in guard") }
+        catch let error as RuntimeFailure { XCTAssertEqual(error.code,"SIGN_IN") }
+        recorder.cancelAccountConnection(); recorder.onAuthSuccess()
+        XCTAssertFalse(recorder.authorized); XCTAssertFalse(recorder.busy)
+    }
     @MainActor private func fixture() throws -> (NativeStore,SessionTransport) {
         let name = "com.teno.test." + UUID().uuidString
         let preferences = UserDefaults(suiteName:name)!

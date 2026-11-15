@@ -307,7 +307,7 @@
   "label0e52f6b9d025": "Markdown",
   "label4c857c545b8a": "匹配的录音器",
   "label8b8b8871bbfb": "会议",
-  "label9e6c24f51918": "会议笔记",
+  "label9e6c24f51918": "会议纪要",
   "label8851aaa7d08c": "合并",
   "labelc8627d844f1f": "合并录音",
   "label56112ca16c30": "合并录音标题",
@@ -825,5 +825,18 @@
   "autoJwdKeyRejected": "设备码未被接受，请使用原设备码。录音器未被重置。",
   "autoJwdSaveCode": "无法保存设备码，请重新连接。",
   "autoJwdAuth": "正在验证设备码",
-  "autoJwdChannels": "设备通道不符合 JWD 协议。"
+  "autoJwdChannels": "设备通道不符合 JWD 协议。",
+  "noteTemplate": "笔记模板",
+  "templateAccountDefault": "账号默认模板",
+  "templateGeneral": "通用笔记",
+  "templateInterview": "访谈",
+  "templateLecture": "课堂",
+  "templateInspiration": "灵感",
+  "templateActions": "待办",
+  "templateBrief": "简短概览",
+  "templateCustom": "自建模板",
+  "templateAnother": "按另一模板生成新笔记",
+  "templateProcessing": "处理中使用已选模板。更换模板将生成另一份笔记。",
+  "templateSaved": "已保存录音与模板",
+  "askSelectedNote": "针对当前笔记提问"
 }

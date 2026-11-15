@@ -849,7 +849,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label8b8b8871bbfb => '会议';
 
   @override
-  String get label9e6c24f51918 => '会议笔记';
+  String get label9e6c24f51918 => '会议纪要';
 
   @override
   String get label8851aaa7d08c => '合并';
@@ -2359,4 +2359,43 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get autoJwdChannels => '设备通道不符合 JWD 协议。';
+
+  @override
+  String get noteTemplate => '笔记模板';
+
+  @override
+  String get templateAccountDefault => '账号默认模板';
+
+  @override
+  String get templateGeneral => '通用笔记';
+
+  @override
+  String get templateInterview => '访谈';
+
+  @override
+  String get templateLecture => '课堂';
+
+  @override
+  String get templateInspiration => '灵感';
+
+  @override
+  String get templateActions => '待办';
+
+  @override
+  String get templateBrief => '简短概览';
+
+  @override
+  String get templateCustom => '自建模板';
+
+  @override
+  String get templateAnother => '按另一模板生成新笔记';
+
+  @override
+  String get templateProcessing => '处理中使用已选模板。更换模板将生成另一份笔记。';
+
+  @override
+  String get templateSaved => '已保存录音与模板';
+
+  @override
+  String get askSelectedNote => '针对当前笔记提问';
 }

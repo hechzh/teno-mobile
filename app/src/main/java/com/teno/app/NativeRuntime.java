@@ -26,7 +26,8 @@ final class NativeRuntime implements RuntimeHost {
     private final RuntimeEvents events;
     private boolean closed,visible;
     private volatile boolean phoneStarting;
-    private long sequence,deviceRequestGeneration;
+    private long sequence;
+    private volatile long deviceRequestGeneration;
     private String route="",lastSource="phone",pendingPhoneId="";
     NativeRuntime(MainActivity activity,BinaryMessenger messenger){
         this.activity=activity;this.messenger=messenger;store=new Store(activity);api=new Api(store);
@@ -131,10 +132,12 @@ final class NativeRuntime implements RuntimeHost {
     @Override public void login(String server,String username,String password,Result<SessionState> result){
         work(result,()->{accountIdle();if(!store.token("access_token").isEmpty())throw new IOException("Sign out before changing accounts.");
             store.base(Api.validateBase(server));try{api.login(username,password);api.ensureNativePreferences();}catch(Exception e){store.logout();throw e;}
-            UploadQueue.resumeAccount(activity);return session();});
+            JwdService.accountClosing=false;UploadQueue.resumeAccount(activity);return session();});
     }
     @Override public void logout(VoidResult result){
-        work(result,()->{accountIdle();UploadQueue.pauseAccount(activity);try{api.post("/api/v1/auth/logout",new JSONObject());}catch(IOException ignored){}finally{store.logout();}
+        work(result,()->{accountIdle();++deviceRequestGeneration;JwdService.accountClosing=true;JwdService.sessionEpoch.incrementAndGet();
+            if(JwdService.active)activity.startService(new Intent(activity,JwdService.class).setAction("disconnect"));
+            UploadQueue.pauseAccount(activity);try{api.post("/api/v1/auth/logout",new JSONObject());}catch(IOException ignored){}finally{store.logout();}
             RecorderService.live=null;RecorderService.draftId="";RecorderService.error="";
             JwdService.live=null;lastSource="phone";pendingPhoneId="";
             main.post(media::releasePlayer);route="";});
@@ -170,20 +173,23 @@ final class NativeRuntime implements RuntimeHost {
     });}
     private String[] bluetoothPermissions(){return Build.VERSION.SDK_INT>=31?new String[]{Manifest.permission.BLUETOOTH_SCAN,Manifest.permission.BLUETOOTH_CONNECT}:new String[]{Manifest.permission.ACCESS_FINE_LOCATION};}
     void sendDevice(DeviceAction action,String id,String name)throws Exception{
+        if(action!=DeviceAction.DISCONNECT&&action!=DeviceAction.STOP&&action!=DeviceAction.CANCEL_TRANSFER){signedIn();if(JwdService.accountClosing)throw new IOException("Sign in to continue.");}
         String command=switch(action){case SCAN->"scan";case COMPATIBILITY_SCAN->"scan_compat";case CANCEL_TRANSFER->"cancel";default->action.name().toLowerCase(Locale.ROOT);};
         if(action==DeviceAction.SYNC)signedIn();
         if(action==DeviceAction.START){signedIn();if(RecorderService.active||RecorderService.finishing||phoneStarting)throw new IOException("Finish the phone recording first.");lastSource="device";}
         if(action==DeviceAction.CONNECT&&id.isEmpty()){id=store.recorderAddress();name=store.recorderName();}
         activity.startForegroundService(new Intent(activity,JwdService.class).setAction(command).putExtra("address",id)
-            .putExtra("name",name).putExtra("live",session().getSignedIn()&&store.liveDefault()));
+            .putExtra("name",name).putExtra("session_epoch",JwdService.sessionEpoch.get()).putExtra("live",session().getSignedIn()&&store.liveDefault()));
     }
     @Override public void controlDevice(DeviceAction action,String id,String name,VoidResult result){
+        if(action!=DeviceAction.DISCONNECT&&action!=DeviceAction.STOP&&action!=DeviceAction.CANCEL_TRANSFER)try{signedIn();if(JwdService.accountClosing)throw new IOException("Sign in to continue.");}catch(Exception e){result.error(failure(e));return;}
         long generation=++deviceRequestGeneration;
         if(action==DeviceAction.DISCONNECT){ui(result,()->sendDevice(action,id,name));return;}
         activity.permissions(bluetoothPermissions(),()->ui(result,()->{if(generation==deviceRequestGeneration)sendDevice(action,id,name);}),e->result.error(failure(e)));
     }
     @Override public void bindDevice(String id,String name,String key,Boolean createNew,VoidResult result){
         work(new Result<Boolean>(){public void error(Throwable e){result.error(e);}public void success(Boolean value){ui(result,()->sendDevice(DeviceAction.CONNECT,id,name));}},()->{
+            signedIn();if(JwdService.accountClosing)throw new IOException("Sign in to continue.");
             boolean verified=false;JSONArray candidates=device().optJSONArray("devices");
             if(candidates!=null)for(int i=0;i<candidates.length();i++){JSONObject d=candidates.getJSONObject(i);if(id.equals(d.optString("address"))&&d.optString("gatt_status").equals("verified"))verified=true;}
             if(!verified)throw new IOException("Check the recorder service before saving a device key.");

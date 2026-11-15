@@ -86,6 +86,7 @@ import UserNotifications
             let id = string(next["id"]), owner = store.scope
             do {
                 var attempting = try store.draft(id)
+                attempting["template_frozen"] = true
                 attempting["upload_attempts"] = (attempting["upload_attempts"] as? Int ?? 0) + 1
                 try store.save(attempting)
                 // Refresh before creating the OS-owned upload task. Refreshes are serialized.
@@ -127,7 +128,7 @@ import UserNotifications
             if !parent.isEmpty { values.append(("recording_id",parent)) }
             if let position = draft["at_ms"] as? NSNumber { values.append(("at_ms",position.stringValue)) }
         } else {
-            values += [("title",string(draft["title"])),("language","auto"),("personal_mode","true"),("source",string(draft["source"]) == "import" ? "import" : string(draft["source"]) == "jwd_ble" ? "device" : "phone")]
+            values += [("title",string(draft["title"])),("language","auto"),("personal_mode","true"),("template_id",string(draft["template_id"]).isEmpty ? "@default" : string(draft["template_id"])),("source",string(draft["source"]) == "import" ? "import" : string(draft["source"]) == "jwd_ble" ? "device" : "phone")]
             if !string(draft["live_session_id"]).isEmpty { values.append(("live_session_id",string(draft["live_session_id"]))) }
         }
         return values

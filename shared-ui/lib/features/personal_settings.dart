@@ -10,6 +10,7 @@ import 'personal_import.dart';
 import 'recorder.dart';
 import 'interface_language.dart';
 import 'personal_notes.dart';
+import 'note_templates.dart';
 import '../l10n/ui_strings.dart';
 
 Widget settingsGroup(BuildContext context, String title) => Padding(
@@ -76,6 +77,14 @@ class PersonalSettings extends StatelessWidget {
           context,
           CoreFrame(title: 'Templates', child: PersonalTemplates(model)),
         ),
+      ),
+      NoteTemplateChoice(
+        model,
+        value: text(model.personalSettings['default_template_id']).isEmpty
+            ? 'teno:general'
+            : text(model.personalSettings['default_template_id']),
+        onChanged: (value) =>
+            model.updatePersonal({'default_template_id': value}),
       ),
       settingsEntry(
         context,

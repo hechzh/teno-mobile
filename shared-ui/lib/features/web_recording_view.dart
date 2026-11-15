@@ -539,6 +539,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         ...record,
         'type': 'recording',
         'id': widget.id,
+        'note_revision': _note['selected_revision'] ?? _note['revision'],
       }, noteId: notes.isEmpty ? null : text(_note['id']));
       if (mounted) unawaited(_loadRelated(_loadStamp));
       return;
@@ -569,7 +570,12 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
       context,
       PersonalExportPage(
         widget.model,
-        {...record, 'id': widget.id, 'type': 'recording'},
+        {
+          ...record,
+          'id': widget.id,
+          'type': 'recording',
+          'note_revision': _note['selected_revision'] ?? _note['revision'],
+        },
         noteId: choice == 'note' ? text(_note['id']) : null,
         initialContent: choice,
         sheet: true,
@@ -1357,7 +1363,17 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                         PersonalChatPage(
                           widget.model,
                           initial: [
-                            {'type': 'recording', 'id': widget.id},
+                            if (notes.isNotEmpty)
+                              {
+                                'type': 'note',
+                                'id': _note['id'],
+                                'revision':
+                                    _note['selected_revision'] ??
+                                    _note['revision'],
+                                'include_source': true,
+                              }
+                            else
+                              {'type': 'recording', 'id': widget.id},
                           ],
                         ),
                       ),

@@ -846,5 +846,18 @@
   "autoJwdKeyRejected": "Device key was rejected. Use the original key; the recorder was not reset.",
   "autoJwdSaveCode": "The device code could not be saved. Try connecting again.",
   "autoJwdAuth": "Authorizing recorder",
-  "autoJwdChannels": "The recorder channels do not match the JWD protocol."
+  "autoJwdChannels": "The recorder channels do not match the JWD protocol.",
+  "noteTemplate": "Note template",
+  "templateAccountDefault": "Account default",
+  "templateGeneral": "General notes",
+  "templateInterview": "Interview insights",
+  "templateLecture": "Lecture notes",
+  "templateInspiration": "Inspiration",
+  "templateActions": "Action items",
+  "templateBrief": "Concise recap",
+  "templateCustom": "Custom template",
+  "templateAnother": "Generate with another template",
+  "templateProcessing": "Processing uses the selected template. Another template creates a new note.",
+  "templateSaved": "Saved recording & template",
+  "askSelectedNote": "Ask this note"
 }
