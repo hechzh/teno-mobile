@@ -1823,17 +1823,17 @@
       {
         "name": "light",
         "screenshot": "screenshots/android/light/85-calendar-events.png",
-        "sha256": "7017fafa9a83ca31dc9954ee3d952a7ea7651e3144a3e1b9ba81cb9c6f40fb58"
+        "sha256": "ec00d63f9cd6b598e59f6e4bfeea9e8ded91da09f9f515dc1772d9c9b56c2b7e"
       },
       {
         "name": "dark",
         "screenshot": "screenshots/android/dark/85-calendar-events.png",
-        "sha256": "9cb3dd3a17bd8aff4d58852c7c810fc9651aa8d46285fe572b7e0cf6506b35da"
+        "sha256": "07e4eb7935c857bd1ad85aabeed7f2f81159e219c6948e75ee9030ece8ca2463"
       },
       {
         "name": "large",
         "screenshot": "screenshots/android/large/85-calendar-events.png",
-        "sha256": "8ec553207cbd91830274bec3c593ddca34b0dde7184d79b2735ad046a520db2b"
+        "sha256": "73cacd1a6708ec2c54ebe83d8f85db928f93209437e138ee8b647718329b10ee"
       }
     ],
     "evidence": "Flutter navigation; synthetic data; English; not a physical device capture",

@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'core/model.dart';
 import 'ui/widgets.dart';
-import 'features/home.dart';
+import 'features/routes/home.dart';
 import 'features/login.dart';
-import 'features/personal_home.dart';
+import 'features/routes/personal_home.dart';
 import 'ui/personal_widgets.dart';
 import 'l10n/ui_strings.dart';
 
@@ -14,9 +14,15 @@ void main() {
 }
 
 class TenoApp extends StatefulWidget {
-  const TenoApp({super.key, required this.model, this.initialize = true});
+  const TenoApp({
+    super.key,
+    required this.model,
+    this.initialize = true,
+    this.builder,
+  });
   final TenoModel model;
   final bool initialize;
+  final TransitionBuilder? builder;
   @override
   State<TenoApp> createState() => _TenoAppState();
 }
@@ -33,6 +39,7 @@ class _TenoAppState extends State<TenoApp> {
     animation: widget.model,
     builder: (context, _) => MaterialApp(
       title: 'Teno',
+      builder: widget.builder,
       locale: widget.model.interfaceLanguage == 'system'
           ? null
           : Locale(widget.model.interfaceLanguage),
@@ -43,7 +50,10 @@ class _TenoAppState extends State<TenoApp> {
           ? const Locale('zh')
           : const Locale('en'),
       debugShowCheckedModeBanner: false,
-      theme: widget.model.personalCore || !widget.model.signedIn
+      theme:
+          widget.model.webExperience ||
+              widget.model.personalCore ||
+              !widget.model.signedIn
           ? personalTheme(false, webExperience: widget.model.webExperience)
           : tenoTheme(),
       darkTheme: personalTheme(true, webExperience: widget.model.webExperience),
@@ -68,7 +78,7 @@ class _TenoAppState extends State<TenoApp> {
               ),
             )
           : widget.model.signedIn
-          ? widget.model.personalCore
+          ? widget.model.webExperience || widget.model.personalCore
                 ? PersonalHome(widget.model)
                 : HomePage(widget.model)
           : LoginPage(widget.model),

@@ -5,7 +5,7 @@ import '../core/model.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
-import 'personal_ask.dart';
+import 'routes/personal_ask.dart';
 
 class PersonalSearchPage extends StatefulWidget {
   const PersonalSearchPage(this.model, {super.key, this.onNavigation});

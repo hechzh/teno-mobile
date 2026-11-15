@@ -6,9 +6,9 @@ import '../core/model.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
-import 'personal_notes.dart';
-import 'personal_import.dart';
-import 'personal_search.dart';
+import 'routes/personal_notes.dart';
+import 'routes/personal_import.dart';
+import 'routes/personal_search.dart';
 export 'personal_search.dart';
 
 class PersonalListPage extends StatelessWidget {

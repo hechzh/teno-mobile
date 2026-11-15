@@ -1,4 +1,64 @@
-# Teno Web 0.2.0 candidate
+# Teno Web 0.2.2 candidate
+
+Web-only delivery update for slow mobile connections. The UI base stays 0.7.0.
+Public compiled code, rendering files and fonts can load from exact-commit CDN
+URLs. A bounded, version-checked probe chooses a working source; unavailable
+CDNs fall back to the retained origin bundle. API requests and account/import
+storage continue to use the original service. `?teno_assets=origin` explicitly
+uses the original server. A global CDN is not a promise of mainland China nodes
+or measured Shanghai/iPhone performance.
+The source is remembered after a successful first frame for that exact build,
+so a reload reuses its HTTP cache instead of racing into another CDN hostname.
+
+The startup CJK subset is 85,160 bytes, versus the previous 4,045,808-byte font.
+The remaining 28,521 glyphs are in 112 disjoint subsets, fetched for incoming
+content or IME input. Each subset has its own family in the Web fallback list;
+native keeps the original single-family/full-TTF configuration. Failed fonts
+show a retry notice without turning a successful save/upload into a failure.
+Reads wait for the glyphs in that response; cached pages do not wait for fonts
+requested by unrelated pages. A slow text download has a visible progress notice,
+and a failed read offers retry instead of rendering a note with missing characters.
+
+Home, library, search, import, notes/templates, recording detail, Ask and settings
+use conditional Web deferred routes. Native exports still resolve to their
+original widgets. The pinned Dart compiler's small fragments are grouped into
+one shared page bundle and route-specific bundles; loading a page does not create
+dozens of individual requests. Failed page loads keep navigation and offer retry.
+
+Build with the existing Flutter 3.47.9 JS/CanvasKit pipeline, then run
+`python ../scripts/prepare_web_assets.py`. Do not skip preparation: it captures
+deferred parts and their grouping map under the same immutable directory.
+To regenerate fonts, install `fonttools[woff]==4.61.1` and run
+`python scripts/subset_web_fonts.py` from the repository root. The script retains
+the OFL notice, checks input hashes and leaves native fonts intact.
+
+For CDN publication, `scripts/publish_web_assets.py` creates a separate
+`assets/teno-web-*` commit/archive containing only public generated resources
+and font licenses. Scan/review before pushing that asset branch. Pass one or
+more `--cdn-base https://…/<exact-commit>/bundle/` arguments to the Web packaging
+script; it generates the matching narrow CSP allowlist. Never use moving branch
+or latest-version CDN URLs. Preserve previous origin bundles when deploying.
+See [release notes](RELEASE-0.2.2.txt).
+
+# Teno Web 0.2.1 candidate history
+
+Startup recovery and static delivery update; the shared interface remains 0.7.0.
+See [startup release notes](RELEASE-0.2.1.txt). Startup displays download, engine/font
+and first-frame stages, with a slow-network hint after 15 seconds, recovery controls
+after 45 seconds, and immediate errors for failed scripts. It never clears retained
+imports or login data. Diagnostics are copied locally on request and contain only
+static resource paths/timings, without query strings, account data or recording content.
+
+`prepare_web_assets.py` puts compiled code, fonts and rendering assets under a
+content-derived `_static/<hash>/` path. Run it after every release build; it also
+precompresses resources with Brotli/gzip using Node. The deployment retains these
+immutable directories in `/srv/static`; entry HTML/bootstrap/release metadata still
+revalidate. Missing assets return 404. No service worker or offline-app claim is added.
+The initial visit still needs a network download; cache reuse applies after a
+successful download. A nearby static delivery region/CDN remains an infrastructure
+option if the user's network path to the existing server is slow.
+
+# Teno Web 0.2.0 candidate history
 
 Uses shared UI base 0.7.0, with Chinese/English/system language, MVP styling and responsive layouts. See [candidate release notes](RELEASE-0.2.0.txt). The production `/app/` remains on 0.1.3 until real iPhone Safari acceptance; the candidate uses its own entry. Existing cache, accounts, API and prompts remain.
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../l10n/ui_strings.dart';
 import 'mvp_theme.dart';
+export 'font_families.dart';
 import 'widgets.dart' show ErrorNotice;
 
 // Measured shared geometry; system bars and native pickers remain Android-owned.

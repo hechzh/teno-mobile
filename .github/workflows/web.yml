@@ -25,6 +25,8 @@ jobs:
         run: python3 scripts/secret_audit.py --history
       - name: Browser runtime contracts
         run: node --test web-client/test/*.test.cjs
+      - name: Immutable startup assets
+        run: python3 -m unittest discover -s web-client/test -p "test_*.py"
       - name: Shared UI regression
         working-directory: shared-ui
         run: |

@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
-import 'personal_library.dart';
-import 'personal_notes.dart';
-import 'personal_recording.dart';
+import 'routes/personal_library.dart';
+import 'routes/personal_notes.dart';
+import 'routes/personal_recording.dart';
 
 Future<void> openPersonalItem(
   BuildContext context,

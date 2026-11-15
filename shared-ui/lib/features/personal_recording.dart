@@ -7,10 +7,10 @@ import '../platform/runtime.g.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
-import 'personal_notes.dart';
-import 'personal_ask.dart';
-import 'personal_settings.dart';
-import 'personal_library.dart';
+import 'routes/personal_notes.dart';
+import 'routes/personal_ask.dart';
+import 'routes/personal_settings.dart';
+import 'routes/personal_library.dart';
 
 part 'web_recording_view.dart';
 

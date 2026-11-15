@@ -1,0 +1,38 @@
+Teno Web 0.2.2 / 7 — candidate static delivery and lazy loading
+
+Scope
+Shared UI 0.7.0; existing accounts, same-origin APIs and isolated content/import
+storage. No backend, model prompt, schema, Android/iOS artifact or baseline change.
+The production /app/ remains 0.1.3; this update targets /app-preview/.
+
+Delivery
+Supports exact-commit public static CDN origins with a 5-second version probe,
+origin fallback, explicit origin retry, credentials omitted on static fetches,
+and a narrow generated CSP. Only application resources are published; account,
+audio, transcript and note requests remain at the existing backend. Availability
+from a development machine is not Shanghai carrier or iPhone Safari acceptance.
+
+Fonts
+An 85,160-byte UI font replaces the 4,045,808-byte eager CJK font. All 29,296
+originally supported glyphs remain in the UI subset and 112 content subsets.
+Runtime/API/cache reads and text input request needed subsets. Distinct families
+avoid CanvasKit's same-family subset selection issue. Original native TTF stays
+intact. Background retry never resubmits a save or an upload. Source font coverage
+is preserved; this is not a claim of support for every Unicode character.
+
+Pages
+Conditional exports defer Web routes while native uses original widgets. Shared
+compiled fragments are coalesced once and exclusive code loads with its page.
+Page timeouts/errors offer retry; late completion cannot restore disposed pages.
+The compiler's original fragment hashes and dependency initialization remain.
+
+Verification boundary
+Automated shared UI/native-route regression, runtime contracts, asset identity,
+font partition/hash checks and Chromium fixture navigation are recorded alongside
+private network/browser evidence. Actual Shanghai phone networks and iPhone Safari
+must be recorded separately; no simulator or localhost result establishes that.
+
+Rollback
+Restore the previous candidate static container/release. Keep immutable static
+directories, existing account/browser storage and all backend data volumes.
+Do not merge main, raise Android/iOS baselines or publish an app store release.

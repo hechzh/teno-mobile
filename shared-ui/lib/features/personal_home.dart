@@ -4,14 +4,14 @@ import '../core/model.dart';
 import '../l10n/ui_strings.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
-import 'recorder.dart';
+import 'routes/recorder.dart';
 import 'personal_actions.dart';
-import 'personal_library.dart';
-import 'personal_import.dart';
-import 'personal_notes.dart';
-import 'personal_ask.dart';
-import 'personal_settings.dart';
-import 'personal_recording.dart';
+import 'routes/personal_library.dart';
+import 'routes/personal_import.dart';
+import 'routes/personal_notes.dart';
+import 'routes/personal_ask.dart';
+import 'routes/personal_settings.dart';
+import 'routes/personal_recording.dart';
 
 class PersonalHome extends StatefulWidget {
   const PersonalHome(this.model, {super.key, this.initialSection = 'Home'});
@@ -500,7 +500,7 @@ class _PersonalHomeState extends State<PersonalHome> {
                     ),
                     textStyle: const TextStyle(
                       fontFamily: 'Inter',
-                      fontFamilyFallback: ['NotoSansSC'],
+                      fontFamilyFallback: tenoFontFallbacks,
                       fontSize: 13,
                     ),
                   ),
@@ -516,7 +516,7 @@ class _PersonalHomeState extends State<PersonalHome> {
                     ),
                     textStyle: const TextStyle(
                       fontFamily: 'Inter',
-                      fontFamilyFallback: ['NotoSansSC'],
+                      fontFamilyFallback: tenoFontFallbacks,
                       fontSize: 13,
                     ),
                   ),
@@ -534,7 +534,7 @@ class _PersonalHomeState extends State<PersonalHome> {
                       ),
                       textStyle: const TextStyle(
                         fontFamily: 'Inter',
-                        fontFamilyFallback: ['NotoSansSC'],
+                        fontFamilyFallback: tenoFontFallbacks,
                         fontSize: 13,
                       ),
                     ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../l10n/ui_strings.dart';
 import '../ui/widgets.dart';
-import 'personal_notes.dart';
+import 'routes/personal_notes.dart';
 import 'personal_actions.dart';
 
 String templateLabel(String id) =>

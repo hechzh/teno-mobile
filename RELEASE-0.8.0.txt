@@ -16,12 +16,16 @@ Changing templates creates a new note; explicit regeneration keeps revisions.
 Ask uses the selected note version and matching transcript. Sharing and exports
 pin the selected version. Old notes and manual edits remain readable.
 
-Implementation checks: Flutter analysis and 370 tests, 32 Web runtime tests,
+Implementation checks: Flutter analysis and 374 tests, 49 Web runtime tests,
 isolated backend suite 386 tests, plus 145 relevant checks after catalog metadata
 refinement (overlapping, not additive). Six synthetic-source live-model cases
 cover all five templates and a long transcript; two current-note Ask turns pass.
 No user history or audio recognition was rerun. These are sample checks, not a
 claim that all generated prose has passed human semantic review.
+
+Web retains the delivered 0.2.2 startup recovery, immutable-resource routing,
+Chinese font subsets and deferred pages. The initial Chinese subset includes
+the new template labels. Full native font files and device codes are unchanged.
 
 Versioned delivery manifests and acceptance records provide exact APK hashes,
 upgrade results, native regression, iOS Xcode CI and private-download checks.

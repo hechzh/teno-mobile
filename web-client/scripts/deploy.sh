@@ -27,6 +27,19 @@ for name,digest in manifest['files'].items():
     assert hashlib.sha256(path.read_bytes()).hexdigest()==digest,name
 print('Verified release files:',len(manifest['files']))
 PY
+# Immutable paths are append-only and remain available to already-open tabs and
+# rollbacks. Copy only after the archive's complete manifest has been verified.
+sudo python3 - "$root/releases/$release" "$root/static" <<'PY'
+import hashlib,json,shutil,sys
+from pathlib import Path
+source=Path(sys.argv[1]);dest=Path(sys.argv[2]);m=json.loads((source/'release.json').read_text())
+for name,digest in m['files'].items():
+    if not name.startswith('_static/'):continue
+    p=(dest/name).resolve();assert p.is_relative_to(dest.resolve())
+    if p.exists():assert hashlib.sha256(p.read_bytes()).hexdigest()==digest,name
+    else:
+        p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/name,p)
+PY
 sudo cp "$root/releases/$release/deploy/Caddyfile" "$root/deploy/Caddyfile"
 sudo cp "$root/releases/$release/deploy/compose.yaml" "$root/deploy/compose.yaml"
 sudo python3 - "$root" "$release" "$backup" <<'PY'

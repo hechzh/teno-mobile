@@ -21,6 +21,7 @@ flutter:
         - asset: ../shared-ui/assets/fonts/InterVariable.ttf
     - family: NotoSansSC
       fonts:
-        - asset: assets/fonts/NotoSansSC-Regular.woff2
+        - asset: assets/fonts/subsets/ui.woff2
   assets:
     - assets/fonts/OFL-NotoSansSC.txt
+    - assets/fonts/subsets/
