@@ -1,0 +1,17 @@
+Teno 0.8.0 / 16 · Web 0.3.0 / 8 · iOS 1.1 / 12
+
+The warm white/green MVP language is retained. Sign-in precedes recorder access.
+Template choice is available in preferences, imports and recording completion;
+current-note actions create another template note by default and retain history.
+Ask, shares and exports retain the selected note/source version.
+
+This gallery contains 87 actual Flutter navigation states in light, dark and
+large-text modes (261 images) and four new bilingual 360/1100px template captures.
+All content is synthetic. The historical prototype mapping describes the MVP
+foundation, not new pixel-accuracy or physical-device acceptance.
+
+Native Android system captures, package signatures, upgrade/regression reports,
+iOS CI evidence and backend generation/compatibility evidence are separate
+versioned delivery records. Do not inherit old version acceptance automatically.
+Magic4 Pro/JWD/iPhone and Safari hardware checks remain pending. Formal Android
+0.7.0 and the formal Web entry are unchanged; no main/store/baseline promotion.

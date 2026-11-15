@@ -1,10 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'dart:ui' as canvas;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/core/model.dart';
 import '../lib/features/login.dart';
 import '../lib/features/recorder.dart';
+import '../lib/features/personal_notes.dart';
+import '../lib/features/personal_settings.dart';
+import '../lib/l10n/ui_strings.dart';
 import '../lib/main.dart';
 import 'fixtures.dart';
 import 'personal_test.dart' as fixtures;
@@ -23,6 +30,98 @@ class GenerationHost extends fixtures.CoreHost {
 }
 
 void main() {
+  setUpAll(() async {
+    for (final font in [
+      ('Inter', 'assets/fonts/InterVariable.ttf'),
+      ('NotoSansSC', 'assets/fonts/NotoSansSC-Regular.ttf'),
+      ('MaterialIcons', 'fonts/MaterialIcons-Regular.otf'),
+    ]) {
+      await (FontLoader(font.$1)..addFont(rootBundle.load(font.$2))).load();
+    }
+  });
+  for (final language in ['en', 'zh']) {
+    for (final width in [360.0, 1100.0]) {
+      testWidgets('template picker and account default $language $width', (
+        tester,
+      ) async {
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = Size(width, 900);
+        addTearDown(tester.view.reset);
+        final host = fixtures.CoreHost();
+        final definitions = [
+          ('general', 'General notes', '通用笔记'),
+          ('meeting', 'Meeting notes', '会议纪要'),
+          ('interview', 'Interview insights', '访谈'),
+          ('lecture', 'Lecture notes', '课堂'),
+          ('inspiration', 'Inspiration', '灵感'),
+          ('actions', 'Action items', '待办'),
+          ('brief', 'Concise recap', '简短概览'),
+        ];
+        host.overrides['/api/v1/personal/templates'] = {
+          'items': [
+            for (final t in definitions)
+              {
+                'id': 'teno:${t.$1}',
+                'title': t.$2,
+                'title_zh': t.$3,
+                'recommended': true,
+                'category': 'General',
+                'description': 'Synthetic template acceptance',
+                'description_zh': '仅整理有原文依据的内容',
+                'prompt': 'Only supported source content',
+                'version': '1',
+                'sections': [],
+              },
+          ],
+        };
+        final model = fixtures.coreModel(host)..interfaceLanguage = language;
+        final boundary = GlobalKey();
+        await tester.pumpWidget(
+          RepaintBoundary(
+            key: boundary,
+            child: TenoApp(model: model, initialize: false),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final nav = Navigator.of(tester.element(find.byType(Scaffold).first));
+        nav.push(
+          MaterialPageRoute<void>(
+            builder: (_) => Scaffold(body: PersonalSettings(model)),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final ctx = tester.element(find.byType(PersonalSettings));
+        await tester.ensureVisible(find.text(ui(ctx, 'Note template')));
+        await tester.tap(find.text(ui(ctx, 'Note template')));
+        await tester.pumpAndSettle();
+        expect(find.byType(PersonalTemplatePicker), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        final directory = Platform.environment['TENO_TEMPLATE_SCREENSHOTS'];
+        if (directory != null)
+          await tester.runAsync(() async {
+            final render =
+                boundary.currentContext!.findRenderObject()!
+                    as RenderRepaintBoundary;
+            final image = await render.toImage(pixelRatio: 1);
+            final bytes = await image.toByteData(
+              format: canvas.ImageByteFormat.png,
+            );
+            final file = File(
+              '$directory/templates-$language-${width.toInt()}.png',
+            );
+            file.parent.createSync(recursive: true);
+            file.writeAsBytesSync(bytes!.buffer.asUint8List());
+            image.dispose();
+          });
+        final chosen = language == 'zh' ? '会议纪要' : 'Meeting notes';
+        await tester.ensureVisible(find.text(chosen).first);
+        await tester.tap(find.text(chosen).first);
+        await tester.pumpAndSettle();
+        expect(host.prefs['default_template_id'], 'teno:meeting');
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
   testWidgets('signed out UI has no device bypass or automatic scan', (
     tester,
   ) async {

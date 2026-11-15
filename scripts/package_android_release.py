@@ -67,11 +67,11 @@ def package(version,evidence_dir=None,private_values=(),report_enabled=True):
         'upgrade_runtime_checks':len(native['checks']),'upgrade_candidate_apk_sha256':native.get('upgrade_candidate_apk_sha256'),
         'regression_runtime_checks':len(regression['checks']),'flutter_tests':total,'ui_states':len(ui),'ui_screenshots':sum(len(v['variants']) for v in ui),
         'backend_version':backend['deployed_version'],'backend_tests':backend['isolated_tests'],'real_provider_checks':backend['real_provider_checks'],
-        'lint_errors':errors,'lint_warnings':warnings,'speech_language':'auto','backend_modified':backend.get('backend_modified',True),'real_azure_retested':backend.get('real_provider_checks',0)>0,
+        'lint_errors':errors,'lint_warnings':warnings,'speech_language':'auto','backend_modified':backend.get('backend_modified',True),'real_azure_retested':backend.get('real_azure_checks',0)>0,
         'physical_android_tested':False,'physical_jwd_tested':False,'near_120_min_provider_call_tested':False,
         'no_test_runners_in_apk':True,'private_credential_scan_passed':True,'ios':None,'baseline_promoted':False,
         'review':f'../design-baseline/v{version}/index.html','validation':f'../RELEASE-{version}.txt'}
-    if version=='0.7.1':
+    if version in ('0.7.1','0.8.0'):
         auth=read(qa/'auth-errors-runtime-report.json')
         assert auth['all_passed'] and auth['apk_sha256']==sha(apk)
         manifest['auth_error_checks']=len(auth['checks'])

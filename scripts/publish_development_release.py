@@ -149,6 +149,23 @@ def normalize(manifest_path, output, baseline=False):
         evidence(qa/'backend-acceptance.json','已有API只读兼容检查','Existing API read-only compatibility','server')
         tests.append({'name':words('Flutter完整回归','Complete Flutter regression'),'status':'passed','environment':'unit','count':manifest['flutter_tests'],'source':release.name})
     def asset(path,kind,zh,en):return {'path':str(path.resolve()),'kind':kind,'sha256':sha(path),'label':words(zh,en)}
+    if version=='0.8.0':
+        assert not baseline, '0.8.0 is a development-history release'
+        report['title']=words('Android 0.8.0：登录前置与场景笔记','Android 0.8.0: required sign-in and scenario notes')
+        report['implementation']='implemented'
+        report['changes']=[words('登录后自动连接，退出取消未完成连接；保留原设备码。','Connect automatically after sign-in; logout cancels pending connections while preserving device codes.'),words('五类场景模板、账号默认与单次选择、生成另一份笔记、当前笔记 Ask，以及固定版本分享与导出。','Five scenario templates, account defaults and per-recording choice, new-note generation, current-note Ask and version-pinned sharing/export.')]
+        report['modules']=[{'key':key,'scope':words(zh,en),'implementation':'implemented','verification':'partial','pending':words('实机验收待完成','Physical-device acceptance pending')} for key,zh,en in [
+            ('recording','原生登录守卫、退出回调隔离、录音和队列模板保留','Native sign-in guards, logout callback fencing, recording and queue template retention'),
+            ('summary','五类模板、通用/简短/自建模板、证据校验与历史版本','Five templates plus general/brief/custom, evidence checks and historical versions'),
+            ('library','当前笔记及对应原文 Ask、相关追问与引用定位','Selected-note and matching-transcript Ask, follow-ups and citation navigation'),
+            ('sync','模板快照、幂等重试、固定版本分享/复制/导出','Template snapshots, idempotent retries and version-pinned sharing/copy/export'),
+            ('distribution','原签名候选，正式 Android 0.7.0 保持','Original-signer candidate; formal Android 0.7.0 retained')]]
+        report['dependency']=words('共享后端 1.6.0；模型和预算、ASR、清理稿及团队生成配置保持。','Shared backend 1.6.0; model/budget, ASR, cleanup and team generation configurations retained.')
+        report['pending']=[words('Magic4 Pro、真实 JWD、iPhone 签名安装与升级、Safari 仍需实机验收；不提升正式基线。','Magic4 Pro, real JWD, signed iPhone install/upgrade and Safari await physical acceptance; no formal baseline promotion.')]
+        for name,zh,en,count in [('upgrade-070-runtime-report.json','0.7.0覆盖升级保留','Upgrade retention from 0.7.0',74),('upgrade-071-runtime-report.json','0.7.1覆盖升级保留','Upgrade retention from 0.7.1',74),('regression-runtime-report.json','最终APK原生回归','Final APK native regression',manifest['regression_runtime_checks']),('auth-errors-runtime-report.json','登录与续期错误分类','Login and refresh error classification',manifest['auth_error_checks']),('jwd-auto-runtime-report.json','登录守卫与自动连接（合成通道）','Sign-in guard and automatic connection (synthetic transport)',manifest['jwd_automatic_connection_checks'])]:
+            evidence(qa/name,zh,en,'emulator',count)
+        evidence(qa/'backend-acceptance.json','共享后端兼容与隔离生成验证','Backend compatibility and isolated generation acceptance','server')
+        tests.append({'name':words('Flutter共享界面回归','Shared Flutter regression'),'status':'passed','environment':'unit','count':manifest['flutter_tests'],'source':release.name})
     summary_path=output/f'Teno-{version}-android-evidence.txt'
     summary_path.write_text(json.dumps({'version':version,'platform':'android','source_commit':commit,'apk_sha256':manifest['sha256'],'physical_device_tested':False,'verification':summaries},ensure_ascii=False,indent=2),encoding='utf-8')
     files=[asset(apk,'apk','Android 原签名内测包','Original-signer Android release'),asset(summary_path,'evidence','Android 验证摘要与检查项','Android validation summary and checks')]

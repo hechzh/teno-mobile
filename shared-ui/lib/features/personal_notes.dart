@@ -670,7 +670,10 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
             ),
             const SizedBox(height: 6),
             Text(
-              text(item['description']),
+              item['recommended'] == true &&
+                      Localizations.localeOf(context).languageCode == 'zh'
+                  ? text(item['description_zh'] ?? item['description'])
+                  : text(item['description']),
               maxLines: compact ? 3 : null,
               overflow: compact ? TextOverflow.ellipsis : null,
               style: TextStyle(
@@ -691,7 +694,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
   );
 
   Widget shelf(List<Json> values) => SizedBox(
-    height: 216 * MediaQuery.textScalerOf(context).scale(1),
+    height: 244 * MediaQuery.textScalerOf(context).scale(1),
     child: ListView(
       scrollDirection: Axis.horizontal,
       children: [for (final item in values) card(item, compact: true)],
@@ -753,7 +756,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 14),
             leading: const Icon(Icons.notes_outlined),
-            title: const UiText('Default summary'),
+            title: const UiText('General notes'),
             subtitle: const UiText('Overview, key points and next steps'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.pop(context, ''),

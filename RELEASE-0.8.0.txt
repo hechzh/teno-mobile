@@ -1,4 +1,4 @@
-Teno 0.8.0 / 16 · implementation candidate
+Teno 0.8.0 / 16 · private development release
 
 Android retains com.teno.app and the original signer. iOS source delivery uses
 com.jwd.ZhiYan, Apple version 1.1 / Build 12. Web candidate is 0.3.0 / 8.
@@ -16,11 +16,18 @@ Changing templates creates a new note; explicit regeneration keeps revisions.
 Ask uses the selected note version and matching transcript. Sharing and exports
 pin the selected version. Old notes and manual edits remain readable.
 
-Implementation checks: Flutter analysis and 366 tests, 32 Web runtime tests,
-Android Release compilation and Lint; isolated backend suite 386 tests.
-Native upgrade completion, iOS CI, actual small-batch model checks, online
-compatibility and delivery receipts are being collected for the final handoff.
-These implementation results are not physical Magic4 Pro/JWD/iPhone acceptance.
+Implementation checks: Flutter analysis and 370 tests, 32 Web runtime tests,
+isolated backend suite 386 tests, plus 145 relevant checks after catalog metadata
+refinement (overlapping, not additive). Six synthetic-source live-model cases
+cover all five templates and a long transcript; two current-note Ask turns pass.
+No user history or audio recognition was rerun. These are sample checks, not a
+claim that all generated prose has passed human semantic review.
+
+Versioned delivery manifests and acceptance records provide exact APK hashes,
+upgrade results, native regression, iOS Xcode CI and private-download checks.
+Physical Magic4 Pro/JWD/iPhone recording, signing/upgrade, permissions and
+background behavior, plus iPhone Safari, require separate device acceptance.
+Source builds and simulator/emulator checks do not establish those results.
 
 Development history only. No main merge, app-store release, formal Android
 baseline promotion or replacement of the formal Web entry is authorized here.
