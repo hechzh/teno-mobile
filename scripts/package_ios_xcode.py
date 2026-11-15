@@ -79,7 +79,7 @@ App.xcframework，并同时使用配套 Flutter.xcframework；shared-ui/ 为完�
 ios/project.development.yml 保留 Flutter 开发集成规格；它不用于本包的直接签名编译。
 
 包含中英文、新版资料库/导入/转写与 Notes/模板/Ask/分享、iOS 系统录音与 JWD 自动连接。
-首次连接自动核验信号最强的候选，生成并保存设备码后授权；重连使用上次成功的设备。
+登录后才允许扫描、连接和授权。首次连接自动核验信号最强的候选，生成并保存设备码后授权；重连使用上次成功的设备。
 不显示蓝牙选择列表；不会重置设备或绕过已有绑定，拒绝时需要恢复原设备码。
 账号、处理接口与现有后端共用。后台传输由 iOS 调度，处理状态在前台定期更新。
 不包含 Apple 账号、证书、描述文件、私钥或真实用户数据；本包尚未签名或上传商店。
@@ -87,7 +87,7 @@ ios/project.development.yml 保留 Flutter 开发集成规格；它不用于本�
 现有服务器账号继续使用；请保留旧 App 资料，已有 JWD 绑定按需恢复原设备码。
 '''
     (folder / '开始使用.txt').write_text(readme, encoding='utf-8')
-    metadata = {'version':version,'version_code':int(build),'bundle_id':bundle_id,'app_ui_base':'0.7.1','commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+    metadata = {'version':version,'version_code':int(build),'bundle_id':bundle_id,'app_ui_base':'0.8.0','commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         'flutter':'3.47.9','signing':'recipient','framework_mode':'Release device + Debug simulator','xcode_only':True,
         'hardware_acceptance':'pending: physical iPhone and JWD'}
     (folder / 'manifest.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2),encoding='utf-8')

@@ -1,46 +1,16 @@
-Teno iOS 1.0 / Build11 · Bundle ID com.jwd.ZhiYan
+Teno iOS 1.1 / Build12 · Bundle ID com.jwd.ZhiYan
 
-交付文件：Teno-iOS-1.0-build11-Xcode.zip。完整解压后打开 ios/Teno.xcodeproj，选择 Teno scheme，在 Signing & Capabilities 中设置签名方自己的 Team，使用有权限的 com.jwd.ZhiYan 标识进行真机编译或 Archive。包内含完整原生/共享UI源码，以及配套预编译 App/Flutter XCFramework；编译签名不需要本机 Flutter。修改 Dart 才需要 Flutter3.47.9 重建框架。最低 iOS15。
+交付文件：Teno-iOS-1.1-build12-Xcode.zip。
+完整解压后打开 ios/Teno.xcodeproj，选择 Teno scheme。在 Signing & Capabilities 中设置签名方自己的 Team，使用有权限的 com.jwd.ZhiYan 标识编译或 Archive。最低 iOS15；验证环境 Xcode16.4。
 
-本轮 iOS 标识、版本与 Build 按用户指定设置，Android 仍为0.7.1/15。com.jwd.ZhiYan 与旧 com.teno.app 为不同的安装身份，旧App本机文件与设备码不会自动跨身份迁移；现有服务器账号继续复用。保留旧App资料，已绑定JWD需要原设备码时使用恢复入口。签名方若在既有 com.jwd.ZhiYan App 上更新，请沿用对应Team/安装身份。Apple账号、证书、描述文件不在包内，也不由CI保存或上传商店。
+包内含当前 0.8.0 共享界面、原生源码及配套预编译 App/Flutter XCFramework（设备 Release、模拟器 Debug）。打开、编译与签名不需要 Flutter、CocoaPods 或 XcodeGen；修改 Dart 后须使用 Flutter3.47.9 重建两套配套框架。
 
-界面使用当前双语MVP与个人资料库功能。设备入口只显示自动连接进度、结果和重试：首次按信号强弱核验JWD通道，设备码先安全保存再授权；重连上次成功设备。已有绑定拒绝新码时恢复原码，不自动重置设备。真实iPhone/JWD的签名安装、蓝牙、录音、后台和升级验收仍待完成；macOS编译/模拟器不替代实机。
+本版登录后才允许扫描、连接和授权设备，退出取消未完成连接。原设备码与自动 JWD 核验流程保留；连接失败仍可访问资料库。正在录音或保存时先安全完成，不重置设备或替换绑定。
+支持会议、访谈、课堂、灵感、待办五类模板，保留通用、简短概览和自建模板；首次默认通用，账号默认和本次选择分别保存。按另一模板生成会新增笔记，重新生成保留历史版本；Ask 使用当前笔记和对应版本原文。本版依赖兼容后端1.6.0。
 
-下文保留0.5.0历史AltStore安装说明；该历史文件名不是当前交付包。
+沿用 com.jwd.ZhiYan 安装身份。更新原1.0/11请使用原Team覆盖安装，保留账号、本机录音、设备码和队列。更早 com.teno.app 是不同身份，本机资料和设备码不会自动跨身份迁移；请保留旧资料，服务器账号可继续使用。
 
-Teno 0.5.0 iPhone 内测安装（Windows / AltStore Classic）
-更新：2026-11-05
+包内不含 Apple 账号、签名证书、描述文件或私钥，没有上传应用商店。未签名 IPA 是编译验证产物，不能直接点开安装。
 
-交付文件：../dist/Teno-0.5.0-unsigned.ipa
-这是 Release 设备构建，最低 iOS 15。unsigned 表示尚未使用你的 Apple 账号重签，
-不能直接在 iPhone 点开安装。CI 不保存 Apple 账号，也没有上传 App Store/TestFlight。
-此说明是安装步骤；实际 iPhone / AltStore 安装结果仍需记录，不以云端构建替代。
-
-1. 按 AltStore 官方 Windows 指南安装 AltServer 及其要求的 Apple iTunes/iCloud。
-   官方建议使用 Apple 直接提供的版本，具体链接和兼容说明以该指南为准。
-   https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows
-2. 连接并解锁 iPhone，确认信任这台电脑，在 iTunes 开启 Wi-Fi 同步。
-3. 从 Windows 托盘的 AltServer 选择 Install AltStore，选择你的 iPhone。
-   Apple 账号由你在 AltServer 界面中输入，不交给源码、GitHub Actions 或本项目。
-4. 按系统提示信任开发者。iOS 16 及以上还需在“隐私与安全性”启用开发者模式。
-5. 将 IPA 保存到 iPhone“文件”，在 AltStore 的 My Apps 中通过加号选择 IPA 完成重签安装。
-   My Apps、刷新及名额说明：https://faq.altstore.io/altstore-classic/your-altstore
-6. 打开 Teno，使用现有 Teno 账号登录。首次手机录音允许麦克风；首次设备操作允许蓝牙。
-   首次连接已绑定的 JWD 时输入原设备密钥，不要为了连接执行设备重置/格式化。
-7. 免费签名大约 7 天到期。在到期前，通过 AltStore 刷新，电脑上的 AltServer 需可达。
-   保持同一 Apple 账号与安装标识。更新 IPA 时覆盖安装，不要先删除 Teno。
-
-免费个人账号的 App ID / 设备 / App 数量及 7 天期限见 Apple 官方说明：
-https://developer.apple.com/help/account/basics/about-your-developer-account/
-Apple 当前说明为每设备最多 3 个 App，配置描述文件自签发起 7 天有效。
-AltStore 本身占用可安装 App 名额；实际可用名额以安装界面为准。
-
-首次实机验收
-- 登录、退出、重新登录：原账号本机文件保留，新账号不显示原账号录音。
-- 手机录音：权限拒绝/允许、暂停恢复、锁屏、来电、耳机断开、停止后本机播放。
-- JWD：服务识别、原密钥授权、开始/暂停/继续/停止回调、断连再连、完整文件校验。
-- 断网保存、恢复网络上传、后台上传、同 client_id 重试、处理后的转写/摘要/Ask。
-- 系统导入/分享、键盘安全区、返回操作、不同文字大小与设备尺寸。
-
-请记录设备型号、iOS 版本、固件版本、复现步骤与结果；不要把真实音频、设备密钥、
-Apple 密码或登录 token 放入公开 issue、Git 仓库或验收截图。
+真实 iPhone/JWD 的签名安装、权限拒绝/允许、录音与保存、锁屏后台、来电/断连、系统导入与分享、覆盖升级仍待验收。CI 与模拟器不替代实机结论。设备账号排他绑定、SN兼容与换机解绑恢复延期。
+实机验收请记录机型、系统、固件、步骤和结果；真实音频、设备码、Apple 密码与登录Token不得写入公开仓库或截图。
