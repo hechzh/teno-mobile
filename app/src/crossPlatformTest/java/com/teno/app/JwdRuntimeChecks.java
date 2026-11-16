@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-/** Synthetic BLE replies and a loopback WebSocket, never physical-device or Azure evidence. */
+/** Synthetic BLE replies and a loopback connection detector; no provider or physical-device evidence. */
 final class JwdRuntimeChecks {
     private final RuntimeInstrumentation test;
     private final MainActivity activity;
@@ -43,7 +43,6 @@ final class JwdRuntimeChecks {
     private String preview()throws Exception{return activity.runtime.state().getCapture().getPreviewStatus();}
     void run()throws Exception{
         String previous=JwdService.snapshot,base=store.base(),pending=store.pendingDeviceRecord(address);
-        JwdLiveSession previousLive=JwdService.live;
         try(PreviewServer server=new PreviewServer()){
             store.base("http://127.0.0.1:"+server.server.getLocalPort());
             service=new JwdService();Method attach=ContextWrapper.class.getDeclaredMethod("attachBaseContext",Context.class);attach.setAccessible(true);attach.invoke(service,context);
@@ -60,7 +59,7 @@ final class JwdRuntimeChecks {
             reply("MCU&STA&clock-fixture.opus");
             long first=elapsed();String unchanged=JwdService.snapshot;Thread.sleep(1250);
             test.check(elapsed()-first>=1100&&JwdService.snapshot.equals(unchanged),"jwd_clock_advances_without_additional_ble_events");
-            test.check(preview().contains("off"),"disabled_live_preference_is_visible");
+            test.check(preview().isEmpty(),"recording_has_no_preview_status");
             action("pause",false);reply("MCU&PAUSE");long paused=elapsed();Thread.sleep(700);
             test.check(elapsed()==paused&&activity.runtime.state().getCapture().getPhase().equals("paused"),"jwd_clock_freezes_on_confirmed_pause");
             action("resume",false);reply("MCU&RESUME");Thread.sleep(800);long resumed=elapsed();
@@ -78,74 +77,34 @@ final class JwdRuntimeChecks {
             action("stop",false);reply("MCU&STO");
             test.check(new JSONObject(JwdService.snapshot).optInt("record_state")==0,"stop_requires_and_accepts_device_confirmation");
 
-            // Start a fresh preview through the same service command path as the release UI.
-            action("start",true);reply("MCU&STA&preview-fixture.opus");
-            test.until(()->{if(JwdService.live!=null&&!JwdService.live.problem.isEmpty())throw new IOException(JwdService.live.problem);return JwdService.live!=null&&JwdService.live.transcriber.status.startsWith("Live");});
-            test.check(preview().startsWith("Waiting for recorder audio"),"connected_preview_does_not_claim_audio_has_arrived");
-            test.check(server.automatic&&server.preview,"jwd_preview_requests_automatic_language_and_preview_only");
-            byte[] frame;try(InputStream in=test.getContext().getAssets().open("jwd-synthetic-opus.bin")){frame=in.readAllBytes();}
-            test.check(frame.length==80&&JwdAudio.opusFrame(frame),"synthetic_opus_fixture_is_valid");
-            byte[] audio=new byte[80*50];for(int i=0;i<audio.length;i+=80)System.arraycopy(frame,0,audio,i,80);
-            for(int at=0;at<audio.length;at+=244){byte[] part=Arrays.copyOfRange(audio,at,Math.min(at+244,audio.length));onService(()->service.audio(part));}
-            test.until(()->JwdService.live.samples==16000&&server.pcm.get()==32000&&JwdService.live.transcriber.segments().length()==1);
-            test.check(JwdService.live.receivedBytes==4000,"fragmented_jwd_stream_decodes_all_samples_and_streams_pcm");
-            test.check(activity.runtime.state().getCapture().getSegmentsJson().contains("Synthetic preview result"),"live_transcript_reaches_flutter_bridge");
-            action("pause",false);reply("MCU&PAUSE");test.until(()->server.paused);
-            test.check(preview().equals("Preview paused"),"pause_is_visible_and_reaches_websocket");
-            action("resume",false);reply("MCU&RESUME");test.until(()->server.resumed);
-            test.check(preview().startsWith("Live"),"resume_restores_live_preview");
-            byte[] damaged=new byte[80];onService(()->service.audio(damaged));test.until(()->JwdService.live.finished);
-            test.check(preview().contains("unsupported or damaged"),"decoder_failure_is_visible_instead_of_blank_transcript");
-            test.check(activity.runtime.state().getCapture().getPhase().equals("recording"),"preview_failure_does_not_stop_hardware_recording");
-            test.check(new JSONObject(JwdService.snapshot).optString("last_draft").isEmpty(),"preview_does_not_replace_verified_complete_file");
-            action("stop",false);reply("MCU&STO");
-            server.busy=true;action("start",true);reply("MCU&STA&busy-fixture.opus");
-            test.until(()->JwdService.live.transcriber.status.contains("busy"));
-            test.check(preview().contains("Transcription service busy"),"backend_busy_reason_is_visible_in_preview");
-            action("stop",false);reply("MCU&STO");test.until(()->JwdService.live.finished);
+            // Legacy clients/settings cannot reactivate audio streaming.
+            context.getSharedPreferences("teno",0).edit().putBoolean("live_default",true).commit();
+            test.check(!store.liveDefault(),"old_live_on_preference_is_ignored");
+            action("start",true);reply("MCU&STA&post-recording-fixture.opus");
+            int drafts=store.drafts().length();
+            onService(()->service.audio(new byte[4000]));Thread.sleep(400);
+            test.check(server.connections.get()==0,"legacy_live_intent_and_audio_do_not_connect_to_transcription");
+            test.check(activity.runtime.state().getCapture().getPartial().isEmpty()&&activity.runtime.state().getCapture().getSegmentsJson().equals("[]")&&preview().isEmpty(),"native_bridge_never_exposes_recording_time_transcript");
+            test.check(store.drafts().length()==drafts&&new JSONObject(JwdService.snapshot).optString("last_draft").isEmpty(),"live_packets_cannot_replace_verified_saved_file");
+            action("pause",true);reply("MCU&PAUSE");action("resume",true);reply("MCU&RESUME");
+            test.check(activity.runtime.state().getCapture().getPhase().equals("recording")&&server.connections.get()==0,"pause_and_resume_work_without_transcription_connection");
+            action("stop",true);reply("MCU&STO");
+            test.check(new JSONObject(JwdService.snapshot).optInt("record_state")==0&&server.connections.get()==0,"stop_waits_for_file_sync_without_live_session");
         }finally{
             if(service!=null){test.runOnMainSync(service::onDestroy);((Thread)get(service,"thread")).join(3000);}
-            JwdService.snapshot=previous;JwdService.live=previousLive;store.base(base);store.pendingDeviceRecord(address,pending);
+            JwdService.snapshot=previous;store.base(base);store.pendingDeviceRecord(address,pending);
         }
     }
 
-    /** Minimal RFC 6455 loopback peer. Text is a fixed fixture, not speech recognition. */
+    /** Any HTTP/WebSocket connection during the capture fails the test. */
     private static final class PreviewServer implements AutoCloseable {
         final ServerSocket server=new ServerSocket(0,8,InetAddress.getByName("127.0.0.1"));
-        final AtomicInteger pcm=new AtomicInteger();
-        final List<Socket> sockets=new CopyOnWriteArrayList<>();
-        volatile boolean automatic,preview,paused,resumed,busy;
+        final AtomicInteger connections=new AtomicInteger();
+        final Thread thread;
         PreviewServer()throws IOException{
-            Thread accept=new Thread(()->{while(!server.isClosed())try{Socket socket=server.accept();sockets.add(socket);new Thread(()->serve(socket),"PreviewFixtureClient").start();}catch(IOException ignored){break;}},"PreviewFixtureServer");accept.start();
+            thread=new Thread(()->{while(!server.isClosed())try(Socket socket=server.accept()){connections.incrementAndGet();}catch(IOException ignored){}});
+            thread.start();
         }
-        private static String line(InputStream in)throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream();int c;while((c=in.read())>=0&&c!=10)if(c!=13)b.write(c);return b.toString("UTF-8");}
-        private static void send(OutputStream out,String text)throws IOException{
-            byte[] b=text.getBytes(StandardCharsets.UTF_8);out.write(0x81);if(b.length<126)out.write(b.length);else{out.write(126);out.write(b.length>>8);out.write(b.length);}out.write(b);out.flush();
-        }
-        private void serve(Socket socket){
-            try(socket){
-                socket.setSoTimeout(15000);InputStream in=socket.getInputStream();OutputStream out=socket.getOutputStream();String request=line(in);Map<String,String> headers=new HashMap<>();
-                for(String row;(row=line(in))!=null&&!row.isEmpty();){int p=row.indexOf(':');if(p>0)headers.put(row.substring(0,p).toLowerCase(Locale.ROOT),row.substring(p+1).trim());}
-                if(headers.containsKey("sec-websocket-key")){
-                    String accept=Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA-1").digest((headers.get("sec-websocket-key")+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11").getBytes(StandardCharsets.US_ASCII)));
-                    out.write(("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: "+accept+"\r\n\r\n").getBytes(StandardCharsets.US_ASCII));
-                    if(busy){send(out,"{\"type\":\"error\",\"code\":\"ASR_BUSY\"}");return;}
-                    send(out,"{\"type\":\"ready\"}");boolean textSent=false;
-                    while(true){
-                        int first=in.read(),second=in.read();if(first<0||second<0)break;int length=second&127;if(length==126)length=(in.read()<<8)|in.read();else if(length==127)throw new IOException("Fixture frame too large");
-                        byte[] mask=(second&128)!=0?in.readNBytes(4):new byte[0],body=in.readNBytes(length);if(body.length!=length)break;
-                        if(mask.length==4)for(int i=0;i<body.length;i++)body[i]^=mask[i%4];int opcode=first&15;
-                        if(opcode==2){pcm.addAndGet(body.length);if(!textSent){send(out,"{\"type\":\"partial\",\"text\":\"Synthetic partial\"}");send(out,"{\"type\":\"final\",\"id\":\"fixture-final\",\"start_ms\":0,\"end_ms\":1000,\"text\":\"Synthetic preview result\"}");textSent=true;}}
-                        if(opcode==1){String kind=new JSONObject(new String(body,StandardCharsets.UTF_8)).optString("type");if(kind.equals("pause"))paused=true;else if(kind.equals("resume"))resumed=true;else if(kind.equals("stop")){send(out,"{\"type\":\"completed\"}");break;}}
-                        if(opcode==8)break;
-                    }
-                }else{
-                    byte[] body=in.readNBytes(Integer.parseInt(headers.getOrDefault("content-length","0")));String result="{}";
-                    if(request.startsWith("POST /api/v1/realtime/sessions ")){JSONObject options=new JSONObject(new String(body,StandardCharsets.UTF_8));automatic=options.optString("language").equals("auto");preview=options.optBoolean("preview");result="{\"id\":\"loopback-preview\",\"websocket_path\":\"/api/v1/realtime/sessions/loopback-preview/stream\"}";}
-                    byte[] bytes=result.getBytes(StandardCharsets.UTF_8);out.write(("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: "+bytes.length+"\r\nConnection: close\r\n\r\n").getBytes(StandardCharsets.US_ASCII));out.write(bytes);out.flush();
-                }
-            }catch(Exception ignored){/* Test assertions diagnose missing events, never log requests or tokens. */}
-        }
-        public void close()throws IOException{server.close();for(Socket socket:sockets)socket.close();}
+        public void close()throws IOException{server.close();try{thread.join(2000);}catch(InterruptedException e){Thread.currentThread().interrupt();}}
     }
 }

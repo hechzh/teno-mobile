@@ -104,13 +104,13 @@ class _PreferencesPageState extends State<PreferencesPage> {
     }
   }
 
-  Future<void> configure({bool? cloud, bool? wifi, bool? live}) =>
+  Future<void> configure({bool? cloud, bool? wifi}) =>
       perform(context, () async {
         final s = widget.model.runtime!.session;
         await widget.model.host.configure(
           cloud ?? s.cloudUpload,
           wifi ?? s.wifiOnly,
-          live ?? s.livePreview,
+          false,
         );
         widget.model.changed(await widget.model.host.snapshot());
       });
@@ -143,15 +143,6 @@ class _PreferencesPageState extends State<PreferencesPage> {
               title: const UiText('Upload on Wi-Fi only'),
               value: s.wifiOnly,
               onChanged: (v) => configure(wifi: v),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const UiText('Live transcript preview'),
-              subtitle: const UiText(
-                'Applies to your next recording. Complete audio is processed again after recording.',
-              ),
-              value: s.livePreview,
-              onChanged: (v) => configure(live: v),
             ),
             const Divider(height: 36),
             const UiText(
@@ -496,7 +487,7 @@ class HelpPage extends StatelessWidget {
           ),
           SizedBox(height: 16),
           UiText(
-            'Live text is a preview. The complete recording is processed after recording for the final transcript and summary.',
+            'Transcription starts after recording is saved and uploaded. Cloud processing settings apply.',
           ),
           SizedBox(height: 16),
           UiText(

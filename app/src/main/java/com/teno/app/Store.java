@@ -30,8 +30,8 @@ public final class Store {
     // explicit opt-out, and never use the first-recording dialog as an upload gate.
     public boolean autoUpload(){return prefs.getBoolean("auto_upload."+scope(),true);}
     public boolean wifiUpload(){return prefs.getBoolean("wifi_upload."+scope(),false);}
-    public boolean liveDefault(){return prefs.getBoolean("live_default",true);}
-    public void recordingOptions(boolean cloud,boolean wifi,boolean live){prefs.edit().putBoolean("recording_options."+scope(),true).putBoolean("auto_upload."+scope(),cloud).putBoolean("wifi_upload."+scope(),wifi).putBoolean("live_default",live).commit();}
+    public boolean liveDefault(){return false;} // Legacy setting cannot enable recording-time transcription.
+    public void recordingOptions(boolean cloud,boolean wifi,boolean live){prefs.edit().putBoolean("recording_options."+scope(),true).putBoolean("auto_upload."+scope(),cloud).putBoolean("wifi_upload."+scope(),wifi).putBoolean("live_default",false).commit();}
     public String recorderAddress(){return prefs.getString("jwd.last_address","");}
     public String recorderName(){return prefs.getString("jwd.last_name","Recorder");}
     public void rememberRecorder(String address,String name){prefs.edit().putString("jwd.last_address",address).putString("jwd.last_name",name).commit();}

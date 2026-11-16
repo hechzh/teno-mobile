@@ -247,40 +247,39 @@ void main() {
     expect(find.text('Close keyboard'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
-  pageTest(
-    'recording interruption, transfer and preview have distinct states',
-    (tester) async {
-      final model = reviewModel();
-      addTearDown(model.dispose);
-      var state = reviewState(sequence: 2, phase: 'recording', connected: true);
-      model.changed(state);
-      await mount(tester, DevicePage(model));
-      await tester.tap(find.text('Return to recording'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Live transcript'));
-      await tester.pumpAndSettle();
-      await capture(tester, '38-live-preview');
-      state = reviewState(sequence: 3, phase: 'interrupted');
-      state.capture.status =
-          'Connection interrupted. Your recorder may still be recording.';
-      model.changed(state);
-      await tester.pumpAndSettle();
-      expect(find.text('Done'), findsNothing);
-      await capture(tester, '39-device-interrupted');
-      await tester.pumpWidget(const SizedBox.shrink());
-      state = reviewState(sequence: 4);
-      state.device.receiving = true;
-      state.device.busy = true;
-      state.device.expectedBytes = 1000;
-      state.device.receivedBytes = 600;
-      state.device.status = 'Receiving audio · Original stays on your recorder';
-      model.changed(state);
-      await mount(tester, DevicePage(model));
-      await tester.pump(const Duration(milliseconds: 100));
-      await capture(tester, '12-device-transfer');
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-  );
+  pageTest('recording interruption and transfer retain saved-audio-only UI', (
+    tester,
+  ) async {
+    final model = reviewModel();
+    addTearDown(model.dispose);
+    var state = reviewState(sequence: 2, phase: 'recording', connected: true);
+    model.changed(state);
+    await mount(tester, DevicePage(model));
+    await tester.tap(find.text('Return to recording'));
+    await tester.pumpAndSettle();
+    expect(find.text('Live transcript'), findsNothing);
+    await tester.pumpAndSettle();
+    await capture(tester, '38-post-recording');
+    state = reviewState(sequence: 3, phase: 'interrupted');
+    state.capture.status =
+        'Connection interrupted. Your recorder may still be recording.';
+    model.changed(state);
+    await tester.pumpAndSettle();
+    expect(find.text('Done'), findsNothing);
+    await capture(tester, '39-device-interrupted');
+    await tester.pumpWidget(const SizedBox.shrink());
+    state = reviewState(sequence: 4);
+    state.device.receiving = true;
+    state.device.busy = true;
+    state.device.expectedBytes = 1000;
+    state.device.receivedBytes = 600;
+    state.device.status = 'Receiving audio · Original stays on your recorder';
+    model.changed(state);
+    await mount(tester, DevicePage(model));
+    await tester.pump(const Duration(milliseconds: 100));
+    await capture(tester, '12-device-transfer');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
   pageTest('local upload failure never hides the saved recording', (
     tester,
   ) async {

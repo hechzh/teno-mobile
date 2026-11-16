@@ -611,7 +611,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           child: Row(
                             children: [
-                              Text(
+                              UiText(
                                 switch (view) {
                                   'images' => 'Photos',
                                   'note' => 'Notes',
@@ -631,7 +631,9 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                     else
                       Expanded(
                         child: Text(
-                          selecting ? '${selected.length} selected' : 'Files',
+                          selecting
+                              ? context.strings.selectedCount(selected.length)
+                              : ui(context, 'Files'),
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -810,7 +812,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                               children: [
                                 Icon(action.$3, size: 21),
                                 const SizedBox(height: 4),
-                                Text(
+                                UiText(
                                   action.$2,
                                   style: const TextStyle(fontSize: 12),
                                 ),
@@ -982,7 +984,9 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
                 DropdownMenuItem(
                   value: (p['page'] as num).toInt(),
                   child: Text(
-                    'Page ${p['page']}${widget.page == p['page'] ? ' · Match' : ''}',
+                    widget.page == p['page']
+                        ? context.strings.matchedPage(text(p['page']))
+                        : context.strings.pageNumber(text(p['page'])),
                   ),
                 ),
             ],
@@ -990,9 +994,12 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
               if (page != null) setState(() => selectedPage = page);
             },
           ),
-        for (final p in rows(file['pages']).where(
-          (p) => p['page'] == selectedPage,
-        )) ...[heading('Page ${p['page']}'), SelectableText(text(p['text']))],
+        for (final p in rows(
+          file['pages'],
+        ).where((p) => p['page'] == selectedPage)) ...[
+          heading(context.strings.pageNumber(text(p['page'])), localize: false),
+          SelectableText(text(p['text'])),
+        ],
       ],
     ),
   );

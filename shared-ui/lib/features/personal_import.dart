@@ -139,7 +139,11 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
                 heading('Shared with Teno'),
                 if (text(data['error']).isNotEmpty)
                   ErrorNotice(text(data['error'])),
-                Text('Import into ${widget.model.runtime!.session.username}'),
+                Text(
+                  context.strings.importIntoAccount(
+                    widget.model.runtime!.session.username,
+                  ),
+                ),
                 for (final p in pending)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
@@ -178,11 +182,15 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
               contentPadding: EdgeInsets.zero,
               title: Text(
                 text(value['title']).isEmpty
-                    ? 'Imported'
+                    ? ui(context, 'Imported')
                     : text(value['title']),
               ),
               subtitle: value['type'] == 'calendar'
-                  ? Text('${value['count']} calendar events imported')
+                  ? Text(
+                      context.strings.importedCalendarEvents(
+                        (value['count'] as num? ?? 0).toInt(),
+                      ),
+                    )
                   : null,
               trailing: value['type'] == 'calendar'
                   ? null
@@ -274,14 +282,16 @@ class PersonalLocalPage extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
-            Text(
+            UiText(
               model.webExperience && draft['status'] == 'local'
                   ? 'Saved in this browser'
                   : recordingStatus(draft['status']),
               style: TextStyle(color: subtle(context)),
             ),
             if (model.webExperience)
-              Text('Account: ${model.runtime!.session.username}'),
+              Text(
+                context.strings.accountName(model.runtime!.session.username),
+              ),
             if (model.webExperience && draft['status'] == 'uploading') ...[
               const LinearProgressIndicator(minHeight: 2),
               const UiText(
@@ -328,7 +338,7 @@ class PersonalLocalPage extends StatelessWidget {
             if (text(draft['error']).isNotEmpty)
               ErrorNotice(text(draft['error'])),
             if (text(draft['processing_message']).isNotEmpty)
-              Text(text(draft['processing_message'])),
+              UiText(text(draft['processing_message'])),
             if (remote.isNotEmpty)
               FilledButton(
                 onPressed: () => push(

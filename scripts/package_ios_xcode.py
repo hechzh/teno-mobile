@@ -67,7 +67,7 @@ def prepare(frameworks: Path, output: Path) -> Path:
 
 使用 macOS 与 Xcode 16.4 或更新兼容版本，部署目标 iOS 15。
 1. 解压整个目录，直接打开 ios/Teno.xcodeproj，选择 Teno scheme。
-2. 在 Teno target 的 Signing & Capabilities 中选择自己的 Team。包名 {bundle_id}；
+2. 在 Teno target 的 Signing & Capabilities 中选择原 App 使用的 Team。包名 {bundle_id}；
    签名方需拥有该标识的权限，并使用对应的 Apple App 记录。
 3. 选择 iPhone 真机或 Any iOS Device，Product > Archive，再由签名方上传。
 4. 首次安装允许蓝牙/麦克风等实际使用的权限。真实 iPhone/JWD 测试仍需验收。
@@ -87,7 +87,8 @@ ios/project.development.yml 保留 Flutter 开发集成规格；它不用于本�
 现有服务器账号继续使用；请保留旧 App 资料，已有 JWD 绑定按需恢复原设备码。
 '''
     (folder / '开始使用.txt').write_text(readme, encoding='utf-8')
-    metadata = {'version':version,'version_code':int(build),'bundle_id':bundle_id,'app_ui_base':'0.8.0','commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+    ui_version = re.search(r'^version:\s*([^+\s]+)', (ROOT/'shared-ui/pubspec.yaml').read_text(), re.M)[1]
+    metadata = {'version':version,'version_code':int(build),'bundle_id':bundle_id,'app_ui_base':ui_version,'commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         'flutter':'3.47.9','signing':'recipient','framework_mode':'Release device + Debug simulator','xcode_only':True,
         'hardware_acceptance':'pending: physical iPhone and JWD'}
     (folder / 'manifest.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2),encoding='utf-8')

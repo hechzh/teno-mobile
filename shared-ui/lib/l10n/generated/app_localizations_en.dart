@@ -2555,4 +2555,125 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get askSelectedNote => 'Ask this note';
+
+  @override
+  String useSourceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sources',
+      one: '1 source',
+    );
+    return 'Use $_temp0';
+  }
+
+  @override
+  String importIntoAccount(String account) {
+    return 'Import into $account';
+  }
+
+  @override
+  String accountName(String account) {
+    return 'Account: $account';
+  }
+
+  @override
+  String importedCalendarEvents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count calendar events imported',
+      one: '1 calendar event imported',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String linkExpires(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String localStorageUsage(String size, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files',
+      one: '1 file',
+    );
+    return '$size MiB · $_temp0';
+  }
+
+  @override
+  String itemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String resultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pageNumber(String page) {
+    return 'Page $page';
+  }
+
+  @override
+  String matchedPage(String page) {
+    return 'Page $page · Match';
+  }
+
+  @override
+  String sourceTimestamp(String time) {
+    return 'Source · $time';
+  }
+
+  @override
+  String get signInRequired => 'Sign in to continue.';
+
+  @override
+  String get generalTemplateExplanation =>
+      'Overview, key points and next steps from your conversation.';
+
+  @override
+  String get recorderConfirmationHelp =>
+      'Pause, resume and stop wait for recorder confirmation. Bluetooth disconnection does not stop the recorder. Check the hardware before retrying.';
+
+  @override
+  String get iosBackgroundHelp =>
+      'iPhone background activity follows iOS rules. After force quitting, reopen Teno to resume queued work.';
+
+  @override
+  String get contextDocument => 'Document';
+
+  @override
+  String get noSpeechSaved => 'No speech was found. The audio is saved.';
+
+  @override
+  String get recordingFileType => 'Recording file';
+
+  @override
+  String get saveInterfaceLanguageFailed =>
+      'Could not save interface language.';
+
+  @override
+  String get postRecordingTranscription =>
+      'Transcription starts after recording is saved and uploaded. Cloud processing settings apply.';
+
+  @override
+  String get backgroundPostRecording =>
+      'Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Transcription uses the saved recording.';
 }

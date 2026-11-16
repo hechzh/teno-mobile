@@ -765,4 +765,27 @@
   <string name="ui_autojwdsavecode" formatted="false">The device code could not be saved. Try connecting again.</string>
   <string name="ui_autojwdauth" formatted="false">Authorizing recorder</string>
   <string name="ui_autojwdchannels" formatted="false">The recorder channels do not match the JWD protocol.</string>
+  <string name="ui_notetemplate" formatted="false">Note template</string>
+  <string name="ui_templateaccountdefault" formatted="false">Account default</string>
+  <string name="ui_templategeneral" formatted="false">General notes</string>
+  <string name="ui_templateinterview" formatted="false">Interview insights</string>
+  <string name="ui_templatelecture" formatted="false">Lecture notes</string>
+  <string name="ui_templateinspiration" formatted="false">Inspiration</string>
+  <string name="ui_templateactions" formatted="false">Action items</string>
+  <string name="ui_templatebrief" formatted="false">Concise recap</string>
+  <string name="ui_templatecustom" formatted="false">Custom template</string>
+  <string name="ui_templateanother" formatted="false">Generate with another template</string>
+  <string name="ui_templateprocessing" formatted="false">Processing uses the selected template. Another template creates a new note.</string>
+  <string name="ui_templatesaved" formatted="false">Saved recording &amp; template</string>
+  <string name="ui_askselectednote" formatted="false">Ask this note</string>
+  <string name="ui_signinrequired" formatted="false">Sign in to continue.</string>
+  <string name="ui_generaltemplateexplanation" formatted="false">Overview, key points and next steps from your conversation.</string>
+  <string name="ui_recorderconfirmationhelp" formatted="false">Pause, resume and stop wait for recorder confirmation. Bluetooth disconnection does not stop the recorder. Check the hardware before retrying.</string>
+  <string name="ui_iosbackgroundhelp" formatted="false">iPhone background activity follows iOS rules. After force quitting, reopen Teno to resume queued work.</string>
+  <string name="ui_contextdocument" formatted="false">Document</string>
+  <string name="ui_nospeechsaved" formatted="false">No speech was found. The audio is saved.</string>
+  <string name="ui_recordingfiletype" formatted="false">Recording file</string>
+  <string name="ui_saveinterfacelanguagefailed" formatted="false">Could not save interface language.</string>
+  <string name="ui_postrecordingtranscription" formatted="false">Transcription starts after recording is saved and uploaded. Cloud processing settings apply.</string>
+  <string name="ui_backgroundpostrecording" formatted="false">Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Transcription uses the saved recording.</string>
 </resources>

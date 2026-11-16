@@ -71,12 +71,12 @@ final class KeyVault {
     var username: String { preferences.string(forKey: "username") ?? "" }
     var cloudUpload: Bool { preferences.object(forKey: "auto_upload." + scope) as? Bool ?? true }
     var wifiOnly: Bool { preferences.bool(forKey: "wifi_upload." + scope) }
-    var livePreview: Bool { preferences.object(forKey: "live_default") as? Bool ?? true }
+    var livePreview: Bool { false } // Keep the bridge field for compatibility.
     var optionsSet: Bool { preferences.bool(forKey: "recording_options." + scope) }
     func configure(cloud: Bool, wifi: Bool, live: Bool) {
         preferences.set(cloud, forKey: "auto_upload." + scope)
         preferences.set(wifi, forKey: "wifi_upload." + scope)
-        preferences.set(live, forKey: "live_default")
+        preferences.set(false, forKey: "live_default")
         preferences.set(true, forKey: "recording_options." + scope)
     }
     func token(_ name: String) throws -> String {

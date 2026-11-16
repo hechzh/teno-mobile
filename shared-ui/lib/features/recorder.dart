@@ -12,7 +12,7 @@ import 'personal_import.dart';
 Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
   if (model.personalCore) return true;
   if (!model.signedIn || model.runtime!.session.optionsSet) return true;
-  bool cloud = true, wifi = false, live = true;
+  bool cloud = true, wifi = false;
   final chosen = await showDialog<bool>(
     context: context,
     builder: (dialog) => StatefulBuilder(
@@ -37,12 +37,6 @@ Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
               value: wifi,
               onChanged: (v) => update(() => wifi = v),
             ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const UiText('Live transcript preview'),
-              value: live,
-              onChanged: (v) => update(() => live = v),
-            ),
           ],
         ),
         actions: [
@@ -59,7 +53,7 @@ Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
     ),
   );
   if (chosen != true) return false;
-  await model.host.configure(cloud, wifi, live);
+  await model.host.configure(cloud, wifi, false);
   model.changed(await model.host.snapshot());
   return true;
 }
@@ -417,7 +411,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
     text: widget.model.runtime?.capture.notes,
   );
   Timer? debounce;
-  bool preview = false, writing = false;
+  bool writing = false;
   String ownerId = '';
   String template = '@default';
   @override
@@ -588,45 +582,12 @@ class _RecorderSheetState extends State<RecorderSheet> {
               Expanded(
                 child: ListView(
                   children: [
-                    ExpansionTile(
-                      tilePadding: EdgeInsets.zero,
-                      title: const UiText(
-                        'Live transcript',
-                        style: TextStyle(fontSize: 14),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: UiText(
+                        'Transcription starts after recording is saved and uploaded. Cloud processing settings apply.',
+                        style: TextStyle(fontSize: 12, color: muted),
                       ),
-                      subtitle: UiText(
-                        c.previewStatus ??
-                            (widget.model.runtime!.session.livePreview
-                                ? 'Preview · Final transcript follows processing'
-                                : 'Live preview is off · Settings > Recorder'),
-                        style: const TextStyle(fontSize: 11, color: muted),
-                      ),
-                      initiallyExpanded: preview,
-                      onExpansionChanged: (v) => preview = v,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 12),
-                          child: UiText(
-                            'Live text is a preview. The complete recording is processed after it is saved and uploaded.',
-                            style: TextStyle(fontSize: 12, color: muted),
-                          ),
-                        ),
-                        for (final segment in jsonRows(c.segmentsJson))
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(text(segment['text'])),
-                            ),
-                          ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            c.partial,
-                            style: const TextStyle(color: muted),
-                          ),
-                        ),
-                      ],
                     ),
                     if (writing || notes.text.isNotEmpty)
                       TextField(

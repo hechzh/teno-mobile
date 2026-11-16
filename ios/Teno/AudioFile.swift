@@ -55,7 +55,6 @@ final class PCMFile: @unchecked Sendable {
     private var file: PCMFile?
     private var interruption: NSObjectProtocol?
     private var routeChange: NSObjectProtocol?
-    var preview: LivePreview?
     private(set) var id = "", phase = "idle", status = "Ready"
     private(set) var elapsed: Int64 = 0
     var active: Bool { ["starting", "recording", "paused", "saving"].contains(phase) }
@@ -118,13 +117,12 @@ final class PCMFile: @unchecked Sendable {
                 let bytes = Data(bytes: samples[0], count: Int(output.frameLength) * 2)
                 do {
                     let total = try writer.append(bytes)
-                    Task { @MainActor in self?.elapsed = total / 32; self?.preview?.feed(bytes) }
+                    Task { @MainActor in self?.elapsed = total / 32 }
                 } catch {
                     Task { @MainActor in try? self?.stop(reason: error.localizedDescription) }
                 }
             }
             audioEngine.prepare(); try audioEngine.start()
-            if store.livePreview { preview = LivePreview(api: api, id: id, title: title) }
             phase = "recording"; status = "Recording · Audio saved locally"; return id
         } catch {
             engine?.stop(); engine?.inputNode.removeTap(onBus: 0); engine = nil
@@ -135,17 +133,16 @@ final class PCMFile: @unchecked Sendable {
     }
     func pause(reason: String = "Recording paused") {
         guard phase == "recording" else { return }
-        engine?.pause(); phase = "paused"; status = reason; preview?.pause(true)
+        engine?.pause(); phase = "paused"; status = reason
     }
     func resume() throws {
         guard phase == "paused" else { return }
         try AVAudioSession.sharedInstance().setActive(true); try engine?.start()
-        phase = "recording"; status = "Recording · Audio saved locally"; preview?.pause(false)
+        phase = "recording"; status = "Recording · Audio saved locally"
     }
     func stop(reason: String = "Saved on this phone") throws {
         guard active else { return }
         phase = "saving"; engine?.stop(); engine?.inputNode.removeTap(onBus: 0); engine = nil
-        preview?.finish()
         let count = try file?.finish() ?? 0; file = nil
         var draft = try store.draft(id)
         draft["duration_ms"] = count / 32; draft["status"] = count > 0 ? "local" : "invalid"

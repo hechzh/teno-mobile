@@ -1,0 +1,13 @@
+Teno Web 0.3.1 / 9 · shared UI 0.8.1
+
+本批同步移除录音中实时转写，只在录音结束、完整文件保存后按云处理设置上传转写。
+
+Global Chinese / English / system-language shortcuts on sign-in, Home, Assistant
+and Settings. Common template/import/library/source/calendar labels follow the
+selected interface language. Original content and generated-content preferences
+remain unchanged. Existing cache, import queues, deferred loading, CJK font
+subsets, immutable CDN assets and fallback to origin are retained.
+
+Candidate entry only: /app-preview/. Formal /app/0.2.0 remains available.
+Backend remains1.6.1. No schema changes, generation jobs or historical rewrites.
+Browser layout checks do not replace physical iPhone/Safari/Shanghai acceptance.

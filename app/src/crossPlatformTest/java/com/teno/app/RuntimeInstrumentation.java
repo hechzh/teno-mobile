@@ -57,6 +57,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
         store.base("http://127.0.0.1:9");store.identity("Teno upgrade fixture","cross-platform-upgrade");
         store.tokens(new JSONObject().put("access_token","upgrade-loopback-fixture").put("refresh_token","refresh-loopback-fixture"));
         store.recordingOptions(false,false,false);store.markNativePreferences();
+        context.getSharedPreferences("teno",0).edit().putBoolean("live_default",true).commit();
         String address="00:00:00:00:05:00",key=JwdProtocol.newKey();
         store.deviceKey(address,key);store.rememberRecorder(address,"Verification recorder");
         JSONObject draft=store.newDraft("Teno upgrade audio",".wav");File file=new File(draft.getString("path"));
@@ -80,7 +81,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
     /** Kept separate so the seed runner can execute against the original APK's classes. */
     private static final class RuntimeChecks {
         final RuntimeInstrumentation test;Context context;Store store;MainActivity activity;ServerSocket server;
-        final AtomicInteger uploadCount=new AtomicInteger();final List<String> clientIds=new CopyOnWriteArrayList<>();
+        final AtomicInteger uploadCount=new AtomicInteger(),realtimeCount=new AtomicInteger();final List<String> clientIds=new CopyOnWriteArrayList<>();
         volatile boolean failUpload;
         volatile boolean blockUpload, uploadWaiting;
         RuntimeChecks(RuntimeInstrumentation test){this.test=test;context=test.context;store=test.store;}
@@ -109,6 +110,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
                 test.check(hash(Files.readAllBytes(new File(old.getString("path")).toPath())).equals(expected.getString("audio_hash")),"upgrade_keeps_audio_bytes");
                 test.check(old.optBoolean("upload_requested")&&old.optInt("upload_attempts")==1&&old.getString("id").equals(oldId),"upgrade_keeps_pending_queue_and_client_id");
                 test.check(!store.autoUpload(),"upgrade_retains_explicit_cloud_opt_out");
+                test.check(!store.liveDefault(),"upgrade_disables_legacy_live_preference");
                 }
                 test.check(hash(store.deviceKey(expected.getString("address")).getBytes(StandardCharsets.UTF_8)).equals(expected.getString("key_hash")),"current_release_retains_original_device_key");
                 test.check(hash(Files.readAllBytes(new File(store.draft(oldId).getString("path")).toPath())).equals(expected.getString("audio_hash")),"current_release_retains_original_audio_bytes");
@@ -133,6 +135,11 @@ public final class RuntimeInstrumentation extends Instrumentation {
                     public void success(String value){id.set(value);started.countDown();}public void error(Throwable e){error.set(e);started.countDown();}}));
                 if(!started.await(30,TimeUnit.SECONDS)||error.get()!=null)throw new IOException("Phone recording could not start");
                 test.until(()->RecorderService.active&&RecorderService.capturedBytes>=16000);
+                test.check(!activity.runtime.state().getSession().getLivePreview(),"native_session_never_enables_live_transcription");
+                long beforeRetry=RecorderService.capturedBytes;
+                call(result->activity.runtime.controlPhone(PhoneAction.RETRY_PREVIEW,result));Thread.sleep(250);
+                test.check(RecorderService.active&&!RecorderService.paused&&RecorderService.capturedBytes>beforeRetry,"legacy_retry_preview_action_cannot_change_recording");
+                test.check(activity.runtime.state().getCapture().getPartial().isEmpty()&&activity.runtime.state().getCapture().getSegmentsJson().equals("[]"),"phone_recording_emits_no_live_transcript");
                 call(result->activity.runtime.saveNotes(id.get(),"00:01 · Verification highlight",result));
                 call(result->activity.runtime.controlPhone(PhoneAction.PAUSE,result));
                 test.until(()->RecorderService.paused);long count=RecorderService.capturedBytes;Thread.sleep(800);
@@ -152,6 +159,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
                 test.getUiAutomation().executeShellCommand("am start -n "+context.getPackageName()+"/com.teno.app.MainActivity").close();Thread.sleep(500);
                 call(result->activity.runtime.controlPhone(PhoneAction.STOP,result));
                 test.until(()->!RecorderService.active&&!RecorderService.finishing);
+                test.check(realtimeCount.get()==0,"phone_capture_pause_resume_stop_make_no_realtime_requests");
                 JSONObject draft=store.draft(id.get());File file=new File(draft.getString("path"));
                 test.check(file.isFile()&&file.length()>32044&&draft.optString("status").equals("local"),"stop_retains_complete_local_wave_without_cloud");
                 test.check(draft.optString("notes").contains("Verification highlight"),"timestamped_note_saved_with_draft");
@@ -311,7 +319,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
             Thread thread=new Thread(()->{while(!server.isClosed())try {
                 Socket socket=server.accept();
                 new Thread(()->{try(socket) {
-                    socket.setSoTimeout(15000);InputStream input=socket.getInputStream();String[] request=line(input).split(" ");
+                    socket.setSoTimeout(15000);InputStream input=socket.getInputStream();String[] request=line(input).split(" ");if(request.length>1&&request[1].startsWith("/api/v1/realtime/"))realtimeCount.incrementAndGet();
                     Map<String,String> headers=new HashMap<>();String item;
                     while(!(item=line(input)).isEmpty()){int p=item.indexOf(':');headers.put(item.substring(0,p).toLowerCase(Locale.ROOT),item.substring(p+1).trim());}
                     ByteArrayOutputStream body=new ByteArrayOutputStream();

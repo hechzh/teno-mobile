@@ -4819,6 +4819,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ask this note'**
   String get askSelectedNote;
+
+  /// No description provided for @useSourceCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {count, plural, one {1 source} other {{count} sources}}'**
+  String useSourceCount(int count);
+
+  /// No description provided for @importIntoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Import into {account}'**
+  String importIntoAccount(String account);
+
+  /// No description provided for @accountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Account: {account}'**
+  String accountName(String account);
+
+  /// No description provided for @importedCalendarEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {1 calendar event imported} other {{count} calendar events imported}}'**
+  String importedCalendarEvents(int count);
+
+  /// No description provided for @linkExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String linkExpires(String date);
+
+  /// No description provided for @localStorageUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} MiB · {count, plural, one {1 file} other {{count} files}}'**
+  String localStorageUsage(String size, int count);
+
+  /// No description provided for @itemCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {1 item} other {{count} items}}'**
+  String itemCount(int count);
+
+  /// No description provided for @resultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {1 result} other {{count} results}}'**
+  String resultCount(int count);
+
+  /// No description provided for @pageNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String pageNumber(String page);
+
+  /// No description provided for @matchedPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} · Match'**
+  String matchedPage(String page);
+
+  /// No description provided for @sourceTimestamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Source · {time}'**
+  String sourceTimestamp(String time);
+
+  /// No description provided for @signInRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue.'**
+  String get signInRequired;
+
+  /// No description provided for @generalTemplateExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview, key points and next steps from your conversation.'**
+  String get generalTemplateExplanation;
+
+  /// No description provided for @recorderConfirmationHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause, resume and stop wait for recorder confirmation. Bluetooth disconnection does not stop the recorder. Check the hardware before retrying.'**
+  String get recorderConfirmationHelp;
+
+  /// No description provided for @iosBackgroundHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'iPhone background activity follows iOS rules. After force quitting, reopen Teno to resume queued work.'**
+  String get iosBackgroundHelp;
+
+  /// No description provided for @contextDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get contextDocument;
+
+  /// No description provided for @noSpeechSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'No speech was found. The audio is saved.'**
+  String get noSpeechSaved;
+
+  /// No description provided for @recordingFileType.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording file'**
+  String get recordingFileType;
+
+  /// No description provided for @saveInterfaceLanguageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save interface language.'**
+  String get saveInterfaceLanguageFailed;
+
+  /// No description provided for @postRecordingTranscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcription starts after recording is saved and uploaded. Cloud processing settings apply.'**
+  String get postRecordingTranscription;
+
+  /// No description provided for @backgroundPostRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Transcription uses the saved recording.'**
+  String get backgroundPostRecording;
 }
 
 class _AppLocalizationsDelegate

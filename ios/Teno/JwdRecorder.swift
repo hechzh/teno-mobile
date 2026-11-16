@@ -34,22 +34,6 @@ import JwdVtrSDK
     private var recordStarted: TimeInterval?, accumulated: Int64 = 0
     private var waiting = ""
     private var recordStateKnown = false
-    var preview: LivePreview?
-    private var previewStarted: TimeInterval = 0, lastPreviewAudio: TimeInterval = 0
-    private var previewBytes = 0
-    var previewStatus: String {
-        guard active else { return preview?.status ?? "" }
-        guard store.livePreview else { return "Live preview is off · Settings > Recorder" }
-        if phase == "paused" { return "Preview paused" }
-        return Self.audioPreviewStatus(connection:preview?.status ?? "Connecting", bytes:previewBytes,
-            elapsed:ProcessInfo.processInfo.systemUptime-previewStarted, silence:ProcessInfo.processInfo.systemUptime-lastPreviewAudio)
-    }
-    static func audioPreviewStatus(connection: String, bytes: Int, elapsed: TimeInterval, silence: TimeInterval) -> String {
-        let state = connection == "Live" ? "Transcription connected" : connection
-        if bytes == 0 { return (elapsed >= 10 ? "No live audio received from recorder" : "Waiting for recorder audio") + " · " + state }
-        if silence >= 10 { return "Recorder audio interrupted · " + state }
-        return connection
-    }
     private var directories: [String] = [], files: [JSONObject] = [], transferQueue: [JSONObject] = []
     private var transfer: JSONObject?, transferFile: URL?, transferHandle: FileHandle?
     private var transferOwner = ""
@@ -322,7 +306,7 @@ import JwdVtrSDK
         deadline?.cancel(); authorized = false; busy = false; recordStateKnown = false; peripheral = nil
         if active { accumulated = elapsed; recordStarted = nil; phase = "interrupted"; status = "Connection interrupted. The recorder may still be recording." }
         else if !probeOnly { status = "Recorder disconnected" }
-        preview?.close(); discardTransfer()
+        discardTransfer()
         if continueSelection { nextAutomaticProbe() }
         else if candidates[identifier]?["key_rejected"] as? Bool == true { status = "Device key was rejected. Use the original key; the recorder was not reset." }
     }
@@ -375,19 +359,13 @@ import JwdVtrSDK
         if Self.isStoppedReply(value,fileName:fileName,seconds:currentTime) {
             let stoppedByUs = waiting == "stop"
             accumulated = elapsed; recordStarted = nil; deadline?.cancel(); waiting = ""; busy = false; phase = "idle"
-            preview?.finish(); status = "Recorder stopped"
+            status = "Recorder stopped"
             if stoppedByUs, store.state().signedIn { beginSync() } else { recordName = "" }
         } else {
-            let newlyStarted = waiting == "start" || phase == "idle" || phase == "interrupted"
             deadline?.cancel(); waiting = ""; busy = false
             if let fileName, !fileName.isEmpty { recordName = fileName }
             if phase != "paused" { accumulated = Int64(max(0,currentTime)) * 1000; recordStarted = ProcessInfo.processInfo.systemUptime; phase = "recording" }
             status = phase == "paused" ? "Recorder paused" : "Recording on your recorder"
-            if newlyStarted, store.state().signedIn, store.livePreview {
-                previewBytes = 0; previewStarted = ProcessInfo.processInfo.systemUptime; lastPreviewAudio = previewStarted
-                preview?.close()
-                preview = LivePreview(api: api,id:"jwd-" + UUID().uuidString,title:recordName)
-            }
         }
     }
     func onRecordStateCheck(_ status: Int32) {
@@ -403,18 +381,15 @@ import JwdVtrSDK
     func onRecordPaused() {
         guard authorized, connected else { return }
         accumulated = elapsed; recordStarted = nil; phase = "paused"; waiting = ""; busy = false
-        deadline?.cancel(); status = "Recorder paused"; preview?.pause(true)
+        deadline?.cancel(); status = "Recorder paused"
     }
     func onRecordResumed() {
         guard authorized, connected else { return }
         recordStarted = ProcessInfo.processInfo.systemUptime; phase = "recording"; waiting = ""; busy = false
-        deadline?.cancel(); status = "Recording on your recorder"; preview?.pause(false)
+        deadline?.cancel(); status = "Recording on your recorder"
     }
     func onRecordStream(_ data: Data) {
-        // JWDReplyParser routes its active MP3/Opus decoder's 16kHz mono PCM here.
-        if phase == "recording", !data.isEmpty, data.count.isMultiple(of:2) {
-            previewBytes += data.count; lastPreviewAudio = ProcessInfo.processInfo.systemUptime; preview?.feed(data)
-        }
+        // Discard live PCM. The verified saved file is the sole transcription source.
     }
     private func beginSync() {
         phase = "saving"; busy = true; directories = []; files = []; transferQueue = []

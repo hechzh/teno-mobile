@@ -299,7 +299,7 @@ class NoteContent extends StatelessWidget {
               icon: const Icon(Icons.link, size: 17),
               label: Text(
                 source['page'] != null
-                    ? 'Page ${source['page']}'
+                    ? context.strings.pageNumber(text(source['page']))
                     : '${text(source['title'])} · ${duration(source['start_ms'])}',
               ),
             ),
@@ -388,6 +388,17 @@ class _PersonalNoteEditorState extends State<PersonalNoteEditor> {
   }
 }
 
+String templateDisplayText(BuildContext context, Json item, String field) {
+  final original = text(item[field]);
+  // Custom names/instructions are user content, even when they match a UI label.
+  if (item['recommended'] != true) return original;
+  if (Localizations.localeOf(context).languageCode == 'zh') {
+    final translated = text(item['${field}_zh']);
+    if (translated.isNotEmpty) return translated;
+  }
+  return ui(context, original);
+}
+
 class PersonalTemplatePicker extends StatelessWidget {
   const PersonalTemplatePicker(
     this.model, {
@@ -471,8 +482,34 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              heading(text(item['title']), localize: false),
-              Text(text(item['prompt'])),
+              heading(
+                templateDisplayText(sheet, item, 'title'),
+                localize: false,
+              ),
+              Text(
+                item['recommended'] == true
+                    ? templateDisplayText(sheet, item, 'description')
+                    : text(item['prompt']),
+              ),
+              if (item['recommended'] == true &&
+                  rows(item['sections']).isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    for (final section in rows(item['sections']))
+                      Chip(
+                        label: Text(
+                          templateDisplayText(sheet, {
+                            ...section,
+                            'recommended': true,
+                          }, 'title'),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () => Navigator.pop(sheet, true),
@@ -637,10 +674,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
             ),
             const SizedBox(height: 9),
             Text(
-              item['recommended'] == true &&
-                      Localizations.localeOf(context).languageCode == 'zh'
-                  ? text(item['title_zh'] ?? item['title'])
-                  : text(item['title']),
+              templateDisplayText(context, item, 'title'),
               maxLines: compact ? 2 : null,
               overflow: compact ? TextOverflow.ellipsis : null,
               style: const TextStyle(
@@ -651,10 +685,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
             ),
             const SizedBox(height: 6),
             Text(
-              item['recommended'] == true &&
-                      Localizations.localeOf(context).languageCode == 'zh'
-                  ? text(item['description_zh'] ?? item['description'])
-                  : text(item['description']),
+              templateDisplayText(context, item, 'description'),
               maxLines: compact ? 3 : null,
               overflow: compact ? TextOverflow.ellipsis : null,
               style: TextStyle(
@@ -711,9 +742,12 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                       ? recentIds.contains(t['id'])
                       : t['recommended'] != true)) &&
               (category == 'All' || t['category'] == category) &&
-              (text(t['title']) + ' ' + text(t['description']))
-                  .toLowerCase()
-                  .contains(query.toLowerCase()),
+              ([
+                text(t['title']),
+                text(t['description']),
+                templateDisplayText(context, t, 'title'),
+                templateDisplayText(context, t, 'description'),
+              ].join(' ')).toLowerCase().contains(query.toLowerCase()),
         )
         .toList();
     final root = widget.collection == null;
@@ -897,7 +931,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                     Padding(
                       padding: const EdgeInsets.only(right: 8, bottom: 16),
                       child: ChoiceChip(
-                        label: Text(value),
+                        label: UiText(value),
                         selected: tab == value,
                         onSelected: (_) => setState(() => tab = value),
                       ),

@@ -286,6 +286,10 @@ String lookupUiMessage(AppLocalizations l, String source) => switch (source) {
     l.label868345e0521a,
   "Live text is a preview. The complete recording is processed after recording for the final transcript and summary." =>
     l.labeld17c23100fda,
+  "Transcription starts after recording is saved and uploaded. Cloud processing settings apply." =>
+    l.postRecordingTranscription,
+  "Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Transcription uses the saved recording." =>
+    l.backgroundPostRecording,
   "Live transcript" => l.label20611c3780d1,
   "Live transcript preview" => l.label7adfd01e422a,
   "Load more" => l.labelac8991ef0101,
@@ -888,5 +892,16 @@ String lookupUiMessage(AppLocalizations l, String source) => switch (source) {
     l.templateProcessing,
   "Saved recording & template" => l.templateSaved,
   "Ask this note" => l.askSelectedNote,
+  "Sign in to continue." => l.signInRequired,
+  "Overview, key points and next steps from your conversation." =>
+    l.generalTemplateExplanation,
+  "Pause, resume and stop wait for recorder confirmation. Bluetooth disconnection does not stop the recorder. Check the hardware before retrying." =>
+    l.recorderConfirmationHelp,
+  "iPhone background activity follows iOS rules. After force quitting, reopen Teno to resume queued work." =>
+    l.iosBackgroundHelp,
+  "Document" => l.contextDocument,
+  "No speech was found. The audio is saved." => l.noSpeechSaved,
+  "Recording file" => l.recordingFileType,
+  "Could not save interface language." => l.saveInterfaceLanguageFailed,
   _ => source,
 };

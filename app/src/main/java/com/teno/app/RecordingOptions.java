@@ -16,11 +16,9 @@ final class RecordingOptions {
         CheckBox cloud=new CheckBox(activity);cloud.setText("Automatic cloud processing");cloud.setChecked(!store.recordingOptionsSet()||store.autoUpload());form.addView(cloud);
         CheckBox wifi=new CheckBox(activity);wifi.setText("Upload on Wi-Fi only");wifi.setChecked(store.wifiUpload());form.addView(wifi);
         TextView label=new TextView(activity);label.setText("Transcription language · Automatic");label.setPadding(0,pad/2,0,pad/3);form.addView(label);
-        CheckBox live=new CheckBox(activity);live.setText("Live transcription");live.setChecked(store.liveDefault());form.addView(live);
-        TextView liveNote=new TextView(activity);liveNote.setText("Live transcription sends audio while you record and can use mobile data. These settings apply to the next recording.");form.addView(liveNote);
         ScrollView scroll=new ScrollView(activity);scroll.addView(form);
         return new AlertDialog.Builder(activity).setTitle("Recording preferences").setView(scroll).setPositiveButton(next==null?"Save":"Save and continue",(d,w)->{
-            store.language("auto");store.recordingOptions(cloud.isChecked(),wifi.isChecked(),live.isChecked());
+            store.language("auto");store.recordingOptions(cloud.isChecked(),wifi.isChecked(),false);
             UploadQueue.resume(activity);if(next!=null)next.run();
         }).setNegativeButton("Cancel",null).show();
     }

@@ -1,3 +1,12 @@
+# Teno Web 0.3.1 candidate
+
+本批同步移除录音中实时转写，只在录音结束、完整文件保存后按云处理设置上传转写。
+
+Shared UI 0.8.1 adds a global language shortcut and completes common Chinese/English UI labels.
+See [release notes](RELEASE-0.3.1.txt). Original user content and the formal /app/ entry remain unchanged.
+
+Previous release history follows.
+
 # Teno Web 0.2.2 candidate
 
 Web-only delivery update for slow mobile connections. The UI base stays 0.7.0.

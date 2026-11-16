@@ -767,6 +767,29 @@ final class UiLocaleLabels {
       case "The device code could not be saved. Try connecting again.": return R.string.ui_autojwdsavecode;
       case "Authorizing recorder": return R.string.ui_autojwdauth;
       case "The recorder channels do not match the JWD protocol.": return R.string.ui_autojwdchannels;
+      case "Note template": return R.string.ui_notetemplate;
+      case "Account default": return R.string.ui_templateaccountdefault;
+      case "General notes": return R.string.ui_templategeneral;
+      case "Interview insights": return R.string.ui_templateinterview;
+      case "Lecture notes": return R.string.ui_templatelecture;
+      case "Inspiration": return R.string.ui_templateinspiration;
+      case "Action items": return R.string.ui_templateactions;
+      case "Concise recap": return R.string.ui_templatebrief;
+      case "Custom template": return R.string.ui_templatecustom;
+      case "Generate with another template": return R.string.ui_templateanother;
+      case "Processing uses the selected template. Another template creates a new note.": return R.string.ui_templateprocessing;
+      case "Saved recording & template": return R.string.ui_templatesaved;
+      case "Ask this note": return R.string.ui_askselectednote;
+      case "Sign in to continue.": return R.string.ui_signinrequired;
+      case "Overview, key points and next steps from your conversation.": return R.string.ui_generaltemplateexplanation;
+      case "Pause, resume and stop wait for recorder confirmation. Bluetooth disconnection does not stop the recorder. Check the hardware before retrying.": return R.string.ui_recorderconfirmationhelp;
+      case "iPhone background activity follows iOS rules. After force quitting, reopen Teno to resume queued work.": return R.string.ui_iosbackgroundhelp;
+      case "Document": return R.string.ui_contextdocument;
+      case "No speech was found. The audio is saved.": return R.string.ui_nospeechsaved;
+      case "Recording file": return R.string.ui_recordingfiletype;
+      case "Could not save interface language.": return R.string.ui_saveinterfacelanguagefailed;
+      case "Transcription starts after recording is saved and uploaded. Cloud processing settings apply.": return R.string.ui_postrecordingtranscription;
+      case "Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Transcription uses the saved recording.": return R.string.ui_backgroundpostrecording;
       default: return 0;
     }
   }

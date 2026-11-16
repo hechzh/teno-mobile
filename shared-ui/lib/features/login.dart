@@ -50,12 +50,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               Align(
                 alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: () =>
-                      push(context, InterfaceLanguagePage(widget.model)),
-                  icon: const Icon(Icons.language, size: 20),
-                  label: const UiText('Interface language'),
-                ),
+                child: InterfaceLanguageButton(widget.model),
               ),
               const UiText(
                 'Teno',

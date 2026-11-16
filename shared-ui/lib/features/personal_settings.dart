@@ -2,6 +2,7 @@ import 'dart:async';
 import '../core/calendar_view.dart';
 import 'routes/personal_ask.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
@@ -44,6 +45,13 @@ class PersonalSettings extends StatelessWidget {
         title: Text(model.runtime!.session.username),
         subtitle: const UiText('Teno account'),
         onTap: () => push(context, PersonalAccountPage(model, profile: true)),
+      ),
+      ListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(context.strings.interfaceLanguage),
+        subtitle: Text(context.strings.languageHint),
+        trailing: InterfaceLanguageButton(model),
+        onTap: () => push(context, InterfaceLanguagePage(model)),
       ),
       settingsGroup(
         context,
@@ -94,12 +102,6 @@ class PersonalSettings extends StatelessWidget {
       ),
       const Divider(height: 24),
       settingsGroup(context, 'Appearance & language'),
-      settingsEntry(
-        context,
-        'Interface language',
-        Icons.language,
-        () => push(context, InterfaceLanguagePage(model)),
-      ),
       settingsEntry(
         context,
         'Theme',
@@ -275,12 +277,12 @@ class PersonalRecorderPreferences extends StatelessWidget {
   });
   final TenoModel model;
   final bool cloud;
-  Future<void> configure({bool? upload, bool? wifi, bool? live}) async {
+  Future<void> configure({bool? upload, bool? wifi}) async {
     final s = model.runtime!.session;
     await model.host.configure(
       upload ?? s.cloudUpload,
       wifi ?? s.wifiOnly,
-      live ?? s.livePreview,
+      false,
     );
     model.changed(await model.host.snapshot());
   }
@@ -316,16 +318,6 @@ class PersonalRecorderPreferences extends StatelessWidget {
             value: model.runtime!.session.wifiOnly,
             onChanged: (v) => perform(context, () => configure(wifi: v)),
           ),
-          if (!cloud)
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const UiText('Live transcript preview'),
-              subtitle: const UiText(
-                'Preview only. The complete audio is processed after recording.',
-              ),
-              value: model.runtime!.session.livePreview,
-              onChanged: (v) => perform(context, () => configure(live: v)),
-            ),
           const SizedBox(height: 24),
           UiText(
             'Complete recordings and imports stay on this phone after upload. Existing saved files are uploaded only when you request it.',
@@ -360,12 +352,12 @@ class _PersonalPreferencesState extends State<PersonalPreferences> {
     } catch (_) {}
   }
 
-  Future<void> configure({bool? cloud, bool? wifi, bool? live}) async {
+  Future<void> configure({bool? cloud, bool? wifi}) async {
     final s = widget.model.runtime!.session;
     await widget.model.host.configure(
       cloud ?? s.cloudUpload,
       wifi ?? s.wifiOnly,
-      live ?? s.livePreview,
+      false,
     );
     widget.model.changed(await widget.model.host.snapshot());
   }
@@ -480,8 +472,10 @@ class PersonalLinksPage extends StatelessWidget {
               title: Text(text(item['title'])),
               subtitle: Text(
                 item['revoked'] == true
-                    ? 'Revoked'
-                    : 'Expires ${dateLabel(item['expires_at'])}',
+                    ? ui(context, 'Revoked')
+                    : context.strings.linkExpires(
+                        dateLabel(item['expires_at']),
+                      ),
               ),
               trailing: item['revoked'] == true
                   ? null
@@ -521,7 +515,10 @@ class PersonalStoragePage extends StatelessWidget {
         children: [
           heading(model.webExperience ? 'In this browser' : 'On this phone'),
           Text(
-            '${((data['local_bytes'] as num? ?? 0) / 1048576).toStringAsFixed(1)} MiB · ${model.drafts.length} files',
+            context.strings.localStorageUsage(
+              ((data['local_bytes'] as num? ?? 0) / 1048576).toStringAsFixed(1),
+              model.drafts.length,
+            ),
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,
@@ -730,21 +727,8 @@ class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
       DateTime(selected.year, selected.month + 4, 1),
     );
     final colors = Theme.of(context).colorScheme;
-    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
+    final labels = MaterialLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 68,
@@ -765,7 +749,7 @@ class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
             children: [
               Flexible(
                 child: Text(
-                  '${months[selected.month - 1]} ${selected.year}',
+                  labels.formatMonthYear(selected),
                   style: const TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.w600,
@@ -832,7 +816,7 @@ class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
                           child: Column(
                             children: [
                               Text(
-                                weekdays[i][0],
+                                labels.narrowWeekdays[i],
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: subtle(context),
@@ -908,7 +892,7 @@ class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
                                 child: Column(
                                   children: [
                                     Text(
-                                      weekdays[group.key.weekday % 7],
+                                      DateFormat.E(locale).format(group.key),
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: subtle(context),
@@ -923,7 +907,9 @@ class _PersonalCalendarPageState extends State<PersonalCalendarPage> {
                                     ),
                                     if (group.key.month != selected.month)
                                       Text(
-                                        months[group.key.month - 1],
+                                        DateFormat.MMM(
+                                          locale,
+                                        ).format(group.key),
                                         style: TextStyle(
                                           fontSize: 10,
                                           color: subtle(context),
@@ -1078,7 +1064,7 @@ class PersonalHelpPage extends StatelessWidget {
           ),
           heading('Processing and notifications'),
           const UiText(
-            'Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Live text is a preview; final results use the complete recording.',
+            'Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Transcription uses the saved recording.',
           ),
         ],
       ],

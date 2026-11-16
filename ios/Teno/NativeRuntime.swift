@@ -42,13 +42,12 @@ import UIKit
         let useDevice = recorder.active || source == "device" && !phone.active
         let candidate = useDevice ? recorder.localId : phone.id
         let id = candidate.hasPrefix("jwd:") || (try? store.draft(candidate)) != nil ? candidate : ""
-        let preview = useDevice ? recorder.preview : phone.preview
         var notes = ""
         if id.hasPrefix("jwd:") { notes = store.notes(id) }
         else if !id.isEmpty { notes = string((try? store.draft(id))?["notes"]) }
         let capture = CaptureState(source:useDevice ? "device" : "phone",phase:useDevice ? recorder.phase : phone.phase,
             elapsedMs:useDevice ? recorder.elapsed : phone.elapsed,localId:id,status:useDevice ? recorder.status : phone.status,
-            partial:preview?.partial ?? "",segmentsJson:jsonString(preview?.segments ?? []),notes:notes,previewStatus:useDevice ? recorder.previewStatus : preview?.status ?? "")
+            partial:"",segmentsJson:"[]",notes:notes,previewStatus:"")
         let drafts = store.drafts().map { value -> JSONObject in var item = value; item.removeValue(forKey:"path"); return item }
         return RuntimeState(sequence:sequence,session:store.state(),capture:capture,device:recorder.state(),playback:media.state(),
             draftsJson:jsonString(drafts),uploadStatus:uploads.status,openRoute:"")
@@ -67,7 +66,7 @@ import UIKit
         await uploads.pauseAccount()
         _ = try? await api.json("POST","/api/v1/auth/logout",body:[:])
         personal.cancelAccountUI()
-        media.stop(); phone.preview?.close(); phone.preview=nil; recorder.preview?.close(); recorder.preview=nil
+        media.stop()
         try store.logout()
     }
     func request(method: String,path: String,jsonBody: String?) async throws -> String {
@@ -91,7 +90,7 @@ import UIKit
         case .pause: phone.pause()
         case .resume: try phone.resume()
         case .stop: try phone.stop()
-        case .retryPreview: phone.preview?.retry()
+        case .retryPreview: break // Retained only for bridge compatibility.
         }
     }
     func controlDevice(action: DeviceAction,identifier: String,name: String) async throws {

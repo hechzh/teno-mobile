@@ -364,7 +364,9 @@ class CoreTile extends StatelessWidget {
                     if (item['duration_ms'] != null)
                       coreDuration(item['duration_ms'], context: context),
                     if (item['child_count'] != null)
-                      '${item['child_count']} items',
+                      context.strings.itemCount(
+                        (item['child_count'] as num).toInt(),
+                      ),
                   ].where((s) => s.isNotEmpty).join(' · '),
                   style: TextStyle(fontSize: 12, color: subtle(context)),
                 ),

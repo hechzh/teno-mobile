@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/core/model.dart';
 import '../lib/main.dart';
+import '../lib/l10n/ui_strings.dart';
 import '../lib/ui/personal_widgets.dart';
 import '../lib/features/personal_home.dart';
 import '../lib/features/personal_library.dart';
@@ -395,6 +396,10 @@ void main() {
       RepaintBoundary(
         key: boundary,
         child: MaterialApp(
+          // Match the app's localization delegates, including calendar data.
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
           debugShowCheckedModeBanner: false,
           theme: personalTheme(dark),
           builder: (context, child) => MediaQuery(

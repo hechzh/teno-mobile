@@ -71,7 +71,7 @@ def package(version,evidence_dir=None,private_values=(),report_enabled=True):
         'physical_android_tested':False,'physical_jwd_tested':False,'near_120_min_provider_call_tested':False,
         'no_test_runners_in_apk':True,'private_credential_scan_passed':True,'ios':None,'baseline_promoted':False,
         'review':f'../design-baseline/v{version}/index.html','validation':f'../RELEASE-{version}.txt'}
-    if version in ('0.7.1','0.8.0'):
+    if tuple(map(int,version.split('.'))) >= (0,7,1):
         auth=read(qa/'auth-errors-runtime-report.json')
         assert auth['all_passed'] and auth['apk_sha256']==sha(apk)
         manifest['auth_error_checks']=len(auth['checks'])

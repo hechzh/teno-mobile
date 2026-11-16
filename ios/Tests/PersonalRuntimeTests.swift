@@ -99,11 +99,16 @@ final class PersonalRuntimeTests: XCTestCase {
         store.identity("second","two"); XCTAssertTrue(store.drafts().isEmpty); XCTAssertThrowsError(try store.save(draft))
         store.identity("first","one"); XCTAssertEqual(store.drafts().count,1)
     }
-    @MainActor func testPreviewConnectionDoesNotClaimRecorderAudioHasArrived() {
-        XCTAssertEqual(JwdRecorder.audioPreviewStatus(connection:"Live",bytes:0,elapsed:2,silence:2),"Waiting for recorder audio · Transcription connected")
-        XCTAssertTrue(JwdRecorder.audioPreviewStatus(connection:"Live",bytes:0,elapsed:11,silence:11).hasPrefix("No live audio"))
-        XCTAssertTrue(JwdRecorder.audioPreviewStatus(connection:"Live",bytes:640,elapsed:20,silence:11).hasPrefix("Recorder audio interrupted"))
-        XCTAssertEqual(JwdRecorder.audioPreviewStatus(connection:"Live",bytes:640,elapsed:2,silence:0),"Live")
+    @MainActor func testLegacyLivePreferenceCannotEnableRecordingTimeTranscription() throws {
+        let (store,api) = try fixture()
+        store.preferences.set(true,forKey:"live_default")
+        XCTAssertFalse(store.livePreview); XCTAssertFalse(store.state().livePreview)
+        store.configure(cloud:false,wifi:true,live:true)
+        XCTAssertFalse(store.livePreview); XCTAssertFalse(store.cloudUpload); XCTAssertTrue(store.wifiOnly)
+        let recorder = JwdRecorder(store:store,api:api,saved:{ _ in XCTFail("A live packet must not become a saved recording") })
+        let before = store.drafts().count
+        recorder.onRecordStream(Data(repeating:0,count:3200))
+        XCTAssertEqual(store.drafts().count,before)
     }
     @MainActor func testIdleRTReplyIsNotMistakenForAnActiveRecording() {
         XCTAssertTrue(JwdRecorder.isStoppedReply(3,fileName:"0",seconds:0))

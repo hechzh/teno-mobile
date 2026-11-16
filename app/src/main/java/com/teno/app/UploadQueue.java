@@ -104,7 +104,6 @@ final class UploadQueue {
             JSONObject fields=new JSONObject().put("client_id",id);
             if(document){String parent=parentRecording(store,draft);if(!parent.isEmpty())fields.put("recording_id",parent);if(draft.has("at_ms"))fields.put("at_ms",String.valueOf(draft.getLong("at_ms")));}
             else fields.put("title",draft.getString("title")).put("language",store.language()).put("personal_mode","true").put("template_id",draft.optString("template_id","@default")).put("source",draft.optString("source").equals("import")?"import":draft.optString("source").equals("jwd_ble")?"device":"phone");
-            if(!draft.optString("live_session_id").isEmpty())fields.put("live_session_id",draft.getString("live_session_id"));
             JSONObject result=api.upload(document?"/api/v1/files":"/api/v1/recordings",audio,document?draft.getString("title"):audio.getName(),fields,(sent,total)->{TransferService.message="Uploading "+(total==0?0:sent*100/total)+"%";progress.update(TransferService.message);});
             if(!owner.equals(store.scope()))return;
             synchronized(Store.class){draft=store.draft(id);draft.put(document?"file_id":"recording_id",result.getString(document?"file_id":"recording_id")).put("job_id",result.isNull("job_id")?"":result.optString("job_id")).put("status",result.isNull("job_id")?"uploaded":"processing").put("upload_requested",false);store.save(draft);}

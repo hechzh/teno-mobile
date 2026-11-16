@@ -24,8 +24,6 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private boolean signedIn(){return !accountClosing&&!store.scope().isEmpty()&&!store.token("access_token").isEmpty();}
     private boolean sessionCurrent(){return signedIn()&&connectionEpoch==sessionEpoch.get()&&connectionOwner.equals(store.scope());}
     public static volatile String snapshot="{}";
-    static volatile JwdLiveSession live;
-    private boolean requestLive;
     private HandlerThread thread;private Handler handler;private JwdTransport ble;private Store store;
     private final ExecutorService decoder=Executors.newSingleThreadExecutor();
     private BluetoothLeScanner scanner;private BluetoothAdapter adapter;private PowerManager.WakeLock wake;
@@ -89,7 +87,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         }
         if(action.equals("prepare_recording")){deferSync=true;syncing=false;syncFiles.clear();publish();return;}
         if(action.equals("resume_sync")){deferSync=false;if(authorized&&recordState==0&&pending.isEmpty()&&receiver==null&&!converting)startSync();return;}
-        if(action.equals("disconnect")){cancelAutomaticConnection();if(converting)throw new IOException("Wait for the decoded file to finish saving before disconnecting");stopLive(false);stopScan();abortTransfer();resetSync();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;message="Disconnected. Check the recorder: it may still be recording.";publish();stopSelf();return;}
+        if(action.equals("disconnect")){cancelAutomaticConnection();if(converting)throw new IOException("Wait for the decoded file to finish saving before disconnecting");releaseRecordingWake();stopScan();abortTransfer();resetSync();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;message="Disconnected. Check the recorder: it may still be recording.";publish();stopSelf();return;}
         if(action.equals("scan")||action.equals("scan_compat")){scan(action.equals("scan_compat"));return;}
         if(action.equals("probe")){
             if(!i.getBooleanExtra("automatic",false))cancelAutomaticConnection();
@@ -129,7 +127,6 @@ public final class JwdService extends Service implements JwdBle.Listener {
             case "start":
                 if(recordState!=0)throw new IOException("Device status is unknown. Refresh it first.");
                 if(RecorderService.active||RecorderService.finishing)throw new IOException("Finish the phone recording first.");
-                if(live!=null&&!live.finished)throw new IOException("The previous transcript is finishing. Try again shortly.");live=null;requestLive=i.getBooleanExtra("live",false);if(requestLive&&store.token("access_token").isEmpty())throw new IOException("Sign in to use live transcription.");
                 resetSync();deferSync=false;lastDraft="";syncTarget="";store.pendingDeviceRecord(address,"");
                 begin("start","Waiting for recording to start",15000);ble.send("APP&STA");break;
             case "stop":
@@ -234,7 +231,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         connected=true;connectionStage="app_key_auth";try{begin("auth","Connected. Checking device key…",15000);ble.send("APP&SK&"+store.deviceKey(address));publish();}catch(Exception e){problem("The key could not be read. Enter the original key again.");ble.close();connected=false;publish();}
     }
     @Override public void closed(String reason){
-        stopLive(false);
+        releaseRecordingWake();
         abortTransfer();syncFailed(reason);connected=false;authorized=false;recordState=-1;pending="";operation++;if(autoProbing){autoProbing=false;nextAutomaticProbe();return;}message=(pairingRequested?"Android requested a PIN. Cancel the prompt and export diagnostics. ":"")+reason;log(reason);publish();
     }
     private void begin(String kind,String text,long timeout){
@@ -244,7 +241,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             if(pending.equals("download")){transferFailed("Transfer did not start in time. Reconnect and try again.");return;}
             String old=pending;pending="";message="Recorder did not confirm the action ("+old+"). Refresh device status or reconnect.";
             if(syncing)syncFailed(message);
-            if(old.equals("auth")||old.equals("start")||old.equals("stop")||old.equals("probe")||old.equals("connect")){stopLive(false);ble.close();authorized=false;connected=false;recordState=-1;}
+            if(old.equals("auth")||old.equals("start")||old.equals("stop")||old.equals("probe")||old.equals("connect")){releaseRecordingWake();ble.close();authorized=false;connected=false;recordState=-1;}
             log(message);publish();if(old.equals("probe"))automaticProbeFinished(false);
         },timeout);
     }
@@ -279,10 +276,10 @@ public final class JwdService extends Service implements JwdBle.Listener {
             case "STE":if(p.length>2){if(Integer.parseInt(p[2])==1)recordState=1;else stopped();}break;
             case "STA":if(p.length>2){recording(p[2],0);done("start");message="Recorder is recording";log("Recording start confirmed");}break;
             case "PAUSE":
-                if(recordState==1){recordState=2;recordPausedAt=SystemClock.elapsedRealtime();if(live!=null)live.transcriber.pause(true);}
+                if(recordState==1){recordState=2;recordPausedAt=SystemClock.elapsedRealtime();}
                 done("pause");message="Recording paused";break;
             case "RESUME":
-                if(recordState==2){recordPausedTotal+=SystemClock.elapsedRealtime()-recordPausedAt;recordPausedAt=0;recordState=1;if(live!=null)live.transcriber.pause(false);}
+                if(recordState==2){recordPausedTotal+=SystemClock.elapsedRealtime()-recordPausedAt;recordPausedAt=0;recordState=1;}
                 done("resume");message="Recorder is recording";break;
             case "STO":stopped();done("stop");message="Saved on recorder · Syncing to this phone";log("Recording stop confirmed");scheduleSync();break;
             case "AUTO":if(p.length>2&&p[2].equals("STO")){stopped();scheduleSync();}else if(p.length>3&&p[2].equals("STA"))recording(p[3],0);break;
@@ -307,13 +304,12 @@ public final class JwdService extends Service implements JwdBle.Listener {
         if(receiver!=null||pending.equals("download")){transferFailed("Recording started during transfer. Stop recording before transferring files.");return;}
         if(!name.equals(recordName)){lastDraft="";syncTarget=name;store.pendingDeviceRecord(address,name);syncError="";}
         syncing=false;syncFiles.clear();
-        if(requestLive&&(live==null||live.finished)&&!store.token("access_token").isEmpty()){live=new JwdLiveSession(store,name);wake.acquire(65*60*1000L);}
         recordState=1;recordName=name;recordStart=SystemClock.elapsedRealtime()-Math.max(0,seconds)*1000;recordPausedAt=0;recordPausedTotal=0;
     }
     private void stopped(){
         boolean wasRecording=recordState==1||recordState==2;
         if(!recordName.isEmpty()){syncTarget=recordName;store.pendingDeviceRecord(address,recordName);}
-        stopLive(true);recordState=0;recordName="";
+        releaseRecordingWake();recordState=0;recordName="";
         if(wasRecording)scheduleSync();
     }
     private void resetSync(){syncing=false;syncFiles.clear();syncDirectory=0;syncRetry=0;syncError="";}
@@ -353,7 +349,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         }else{syncRetry=0;message=syncError.isEmpty()?"Recordings synced · Local copies kept":syncError;}
         publish();
     }
-    private void stopLive(boolean confirmed){requestLive=false;if(live!=null&&!live.finished)live.stop(confirmed);if(receiver==null&&!converting)releaseWake();}
+    private void releaseRecordingWake(){if(receiver==null&&!converting)releaseWake();}
     private void download(Intent i)throws Exception{
         if(store.scope().isEmpty()||store.token("access_token").isEmpty())throw new IOException("Sign in first. Imported recordings are saved to that account on this phone.");
         if(recordState!=0)throw new IOException("Stop recording and refresh device status first");
@@ -368,7 +364,8 @@ public final class JwdService extends Service implements JwdBle.Listener {
         begin("download","Waiting for transfer to start",20000);ble.send("APP&U&"+dir+"&"+name);log("Device file requested");
     }
     @Override public void audio(byte[] data){
-        if(receiver==null){if(recordState==1&&live!=null)live.feed(data);return;}try{receiver.write(data);lastData=SystemClock.elapsedRealtime();maybeFinish();if(lastData-lastPublish>400)publish();}catch(Exception e){transferFailed(e.getMessage());}
+        if(receiver==null)return; // Live packets are ignored; only complete file transfers are accepted.
+        try{receiver.write(data);lastData=SystemClock.elapsedRealtime();maybeFinish();if(lastData-lastPublish>400)publish();}catch(Exception e){transferFailed(e.getMessage());}
     }
     private final Runnable transferWatch=new Runnable(){public void run(){
         if(receiver==null)return;
@@ -423,7 +420,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     }
     @Override public void onDestroy(){
         try{unregisterReceiver(pairingReceiver);}catch(IllegalArgumentException ignored){}
-        active=false;handler.post(()->{stopLive(false);stopScan();abortTransfer();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;publish();destroyed=true;releaseWake();thread.quitSafely();});
+        active=false;handler.post(()->{releaseRecordingWake();stopScan();abortTransfer();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;publish();destroyed=true;releaseWake();thread.quitSafely();});
         decoder.shutdownNow();super.onDestroy();
     }
 }

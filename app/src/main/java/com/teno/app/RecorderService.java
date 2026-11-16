@@ -11,7 +11,6 @@ public final class RecorderService extends Service {
     public static volatile boolean active=false,paused=false,finishing=false;
     public static volatile String draftId="",error="";
     public static volatile long started=0,pausedAt=0,pausedTotal=0,capturedBytes=0;
-    public static volatile LiveTranscriber live;
     private final Object captureLock=new Object();private AudioRecord recorder;private Store store;private PowerManager.WakeLock wake;
     private volatile boolean keep=true;private Thread capture;
     @Override public IBinder onBind(Intent i){return null;}
@@ -31,31 +30,28 @@ public final class RecorderService extends Service {
                 int size=Math.max(6400,AudioRecord.getMinBufferSize(16000,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT)*2);
                 recorder=new AudioRecord(MediaRecorder.AudioSource.MIC,16000,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT,size);
                 if(recorder.getState()!=AudioRecord.STATE_INITIALIZED)throw new IOException("The microphone could not be opened");
-                live=draft.optBoolean("live",true)?new LiveTranscriber(store,draftId,draft.optString("title"),store.language()):null;
                 recorder.startRecording();active=true;started=SystemClock.elapsedRealtime();draft.put("status","recording");store.save(draft);
                 wake=((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"Teno:Recording");wake.acquire(3600000);
                 capture=new Thread(()->capture(draft),"TenoPcmCapture");capture.start();
-            }else if("pause".equals(action)&&active){synchronized(captureLock){paused=!paused;if(live!=null)live.pause(paused);}((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(10,notification());}
-            else if("retry_live".equals(action)&&live!=null)live.retry();
+            }else if("pause".equals(action)&&active){synchronized(captureLock){paused=!paused;}((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(10,notification());}
             else if("stop".equals(action)||"discard".equals(action)){keep=!"discard".equals(action);stopCapture();}
-        }catch(Exception e){error="Recording could not start. "+e.getMessage();active=false;try{JSONObject failed=store.draft(draftId);failed.put("status","invalid").put("error",error);store.save(failed);}catch(Exception ignored){}if(recorder!=null){recorder.release();recorder=null;}if(live!=null)live.close();stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();}
+        }catch(Exception e){error="Recording could not start. "+e.getMessage();active=false;try{JSONObject failed=store.draft(draftId);failed.put("status","invalid").put("error",error);store.save(failed);}catch(Exception ignored){}if(recorder!=null){recorder.release();recorder=null;}stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();}
         return START_NOT_STICKY;
     }
     private void stopCapture(){active=false;finishing=capture!=null&&capture.isAlive();if(recorder!=null)try{recorder.stop();}catch(Exception ignored){}if(finishing)((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(10,notification());else{stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();}}
-    private void capture(JSONObject original){boolean valid=false;String reusable="";String owner=store.scope();
+    private void capture(JSONObject original){boolean valid=false;String owner=store.scope();
         try(RandomAccessFile out=new RandomAccessFile(original.getString("path"),"rw")){
             out.setLength(0);out.write(JwdAudio.wavHeader(0));byte[] buffer=new byte[1600];
             while(active){int n=recorder.read(buffer,0,buffer.length,AudioRecord.READ_BLOCKING);if(n<0){if(active)throw new IOException("Microphone interrupted. The saved audio has been kept.");break;}
-                synchronized(captureLock){if(!paused&&active&&n>0){out.write(buffer,0,n);capturedBytes+=n;if(live!=null)live.feed(buffer,n);}}
+                synchronized(captureLock){if(!paused&&active&&n>0){out.write(buffer,0,n);capturedBytes+=n;}}
                 if(capturedBytes>=103680000){active=false;error="The 54-minute recording limit was reached. Audio has been saved.";}
             }
             out.seek(0);out.write(JwdAudio.wavHeader(capturedBytes));out.getFD().sync();valid=capturedBytes>=3200;
         }catch(Exception e){error=e.getMessage();valid=capturedBytes>=3200;try(RandomAccessFile repair=new RandomAccessFile(original.optString("path"),"rw")){repair.seek(0);repair.write(JwdAudio.wavHeader(Math.max(0,repair.length()-44)));}catch(Exception ignored){valid=false;}}
         finally{
             active=false;finishing=true;paused=false;if(recorder!=null){try{recorder.stop();}catch(Exception ignored){}recorder.release();recorder=null;}
-            if(live!=null){if(keep&&valid)reusable=live.finish();else live.close();}
-            try{if(owner.equals(store.scope())){JSONObject d=store.draft(draftId);d.put("duration_ms",capturedBytes/32).put("status",valid?"local":"invalid").put("live_session_id",reusable).put("live_complete",!reusable.isEmpty());
-                if(live!=null)d.put("live_segments",live.segments());if(!error.isEmpty())d.put("error",error);store.save(d);if(!keep)store.deleteDraft(d);else if(valid)UploadQueue.saved(this,d);}}
+            try{if(owner.equals(store.scope())){JSONObject d=store.draft(draftId);d.put("duration_ms",capturedBytes/32).put("status",valid?"local":"invalid");
+                if(!error.isEmpty())d.put("error",error);store.save(d);if(!keep)store.deleteDraft(d);else if(valid)UploadQueue.saved(this,d);}}
             catch(Exception e){error="Audio saved, but its details could not be updated.";}
             if(wake!=null&&wake.isHeld())wake.release();finishing=false;stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();
         }

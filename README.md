@@ -1,3 +1,21 @@
+# Teno Android 0.8.1 and iOS 1.1.1 / Build 13
+
+本批同步移除录音中实时转写，只在录音结束、完整文件保存后按云处理设置上传转写。
+
+An app-wide Chinese / English / system-language menu is visible on sign-in, Home,
+Assistant and at the top of Settings. The saved preference updates the interface
+without changing the current account, recording, draft input or generated content.
+Template tabs and previews, Chinese template search, imports, source/page labels,
+library counts, calendar labels and common status messages now follow that choice.
+Custom templates, recordings, transcripts and saved notes retain their original text.
+
+Android keeps `com.teno.app` and its original signer; iOS keeps `com.jwd.ZhiYan`.
+The shared Web candidate is 0.3.1/9. See [release scope](RELEASE-0.8.1.txt).
+Physical phone/JWD/Safari acceptance remains separate. Development delivery does
+not promote a formal baseline, merge main or publish to an app store.
+
+Previous release history follows.
+
 # Teno Android 0.7.1 and iOS 1.0 / Build 11
 
 Native login now distinguishes incorrect credentials from an expired session. JWD connection has no Bluetooth selection page: first use tries candidates by signal strength, verifies JWD channels, saves a secure device code and authenticates; subsequent use reconnects the last successful recorder. Existing binding rejection uses original-code recovery. Recording still starts explicitly.

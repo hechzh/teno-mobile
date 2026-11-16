@@ -847,9 +847,11 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             icon: const Icon(Icons.link, size: 16),
             label: Text(
               source['page'] != null
-                  ? 'Page ${source['page']}'
+                  ? context.strings.pageNumber(text(source['page']))
                   : source['start_ms'] is num
-                  ? 'Source · ${duration(source['start_ms'])}'
+                  ? context.strings.sourceTimestamp(
+                      duration(source['start_ms']),
+                    )
                   : text(source['title']),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -1105,7 +1107,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     if (_cacheStatus.isNotEmpty)
       Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: Text(
+        child: UiText(
           _cacheStatus,
           style: TextStyle(fontSize: 12, color: _muted),
         ),
@@ -1128,7 +1130,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     if (text(processing['message']).isNotEmpty)
       Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: Text(text(processing['message'])),
+        child: UiText(text(processing['message'])),
       ),
   ];
 

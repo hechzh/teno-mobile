@@ -92,7 +92,7 @@ final class NativeRuntime implements RuntimeHost {
         JSONObject d=device();JSONArray candidates=d.optJSONArray("devices");if(candidates==null)candidates=new JSONArray();
         for(int i=0;i<candidates.length();i++){JSONObject item=candidates.getJSONObject(i);item.put("has_key",!store.deviceKey(item.optString("address")).isEmpty());}
         String phase="idle",source="phone",id=phoneStarting?pendingPhoneId:RecorderService.draftId,status=RecorderService.error,notes="",partial="",segments="[]";
-        long elapsed=RecorderService.elapsed();LiveTranscriber live=RecorderService.live;
+        long elapsed=RecorderService.elapsed();
         if(RecorderService.active){phoneStarting=false;phase=RecorderService.paused?"paused":"recording";}
         else if(RecorderService.finishing)phase="saving";
         else if(phoneStarting&&RecorderService.error.isEmpty())phase="starting";
@@ -105,21 +105,18 @@ final class NativeRuntime implements RuntimeHost {
             else if(d.optBoolean("receiving")||d.optBoolean("converting")||d.optBoolean("syncing"))phase="saving";
             elapsed=JwdService.elapsed(d,SystemClock.elapsedRealtime());id="jwd:"+d.optString("address")+"|"+d.optString("record_name");
             notes=store.recorderNotes(d.optString("address"),d.optString("record_name"));status=d.optString("message");
-            live=JwdService.live==null?null:JwdService.live.transcriber;
+
         }else if(lastSource.equals("device")&&!d.optString("last_draft").isEmpty()&&!RecorderService.active&&!RecorderService.finishing&&!phoneStarting){
             source="device";id=d.optString("last_draft");
             try{JSONObject draft=local(id);notes=draft.optString("notes");elapsed=draft.optLong("duration_ms");}catch(Exception ignored){}
-            status=d.optString("message");live=JwdService.live==null?null:JwdService.live.transcriber;
+            status=d.optString("message");
         }
-        if(live!=null){partial=live.partial;segments=live.segments().toString();if(status.isEmpty())status=live.status;}
-        String previewStatus=live==null?(store.liveDefault()?"Live preview is not active for this recording":"Live preview is off · Settings > Recorder")
-            :source.equals("device")&&JwdService.live!=null?JwdService.live.previewStatus(phase.equals("paused")):live.status;
         if(status.isEmpty())status=phase.equals("paused")?"Recording paused":phase.equals("recording")?"Recording · Audio saved locally":"Ready";
         JSONArray drafts=session().getSignedIn()?store.drafts():new JSONArray();
         for(int i=0;i<drafts.length();i++)drafts.getJSONObject(i).remove("path");
         return new RuntimeState.Builder().setSequence(++sequence).setSession(session())
             .setCapture(new CaptureState.Builder().setSource(source).setPhase(phase).setElapsedMs(elapsed).setLocalId(id)
-                .setStatus(status).setPartial(partial).setSegmentsJson(segments).setNotes(notes).setPreviewStatus(previewStatus).build())
+                .setStatus(status).setPartial(partial).setSegmentsJson(segments).setNotes(notes).setPreviewStatus("").build())
             .setDevice(new DeviceState.Builder().setConnected(d.optBoolean("connected")).setAuthorized(d.optBoolean("authorized"))
                 .setScanning(d.optBoolean("scanning")).setBusy(d.optBoolean("busy")).setReceiving(d.optBoolean("receiving"))
                 .setReceivedBytes(d.optLong("received")).setExpectedBytes(d.optLong("expected")).setIdentifier(d.optBoolean("connected")?d.optString("address"):store.recorderAddress())
@@ -138,8 +135,8 @@ final class NativeRuntime implements RuntimeHost {
         work(result,()->{accountIdle();++deviceRequestGeneration;JwdService.accountClosing=true;JwdService.sessionEpoch.incrementAndGet();
             if(JwdService.active)activity.startService(new Intent(activity,JwdService.class).setAction("disconnect"));
             UploadQueue.pauseAccount(activity);try{api.post("/api/v1/auth/logout",new JSONObject());}catch(IOException ignored){}finally{store.logout();}
-            RecorderService.live=null;RecorderService.draftId="";RecorderService.error="";
-            JwdService.live=null;lastSource="phone";pendingPhoneId="";
+            RecorderService.draftId="";RecorderService.error="";
+            lastSource="phone";pendingPhoneId="";
             main.post(media::releasePlayer);route="";});
     }
     @Override public void request(String method,String path,String json,Result<String> result){
@@ -158,7 +155,7 @@ final class NativeRuntime implements RuntimeHost {
     @Override public void startPhone(String title,Result<String> result){
         activity.permissions(new String[]{Manifest.permission.RECORD_AUDIO},()->work(result,()->{
             signedIn();if(phoneStarting||RecorderService.active||RecorderService.finishing||hardwareCapturing())throw new IOException("Finish the current recording first.");
-            JSONObject draft=store.newDraft(title,".wav");draft.put("live",store.liveDefault());store.save(draft);
+            JSONObject draft=store.newDraft(title,".wav");draft.put("live",false);store.save(draft);
             String id=draft.getString("id");pendingPhoneId=id;lastSource="phone";phoneStarting=true;RecorderService.error="";
             main.post(()->{try{activity.startForegroundService(new Intent(activity,RecorderService.class).setAction("start").putExtra("id",id));}
                 catch(RuntimeException e){phoneStarting=false;RecorderService.error="Recording could not start. Open the app and try again.";}});
@@ -167,7 +164,8 @@ final class NativeRuntime implements RuntimeHost {
     }
     @Override public void controlPhone(PhoneAction action,VoidResult result){ui(result,()->{
         if(!RecorderService.active&&!RecorderService.finishing)throw new IOException("There is no active phone recording.");
-        String command=action==PhoneAction.STOP?"stop":action==PhoneAction.RETRY_PREVIEW?"retry_live":"pause";
+        if(action==PhoneAction.RETRY_PREVIEW)return; // Legacy bridge action is inert.
+        String command=action==PhoneAction.STOP?"stop":"pause";
         if(action==PhoneAction.PAUSE&&RecorderService.paused||action==PhoneAction.RESUME&&!RecorderService.paused)return;
         activity.startService(new Intent(activity,RecorderService.class).setAction(command));
     });}
@@ -179,7 +177,7 @@ final class NativeRuntime implements RuntimeHost {
         if(action==DeviceAction.START){signedIn();if(RecorderService.active||RecorderService.finishing||phoneStarting)throw new IOException("Finish the phone recording first.");lastSource="device";}
         if(action==DeviceAction.CONNECT&&id.isEmpty()){id=store.recorderAddress();name=store.recorderName();}
         activity.startForegroundService(new Intent(activity,JwdService.class).setAction(command).putExtra("address",id)
-            .putExtra("name",name).putExtra("session_epoch",JwdService.sessionEpoch.get()).putExtra("live",session().getSignedIn()&&store.liveDefault()));
+            .putExtra("name",name).putExtra("session_epoch",JwdService.sessionEpoch.get()));
     }
     @Override public void controlDevice(DeviceAction action,String id,String name,VoidResult result){
         if(action!=DeviceAction.DISCONNECT&&action!=DeviceAction.STOP&&action!=DeviceAction.CANCEL_TRANSFER)try{signedIn();if(JwdService.accountClosing)throw new IOException("Sign in to continue.");}catch(Exception e){result.error(failure(e));return;}

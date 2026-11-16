@@ -448,7 +448,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          '$total results',
+                          context.strings.resultCount(total),
                           style: TextStyle(
                             fontSize: 13,
                             color: subtle(context),

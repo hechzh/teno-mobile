@@ -509,7 +509,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
             ),
         ],
         if (text(processing['message']).isNotEmpty)
-          Text(text(processing['message'])),
+          UiText(text(processing['message'])),
         if (!audio) ...[
           Text(
             text(record['title']),

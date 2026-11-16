@@ -273,7 +273,7 @@
   <string name="ui_label0e52f6b9d025" formatted="false">Markdown</string>
   <string name="ui_label4c857c545b8a" formatted="false">匹配的录音器</string>
   <string name="ui_label8b8b8871bbfb" formatted="false">会议</string>
-  <string name="ui_label9e6c24f51918" formatted="false">会议笔记</string>
+  <string name="ui_label9e6c24f51918" formatted="false">会议纪要</string>
   <string name="ui_label8851aaa7d08c" formatted="false">合并</string>
   <string name="ui_labelc8627d844f1f" formatted="false">合并录音</string>
   <string name="ui_label56112ca16c30" formatted="false">合并录音标题</string>
@@ -765,4 +765,27 @@
   <string name="ui_autojwdsavecode" formatted="false">无法保存设备码，请重新连接。</string>
   <string name="ui_autojwdauth" formatted="false">正在验证设备码</string>
   <string name="ui_autojwdchannels" formatted="false">设备通道不符合 JWD 协议。</string>
+  <string name="ui_notetemplate" formatted="false">笔记模板</string>
+  <string name="ui_templateaccountdefault" formatted="false">账号默认模板</string>
+  <string name="ui_templategeneral" formatted="false">通用笔记</string>
+  <string name="ui_templateinterview" formatted="false">访谈</string>
+  <string name="ui_templatelecture" formatted="false">课堂</string>
+  <string name="ui_templateinspiration" formatted="false">灵感</string>
+  <string name="ui_templateactions" formatted="false">待办</string>
+  <string name="ui_templatebrief" formatted="false">简短概览</string>
+  <string name="ui_templatecustom" formatted="false">自建模板</string>
+  <string name="ui_templateanother" formatted="false">按另一模板生成新笔记</string>
+  <string name="ui_templateprocessing" formatted="false">处理中使用已选模板。更换模板将生成另一份笔记。</string>
+  <string name="ui_templatesaved" formatted="false">已保存录音与模板</string>
+  <string name="ui_askselectednote" formatted="false">针对当前笔记提问</string>
+  <string name="ui_signinrequired" formatted="false">请先登录。</string>
+  <string name="ui_generaltemplateexplanation" formatted="false">整理对话概览、要点和下一步。</string>
+  <string name="ui_recorderconfirmationhelp" formatted="false">暂停、继续和停止操作需等待录音器确认。蓝牙断开不会停止录音，请先检查设备再重试。</string>
+  <string name="ui_iosbackgroundhelp" formatted="false">iPhone 后台活动受 iOS 系统规则限制。强制退出后，请重新打开 Teno 以继续队列任务。</string>
+  <string name="ui_contextdocument" formatted="false">文档</string>
+  <string name="ui_nospeechsaved" formatted="false">未检测到语音，音频已保存。</string>
+  <string name="ui_recordingfiletype" formatted="false">录音</string>
+  <string name="ui_saveinterfacelanguagefailed" formatted="false">无法保存界面语言，请重试。</string>
+  <string name="ui_postrecordingtranscription" formatted="false">录音保存并上传后开始转写，遵循云处理设置。</string>
+  <string name="ui_backgroundpostrecording" formatted="false">Android 可能延迟后台上传和完成通知。重新打开 Teno 可继续处理，转写使用保存后的录音。</string>
 </resources>

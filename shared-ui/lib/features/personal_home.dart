@@ -6,6 +6,7 @@ import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'routes/recorder.dart';
 import 'personal_actions.dart';
+import 'interface_language.dart';
 import 'routes/personal_library.dart';
 import 'routes/personal_import.dart';
 import 'routes/personal_notes.dart';
@@ -415,6 +416,10 @@ class _PersonalHomeState extends State<PersonalHome> {
         padding: const EdgeInsets.fromLTRB(coreInset, 0, coreInset, 28),
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: InterfaceLanguageButton(widget.model),
+          ),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(

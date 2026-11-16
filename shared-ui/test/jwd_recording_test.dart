@@ -187,7 +187,7 @@ void main() {
     'Live preview is off · Settings > Recorder',
   ]) {
     testWidgets(
-      'collapsed preview explains $status at narrow width and large text',
+      'legacy preview is hidden for $status at narrow width and large text',
       (tester) async {
         tester.view.devicePixelRatio = 1;
         tester.view.physicalSize = const Size(360, 844);
@@ -202,7 +202,9 @@ void main() {
         await tester.tap(find.byTooltip('Start recording'));
         await tester.pumpAndSettle();
 
-        final preview = find.text(status);
+        final preview = find.text(
+          'Transcription starts after recording is saved and uploaded. Cloud processing settings apply.',
+        );
         await tester.scrollUntilVisible(
           preview,
           120,
@@ -215,6 +217,10 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(preview, findsOneWidget);
+        expect(find.text(status), findsNothing);
+        expect(find.text('Live transcript'), findsNothing);
+        expect(find.text('Pause'), findsOneWidget);
+        expect(find.text('Stop'), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       },
@@ -301,23 +307,26 @@ void main() {
       model.changed(recording);
       await tester.pumpAndSettle();
       await tapVisible(tester, find.text('Return to recording'));
-      await capture('93-jwd-preview-waiting');
+      await capture('93-jwd-post-recording');
       recording.capture.previewStatus =
           'Live audio format is unsupported or damaged. Import the complete recording after stopping.';
       model.changed(recording);
-      await capture('94-jwd-preview-error');
+      await capture('94-jwd-legacy-status-hidden');
       recording.capture.previewStatus =
           'Live preview is off · Settings > Recorder';
       model.changed(recording);
-      await capture('95-jwd-preview-off');
+      await capture('95-jwd-post-recording-local');
       recording.capture.previewStatus = 'Live';
       recording.capture.segmentsJson = jsonEncode([
         {'text': 'Synthetic preview text for layout review.'},
       ]);
       model.changed(recording);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Live transcript'));
-      await capture('96-jwd-preview-text');
+      expect(
+        find.text('Synthetic preview text for layout review.'),
+        findsNothing,
+      );
+      await capture('96-jwd-legacy-text-hidden');
       await tester.pumpWidget(const SizedBox.shrink());
       debugDisableShadows = true;
     });

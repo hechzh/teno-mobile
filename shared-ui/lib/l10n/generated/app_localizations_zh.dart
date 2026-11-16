@@ -2398,4 +2398,92 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get askSelectedNote => '针对当前笔记提问';
+
+  @override
+  String useSourceCount(int count) {
+    return '使用 $count 个来源';
+  }
+
+  @override
+  String importIntoAccount(String account) {
+    return '导入到账号 $account';
+  }
+
+  @override
+  String accountName(String account) {
+    return '账号：$account';
+  }
+
+  @override
+  String importedCalendarEvents(int count) {
+    return '已导入 $count 个日历事项';
+  }
+
+  @override
+  String linkExpires(String date) {
+    return '到期时间：$date';
+  }
+
+  @override
+  String localStorageUsage(String size, int count) {
+    return '$size MiB · $count 个文件';
+  }
+
+  @override
+  String itemCount(int count) {
+    return '$count 项';
+  }
+
+  @override
+  String resultCount(int count) {
+    return '$count 个结果';
+  }
+
+  @override
+  String pageNumber(String page) {
+    return '第 $page 页';
+  }
+
+  @override
+  String matchedPage(String page) {
+    return '第 $page 页 · 匹配';
+  }
+
+  @override
+  String sourceTimestamp(String time) {
+    return '来源 · $time';
+  }
+
+  @override
+  String get signInRequired => '请先登录。';
+
+  @override
+  String get generalTemplateExplanation => '整理对话概览、要点和下一步。';
+
+  @override
+  String get recorderConfirmationHelp =>
+      '暂停、继续和停止操作需等待录音器确认。蓝牙断开不会停止录音，请先检查设备再重试。';
+
+  @override
+  String get iosBackgroundHelp =>
+      'iPhone 后台活动受 iOS 系统规则限制。强制退出后，请重新打开 Teno 以继续队列任务。';
+
+  @override
+  String get contextDocument => '文档';
+
+  @override
+  String get noSpeechSaved => '未检测到语音，音频已保存。';
+
+  @override
+  String get recordingFileType => '录音';
+
+  @override
+  String get saveInterfaceLanguageFailed => '无法保存界面语言，请重试。';
+
+  @override
+  String get postRecordingTranscription => '录音保存并上传后开始转写，遵循云处理设置。';
+
+  @override
+  String get backgroundPostRecording =>
+      'Android 可能延迟后台上传和完成通知。重新打开 Teno 可继续处理，转写使用保存后的录音。';
 }

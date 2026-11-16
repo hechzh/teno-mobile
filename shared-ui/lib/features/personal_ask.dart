@@ -5,6 +5,7 @@ import '../core/model.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
+import 'interface_language.dart';
 import 'routes/personal_notes.dart';
 
 class PersonalChatHistory extends StatelessWidget {
@@ -85,7 +86,7 @@ class _PersonalContextPickerState extends State<PersonalContextPicker> {
       onPressed: selected.isEmpty
           ? null
           : () => Navigator.pop(context, selected),
-      child: Text('Use ${selected.length} sources'),
+      child: Text(context.strings.useSourceCount(selected.length)),
     ),
     child: CoreLoad(
       load: allContexts,
@@ -110,7 +111,14 @@ class _PersonalContextPickerState extends State<PersonalContextPicker> {
                 text(item['title']),
                 style: const TextStyle(fontSize: 14),
               ),
-              subtitle: Text(text(item['type'])),
+              subtitle: UiText(switch (text(item['type'])) {
+                'recording' => 'Recording file',
+                'note' => 'Note',
+                'folder' => 'Folder',
+                'file' => 'File',
+                'document' => 'Document',
+                _ => 'File',
+              }),
               value: contains(item),
               onChanged: (v) => setState(() {
                 if (v == true) {
@@ -293,6 +301,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     title: widget.embedded ? 'Assistant' : 'Chat',
     showBack: !widget.embedded,
     actions: [
+      InterfaceLanguageButton(widget.model),
       CoreAction(
         Icons.history,
         'Chat history',
@@ -503,8 +512,8 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
           ActionChip(
             label: Text(
               cite['page'] != null
-                  ? 'Page ${cite['page']}'
-                  : 'Source · ${duration(cite['start_ms'])}',
+                  ? context.strings.pageNumber(text(cite['page']))
+                  : context.strings.sourceTimestamp(duration(cite['start_ms'])),
               style: const TextStyle(fontSize: 11),
             ),
             onPressed: () => openPersonalItem(context, widget.model, {

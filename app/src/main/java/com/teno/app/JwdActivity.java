@@ -22,7 +22,7 @@ import java.util.*;
 /** Recorder control, automatic verified local sync and optional cloud processing. */
 public class JwdActivity extends EnglishActivity {
     private boolean startRequested,entryPrepared,reconnectRequested,wasRecording,followSync;private long startDeadline;
-    private Store store;private LinearLayout content;private ScrollView scroll;private TextView timer,liveWords,liveDraft,liveStatus;private String view="device";
+    private Store store;private LinearLayout content;private ScrollView scroll;private TextView timer;private String view="device";
     private final Handler handler=new Handler(Looper.getMainLooper());private MediaPlayer player;
     private String pendingKeyAddress="";private String last="",lastDrafts="",lastTransfer="",exportText="";private boolean foreground,showOtherDevices,compatScanRequested;
     private static final int BG=0xfff6f7f3,INK=0xff20251f,MUTED=0xff72786e,PURPLE=0xff20251f;
@@ -37,7 +37,7 @@ public class JwdActivity extends EnglishActivity {
         String drafts=store.scope().isEmpty()?"[]":store.drafts().toString(),transfer=TransferService.active+":"+TransferService.message;
         if(!last.equals(JwdService.snapshot)||!lastDrafts.equals(drafts)||!lastTransfer.equals(transfer))render();
         try{JSONObject s=new JSONObject(JwdService.snapshot);if(timer!=null&&s.optInt("record_state",-1)==1){long seconds=Math.max(0,(SystemClock.elapsedRealtime()-s.optLong("record_start"))/1000);timer.setText(String.format(Locale.ROOT,"%02d:%02d",seconds/60,seconds%60));}}catch(Exception ignored){}
-        updateLive();handler.postDelayed(this,800);
+        handler.postDelayed(this,800);
     }};
     private int dp(int x){return (int)(x*getResources().getDisplayMetrics().density+.5f);}
     private LinearLayout column(){LinearLayout v=new LinearLayout(this);v.setOrientation(LinearLayout.VERTICAL);return v;}
@@ -47,7 +47,6 @@ public class JwdActivity extends EnglishActivity {
     private void button(LinearLayout parent,String label,boolean enabled,Runnable action){Button b=new Button(this);b.setText(label);b.setTextSize(14);b.setAllCaps(false);b.setEnabled(enabled);b.setMinHeight(dp(48));b.setMinimumHeight(dp(48));b.setPadding(dp(16),dp(10),dp(16),dp(10));b.setStateListAnimator(null);boolean primary=label.startsWith("Start")||label.startsWith("Scan for")||label.equals("Stop and save")||label.equals("Upload recording")||label.startsWith("Connect:");b.setTextColor(!enabled?MUTED:primary?Color.WHITE:INK);GradientDrawable bg=new GradientDrawable();bg.setColor(!enabled?0xffeceee7:primary?INK:Color.WHITE);bg.setCornerRadius(dp(28));bg.setStroke(dp(1),0xffdfe2d9);b.setBackground(bg);b.setContentDescription(label);b.setOnClickListener(v->action.run());LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,dp(6),0,dp(4));parent.addView(b,lp);}
     @Override public void onBackPressed(){if(!view.equals("device")){view="device";render();}else super.onBackPressed();}
     private void navigate(String page){view=page;render();scroll.scrollTo(0,0);}
-    private void updateLive(){JwdLiveSession session=JwdService.live;if(liveWords==null||session==null)return;StringBuilder words=new StringBuilder();JSONArray segments=session.transcriber.segments();for(int n=0;n<segments.length();n++){JSONObject item=segments.optJSONObject(n);if(item!=null)words.append(MainActivity.clock(item.optLong("start_ms"))).append("  ").append(item.optString("text")).append("\n\n");}liveWords.setText(words.length()==0?"Your transcript will appear here.":words.toString().trim());liveDraft.setText(session.transcriber.partial);liveStatus.setText(!session.problem.isEmpty()?session.problem:session.samples==0?"Waiting for recorder audio":session.transcriber.status);}
     private void prepareEntry(){
         startDeadline=SystemClock.elapsedRealtime()+45000;
         try{JSONObject state=new JSONObject(JwdService.snapshot);
@@ -71,7 +70,7 @@ public class JwdActivity extends EnglishActivity {
         }catch(Exception ignored){}
     }
     private void startRecording(){
-        RecordingOptions.ensure(this,()->{startRequested=false;followSync=true;wasRecording=false;navigate("live");send(new Intent(this,JwdService.class).setAction("start").putExtra("live",!store.token("access_token").isEmpty()&&store.liveDefault()));});
+        RecordingOptions.ensure(this,()->{startRequested=false;followSync=true;wasRecording=false;navigate("live");send(new Intent(this,JwdService.class).setAction("start"));});
     }
 
     private void error(String message){new AlertDialog.Builder(this).setTitle("Recorder").setMessage(message).setPositiveButton("OK",null).show();}
@@ -80,7 +79,7 @@ public class JwdActivity extends EnglishActivity {
         JSONObject s;try{s=new JSONObject(last);}catch(Exception e){s=new JSONObject();}final JSONObject state=s;
         LinearLayout root=column();root.setBackgroundColor(BG);root.setPadding(dp(22),dp(12),dp(22),0);
         LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);ImageButton back=new ImageButton(this);back.setImageResource(R.drawable.ic_arrow_left);back.setBackgroundColor(Color.TRANSPARENT);back.setContentDescription("Back");back.setOnClickListener(v->onBackPressed());header.addView(back,new LinearLayout.LayoutParams(dp(44),dp(44)));TextView heading=text(view.equals("files")?"Device recordings":view.equals("live")?"Recorder audio":view.equals("settings")?"Recorder settings":view.equals("sync")?"Syncing recording":"Recorder",18,INK);header.addView(heading,new LinearLayout.LayoutParams(0,-2,1));root.addView(header);
-        scroll=new ScrollView(this);content=column();content.setPadding(0,dp(12),0,dp(24));scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);timer=null;liveWords=null;liveDraft=null;liveStatus=null;
+        scroll=new ScrollView(this);content=column();content.setPadding(0,dp(12),0,dp(24));scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);timer=null;
         boolean connected=s.optBoolean("connected"),authorized=s.optBoolean("authorized"),busy=s.optBoolean("busy"),scanning=s.optBoolean("scanning");int recording=s.optInt("record_state",-1);
         if(view.equals("settings")){
             LinearLayout info=card(s.optString("name","Recorder"));info.addView(text("Firmware: "+(s.optString("firmware").isEmpty()?"Not received":s.optString("firmware"))+"\n"+s.optString("capacity"),14,MUTED));
@@ -102,9 +101,7 @@ public class JwdActivity extends EnglishActivity {
             button(content,"Device recordings",!busy,()->navigate("files"));
         }else if(view.equals("live")){
             content.addView(text(s.optString("name","Recorder"),13,MUTED));timer=text("00:00",40,INK);content.addView(timer);content.addView(text(recording==1?"Recording on device":busy?"Waiting for device confirmation":recording==0?"Saved on recorder":"Device status unknown",14,MUTED));
-            LinearLayout transcript=card("Live transcript");liveStatus=text("Live transcription is off",12,MUTED);transcript.addView(liveStatus);liveWords=text(JwdService.live==null?(recording==1?"Audio is being saved on your recorder.":"Live transcription is off."):"Your transcript will appear here.",17,INK);liveWords.setTextIsSelectable(true);transcript.addView(liveWords);liveDraft=text("",17,MUTED);transcript.addView(liveDraft);updateLive();
             if(recording==1)button(content,"Stop and save",authorized&&!busy,()->send("stop"));else if(recording==0)button(content,"View sync status",true,()->navigate("sync"));
-            if(JwdService.live!=null&&!JwdService.live.finished)button(content,"Retry live transcription",!busy,()->JwdService.live.transcriber.retry());
             content.addView(text("A copy stays on the recorder. After stopping, audio syncs to this phone automatically. Cloud processing follows your recording preferences.",13,MUTED));
             if(!authorized)content.addView(text("Connection ended. The device may still be recording. Check its status before reconnecting.",14,0xffad4941));
         }else if(view.equals("files")){
@@ -132,7 +129,7 @@ public class JwdActivity extends EnglishActivity {
             if(s.optBoolean("syncing")||s.optBoolean("receiving"))button(content,"View sync status",true,()->navigate("sync"));
             button(content,"Recorder settings and help",!busy,()->navigate("settings"));
             if(!s.optString("address").isEmpty()&&!authorized)button(content,"Enter original device key",!busy,()->editKey(state.optString("address"),state.optString("name")));
-            if(!store.scope().isEmpty())button(content,"Imported recordings",true,()->navigate("files"));else content.addView(text("Sign in to import audio or use live transcription.",13,MUTED));
+            if(!store.scope().isEmpty())button(content,"Imported recordings",true,()->navigate("files"));else content.addView(text("Sign in to import audio.",13,MUTED));
         }
         scroll.post(()->scroll.scrollTo(0,y));
     }
@@ -210,7 +207,7 @@ public class JwdActivity extends EnglishActivity {
     }
     private void exportDiagnostics(){
         try{JSONObject diagnostics=new JSONObject(JwdService.snapshot);diagnostics.put("app_version","0.4.4").put("phone",Build.MANUFACTURER+" "+Build.MODEL).put("android",Build.VERSION.RELEASE).put("api",Build.VERSION.SDK_INT).put("abis",new JSONArray(Arrays.asList(Build.SUPPORTED_ABIS))).put("hardware_validation","pending_user_device_test");
-            if(JwdService.live!=null)diagnostics.put("live_status",JwdService.live.transcriber.status).put("live_samples",JwdService.live.samples).put("live_error",JwdService.live.problem);diagnostics.remove("address");diagnostics.remove("devices");exportText=diagnostics.toString(2);
+            diagnostics.remove("address");diagnostics.remove("devices");exportText=diagnostics.toString(2);
             startActivityForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_TITLE,"Teno-JWD-diagnostics.json"),33);
         }catch(Exception e){error(e.getMessage());}
     }
