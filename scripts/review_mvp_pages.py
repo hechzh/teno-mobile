@@ -7,6 +7,16 @@ out=root/f'design-baseline/v{a.version}'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def save(name,data):(out/name).write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 old=json.loads((root/'design-baseline/v0.6.2/pages.json').read_text(encoding='utf-8'))
+if tuple(map(int,a.version.split('.'))) >= (0,8,1):
+ replacements={
+  '38-live-preview':('38-post-recording','录音保存后转写'),
+  '93-jwd-preview-waiting':('93-jwd-post-recording','JWD录音保存后转写'),
+  '94-jwd-preview-error':('94-jwd-legacy-status-hidden','旧实时状态不再显示'),
+  '95-jwd-preview-off':('95-jwd-post-recording-local','本机录音与录后处理'),
+  '96-jwd-preview-text':('96-jwd-legacy-text-hidden','旧实时文字不再显示'),
+ }
+ for row in old:
+  if row['id'] in replacements:row['id'],row['title']=replacements[row['id']]
 records=[]
 for row in old:
  variants=[]

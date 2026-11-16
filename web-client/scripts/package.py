@@ -21,6 +21,10 @@ commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=Tr
 assert not subprocess.check_output(['git', 'status', '--porcelain', '--', 'shared-ui', 'web-client'], cwd=repo), 'Commit Web sources before packaging'
 build = root/'build/web'
 assert (build/'main.dart.js').is_file() or (build/'startup-assets.json').is_file(), 'Run flutter build web first'
+gallery = build/'ui-review'
+if (gallery/'screenshot-manifest.json').is_file():
+    for image in json.loads((gallery/'screenshot-manifest.json').read_text(encoding='utf-8')):
+        assert hashlib.sha256((gallery/image['screenshot']).read_bytes()).hexdigest()==image['sha256'], image['screenshot']
 sys.path.insert(0,str(repo/'scripts'))
 from prepare_web_assets import prepare, release_files
 prepare(build)

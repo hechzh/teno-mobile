@@ -36,6 +36,9 @@ def package(version,evidence_dir=None,private_values=(),report_enabled=True):
     backend=read(qa/'backend-acceptance.json');assert backend['all_passed'] and re.fullmatch(r'\d+\.\d+\.\d+', backend['deployed_version'])
     assert backend['android_version']==version, 'Backend evidence must belong to this Android release'
     ui=read(ROOT/f'design-baseline/v{version}/pages.json');assert ui and all(len(v['variants'])==3 for v in ui)
+    for page in ui:
+        for variant in page['variants']:
+            assert sha(ROOT/f'design-baseline/v{version}'/variant['screenshot'])==variant['sha256'], variant['screenshot']
     issues=ET.parse(ROOT/'app/build/reports/lint-results-release.xml').getroot().findall('issue')
     errors=sum(v.get('severity') in ('Error','Fatal') for v in issues);warnings=sum(v.get('severity')=='Warning' for v in issues);assert errors==0
     dist=ROOT/'dist';dist.mkdir(exist_ok=True)

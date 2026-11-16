@@ -1909,92 +1909,92 @@
     "reference": "MVP shared components extension; original Plaud classification is historical"
   },
   {
-    "id": "93-jwd-preview-waiting",
-    "title": "实时预览等待音频",
+    "id": "93-jwd-post-recording",
+    "title": "JWD录音保存后转写",
     "variants": [
       {
         "name": "light",
-        "screenshot": "screenshots/android/light/93-jwd-preview-waiting.png",
-        "sha256": "05d28309559affc95170b00b12bea335b700a080d4c06c8fa5ccb5f86ab5465a"
+        "screenshot": "screenshots/android/light/93-jwd-post-recording.png",
+        "sha256": "3a443df08970cc70ba47ce9698279285ca5b3647d388f758405f7f56bc692100"
       },
       {
         "name": "dark",
-        "screenshot": "screenshots/android/dark/93-jwd-preview-waiting.png",
-        "sha256": "8c78c13ad8103245b3d1b82704368115754a69a2914443dee15e821939d2ad7c"
+        "screenshot": "screenshots/android/dark/93-jwd-post-recording.png",
+        "sha256": "7afb5f83734e67cf24d9350b999ff0c71d26214d290775cea78e738a5ce9ea86"
       },
       {
         "name": "large",
-        "screenshot": "screenshots/android/large/93-jwd-preview-waiting.png",
-        "sha256": "eb765d2077139bbf0d88995d2425080c730aac494452688c181cb70404132a64"
+        "screenshot": "screenshots/android/large/93-jwd-post-recording.png",
+        "sha256": "2d4e05baa5b6fe92e1e716648d3c4636ea2ef0d820548b9de2427a494875e98d"
       }
     ],
     "evidence": "Flutter navigation; synthetic data; English; not a physical device capture",
     "reference": "MVP shared components extension; original Plaud classification is historical"
   },
   {
-    "id": "94-jwd-preview-error",
-    "title": "实时预览解码错误",
+    "id": "94-jwd-legacy-status-hidden",
+    "title": "旧实时状态不再显示",
     "variants": [
       {
         "name": "light",
-        "screenshot": "screenshots/android/light/94-jwd-preview-error.png",
-        "sha256": "0c1ba028c99e3f45028114836a90f08811dc54c5ff200d3bf65881dbd8094b9e"
+        "screenshot": "screenshots/android/light/94-jwd-legacy-status-hidden.png",
+        "sha256": "3a443df08970cc70ba47ce9698279285ca5b3647d388f758405f7f56bc692100"
       },
       {
         "name": "dark",
-        "screenshot": "screenshots/android/dark/94-jwd-preview-error.png",
-        "sha256": "f68deaf969c1a1ec003da8d2a43cfd62fad9fe3c4ba895f0c20a25232cb6f2c8"
+        "screenshot": "screenshots/android/dark/94-jwd-legacy-status-hidden.png",
+        "sha256": "7afb5f83734e67cf24d9350b999ff0c71d26214d290775cea78e738a5ce9ea86"
       },
       {
         "name": "large",
-        "screenshot": "screenshots/android/large/94-jwd-preview-error.png",
-        "sha256": "5eed98cbc594c8c5f0897fa355e3f79bf6b8a6d6d2002db8883b7363b8da1a71"
+        "screenshot": "screenshots/android/large/94-jwd-legacy-status-hidden.png",
+        "sha256": "2d4e05baa5b6fe92e1e716648d3c4636ea2ef0d820548b9de2427a494875e98d"
       }
     ],
     "evidence": "Flutter navigation; synthetic data; English; not a physical device capture",
     "reference": "MVP shared components extension; original Plaud classification is historical"
   },
   {
-    "id": "95-jwd-preview-off",
-    "title": "实时预览关闭",
+    "id": "95-jwd-post-recording-local",
+    "title": "本机录音与录后处理",
     "variants": [
       {
         "name": "light",
-        "screenshot": "screenshots/android/light/95-jwd-preview-off.png",
-        "sha256": "8c7271f04437729a182781b91971f3cd43be88db7cde16528a62d87b5c1be4ab"
+        "screenshot": "screenshots/android/light/95-jwd-post-recording-local.png",
+        "sha256": "3a443df08970cc70ba47ce9698279285ca5b3647d388f758405f7f56bc692100"
       },
       {
         "name": "dark",
-        "screenshot": "screenshots/android/dark/95-jwd-preview-off.png",
-        "sha256": "fd05bc7365742fc94871b79c0d44cb352f6fde3923e815a8deeab582efaa6619"
+        "screenshot": "screenshots/android/dark/95-jwd-post-recording-local.png",
+        "sha256": "7afb5f83734e67cf24d9350b999ff0c71d26214d290775cea78e738a5ce9ea86"
       },
       {
         "name": "large",
-        "screenshot": "screenshots/android/large/95-jwd-preview-off.png",
-        "sha256": "74c13755a4a778f8f5fb36256bf18e8d56b54d207c739b68a860f0a2e785c756"
+        "screenshot": "screenshots/android/large/95-jwd-post-recording-local.png",
+        "sha256": "2d4e05baa5b6fe92e1e716648d3c4636ea2ef0d820548b9de2427a494875e98d"
       }
     ],
     "evidence": "Flutter navigation; synthetic data; English; not a physical device capture",
     "reference": "MVP shared components extension; original Plaud classification is historical"
   },
   {
-    "id": "96-jwd-preview-text",
-    "title": "实时预览文字",
+    "id": "96-jwd-legacy-text-hidden",
+    "title": "旧实时文字不再显示",
     "variants": [
       {
         "name": "light",
-        "screenshot": "screenshots/android/light/96-jwd-preview-text.png",
-        "sha256": "13231f8aaf25cf8748c0546645476e1cb6dd5359459cb632f90aa2e005d27079"
+        "screenshot": "screenshots/android/light/96-jwd-legacy-text-hidden.png",
+        "sha256": "3a443df08970cc70ba47ce9698279285ca5b3647d388f758405f7f56bc692100"
       },
       {
         "name": "dark",
-        "screenshot": "screenshots/android/dark/96-jwd-preview-text.png",
-        "sha256": "d8e9b36d53709bb64f4b4bdb46169b9b923680b510ccdf8d03c6f261bc5a0e03"
+        "screenshot": "screenshots/android/dark/96-jwd-legacy-text-hidden.png",
+        "sha256": "7afb5f83734e67cf24d9350b999ff0c71d26214d290775cea78e738a5ce9ea86"
       },
       {
         "name": "large",
-        "screenshot": "screenshots/android/large/96-jwd-preview-text.png",
-        "sha256": "85bcd6486340de9d5a3ea48dd0af53ad6663000525be5ddfad99678724f7cd6e"
+        "screenshot": "screenshots/android/large/96-jwd-legacy-text-hidden.png",
+        "sha256": "2d4e05baa5b6fe92e1e716648d3c4636ea2ef0d820548b9de2427a494875e98d"
       }
     ],
     "evidence": "Flutter navigation; synthetic data; English; not a physical device capture",
