@@ -54,7 +54,9 @@ def simulator():
     (BUILD/'simulator-selection.json').write_text(json.dumps({'udid':selected,'runtime':runtime['version'],'xcode':'16.4'}))
     print('Selected iOS Simulator:',runtime['version'],selected,flush=True)
     subprocess.run(['xcrun','simctl','boot',selected],capture_output=True,timeout=60)
-    run(['xcrun','simctl','bootstatus',selected,'-b'],'ios-boot.log',180)
+    # Fresh hosted runtimes can spend more than three minutes migrating system
+    # apps before our app is installed. Keep a separate bounded startup budget.
+    run(['xcrun','simctl','bootstatus',selected,'-b'],'ios-boot.log',600)
     args = xcode('Debug','platform=iOS Simulator,id='+selected)
     run(args+['build-for-testing'],'ios-build.log',600)
     run(['codesign','-d','--entitlements',':-',str(ROOT/'ios/DerivedData/Build/Products/Debug-iphonesimulator/Teno.app')],'ios-simulator-signing.log',30)
