@@ -1,6 +1,6 @@
 Teno 0.8.2 candidate / 2026-11-17
 
-Android 0.8.2 / 18 · iOS 1.1.2 / 14 · Web 0.3.2 / 10
+Android 0.8.2 / 19 · iOS 1.1.2 / 15 · Web 0.3.2 / 11
 Requires shared backend 1.7.0 for the new processing and personal search contracts.
 
 新纪要默认跟随当前界面语言。录音、导入和手动生成显示本次模板及输出语言，单次覆盖不改账号默认。队列固定选择，后台上传、失败重试、重启及切换界面语言不会改变已入队资料。已有笔记不自动翻译，保留原文、逐字引句、姓名和用户编辑内容。
@@ -14,3 +14,7 @@ Ask 提供当前记录、所选文件夹（含子文件夹）、我的全部资�
 Delivery: Original-signer Android APK, independent iOS Xcode source package, Web candidate and source/manifests/checksums. No main merge, app-store publication or formal baseline promotion. The private development page shows the latest delivered candidate while retaining formal history.
 
 Physical verification pending: real JWD interruption and synchronization, Magic4 Pro permissions/locking/background/long recordings/upgrades, signed iPhone installation and upgrades, Safari and Shanghai phone network. Emulator, CI, synthetic data and desktop browser results are separate evidence and do not certify these items. See the final acceptance manifest for completed checks and actual public-network loading observations.
+
+本次补充修复（2026-11-17）：取消录音偏好确认对同步的阻挡。首次登录后默认自动同步、上传、录后转写和生成纪要；不必先进入设置。明确关闭云处理的既有选择保留，仍同步到手机。Android 与 iOS 均处理录音卡按键停止；重复同步不重复保存/上传，退出后的迟到回调不能重新同步。
+检查不可到达的条件表述：移除已登录设备页的“登录后录音”分支、旧的首次偏好确认流程及其阻挡提示；设置帮助改为说明实际默认行为。真实断网、Wi-Fi限制、明确云关闭、文件校验失败等状态仍按实际条件展示。
+新增实机用例：新账号不打开设置→连接卡→卡按键开录/停止→自动同步→自动上传→转写/纪要；同样测试 App 停止、手动重复同步、云关闭但手机保存、退出/换账号期间迟到回调。原0.8.2/18覆盖升级到19时保留账号、设备码、文件、队列和明确偏好。硬件停止及后台同步效果仍需真实设备验收。

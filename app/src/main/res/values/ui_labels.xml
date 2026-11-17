@@ -7,7 +7,7 @@
   <string name="ui_library" formatted="false">Library</string>
   <string name="ui_interfacelanguage" formatted="false">Interface language</string>
   <string name="ui_followsystem" formatted="false">Follow system</string>
-  <string name="ui_languagehint" formatted="false">Changes interface text only. Recordings, notes and chats are not translated.</string>
+  <string name="ui_languagehint" formatted="false">New notes follow the interface language by default. Existing recordings, notes and chats are unchanged.</string>
   <string name="ui_appearancelanguage" formatted="false">Appearance &amp; language</string>
   <string name="ui_privacydata" formatted="false">Privacy &amp; data</string>
   <string name="ui_recorderrecording" formatted="false">Recorder &amp; recording</string>
@@ -111,7 +111,7 @@
   <string name="ui_label2b7aa8894c21" formatted="false">Cloud processing</string>
   <string name="ui_label838991b2b94f" formatted="false">Cloud processing is off. Imported files stay on this phone until you choose Upload and process.</string>
   <string name="ui_label8adaed39e1a2" formatted="false">Cloud processing is on. Imported files are saved on this phone, then uploaded and processed automatically.</string>
-  <string name="ui_label2187c26af752" formatted="false">Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.</string>
+  <string name="ui_label2187c26af752" formatted="false">New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.</string>
   <string name="ui_labela293e2e43fd2" formatted="false">Compatibility scan</string>
   <string name="ui_label7810980ade40" formatted="false">Complete files are verified and saved locally before cloud upload. Reconnect to retry an interrupted transfer. Device originals are not automatically deleted.</string>
   <string name="ui_label9d989f15c1c5" formatted="false">Complete recordings and imports remain on this phone after upload. Keep the app installed to retain these local copies.</string>
@@ -437,7 +437,6 @@
   <string name="ui_label3dcf3d16dd02" formatted="false">Shared with Teno</string>
   <string name="ui_labelbfd402b2f6f3" formatted="false">Sign in</string>
   <string name="ui_label22e58a62e3f4" formatted="false">Sign in to its account or check local storage.</string>
-  <string name="ui_labelc80526e65f78" formatted="false">Sign in to record</string>
   <string name="ui_label11aa3c02e39a" formatted="false">Sign in to the recording’s account to access its local file.</string>
   <string name="ui_label47e82476c5c4" formatted="false">Sign in to your Teno account.</string>
   <string name="ui_label48f0d3d397d4" formatted="false">Sign out</string>
@@ -610,7 +609,6 @@
   <string name="ui_label196574e3aa9c" formatted="false">Disconnected. Check the recorder: it may still be recording.</string>
   <string name="ui_labela610dc54b358" formatted="false">Sync paused. Originals stay on the recorder. Reconnect to try again.</string>
   <string name="ui_labeleec2b22a86dc" formatted="false">Device key not accepted. Enter the original 16-character key, or check Recorder help before resetting the device.</string>
-  <string name="ui_label0cc1ba39d071" formatted="false">Saved on recorder. Sign in and set recording preferences to sync automatically.</string>
   <string name="ui_labelcf2759aff016" formatted="false">Permission was not granted. Enable it in Android Settings to use this feature.</string>
   <string name="ui_labelfc25221a1fc1" formatted="false">Finish the current permission request first.</string>
   <string name="ui_labelca44e25205d6" formatted="false">Allow microphone access in Android Settings.</string>
@@ -788,4 +786,76 @@
   <string name="ui_saveinterfacelanguagefailed" formatted="false">Could not save interface language.</string>
   <string name="ui_postrecordingtranscription" formatted="false">Transcription starts after recording is saved and uploaded. Cloud processing settings apply.</string>
   <string name="ui_backgroundpostrecording" formatted="false">Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Transcription uses the saved recording.</string>
+  <string name="ui_iteration082label0" formatted="false">Output language</string>
+  <string name="ui_iteration082label1" formatted="false">Follow interface</string>
+  <string name="ui_iteration082label2" formatted="false">This template</string>
+  <string name="ui_iteration082label3" formatted="false">Generation options</string>
+  <string name="ui_iteration082label4" formatted="false">Applies to this file only. Saved notes are unchanged.</string>
+  <string name="ui_iteration082label5" formatted="false">Generate note</string>
+  <string name="ui_iteration082label6" formatted="false">Current record</string>
+  <string name="ui_iteration082label7" formatted="false">Selected folder</string>
+  <string name="ui_iteration082label8" formatted="false">Selected files</string>
+  <string name="ui_iteration082label9" formatted="false">All my files</string>
+  <string name="ui_iteration082label10" formatted="false">Preparing personal search. Existing files are not regenerated.</string>
+  <string name="ui_iteration082label11" formatted="false">Saved date</string>
+  <string name="ui_iteration082label12" formatted="false">Version updated</string>
+  <string name="ui_iteration082label13" formatted="false">Sources unavailable</string>
+  <string name="ui_iteration082label14" formatted="false">Example source</string>
+  <string name="ui_iteration082label15" formatted="false">Example result</string>
+  <string name="ui_iteration082label16" formatted="false">Saved on recorder</string>
+  <string name="ui_iteration082label17" formatted="false">Syncing to phone</string>
+  <string name="ui_iteration082label19" formatted="false">Transcribing</string>
+  <string name="ui_iteration082label20" formatted="false">Generating notes</string>
+  <string name="ui_iteration082label21" formatted="false">Extracting text</string>
+  <string name="ui_iteration082label22" formatted="false">Preparing audio</string>
+  <string name="ui_iteration082label23" formatted="false">Complete</string>
+  <string name="ui_iteration082label24" formatted="false">Not yet transcribed</string>
+  <string name="ui_iteration082label25" formatted="false">Notes not yet generated</string>
+  <string name="ui_iteration082label26" formatted="false">Text not yet extracted</string>
+  <string name="ui_iteration082label27" formatted="false">Only on this device</string>
+  <string name="ui_iteration082label28" formatted="false">Waiting for Wi-Fi</string>
+  <string name="ui_iteration082label29" formatted="false">Waiting for network</string>
+  <string name="ui_iteration082label30" formatted="false">Cloud processing is off</string>
+  <string name="ui_iteration082label31" formatted="false">Sign in to continue processing</string>
+  <string name="ui_iteration082label32" formatted="false">Waiting for service</string>
+  <string name="ui_iteration082label33" formatted="false">Waiting to retry</string>
+  <string name="ui_iteration082label34" formatted="false">Not started</string>
+  <string name="ui_iteration082label35" formatted="false">No speech found; audio is kept</string>
+  <string name="ui_iteration082label36" formatted="false">Some note content needs verification</string>
+  <string name="ui_iteration082label37" formatted="false">Cleanup failed; original transcript is kept</string>
+  <string name="ui_iteration082label38" formatted="false">Last confirmed status; waiting to refresh</string>
+  <string name="ui_iteration082label39" formatted="false">Saved copy</string>
+  <string name="ui_iteration082label40" formatted="false">Original file</string>
+  <string name="ui_iteration082label41" formatted="false">Cloud audio</string>
+  <string name="ui_iteration082label42" formatted="false">Cloud file</string>
+  <string name="ui_iteration082label43" formatted="false">Extracted text</string>
+  <string name="ui_iteration082label44" formatted="false">Saved notes</string>
+  <string name="ui_iteration082label45" formatted="false">Retry this step</string>
+  <string name="ui_iteration082label46" formatted="false">Processing stopped at this step</string>
+  <string name="ui_iteration082label47" formatted="false">This operation keeps its template and output language.</string>
+  <string name="ui_iteration082label48" formatted="false">New notes use the interface language. Change it for one file before processing.</string>
+  <string name="ui_iteration082label49" formatted="false">Recording saved</string>
+  <string name="ui_iteration082label50" formatted="false">Syncing from recorder</string>
+  <string name="ui_iteration082label51" formatted="false">Generating note</string>
+  <string name="ui_iteration082label52" formatted="false">Note generation not started</string>
+  <string name="ui_iteration082label53" formatted="false">Transcription not started</string>
+  <string name="ui_iteration082label54" formatted="false">Text extraction not started</string>
+  <string name="ui_iteration082label55" formatted="false">Checking processing status</string>
+  <string name="ui_iteration082label56" formatted="false">Network unavailable</string>
+  <string name="ui_iteration082label57" formatted="false">Cloud processing is off · Saved locally only</string>
+  <string name="ui_iteration082label58" formatted="false">Sign in to upload</string>
+  <string name="ui_iteration082label59" formatted="false">Waiting for a processing slot</string>
+  <string name="ui_iteration082label61" formatted="false">Showing the last confirmed status. Not refreshed.</string>
+  <string name="ui_iteration082label62" formatted="false">Cloud file kept</string>
+  <string name="ui_iteration082label63" formatted="false">Transcript kept</string>
+  <string name="ui_iteration082label64" formatted="false">Extracted text kept</string>
+  <string name="ui_iteration082label65" formatted="false">Existing notes kept</string>
+  <string name="ui_iteration082label66" formatted="false">Some content needs verification. Open the note for details.</string>
+  <string name="ui_iteration082label67" formatted="false">Transcript cleanup failed. The original transcript is kept.</string>
+  <string name="ui_iteration082label68" formatted="false">Retry note generation</string>
+  <string name="ui_iteration082label69" formatted="false">New notes follow the interface language. Change it for one file before processing.</string>
+  <string name="ui_iteration082text09fef5d8" formatted="false">Failed</string>
+  <string name="ui_recorderautomaticsyncpreparing" formatted="false">Preparing to sync recording</string>
+  <string name="ui_recordingautomaticcloudhelp" formatted="false">Recorder files sync to this phone after recording stops. Cloud processing uploads a copy for transcription and notes.</string>
+  <string name="ui_recordersyncwaitforstop" formatted="false">Wait for the recorder to stop before syncing.</string>
 </resources>

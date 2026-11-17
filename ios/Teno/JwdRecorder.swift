@@ -150,7 +150,7 @@ import JwdVtrSDK
             busy = true; waiting = "stop"; phase = "stopping"; status = "Waiting for the recorder to stop"
             send { self.sdk.stopRecord() }; timeout("Stop was not confirmed. The recorder may still be recording.")
         case .sync:
-            guard recordStateKnown, !active, store.state().signedIn else { throw RuntimeFailure("SYNC", "Confirm the recorder is stopped and sign in before syncing.") }
+            guard recordStateKnown, !active else { throw RuntimeFailure("SYNC", "Wait for the recorder to stop before syncing.") }
             beginSync()
         default: break
         }
@@ -357,10 +357,11 @@ import JwdVtrSDK
         if value < 0 { deadline?.cancel(); waiting = ""; busy = false; phase = "interrupted"; status = "The recorder reported an error. Check storage and the physical recorder."; return }
         recordStateKnown = true
         if Self.isStoppedReply(value,fileName:fileName,seconds:currentTime) {
-            let stoppedByUs = waiting == "stop"
+            if phase == "saving" { return }
+            let shouldSync = waiting == "stop" || ["recording","paused","stopping","interrupted"].contains(phase)
             accumulated = elapsed; recordStarted = nil; deadline?.cancel(); waiting = ""; busy = false; phase = "idle"
             status = "Recorder stopped"
-            if stoppedByUs, store.state().signedIn { beginSync() } else { recordName = "" }
+            if shouldSync, store.state().signedIn { scheduleSync() } else { recordName = "" }
         } else {
             deadline?.cancel(); waiting = ""; busy = false
             if let fileName, !fileName.isEmpty { recordName = fileName }
@@ -370,9 +371,11 @@ import JwdVtrSDK
     }
     func onRecordStateCheck(_ status: Int32) {
         guard authorized, connected else { return }
-        if status == 0 && (waiting.isEmpty || waiting == "state") && !receiving {
+        if status == 0 && (waiting.isEmpty || waiting == "state") && !receiving && phase != "saving" {
+            let wasRecording = ["recording","paused","stopping","interrupted"].contains(phase)
             deadline?.cancel(); waiting = ""; busy = false; recordStateKnown = true
-            phase = "idle"; recordName = ""; recordStarted = nil; self.status = "Recorder connected"
+            accumulated = elapsed; phase = "idle"; recordStarted = nil; self.status = "Recorder connected"
+            if wasRecording, store.state().signedIn { scheduleSync() } else { recordName = "" }
         } else if status == 1 {
             waiting = "state"; busy = true; send { self.sdk.getRecordInfo() }
             timeout("Recorder status did not arrive. Wake the recorder and reconnect.",disconnect:true)
@@ -390,6 +393,17 @@ import JwdVtrSDK
     }
     func onRecordStream(_ data: Data) {
         // Discard live PCM. The verified saved file is the sole transcription source.
+    }
+    private func scheduleSync() {
+        phase = "saving"; busy = true; status = "Preparing to sync recording"
+        let generation = connectionGeneration, owner = store.scope
+        Task {
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            guard generation == connectionGeneration, owner == store.scope,
+                  authorized, connected, store.state().signedIn,
+                  phase == "saving", !receiving else { return }
+            beginSync()
+        }
     }
     private func beginSync() {
         phase = "saving"; busy = true; directories = []; files = []; transferQueue = []

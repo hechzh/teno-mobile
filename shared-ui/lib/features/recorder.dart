@@ -10,58 +10,8 @@ import 'detail.dart';
 import 'generation_options.dart';
 import 'personal_import.dart';
 
-Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
-  if (model.personalCore) return true;
-  if (!model.signedIn || model.runtime!.session.optionsSet) return true;
-  bool cloud = true, wifi = false;
-  final chosen = await showDialog<bool>(
-    context: context,
-    builder: (dialog) => StatefulBuilder(
-      builder: (context, update) => AlertDialog(
-        scrollable: true,
-        title: const UiText('Recording preferences'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const UiText(
-              'A complete audio file is always kept on this phone. These choices are saved to this account on this device.',
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const UiText('Cloud processing'),
-              value: cloud,
-              onChanged: (v) => update(() => cloud = v),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const UiText('Upload on Wi-Fi only'),
-              value: wifi,
-              onChanged: (v) => update(() => wifi = v),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialog, false),
-            child: const UiText('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialog, true),
-            child: const UiText('Continue'),
-          ),
-        ],
-      ),
-    ),
-  );
-  if (chosen != true) return false;
-  await model.host.configure(cloud, wifi, false);
-  model.changed(await model.host.snapshot());
-  return true;
-}
-
 Future<void> startPhone(BuildContext context, TenoModel model) async =>
     perform(context, () async {
-      if (!await ensureOptions(context, model) || !context.mounted) return;
       if (!model.capturing)
         await model.host.startPhone(
           'Recording ' + dateLabel(DateTime.now().toIso8601String()),
@@ -303,11 +253,9 @@ class _DevicePageState extends State<DevicePage> {
                 () => perform(context, model.host.showDeviceKey),
               ),
               FilledButton(
-                onPressed: device.busy || !model.signedIn
+                onPressed: device.busy
                     ? null
                     : () => perform(context, () async {
-                        if (!await ensureOptions(context, model) || !mounted)
-                          return;
                         if (!model.capturing)
                           await model.host.controlDevice(
                             DeviceAction.start,
@@ -318,11 +266,7 @@ class _DevicePageState extends State<DevicePage> {
                         if (context.mounted) await showRecorder(context, model);
                       }),
                 child: UiText(
-                  !model.signedIn
-                      ? 'Sign in to record'
-                      : model.capturing
-                      ? 'Return to recording'
-                      : 'Start recording',
+                  model.capturing ? 'Return to recording' : 'Start recording',
                 ),
               ),
               const SizedBox(height: 12),

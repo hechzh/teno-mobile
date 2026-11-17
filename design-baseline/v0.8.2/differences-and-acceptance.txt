@@ -1,9 +1,3 @@
-Teno 0.8.2 / iOS 1.1.2 / Web 0.3.2 candidate UI review
-
-The gallery contains actual Flutter rendering and navigation with synthetic data. Chinese and English generation choices, template examples, personal Ask scopes and factual processing states are covered by the iteration_082 widget tests; the baseline gallery retains 87 states in light, dark and large-text variants.
-
-Generated content uses the language frozen for each task. Quoted source material, names and user content retain their original language. Existing notes are not translated. Templates use static, explicitly labelled examples from the same workshop material.
-
-Processing percentages appear only for measured transfer progress. Cloud processing disabled means local-only storage. A failed latest generation remains visible even when an older note exists. Personal Ask sources are restricted to the selected scope and current account; save dates do not establish event dates or live task status.
-
-These captures do not certify physical Android or iOS rendering, signed iPhone installation, JWD connectivity, background behavior, lock-screen behavior, long recordings, Safari or Shanghai mobile network performance. The final delivery acceptance record contains the completed checks and separately lists physical tests still pending. Formal application baselines remain unchanged.
+Teno 0.8.2 build 19 / iOS 1.1.2 build 15 / Web 0.3.2 build 11
+取消首次偏好确认的同步阻挡；新账号默认录后同步、上传、转写。保留明确云关闭选择，仍允许同步到手机。移除已登录页的登录后录音死分支与冗余登录条件提示。
+421 Flutter tests passed on Windows with current shared UI; images use synthetic data. Android release/native integration and iOS CI evidence are collected separately in this delivery. Physical JWD, background and signed iPhone tests remain pending.

@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/features/recorder.dart';
+import '../lib/l10n/generated/app_localizations.dart';
 import '../lib/main.dart';
 import '../lib/platform/runtime.g.dart';
 import 'fixtures.dart';
@@ -59,6 +60,18 @@ Future<void> openDevice(WidgetTester tester, JwdHost host) async {
   await tester.pump(const Duration(milliseconds: 500));
 }
 
+Future<void> mountRecorder(WidgetTester tester, Widget page) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      home: page,
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
 Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   if (finder.evaluate().isEmpty) {
     await tester.scrollUntilVisible(
@@ -86,6 +99,48 @@ void main() {
     await (FontLoader(
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
+  });
+  for (final personalCore in [true, false]) {
+    testWidgets(
+      'recording uses defaults without a setup gate (personal=$personalCore)',
+      (tester) async {
+        final host = JwdHost();
+        host.state.session.optionsSet = false;
+        host.state.session.cloudUpload = true;
+        host.state.device.connected = true;
+        host.state.device.authorized = true;
+        host.state.device.status = 'Recorder connected';
+        final model = personal.coreModel(host)..personalCore = personalCore;
+        await mountRecorder(tester, DevicePage(model));
+        await tapVisible(tester, find.text('Start recording'));
+        expect(host.calls, contains('device:start'));
+        expect(find.text('Recording preferences'), findsNothing);
+        expect(
+          host.calls.where((call) => call.startsWith('configure')),
+          isEmpty,
+        );
+        expect(host.state.session.cloudUpload, isTrue);
+        await tester.pumpWidget(const SizedBox.shrink());
+        model.dispose();
+      },
+    );
+  }
+  testWidgets('manual device sync is available while cloud processing is off', (
+    tester,
+  ) async {
+    final host = JwdHost();
+    host.state.session.optionsSet = false;
+    host.state.session.cloudUpload = false;
+    host.state.device.connected = true;
+    host.state.device.authorized = true;
+    final model = personal.coreModel(host);
+    await mountRecorder(tester, DevicePage(model));
+    await tapVisible(tester, find.text('Sync recordings to this phone'));
+    expect(host.calls, contains('device:sync'));
+    expect(host.calls.where((call) => call.startsWith('configure')), isEmpty);
+    expect(host.state.session.cloudUpload, isFalse);
+    await tester.pumpWidget(const SizedBox.shrink());
+    model.dispose();
   });
   testWidgets('entry starts automatic connection with no device choices', (
     tester,

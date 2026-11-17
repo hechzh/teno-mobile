@@ -7,7 +7,7 @@
   <string name="ui_library" formatted="false">资料库</string>
   <string name="ui_interfacelanguage" formatted="false">界面语言</string>
   <string name="ui_followsystem" formatted="false">跟随系统</string>
-  <string name="ui_languagehint" formatted="false">仅改变界面文字，不翻译已有录音、笔记或对话。</string>
+  <string name="ui_languagehint" formatted="false">新笔记默认跟随界面语言生成。已有录音、笔记和问答保持不变。</string>
   <string name="ui_appearancelanguage" formatted="false">外观与语言</string>
   <string name="ui_privacydata" formatted="false">隐私与数据</string>
   <string name="ui_recorderrecording" formatted="false">录音器与录音</string>
@@ -111,7 +111,7 @@
   <string name="ui_label2b7aa8894c21" formatted="false">云端处理</string>
   <string name="ui_label838991b2b94f" formatted="false">云端处理已关闭。导入文件保留在本机，点击“上传并处理”后才会上传。</string>
   <string name="ui_label8adaed39e1a2" formatted="false">云端处理已开启。导入文件先保存到本机，再自动上传并处理。</string>
-  <string name="ui_label2187c26af752" formatted="false">未设置过的账号默认开启云端处理。已明确关闭的设置会保留，可在“设置 → 云端处理”中开启。</string>
+  <string name="ui_label2187c26af752" formatted="false">新录音默认自动上传，转写并生成纪要。可在设置中调整云处理和仅 Wi-Fi 上传。</string>
   <string name="ui_labela293e2e43fd2" formatted="false">兼容扫描</string>
   <string name="ui_label7810980ade40" formatted="false">完整文件经校验并保存到本机后才会上传。传输中断可重连重试，不会自动删除设备原文件。</string>
   <string name="ui_label9d989f15c1c5" formatted="false">录音和导入文件上传后仍保留在本机。请保留应用，以保留这些本机副本。</string>
@@ -437,7 +437,6 @@
   <string name="ui_label3dcf3d16dd02" formatted="false">分享到 Teno</string>
   <string name="ui_labelbfd402b2f6f3" formatted="false">登录</string>
   <string name="ui_label22e58a62e3f4" formatted="false">请登录文件所属账号，或检查本机存储。</string>
-  <string name="ui_labelc80526e65f78" formatted="false">登录后录音</string>
   <string name="ui_label11aa3c02e39a" formatted="false">请登录录音所属账号以访问本机文件。</string>
   <string name="ui_label47e82476c5c4" formatted="false">登录你的 Teno 账号。</string>
   <string name="ui_label48f0d3d397d4" formatted="false">退出登录</string>
@@ -610,7 +609,6 @@
   <string name="ui_label196574e3aa9c" formatted="false">已断开。请检查录音器，设备可能仍在录音。</string>
   <string name="ui_labela610dc54b358" formatted="false">同步已暂停，原文件保留在录音器上。重连后可重试。</string>
   <string name="ui_labeleec2b22a86dc" formatted="false">设备密钥未被接受。请输入原 16 位密钥，重置前请查看录音器帮助。</string>
-  <string name="ui_label0cc1ba39d071" formatted="false">已保存在录音器。登录并设置录音偏好后可自动同步。</string>
   <string name="ui_labelcf2759aff016" formatted="false">未获得所需权限。请在 Android 设置中开启后使用此功能。</string>
   <string name="ui_labelfc25221a1fc1" formatted="false">请先完成当前权限请求。</string>
   <string name="ui_labelca44e25205d6" formatted="false">请在 Android 设置中允许麦克风权限。</string>
@@ -783,9 +781,81 @@
   <string name="ui_recorderconfirmationhelp" formatted="false">暂停、继续和停止操作需等待录音器确认。蓝牙断开不会停止录音，请先检查设备再重试。</string>
   <string name="ui_iosbackgroundhelp" formatted="false">iPhone 后台活动受 iOS 系统规则限制。强制退出后，请重新打开 Teno 以继续队列任务。</string>
   <string name="ui_contextdocument" formatted="false">文档</string>
-  <string name="ui_nospeechsaved" formatted="false">未检测到语音，音频已保存。</string>
+  <string name="ui_nospeechsaved" formatted="false">未检测到语音，音频已保留。</string>
   <string name="ui_recordingfiletype" formatted="false">录音</string>
   <string name="ui_saveinterfacelanguagefailed" formatted="false">无法保存界面语言，请重试。</string>
   <string name="ui_postrecordingtranscription" formatted="false">录音保存并上传后开始转写，遵循云处理设置。</string>
   <string name="ui_backgroundpostrecording" formatted="false">Android 可能延迟后台上传和完成通知。重新打开 Teno 可继续处理，转写使用保存后的录音。</string>
+  <string name="ui_iteration082label0" formatted="false">输出语言</string>
+  <string name="ui_iteration082label1" formatted="false">跟随界面</string>
+  <string name="ui_iteration082label2" formatted="false">本次模板</string>
+  <string name="ui_iteration082label3" formatted="false">本次生成选项</string>
+  <string name="ui_iteration082label4" formatted="false">仅作用于本次资料，已有笔记保持不变。</string>
+  <string name="ui_iteration082label5" formatted="false">生成笔记</string>
+  <string name="ui_iteration082label6" formatted="false">当前记录</string>
+  <string name="ui_iteration082label7" formatted="false">所选文件夹</string>
+  <string name="ui_iteration082label8" formatted="false">所选资料</string>
+  <string name="ui_iteration082label9" formatted="false">我的全部资料</string>
+  <string name="ui_iteration082label10" formatted="false">正在准备个人检索，不会重新生成已有资料。</string>
+  <string name="ui_iteration082label11" formatted="false">保存日期</string>
+  <string name="ui_iteration082label12" formatted="false">版本更新</string>
+  <string name="ui_iteration082label13" formatted="false">来源已不可用</string>
+  <string name="ui_iteration082label14" formatted="false">示例原文</string>
+  <string name="ui_iteration082label15" formatted="false">示例结果</string>
+  <string name="ui_iteration082label16" formatted="false">已保存在录音卡</string>
+  <string name="ui_iteration082label17" formatted="false">正在同步到手机</string>
+  <string name="ui_iteration082label19" formatted="false">转写中</string>
+  <string name="ui_iteration082label20" formatted="false">生成纪要</string>
+  <string name="ui_iteration082label21" formatted="false">提取文字</string>
+  <string name="ui_iteration082label22" formatted="false">准备音频</string>
+  <string name="ui_iteration082label23" formatted="false">完成</string>
+  <string name="ui_iteration082label24" formatted="false">尚未转写</string>
+  <string name="ui_iteration082label25" formatted="false">尚未生成纪要</string>
+  <string name="ui_iteration082label26" formatted="false">尚未提取文字</string>
+  <string name="ui_iteration082label27" formatted="false">仅本机保存</string>
+  <string name="ui_iteration082label28" formatted="false">等待 Wi-Fi</string>
+  <string name="ui_iteration082label29" formatted="false">等待网络连接</string>
+  <string name="ui_iteration082label30" formatted="false">云处理已关闭</string>
+  <string name="ui_iteration082label31" formatted="false">登录后继续处理</string>
+  <string name="ui_iteration082label32" formatted="false">等待服务处理</string>
+  <string name="ui_iteration082label33" formatted="false">等待重试</string>
+  <string name="ui_iteration082label34" formatted="false">尚未开始</string>
+  <string name="ui_iteration082label35" formatted="false">未检测到语音，音频已保留</string>
+  <string name="ui_iteration082label36" formatted="false">部分笔记内容待核实</string>
+  <string name="ui_iteration082label37" formatted="false">清理稿处理失败，原始转写已保留</string>
+  <string name="ui_iteration082label38" formatted="false">上次确认的状态，等待刷新</string>
+  <string name="ui_iteration082label39" formatted="false">已保留内容</string>
+  <string name="ui_iteration082label40" formatted="false">原文件</string>
+  <string name="ui_iteration082label41" formatted="false">云端音频</string>
+  <string name="ui_iteration082label42" formatted="false">云端文件</string>
+  <string name="ui_iteration082label43" formatted="false">已提取文字</string>
+  <string name="ui_iteration082label44" formatted="false">已保存笔记</string>
+  <string name="ui_iteration082label45" formatted="false">重试此步骤</string>
+  <string name="ui_iteration082label46" formatted="false">此步骤处理失败</string>
+  <string name="ui_iteration082label47" formatted="false">本次任务已固定模板及输出语言。</string>
+  <string name="ui_iteration082label48" formatted="false">新笔记默认跟随界面语言；处理前可仅修改本次输出语言。</string>
+  <string name="ui_iteration082label49" formatted="false">录音已保存</string>
+  <string name="ui_iteration082label50" formatted="false">正在同步</string>
+  <string name="ui_iteration082label51" formatted="false">生成纪要</string>
+  <string name="ui_iteration082label52" formatted="false">尚未发起纪要生成</string>
+  <string name="ui_iteration082label53" formatted="false">尚未发起转写</string>
+  <string name="ui_iteration082label54" formatted="false">尚未提取文字</string>
+  <string name="ui_iteration082label55" formatted="false">正在查询处理状态</string>
+  <string name="ui_iteration082label56" formatted="false">网络不可用</string>
+  <string name="ui_iteration082label57" formatted="false">云处理已关闭 · 仅本机保存</string>
+  <string name="ui_iteration082label58" formatted="false">需要登录后上传</string>
+  <string name="ui_iteration082label59" formatted="false">服务排队中</string>
+  <string name="ui_iteration082label61" formatted="false">显示上次确认的状态，尚未刷新。</string>
+  <string name="ui_iteration082label62" formatted="false">云端原文件已保留</string>
+  <string name="ui_iteration082label63" formatted="false">转写已保留</string>
+  <string name="ui_iteration082label64" formatted="false">提取文字已保留</string>
+  <string name="ui_iteration082label65" formatted="false">已有笔记已保留</string>
+  <string name="ui_iteration082label66" formatted="false">部分内容待核实，请查看笔记中的标记。</string>
+  <string name="ui_iteration082label67" formatted="false">清理稿处理失败，原始转写已保留。</string>
+  <string name="ui_iteration082label68" formatted="false">重试纪要生成</string>
+  <string name="ui_iteration082label69" formatted="false">新笔记默认跟随界面语言；处理前可仅修改本次输出语言。</string>
+  <string name="ui_iteration082text09fef5d8" formatted="false">失败</string>
+  <string name="ui_recorderautomaticsyncpreparing" formatted="false">正在准备同步录音</string>
+  <string name="ui_recordingautomaticcloudhelp" formatted="false">录音停止后，文件会自动同步到手机。开启云处理后会上传并转写、生成纪要。</string>
+  <string name="ui_recordersyncwaitforstop" formatted="false">请等待录音器停止录音后同步。</string>
 </resources>

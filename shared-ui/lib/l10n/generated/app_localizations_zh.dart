@@ -359,8 +359,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label8adaed39e1a2 => '云端处理已开启。导入文件先保存到本机，再自动上传并处理。';
 
   @override
-  String get label2187c26af752 =>
-      '未设置过的账号默认开启云端处理。已明确关闭的设置会保留，可在“设置 → 云端处理”中开启。';
+  String get label2187c26af752 => '新录音默认自动上传，转写并生成纪要。可在设置中调整云处理和仅 Wi-Fi 上传。';
 
   @override
   String get labela293e2e43fd2 => '兼容扫描';
@@ -1342,9 +1341,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label22e58a62e3f4 => '请登录文件所属账号，或检查本机存储。';
 
   @override
-  String get labelc80526e65f78 => '登录后录音';
-
-  @override
   String get label11aa3c02e39a => '请登录录音所属账号以访问本机文件。';
 
   @override
@@ -1864,9 +1860,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get labeleec2b22a86dc => '设备密钥未被接受。请输入原 16 位密钥，重置前请查看录音器帮助。';
-
-  @override
-  String get label0cc1ba39d071 => '已保存在录音器。登录并设置录音偏好后可自动同步。';
 
   @override
   String get labelcf2759aff016 => '未获得所需权限。请在 Android 设置中开启后使用此功能。';
@@ -2693,4 +2686,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get iteration082Text09fef5d8 => '失败';
+
+  @override
+  String get recorderAutomaticSyncPreparing => '正在准备同步录音';
+
+  @override
+  String get recordingAutomaticCloudHelp =>
+      '录音停止后，文件会自动同步到手机。开启云处理后会上传并转写、生成纪要。';
+
+  @override
+  String get recorderSyncWaitForStop => '请等待录音器停止录音后同步。';
 }

@@ -86,7 +86,7 @@ final class PersonalRuntimeTests: XCTestCase {
     }
     @MainActor func testCloudDefaultsOnAndExplicitOffSurvivesAccountSwitch() throws {
         let (store,_) = try fixture()
-        store.identity("first","one"); XCTAssertTrue(store.cloudUpload)
+        store.identity("first","one"); XCTAssertTrue(store.cloudUpload); XCTAssertFalse(store.optionsSet)
         store.configure(cloud:false,wifi:true,live:false)
         store.identity("second","two"); XCTAssertTrue(store.cloudUpload)
         store.identity("first","one"); XCTAssertFalse(store.cloudUpload); XCTAssertTrue(store.wifiOnly)

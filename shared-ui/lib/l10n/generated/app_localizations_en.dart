@@ -381,7 +381,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get label2187c26af752 =>
-      'Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.';
+      'New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.';
 
   @override
   String get labela293e2e43fd2 => 'Compatibility scan';
@@ -1402,9 +1402,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sign in to its account or check local storage.';
 
   @override
-  String get labelc80526e65f78 => 'Sign in to record';
-
-  @override
   String get label11aa3c02e39a =>
       'Sign in to the recording’s account to access its local file.';
 
@@ -1959,10 +1956,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get labeleec2b22a86dc =>
       'Device key not accepted. Enter the original 16-character key, or check Recorder help before resetting the device.';
-
-  @override
-  String get label0cc1ba39d071 =>
-      'Saved on recorder. Sign in and set recording preferences to sync automatically.';
 
   @override
   String get labelcf2759aff016 =>
@@ -2893,4 +2886,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get iteration082Text09fef5d8 => 'Failed';
+
+  @override
+  String get recorderAutomaticSyncPreparing => 'Preparing to sync recording';
+
+  @override
+  String get recordingAutomaticCloudHelp =>
+      'Recorder files sync to this phone after recording stops. Cloud processing uploads a copy for transcription and notes.';
+
+  @override
+  String get recorderSyncWaitForStop =>
+      'Wait for the recorder to stop before syncing.';
 }

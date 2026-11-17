@@ -1,4 +1,4 @@
-Teno iOS 1.1.2 / Build14 · Bundle ID com.jwd.ZhiYan
+Teno iOS 1.1.2 / Build15 · Bundle ID com.jwd.ZhiYan
 
 交付文件：Teno-iOS-1.1.2-build14-Xcode.zip。
 完整解压后打开 ios/Teno.xcodeproj，选择 Teno scheme。在 Signing & Capabilities 中设置原 App 使用的 Team，使用有权限的 com.jwd.ZhiYan 标识编译或 Archive。最低 iOS15；验证环境 Xcode16.4。

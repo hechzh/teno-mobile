@@ -785,7 +785,7 @@ abstract class AppLocalizations {
   /// No description provided for @label2187c26af752.
   ///
   /// In en, this message translates to:
-  /// **'Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.'**
+  /// **'New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.'**
   String get label2187c26af752;
 
   /// No description provided for @labela293e2e43fd2.
@@ -2738,12 +2738,6 @@ abstract class AppLocalizations {
   /// **'Sign in to its account or check local storage.'**
   String get label22e58a62e3f4;
 
-  /// No description provided for @labelc80526e65f78.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to record'**
-  String get labelc80526e65f78;
-
   /// No description provided for @label11aa3c02e39a.
   ///
   /// In en, this message translates to:
@@ -3775,12 +3769,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Device key not accepted. Enter the original 16-character key, or check Recorder help before resetting the device.'**
   String get labeleec2b22a86dc;
-
-  /// No description provided for @label0cc1ba39d071.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved on recorder. Sign in and set recording preferences to sync automatically.'**
-  String get label0cc1ba39d071;
 
   /// No description provided for @labelcf2759aff016.
   ///
@@ -5359,6 +5347,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed'**
   String get iteration082Text09fef5d8;
+
+  /// No description provided for @recorderAutomaticSyncPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing to sync recording'**
+  String get recorderAutomaticSyncPreparing;
+
+  /// No description provided for @recordingAutomaticCloudHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder files sync to this phone after recording stops. Cloud processing uploads a copy for transcription and notes.'**
+  String get recordingAutomaticCloudHelp;
+
+  /// No description provided for @recorderSyncWaitForStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for the recorder to stop before syncing.'**
+  String get recorderSyncWaitForStop;
 }
 
 class _AppLocalizationsDelegate

@@ -319,7 +319,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     }
     private final Runnable syncLater=()->{if(authorized&&recordState==0&&!deferSync&&!syncing&&pending.isEmpty()&&receiver==null&&!converting)try{startSync();}catch(Exception e){syncFailed(e.getMessage());problem(e.getMessage());}};
     private void startSync()throws Exception{
-        if(store.scope().isEmpty()||!store.recordingOptionsSet()){message="Saved on recorder. Sign in and set recording preferences to sync automatically.";publish();return;}
+        if(!sessionCurrent())return;
         if(recordState!=0||!pending.isEmpty()||receiver!=null||converting)return;
         syncing=true;syncScope=store.scope();syncError="";syncFiles.clear();syncDirectory=0;refresh();publish();
     }

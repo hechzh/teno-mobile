@@ -145,7 +145,7 @@
   "label2b7aa8894c21": "Cloud processing",
   "label838991b2b94f": "Cloud processing is off. Imported files stay on this phone until you choose Upload and process.",
   "label8adaed39e1a2": "Cloud processing is on. Imported files are saved on this phone, then uploaded and processed automatically.",
-  "label2187c26af752": "Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.",
+  "label2187c26af752": "New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.",
   "labela293e2e43fd2": "Compatibility scan",
   "label7810980ade40": "Complete files are verified and saved locally before cloud upload. Reconnect to retry an interrupted transfer. Device originals are not automatically deleted.",
   "label9d989f15c1c5": "Complete recordings and imports remain on this phone after upload. Keep the app installed to retain these local copies.",
@@ -471,7 +471,6 @@
   "label3dcf3d16dd02": "Shared with Teno",
   "labelbfd402b2f6f3": "Sign in",
   "label22e58a62e3f4": "Sign in to its account or check local storage.",
-  "labelc80526e65f78": "Sign in to record",
   "label11aa3c02e39a": "Sign in to the recording’s account to access its local file.",
   "label47e82476c5c4": "Sign in to your Teno account.",
   "label48f0d3d397d4": "Sign out",
@@ -644,7 +643,6 @@
   "label196574e3aa9c": "Disconnected. Check the recorder: it may still be recording.",
   "labela610dc54b358": "Sync paused. Originals stay on the recorder. Reconnect to try again.",
   "labeleec2b22a86dc": "Device key not accepted. Enter the original 16-character key, or check Recorder help before resetting the device.",
-  "label0cc1ba39d071": "Saved on recorder. Sign in and set recording preferences to sync automatically.",
   "labelcf2759aff016": "Permission was not granted. Enable it in Android Settings to use this feature.",
   "labelfc25221a1fc1": "Finish the current permission request first.",
   "labelca44e25205d6": "Allow microphone access in Android Settings.",
@@ -1029,5 +1027,8 @@
   "iteration082Label67": "Transcript cleanup failed. The original transcript is kept.",
   "iteration082Label68": "Retry note generation",
   "iteration082Label69": "New notes follow the interface language. Change it for one file before processing.",
-  "iteration082Text09fef5d8": "Failed"
+  "iteration082Text09fef5d8": "Failed",
+  "recorderAutomaticSyncPreparing": "Preparing to sync recording",
+  "recordingAutomaticCloudHelp": "Recorder files sync to this phone after recording stops. Cloud processing uploads a copy for transcription and notes.",
+  "recorderSyncWaitForStop": "Wait for the recorder to stop before syncing."
 }

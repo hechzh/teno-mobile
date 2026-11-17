@@ -1038,7 +1038,7 @@ class PersonalHelpPage extends StatelessWidget {
           ),
           heading('Automatic processing'),
           const UiText(
-            'Cloud processing starts on for accounts without a saved preference. An existing choice to turn it off is kept. Enable it in Settings → Cloud processing.',
+            'New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.',
           ),
           heading('Your recorder'),
           const UiText(
