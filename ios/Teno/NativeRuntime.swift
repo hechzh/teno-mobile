@@ -48,7 +48,7 @@ import UIKit
         let capture = CaptureState(source:useDevice ? "device" : "phone",phase:useDevice ? recorder.phase : phone.phase,
             elapsedMs:useDevice ? recorder.elapsed : phone.elapsed,localId:id,status:useDevice ? recorder.status : phone.status,
             partial:"",segmentsJson:"[]",notes:notes,previewStatus:"")
-        let drafts = store.drafts().map { value -> JSONObject in var item = value; item.removeValue(forKey:"path"); return item }
+        let drafts = store.drafts().map { value -> JSONObject in var item = value; item["processing"] = uploads.presentation(value); item.removeValue(forKey:"path"); return item }
         return RuntimeState(sequence:sequence,session:store.state(),capture:capture,device:recorder.state(),playback:media.state(),
             draftsJson:jsonString(drafts),uploadStatus:uploads.status,openRoute:"")
     }
@@ -74,7 +74,7 @@ import UIKit
         guard ["GET","POST","PATCH","DELETE"].contains(method) else { throw RuntimeFailure("API_METHOD","Unsupported request method.") }
         let body = try jsonBody.map { try jsonObject(Data($0.utf8)) }
         let bytes = try await api.data(method,path,body:body)
-        if method == "POST", path.hasSuffix("/retry"), let result = try? jsonObject(bytes) { uploads.processingRetry(path, result:result) }
+        if method == "POST", path.hasSuffix("/retry") || path.hasSuffix("/notes") || path == "/api/v1/notes/generate", let result = try? jsonObject(bytes) { uploads.processingRetry(path, result:result) }
         return bytes.isEmpty ? "{}" : String(data:bytes,encoding:.utf8) ?? "{}"
     }
     func configure(cloudUpload: Bool,wifiOnly: Bool,livePreview: Bool) async throws {

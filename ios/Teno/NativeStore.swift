@@ -68,6 +68,38 @@ final class KeyVault {
         set { preferences.set(newValue, forKey: "server") }
     }
     var scope: String { preferences.string(forKey: "scope") ?? "" }
+    var outputLanguage: String {
+        let chosen = preferences.string(forKey:"interface_locale") ?? "system"
+        return (chosen == "zh" || chosen == "system" && (Locale.preferredLanguages.first ?? "en").hasPrefix("zh")) ? "zh-CN" : "en-US"
+    }
+    func generationOptions(_ draft: inout JSONObject, from args: JSONObject) throws {
+        guard let language = args["output_language"] as? String else { return }
+        let origin = args["output_language_origin"] as? String ?? "interface"
+        guard ["zh-CN","en-US"].contains(language), ["interface","override"].contains(origin) else { throw RuntimeFailure("LANGUAGE","Choose Chinese or English.") }
+        draft["output_language"] = language; draft["output_language_origin"] = origin
+    }
+    func freezeGeneration(_ draft: inout JSONObject) {
+        if draft["generation_frozen"] as? Bool != true || string(draft["output_language"]).isEmpty {
+            if string(draft["template_id"]).isEmpty || string(draft["template_id"]) == "@default" {
+                let settings = preferences.data(forKey:"personal." + scope + ".settings").flatMap { try? jsonObject($0) } ?? [:]
+                draft["template_id"] = settings["default_template_id"] as? String ?? "teno:general"; draft["template_origin"] = "account"
+            } else if draft["template_origin"] == nil { draft["template_origin"] = "selection" }
+            if string(draft["output_language"]).isEmpty {
+                draft["output_language"] = outputLanguage; draft["output_language_origin"] = "interface"
+            }
+            draft["generation_frozen"] = true; draft["template_frozen"] = true
+        }
+    }
+    func recorderOptions(_ id: String) -> JSONObject {
+        var value = preferences.data(forKey:"note.options." + scope + "." + id).flatMap { try? jsonObject($0) } ?? [:]
+        value["template_id"] = preferences.string(forKey:"note.template." + scope + "." + id) ?? "@default"
+        return value
+    }
+    func recorderOptions(_ id: String, _ args: JSONObject) throws {
+        var value = recorderOptions(id); try generationOptions(&value,from:args)
+        preferences.set(try jsonData(value),forKey:"note.options." + scope + "." + id)
+        preferences.set(string(args["template_id"]),forKey:"note.template." + scope + "." + id)
+    }
     var username: String { preferences.string(forKey: "username") ?? "" }
     var cloudUpload: Bool { preferences.object(forKey: "auto_upload." + scope) as? Bool ?? true }
     var wifiOnly: Bool { preferences.bool(forKey: "wifi_upload." + scope) }
@@ -128,7 +160,12 @@ final class KeyVault {
     func drafts() -> [JSONObject] {
         guard !scope.isEmpty, let folder = try? directory(),
               let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return [] }
-        return files.filter { $0.pathExtension == "json" }.compactMap { try? jsonObject(Data(contentsOf: $0)) }
+        return files.filter { $0.pathExtension == "json" }.compactMap { file -> JSONObject? in
+            guard var value = try? jsonObject(Data(contentsOf:file)) else { return nil }
+            if string(value["recording_id"]).isEmpty && string(value["file_id"]).isEmpty && string(value["output_language"]).isEmpty && string(value["status"]) != "recording" {
+                value["output_language"] = outputLanguage; value["output_language_origin"] = "interface"; try? save(value)
+            }; return value
+        }
             .sorted { string($0["created_at"]) > string($1["created_at"]) }
     }
     func newDraft(_ title: String, ext: String, id: String = UUID().uuidString.lowercased()) throws -> JSONObject {

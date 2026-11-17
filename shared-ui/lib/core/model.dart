@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import '../platform/runtime.g.dart';
 
 typedef Json = Map<String, dynamic>;
@@ -61,6 +61,17 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
   bool personalCore = false;
   // Device/browser UI preference, independent of account and audio language.
   String interfaceLanguage = 'system';
+  String get outputLanguage =>
+      (interfaceLanguage == 'zh' ||
+          interfaceLanguage == 'system' &&
+              WidgetsBinding.instance.platformDispatcher.locale.languageCode ==
+                  'zh')
+      ? 'zh-CN'
+      : 'en-US';
+  Json generationLanguage([String? override]) => {
+    'output_language': override ?? outputLanguage,
+    'output_language_origin': override == null ? 'interface' : 'override',
+  };
   Future<void> loadInterfaceLanguage() async {
     try {
       final value = await command('interface_locale');
@@ -142,13 +153,19 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
   final Map<String, String> _generationIds = {};
   Future<Json> api(String method, String path, [Json? body]) async {
     if (method == 'POST' &&
+        body != null &&
+        (path.endsWith('/notes') || path == '/api/v1/notes/generate') &&
+        !body.containsKey('output_language'))
+      body = {...body, ...generationLanguage()};
+    if (method == 'POST' &&
         body?.containsKey('client_id') == true &&
         (path.endsWith('/notes') || path == '/api/v1/notes/generate')) {
       final intent = {...body!}..remove('client_id');
       final key = '${runtime?.session.scope}:$path:${jsonEncode(intent)}';
       final existing = _generations[key];
       if (existing != null) return existing;
-      final id = _generationIds.putIfAbsent(key, () => text(body['client_id']));
+      final proposedId = text(body['client_id']);
+      final id = _generationIds.putIfAbsent(key, () => proposedId);
       final future = _request(method, path, {...intent, 'client_id': id})
           .then((result) {
             _generationIds.remove(key);

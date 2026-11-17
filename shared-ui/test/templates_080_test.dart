@@ -117,6 +117,10 @@ void main() {
         await tester.ensureVisible(find.text(chosen).first);
         await tester.tap(find.text(chosen).first);
         await tester.pumpAndSettle();
+        expect(find.text(ui(ctx, 'Example source')), findsOneWidget);
+        await tester.ensureVisible(find.text(ui(ctx, 'Use this template')));
+        await tester.tap(find.text(ui(ctx, 'Use this template')));
+        await tester.pumpAndSettle();
         expect(host.prefs['default_template_id'], 'teno:meeting');
         expect(tester.takeException(), isNull);
       });

@@ -24,6 +24,33 @@ public final class Store {
     public String name(){return prefs.getString("username","");}
     public String scope(){return prefs.getString("scope","");}
     public String language(){return "auto";}
+    public String outputLanguage(){return UiLocale.locale(context).getLanguage().equals("zh")?"zh-CN":"en-US";}
+    public void generationOptions(JSONObject draft,JSONObject args)throws Exception{
+        if(!args.has("output_language"))return;
+        String language=args.getString("output_language"),origin=args.optString("output_language_origin","interface");
+        if(!(language.equals("zh-CN")||language.equals("en-US"))||!(origin.equals("interface")||origin.equals("override")))throw new IOException("Choose Chinese or English.");
+        draft.put("output_language",language).put("output_language_origin",origin);
+    }
+    public void freezeGeneration(JSONObject draft)throws Exception{
+        if(!draft.optBoolean("generation_frozen")||draft.optString("output_language").isEmpty()){
+            if(draft.optString("template_id","@default").equals("@default")){
+                JSONObject settings=new JSONObject(context.getSharedPreferences("teno.personal",0).getString("settings."+scope(),"{}"));
+                draft.put("template_id",settings.optString("default_template_id","teno:general")).put("template_origin","account");
+            }else if(!draft.has("template_origin"))draft.put("template_origin","selection");
+            if(draft.optString("output_language").isEmpty())
+                draft.put("output_language",outputLanguage()).put("output_language_origin","interface");
+            draft.put("generation_frozen",true).put("template_frozen",true);
+        }
+    }
+    public JSONObject recorderOptions(String id)throws Exception{
+        JSONObject value=new JSONObject(prefs.getString("note.options."+scope()+"."+id,"{}"));
+        value.put("template_id",recorderTemplate(id));return value;
+    }
+    public void recorderOptions(String id,JSONObject value)throws Exception{
+        JSONObject current=recorderOptions(id);generationOptions(current,value);
+        recorderTemplate(id,value.getString("template_id"));
+        if(!prefs.edit().putString("note.options."+scope()+"."+id,current.toString()).commit())throw new IOException("Could not save generation options.");
+    }
     public void language(String v){prefs.edit().putString("language","auto").apply();}
     public boolean recordingOptionsSet(){return prefs.getBoolean("recording_options."+scope(),false);}
     // A missing account preference means automatic processing. Never overwrite an
@@ -92,7 +119,10 @@ public final class Store {
     public synchronized JSONArray drafts(){
         JSONArray result=new JSONArray();File[] files=folder().listFiles((d,n)->n.endsWith(".json"));if(files==null)return result;
         Arrays.sort(files,Comparator.comparingLong(File::lastModified).reversed());
-        for(File f:files)try{result.put(new JSONObject(new String(Files.readAllBytes(f.toPath()),StandardCharsets.UTF_8)));}catch(Exception ignored){}
+        for(File f:files)try{JSONObject d=new JSONObject(new String(Files.readAllBytes(f.toPath()),StandardCharsets.UTF_8));
+            if(d.optString("recording_id").isEmpty()&&d.optString("file_id").isEmpty()&&d.optString("output_language").isEmpty()&&!d.optString("status").equals("recording")){
+                d.put("output_language",outputLanguage()).put("output_language_origin","interface");save(d);
+            }result.put(d);}catch(Exception ignored){}
         return result;
     }
     public JSONObject draft(String id)throws Exception{return new JSONObject(new String(Files.readAllBytes(new File(folder(),id+".json").toPath()),StandardCharsets.UTF_8));}

@@ -232,6 +232,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             _cacheStatus = '';
             error = 'This recording is no longer available.';
           } else {
+            processing = {...processing, 'stale': true};
             _cacheStatus = record.isEmpty
                 ? ''
                 : 'Saved copy · Could not check for updates';
@@ -586,19 +587,20 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
 
   @override
   Future<void> generate() async {
-    final template = await push<String>(
+    final template = await chooseGenerationOptions(
       context,
-      PersonalTemplatePicker(widget.model, allowTranscript: true),
+      widget.model,
+      allowTranscript: true,
     );
     if (!mounted || template == null) return;
-    if (template == '__transcript__') {
+    if (template['template_id'] == '__transcript__') {
       _tab(true);
       return;
     }
     await perform(context, () async {
       final job = await widget.model.api('POST', '$path/notes', {
         'client_id': requestId(),
-        if (template.isNotEmpty) 'template_id': template,
+        ...template,
       });
       if (mounted) await push(context, PersonalJobPage(widget.model, job));
       await load();
@@ -619,7 +621,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
       await perform(
         context,
         () => Clipboard.setData(
-          ClipboardData(text: editableNoteText(object(_note['data']))),
+          ClipboardData(text: copyNoteText(object(_note['data']))),
         ),
       );
       return;
@@ -693,6 +695,15 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
       style: TextStyle(fontSize: 15.5, height: 1.85, color: _ink),
     );
     final result = <Widget>[
+      if (noteGenerationLabel(data).isNotEmpty)
+        Text(
+          noteGenerationLabel(data),
+          style: TextStyle(fontSize: 12, color: _muted),
+        ),
+      if ((data['generation_warnings'] as List? ?? []).isNotEmpty)
+        const UiText(
+          'Some content needs verification. Open the note for details.',
+        ),
       if (note['stale'] == true)
         const ErrorNotice(
           'The transcript has changed. This note retains its earlier version.',
@@ -1071,6 +1082,8 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                   : record['status'] == 'transcribed' &&
                         rows(transcript['segments']).isEmpty
                   ? 'No speech recognized'
+                  : processing['stage_status'] == 'idle'
+                  ? 'Note generation not started'
                   : 'Preparing your summary',
               'Your audio remains available.',
             ),
@@ -1113,25 +1126,19 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         ),
       ),
     if (error.isNotEmpty) ErrorNotice(error, retry: load),
-    if (processing['status'] == 'failed') ...[
-      ErrorNotice(text(object(processing['error'])['message'])),
-      if (text(processing['job_id']).isNotEmpty)
-        TextButton(
-          onPressed: () => perform(context, () async {
-            await widget.model.api(
-              'POST',
-              '/api/v1/jobs/${processing['job_id']}/retry',
-            );
-            await load();
-          }),
-          child: const UiText('Retry processing'),
-        ),
-    ],
-    if (text(processing['message']).isNotEmpty)
-      Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: UiText(text(processing['message'])),
-      ),
+    ProcessingProgress(
+      processing,
+      browser: true,
+      retry: object(processing['retry']).isEmpty
+          ? null
+          : () async {
+              await widget.model.api(
+                'POST',
+                '/api/v1/jobs/${object(processing['retry'])['job_id']}/retry',
+              );
+              await load();
+            },
+    ),
   ];
 
   Widget _transcriptView() => ListView(

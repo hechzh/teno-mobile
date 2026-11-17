@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** Persist requests before starting work; retry the same file and client_id. */
 final class UploadQueue {
     static final AtomicBoolean running=new AtomicBoolean();
+    static volatile int uploadPercent=-1;
     private static volatile boolean accountPaused;
     private static volatile Api activeApi;
     private static final Object ACCOUNT_LOCK=new Object();
@@ -48,6 +49,7 @@ final class UploadQueue {
             if(!d.optString("scope").equals(store.scope()))throw new IOException("Sign in to the recording's account.");
             if(!new File(d.getString("path")).isFile())throw new IOException("The local recording is unavailable.");
             if(d.optBoolean("upload_requested")&&(d.optString("status").equals("uploading")||automatic))return;
+            store.freezeGeneration(d);
             d.put("upload_requested",true).put("upload_automatic",automatic).put("upload_attempts",0).put("upload_retry_at",0).put("status","queued").remove("error");store.save(d);
         }
     }
@@ -57,6 +59,26 @@ final class UploadQueue {
         return caps!=null&&caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)&&(!store.wifiUpload()||caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI));
     }
     static boolean requested(Store store,JSONObject d){return d.optBoolean("upload_requested")&&!remote(d)&&d.optString("scope").equals(store.scope())&&(!d.optBoolean("upload_automatic")||store.autoUpload())&&(d.optString("parent_local_id").isEmpty()||!parentRecording(store,d).isEmpty());}
+    static JSONObject presentation(Context context,Store store,JSONObject d)throws Exception{
+        JSONObject p=d.optJSONObject("processing");if(p!=null&&remote(d)){
+            p=new JSONObject(p.toString());JSONObject saved=p.optJSONObject("preserved");if(saved==null)saved=new JSONObject();saved.put("local_file",new File(d.optString("path")).isFile());p.put("preserved",saved);
+            ConnectivityManager cm=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);NetworkCapabilities net=cm.getNetworkCapabilities(cm.getActiveNetwork());if(net==null||!net.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))p.put("stale",true);return p;
+        }
+        String status=d.optString("status"),stage=remote(d)?"checking":status.equals("uploading")?"uploading":d.optBoolean("upload_requested")?"waiting_upload":"saved";
+        String reason="";
+        ConnectivityManager cm=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkCapabilities network=cm.getNetworkCapabilities(cm.getActiveNetwork());
+        if(!store.autoUpload()&&(!d.optBoolean("upload_requested")||d.optBoolean("upload_automatic")))reason="cloud_disabled";
+        else if(store.token("access_token").isEmpty())reason="sign_in";
+        else if(network==null||!network.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))reason="network";
+        else if(store.wifiUpload()&&!network.hasTransport(NetworkCapabilities.TRANSPORT_WIFI))reason="wifi_only";
+        else if(d.optLong("upload_retry_at")>System.currentTimeMillis())reason="retry_backoff";
+        if(reason.equals("cloud_disabled")&&!remote(d)){stage="saved";status="local";}
+        JSONObject kept=new JSONObject().put("local_file",new File(d.optString("path")).isFile());
+        JSONObject value=new JSONObject().put("stage",stage).put("stage_status",status.equals("failed")||status.equals("processing_failed")?"failed":stage.equals("saved")?"idle":"running").put("waiting_reason",reason).put("preserved",kept);
+        if(status.equals("uploading")&&TransferService.draftId.equals(d.optString("id"))&&uploadPercent>=0)value.put("percent",uploadPercent);
+        return value;
+    }
     static String label(Store store,JSONObject d){
         if(remote(d))return d.optString("status").equals("ready")?"Ready":d.optString("status").equals("processing_failed")?"Processing needs attention · Local copy kept":"Processing";
         if(!d.optString("parent_local_id").isEmpty()&&parentRecording(store,d).isEmpty())return "Saved on this phone · Waiting for recording";
@@ -98,13 +120,17 @@ final class UploadQueue {
         activeApi=api;if(accountPaused){api.cancel();return;}
         try{
             JSONObject draft;
-            synchronized(Store.class){draft=store.draft(id);draft.put("template_frozen",true).put("status","uploading").put("upload_attempts",draft.optInt("upload_attempts")+1).remove("error");store.save(draft);}
+            synchronized(Store.class){draft=store.draft(id);store.freezeGeneration(draft);draft.put("template_frozen",true).put("status","uploading").put("upload_attempts",draft.optInt("upload_attempts")+1).remove("error");store.save(draft);}
             File audio=new File(draft.getString("path"));if(!audio.isFile()||audio.length()==0)throw new IOException("No valid audio file found");
             boolean document=draft.optString("kind").equals("file");
             JSONObject fields=new JSONObject().put("client_id",id);
+            fields.put("template_id",draft.optString("template_id","teno:general"));
+            fields.put("template_origin",draft.optString("template_origin","selection"));
+            fields.put("output_language",draft.getString("output_language")).put("output_language_origin",draft.optString("output_language_origin","interface"));
             if(document){String parent=parentRecording(store,draft);if(!parent.isEmpty())fields.put("recording_id",parent);if(draft.has("at_ms"))fields.put("at_ms",String.valueOf(draft.getLong("at_ms")));}
             else fields.put("title",draft.getString("title")).put("language",store.language()).put("personal_mode","true").put("template_id",draft.optString("template_id","@default")).put("source",draft.optString("source").equals("import")?"import":draft.optString("source").equals("jwd_ble")?"device":"phone");
-            JSONObject result=api.upload(document?"/api/v1/files":"/api/v1/recordings",audio,document?draft.getString("title"):audio.getName(),fields,(sent,total)->{TransferService.message="Uploading "+(total==0?0:sent*100/total)+"%";progress.update(TransferService.message);});
+            uploadPercent=-1;
+            JSONObject result=api.upload(document?"/api/v1/files":"/api/v1/recordings",audio,document?draft.getString("title"):audio.getName(),fields,(sent,total)->{uploadPercent=total>0?(int)(sent*100/total):-1;TransferService.message="Uploading "+(total==0?0:sent*100/total)+"%";progress.update(TransferService.message);});
             if(!owner.equals(store.scope()))return;
             synchronized(Store.class){draft=store.draft(id);draft.put(document?"file_id":"recording_id",result.getString(document?"file_id":"recording_id")).put("job_id",result.isNull("job_id")?"":result.optString("job_id")).put("status",result.isNull("job_id")?"uploaded":"processing").put("upload_requested",false);store.save(draft);}
             if(!document&&!draft.optString("notes").trim().isEmpty()){

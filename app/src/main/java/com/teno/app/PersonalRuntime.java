@@ -51,12 +51,14 @@ final class PersonalRuntime {
                 if(args.has("locale"))UiLocale.set(activity,args.getString("locale"));
                 result.success(new JSONObject().put("locale",UiLocale.preference(activity)).toString());return;
             }
-            if(command.equals("note_template")){runtime.work(result,()->{runtime.signedIn();String id=args.getString("id"),template=args.getString("template_id");
+            if(command.equals("note_template")){runtime.work(result,()->{runtime.signedIn();String id=args.getString("id");
+                if(!args.has("template_id"))return (id.startsWith("jwd:")?store.recorderOptions(id):store.draft(id)).toString();
+                String template=args.getString("template_id");
                 if(template.length()>128)throw new IOException("Invalid template.");
-                if(id.startsWith("jwd:")){store.recorderTemplate(id,template);return "{}";}
+                if(id.startsWith("jwd:")){store.recorderOptions(id,args);return "{}";}
                 synchronized(Store.class){JSONObject d=store.draft(id);if(!store.scope().equals(d.optString("scope")))throw new IOException("Account changed.");
                     if(d.optBoolean("template_frozen")||!d.optString("recording_id").isEmpty())throw new IOException("Processing has started. Generate a new note from recording details.");
-                    d.put("template_id",template);store.save(d);}return "{}";});return;}
+                    d.put("template_id",template);store.generationOptions(d,args);store.save(d);}return "{}";});return;}
             if(command.equals("preferences")){result.success(new JSONObject().put("personal_core",true).put("settings",new JSONObject(prefs.getString(key("settings"),"{}"))).put("app_lock",prefs.getBoolean(key("lock"),false)).put("pending_imports",pending().length()).toString());return;}
             if(command.equals("cache_preferences")){runtime.signedIn();prefs.edit().putString(key("settings"),args.toString()).putBoolean(key("notifications"),args.optBoolean("notifications",true)).commit();result.success("{}");return;}
             if(command.equals("app_lock")){setLock(args.optBoolean("enabled"),result);return;}
@@ -139,12 +141,12 @@ final class PersonalRuntime {
     }
     private static String hex(byte[] bytes){StringBuilder value=new StringBuilder();for(byte b:bytes)value.append(String.format(Locale.ROOT,"%02x",b));return value.toString();}
     void processingRetry(String path,JSONObject answer)throws Exception{
-        if(!path.endsWith("/retry"))return;
+        if(!path.endsWith("/retry")&&!path.endsWith("/notes")&&!path.equals("/api/v1/notes/generate"))return;
         String recording=answer.optString("recording_id"),file=path.startsWith("/api/v1/files/")?path.substring("/api/v1/files/".length(),path.length()-"/retry".length()):"";
         synchronized(Store.class){JSONArray drafts=store.drafts();for(int i=0;i<drafts.length();i++){
             JSONObject draft=drafts.getJSONObject(i);
-            if(!recording.isEmpty()&&recording.equals(draft.optString("recording_id"))||!file.isEmpty()&&file.equals(draft.optString("file_id"))){
-                draft.put("ready_notified",false).put("status","processing").remove("error");store.save(draft);
+            if(!recording.isEmpty()&&recording.equals(draft.optString("recording_id"))||!file.isEmpty()&&file.equals(draft.optString("file_id"))||recording.isEmpty()&&file.isEmpty()&&UploadQueue.remote(draft)){
+                draft.put("ready_notified",false).put("status","processing").remove("error");draft.remove("processing");store.save(draft);
             }
         }}ProcessingJobService.schedule(activity);
     }
@@ -181,6 +183,7 @@ final class PersonalRuntime {
                 if(args.has("at_ms"))draft.put("at_ms",args.getLong("at_ms"));
             }
             draft.put("template_id",args.optString("template_id","@default"));
+            store.generationOptions(draft,args);
             if(!owner.equals(store.scope()))throw new IOException("Account changed during import.");store.save(draft);done=true;applyImportQueue(id);
             return new JSONObject().put("id",draft.getString("id")).put("type","local").put("title",title);
         }finally{if(!done)file.delete();}

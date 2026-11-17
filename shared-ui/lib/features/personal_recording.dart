@@ -1,10 +1,12 @@
 import '../l10n/ui_strings.dart';
 import 'dart:async';
+import 'generation_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../core/model.dart';
 import '../platform/runtime.g.dart';
 import '../ui/widgets.dart';
+import '../ui/processing_progress.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
 import 'routes/personal_notes.dart';
@@ -100,6 +102,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
       if (mounted)
         setState(() {
           error = TenoModel.friendly(e);
+          processing = {...processing, 'stale': true};
           loading = false;
         });
     }
@@ -133,15 +136,12 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
   }
 
   Future<void> generate() async {
-    final template = await push<String>(
-      context,
-      PersonalTemplatePicker(widget.model),
-    );
-    if (template == null || !mounted) return;
+    final options = await chooseGenerationOptions(context, widget.model);
+    if (options == null || !mounted) return;
     await perform(context, () async {
       final job = await widget.model.api('POST', '$path/notes', {
         'client_id': requestId(),
-        if (template.isNotEmpty) 'template_id': template,
+        ...options,
       });
       if (mounted) await push(context, PersonalJobPage(widget.model, job));
       await load();
@@ -354,10 +354,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                   ).map((s) => text(s['text'])).join('\n')
                 : notes.isEmpty
                 ? ''
-                : text(
-                    object(notes[noteIndex]['data'])['body'] ??
-                        object(notes[noteIndex]['data'])['summary'],
-                  ),
+                : copyNoteText(object(notes[noteIndex]['data'])),
           ),
         );
         return;
@@ -494,22 +491,18 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
       children: [
         if (loading) const LinearProgressIndicator(minHeight: 2),
         if (error.isNotEmpty) ErrorNotice(error, retry: load),
-        if (processing['status'] == 'failed') ...[
-          ErrorNotice(text(object(processing['error'])['message'])),
-          if (text(processing['job_id']).isNotEmpty)
-            TextButton(
-              onPressed: () => perform(context, () async {
-                await widget.model.api(
-                  'POST',
-                  '/api/v1/jobs/${processing['job_id']}/retry',
-                );
-                await load();
-              }),
-              child: const UiText('Retry processing'),
-            ),
-        ],
-        if (text(processing['message']).isNotEmpty)
-          UiText(text(processing['message'])),
+        ProcessingProgress(
+          processing,
+          retry: object(processing['retry']).isEmpty
+              ? null
+              : () async {
+                  await widget.model.api(
+                    'POST',
+                    '/api/v1/jobs/${object(processing['retry'])['job_id']}/retry',
+                  );
+                  await load();
+                },
+        ),
         if (!audio) ...[
           Text(
             text(record['title']),

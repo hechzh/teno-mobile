@@ -14,12 +14,14 @@ public final class ProcessingJobService extends JobService {
     }
     @Override public boolean onStartJob(JobParameters params){stopped=false;new Thread(()->{boolean pending=false;Store store=new Store(this);String owner=store.scope();
         try{Api api=new Api(store);JSONArray drafts=store.drafts();for(int i=0;i<drafts.length()&&!stopped&&owner.equals(store.scope());i++){
-            JSONObject d=drafts.getJSONObject(i);if(!UploadQueue.remote(d)||d.optBoolean("ready_notified"))continue;
+            JSONObject d=drafts.getJSONObject(i);if(!UploadQueue.remote(d)||(d.optBoolean("ready_notified")&&d.has("processing")))continue;
             boolean file=!d.optString("file_id").isEmpty();
             JSONObject state;
-            try{state=api.get(file?"/api/v1/files/"+d.getString("file_id"):"/api/v1/personal/recordings/"+d.getString("recording_id")+"/processing");}
+            try{state=api.get(file?"/api/v1/personal/files/"+d.getString("file_id")+"/processing":"/api/v1/personal/recordings/"+d.getString("recording_id")+"/processing");}
             catch(Api.Failure e){if(e.status!=404)throw e;state=new JSONObject().put("status","failed").put("error",new JSONObject().put("message","Cloud content is unavailable. The local copy is kept."));}
             boolean failed=state.optString("status").equals("failed");
+            if(!owner.equals(store.scope())||stopped)break;
+            synchronized(Store.class){JSONObject current=store.draft(d.getString("id"));current.put("processing",state);store.save(current);}
             if(!failed&&!state.optString("status").equals("ready")){pending=true;continue;}
             if(!owner.equals(store.scope())||stopped)break;
             synchronized(Store.class){JSONObject current=store.draft(d.getString("id"));current.put("status",failed?"processing_failed":"ready").put("ready_notified",true);

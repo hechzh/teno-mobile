@@ -381,7 +381,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             try{
                 if(!identity.equals(store.scope()))throw new IOException("The account changed. The original file was kept without adding it to another account.");
                 JSONObject draft=JwdAudio.importVerified(store,source,mac,dir,name,seconds,verification,percent->handler.post(()->{if(!destroyed){message="Decoding audio "+percent+"%";publish();}}));
-                draft.put("template_id",store.recorderTemplate("jwd:"+mac+"|"+name));store.save(draft);
+                draft.put("template_id",store.recorderTemplate("jwd:"+mac+"|"+name));store.generationOptions(draft,store.recorderOptions("jwd:"+mac+"|"+name));store.save(draft);
                 String notes=store.recorderNotes(mac,name);if(!notes.isEmpty()){draft.put("notes",notes);store.save(draft);}
                 store.deviceRecordSynced(mac,dir,name,seconds,draft.optString("id"));
                 try{UploadQueue.saved(this,draft);}catch(Exception ignored){/* The verified local draft remains available for manual retry. */}

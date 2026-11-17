@@ -16,6 +16,33 @@ private final class FixtureProtocol: URLProtocol {
 }
 
 final class PersonalRuntimeTests: XCTestCase {
+    @MainActor func testProcessingLanguageFreezeRestartAndNextFile() throws {
+        let (store,_) = try fixture(); store.identity("processing-082","fixture")
+        store.preferences.set("zh",forKey:"interface_locale")
+        var draft = try store.newDraft("语言测试",ext:"txt"); store.freezeGeneration(&draft); try store.save(draft)
+        XCTAssertEqual(string(draft["output_language"]),"zh-CN")
+        store.preferences.set("en",forKey:"interface_locale"); store.freezeGeneration(&draft)
+        XCTAssertEqual(string(draft["output_language"]),"zh-CN")
+        var restored = try store.draft(string(draft["id"])); store.freezeGeneration(&restored)
+        XCTAssertEqual(string(restored["output_language"]),"zh-CN")
+        var next = try store.newDraft("Next",ext:"txt"); store.freezeGeneration(&next)
+        XCTAssertEqual(string(next["output_language"]),"en-US")
+        var override = try store.newDraft("Override",ext:"txt")
+        try store.generationOptions(&override,from:["output_language":"zh-CN","output_language_origin":"override"]);store.freezeGeneration(&override)
+        XCTAssertEqual(string(override["output_language"]),"zh-CN")
+        var following = try store.newDraft("Following",ext:"txt");store.freezeGeneration(&following)
+        XCTAssertEqual(string(following["output_language"]),"en-US")
+    }
+    @MainActor func testOldUnsubmittedDraftGetsLanguageOnceButRemoteJobDoesNot() throws {
+        let (store,_) = try fixture(); store.identity("migration-082","fixture")
+        store.preferences.set("zh",forKey:"interface_locale")
+        let local = try store.newDraft("Local",ext:"txt");try store.save(local)
+        var remote = try store.newDraft("Remote",ext:"txt"); remote["recording_id"] = "already-uploaded";try store.save(remote)
+        let migrated = store.drafts();XCTAssertEqual(string(migrated.first { string($0["id"]) == string(local["id"]) }?["output_language"]),"zh-CN")
+        XCTAssertNil(migrated.first { string($0["id"]) == string(remote["id"]) }?["output_language"])
+        store.preferences.set("en",forKey:"interface_locale")
+        XCTAssertEqual(string(store.drafts().first { string($0["id"]) == string(local["id"]) }?["output_language"]),"zh-CN")
+    }
     @MainActor func testLoggedOutRecorderRejectsNativeCommandsBeforeBluetooth() async throws {
         let (store,api) = try fixture()
         let recorder = JwdRecorder(store:store,api:api,saved:{ _ in })

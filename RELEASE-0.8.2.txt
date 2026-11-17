@@ -1,0 +1,16 @@
+Teno 0.8.2 candidate / 2026-11-17
+
+Android 0.8.2 / 18 · iOS 1.1.2 / 14 · Web 0.3.2 / 10
+Requires shared backend 1.7.0 for the new processing and personal search contracts.
+
+新纪要默认跟随当前界面语言。录音、导入和手动生成显示本次模板及输出语言，单次覆盖不改账号默认。队列固定选择，后台上传、失败重试、重启及切换界面语言不会改变已入队资料。已有笔记不自动翻译，保留原文、逐字引句、姓名和用户编辑内容。
+
+统一显示实际保存、同步、上传、转写／提取文字、生成纪要和完成状态。等待原因区分 Wi-Fi、断网、云关闭、登录、服务排队和重试。失败时列明已保留内容并重试对应步骤；旧笔记不掩盖最新生成失败。JWD 校验完成前只标注录音卡保存，上传和同步显示可测百分比。
+
+Ask 提供当前记录、所选文件夹（含子文件夹）、我的全部资料以及手选多份资料。只检索当前账号的已处理个人云端资料；逐段引用保存来源版本及日期类型。资料日期缺失时不把保存时间当作决策时间；不接入团队资料或真实任务状态。
+
+五类模板带同一段材料的中英文静态示例。新笔记及历史版本展示实际模板与语言，复制、分享和导出保持一致。保留仅录后转写、原设备码、登录守卫、JWD 自动连接、云关闭和安全保存规则。
+
+Delivery: Original-signer Android APK, independent iOS Xcode source package, Web candidate and source/manifests/checksums. No main merge, app-store publication or formal baseline promotion. The private development page shows the latest delivered candidate while retaining formal history.
+
+Physical verification pending: real JWD interruption and synchronization, Magic4 Pro permissions/locking/background/long recordings/upgrades, signed iPhone installation and upgrades, Safari and Shanghai phone network. Emulator, CI, synthetic data and desktop browser results are separate evidence and do not certify these items. See the final acceptance manifest for completed checks and actual public-network loading observations.

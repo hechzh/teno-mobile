@@ -2,11 +2,13 @@ import '../l10n/ui_strings.dart';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
+import '../ui/processing_progress.dart';
 import '../ui/personal_widgets.dart';
 import 'detail.dart';
 import 'routes/personal_library.dart';
 import 'routes/personal_recording.dart';
 import 'note_templates.dart';
+import 'generation_options.dart';
 
 Future<void> showPersonalImport(
   BuildContext context,
@@ -38,6 +40,7 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
   List<Json> imported = [];
   String error = '';
   String template = '@default';
+  String? outputLanguage;
   Future<void> pick(String source) async {
     setState(() {
       busy = true;
@@ -47,6 +50,7 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
       final value = await widget.model.command('import', {
         'source': source,
         'template_id': template,
+        ...widget.model.generationLanguage(outputLanguage),
       });
       if (!mounted) return;
       setState(() => imported = rows(value['items']));
@@ -72,11 +76,15 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
       children: [
         if (error.isNotEmpty) ErrorNotice(error),
         if (busy) const LinearProgressIndicator(minHeight: 2),
-        NoteTemplateChoice(
+        GenerationOptions(
           widget.model,
-          value: template,
+          template: template,
+          language: outputLanguage,
           enabled: !busy,
-          onChanged: (value) async {
+          onLanguage: (value) async {
+            setState(() => outputLanguage = value);
+          },
+          onTemplate: (value) async {
             setState(() => template = value);
           },
         ),
@@ -288,6 +296,11 @@ class PersonalLocalPage extends StatelessWidget {
                   : recordingStatus(draft['status']),
               style: TextStyle(color: subtle(context)),
             ),
+            ProcessingProgress(
+              object(draft['processing']),
+              browser: model.webExperience,
+              retry: remote.isEmpty ? () => model.host.retryUpload(id) : null,
+            ),
             if (model.webExperience)
               Text(
                 context.strings.accountName(model.runtime!.session.username),
@@ -306,19 +319,41 @@ class PersonalLocalPage extends StatelessWidget {
               ),
             ],
             if (!file) AudioPlayerBar(model, id, local: true),
-            if (!file && remote.isEmpty && draft['template_frozen'] != true)
-              NoteTemplateChoice(
+            if (remote.isEmpty && draft['template_frozen'] != true)
+              GenerationOptions(
                 model,
-                value: text(draft['template_id']).isEmpty
+                template: text(draft['template_id']).isEmpty
                     ? '@default'
                     : text(draft['template_id']),
-                onChanged: (value) async {
+                language: draft['output_language_origin'] == 'override'
+                    ? text(draft['output_language'])
+                    : null,
+                onTemplate: (value) async {
                   await model.command('note_template', {
                     'id': id,
                     'template_id': value,
+                    ...model.generationLanguage(
+                      draft['output_language_origin'] == 'override'
+                          ? text(draft['output_language'])
+                          : null,
+                    ),
                   });
                   model.changed(await model.host.snapshot());
                 },
+                onLanguage: (value) async {
+                  await model.command('note_template', {
+                    'id': id,
+                    'template_id': text(draft['template_id']).isEmpty
+                        ? '@default'
+                        : text(draft['template_id']),
+                    ...model.generationLanguage(value),
+                  });
+                  model.changed(await model.host.snapshot());
+                },
+              ),
+            if (draft['generation_frozen'] == true)
+              Text(
+                '${ui(context, templateLabel(text(draft['template_id'])))} · ${ui(context, 'Output language')}: ${ui(context, draft['output_language'] == 'zh-CN' ? 'Chinese' : 'English')}',
               ),
             if (!file &&
                 (remote.isNotEmpty || draft['template_frozen'] == true)) ...[

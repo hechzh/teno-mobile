@@ -113,7 +113,7 @@ final class NativeRuntime implements RuntimeHost {
         }
         if(status.isEmpty())status=phase.equals("paused")?"Recording paused":phase.equals("recording")?"Recording · Audio saved locally":"Ready";
         JSONArray drafts=session().getSignedIn()?store.drafts():new JSONArray();
-        for(int i=0;i<drafts.length();i++)drafts.getJSONObject(i).remove("path");
+        for(int i=0;i<drafts.length();i++){JSONObject draft=drafts.getJSONObject(i);draft.put("processing",UploadQueue.presentation(activity,store,draft));draft.remove("path");}
         return new RuntimeState.Builder().setSequence(++sequence).setSession(session())
             .setCapture(new CaptureState.Builder().setSource(source).setPhase(phase).setElapsedMs(elapsed).setLocalId(id)
                 .setStatus(status).setPartial(partial).setSegmentsJson(segments).setNotes(notes).setPreviewStatus("").build())

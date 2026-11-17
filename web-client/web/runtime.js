@@ -131,8 +131,52 @@
         signedIn: !!this.session, username: this.session?.username || '',
         scope: this.session?.id || 'signed-out', server: this.origin,
       }, playback: this.player,
-      drafts: this.drafts.map(({blob, scope, ...safe}) => safe),
+      drafts: this.drafts.map(({blob, scope, ...safe}) => ({...safe, processing: this.processing(safe)})),
       uploadStatus: this.uploads.size ? 'Uploading · Keep this tab open' : ''};
+    }
+    outputLanguage() {
+      let locale = this.interfaceLocale;
+      if (!locale) { try { locale = this.storage.getItem('teno.web.interface-locale'); } catch (_) {} }
+      if (!locale || locale === 'system') locale = globalThis.navigator?.language || 'en';
+      return locale.startsWith('zh') ? 'zh-CN' : 'en-US';
+    }
+    generationOptions(d, args) {
+      if (args.output_language != null) {
+        if (!['zh-CN', 'en-US'].includes(args.output_language) || !['interface','override'].includes(args.output_language_origin)) throw new Error('Choose Chinese or English.');
+        d.output_language = args.output_language; d.output_language_origin = args.output_language_origin;
+      }
+    }
+    freezeGeneration(d) {
+      if (!d.generation_frozen && (!d.template_id || d.template_id === '@default')) { d.template_id = this.settings.default_template_id || 'teno:general'; d.template_origin = 'account'; }
+      else if (!d.template_origin) d.template_origin = 'selection';
+      if (!d.output_language) { d.output_language = this.outputLanguage(); d.output_language_origin = 'interface'; }
+      d.generation_frozen = true; d.template_frozen = true;
+    }
+    processing(d) {
+      const remote = d.recording_id || d.file_id;
+      if (remote && d.processing) return {...d.processing, preserved: {...d.processing.preserved, local_file: true}, stale: d.processing.stale || globalThis.navigator?.onLine === false};
+      const stage = remote ? 'checking' : d.status === 'uploading' ? 'uploading' : d.status === 'failed' ? 'waiting_upload' : 'saved';
+      return {stage, stage_status: d.status === 'failed' ? 'failed' : stage === 'saved' ? 'idle' : 'running',
+        waiting_reason: globalThis.navigator?.onLine === false ? 'network' : '', preserved: {local_file: true},
+        ...(d.status === 'uploading' && typeof d.upload_percent === 'number' ? {percent:d.upload_percent} : {})};
+    }
+    async pollProcessing() {
+      if (this.polling || !this.session || !this.validated) return;
+      this.polling = true; const epoch = this.epoch;
+      try {
+        const values = this.drafts.filter(d => (d.recording_id || d.file_id) && (!d.processing_checked || Date.now() - d.processing_checked > (d.processing?.status === 'processing' ? 5000 : 60000))).slice(0, 10);
+        for (const item of values) {
+          this.check(epoch);
+          try {
+            const result = await this.request({method:'GET', path: '/api/v1/personal/' + (item.file_id ? 'files/' + item.file_id : 'recordings/' + item.recording_id) + '/processing'});
+            const d = await this.owned(item.id); d.processing = result; d.processing_checked = Date.now(); await this.store.put(d);
+          } catch (_) {
+            if (epoch !== this.epoch) return;
+            const d = await this.owned(item.id); if (d.processing) d.processing.stale = true; d.processing_checked = Date.now(); await this.store.put(d);
+          }
+        }
+        if (epoch === this.epoch && values.length) { await this.loadDrafts(); this.emit(); }
+      } finally { this.polling = false; }
     }
     emit() { const state = JSON.stringify(this.view()); for (const fn of this.listeners) fn(state); }
     persist() {
@@ -215,6 +259,10 @@
       try {
         const result = await this.authorized(path, {method, ...(body == null ? {} : {headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})});
         const value = result.status === 204 ? {} : await result.json(); this.check(epoch);
+        if (method === 'POST' && (path.endsWith('/retry') || path.endsWith('/notes') || path === '/api/v1/notes/generate')) {
+          for (const d of this.drafts.filter(v => v.recording_id || v.file_id)) { const latest = await this.owned(d.id); latest.processing_checked = 0; if (latest.processing) latest.processing.stale = true; await this.store.put(latest); }
+          await this.loadDrafts(); this.pollProcessing().catch(() => {});
+        }
         return value;
       } catch (error) {
         if ([401, 403, 404].includes(error.status) && /\/recordings\/[^/]+(?:\/|\?|$)/.test(path)) {
@@ -256,6 +304,7 @@
       try { drafts = scope ? await this.store.list(scope) : []; }
       catch (_) { /* Cloud library remains usable if browser storage is disabled. Import reports its own error. */ }
       if (epoch !== this.epoch) return;
+      for (const d of drafts) if (!d.output_language && !d.recording_id && !d.file_id) { d.output_language = this.outputLanguage(); d.output_language_origin = 'interface'; await this.store.put(d); }
       this.drafts = drafts.sort((a, b) => b.created_at.localeCompare(a.created_at));
     }
     async snapshot() {
@@ -270,6 +319,7 @@
           await this.store.put(d);
         }
       }
+      if (typeof document !== 'undefined') { this.pollProcessing().catch(() => {}); if (!this.processingTimer) this.processingTimer = setInterval(() => this.pollProcessing().catch(() => {}), 5000); }
       return this.view();
     }
     async login({username, password}) {
@@ -286,6 +336,7 @@
       this.invalidateCache();
       ++this.epoch; for (const c of this.controllers) c.abort();
       for (const c of this.uploads.values()) c.abort();
+      if (this.processingTimer) clearInterval(this.processingTimer); this.processingTimer = null;
       this.session = null; this.validated = false; this.drafts = []; this.settings = {}; this.refreshing = null;
       this.resetPlayer(); this.persist(); this.emit();
     }
@@ -295,7 +346,7 @@
       if (token) await this.raw('/api/v1/auth/logout', {method: 'POST', headers: {Authorization: `Bearer ${token}`}}, 10000).catch(() => {});
       return {};
     }
-    async pick({source, template_id = '@default'}) {
+    async pick({source, template_id = '@default', ...choices}) {
       const epoch = this.epoch; this.check(epoch);
       // The picker must open in the original user gesture before any awaits.
       const files = await new Promise((resolve) => {
@@ -308,9 +359,9 @@
         input.click();
       });
       this.check(epoch);
-      return this.stage(files, epoch, template_id);
+      return this.stage(files, epoch, template_id, choices);
     }
-    async stage(files, epoch = this.epoch, template_id = '@default') {
+    async stage(files, epoch = this.epoch, template_id = '@default', choices = {}) {
       this.check(epoch);
       if (files.length > 20) throw new Error('Choose up to 20 files at a time.');
       const checked = files.map(file => ({file, ...fileInfo(file)}));
@@ -320,6 +371,7 @@
           this.check(epoch);
           const d = {id: crypto.randomUUID(), scope: this.session.id, title: file.name, kind, status: 'local',
             created_at: new Date().toISOString(), size: file.size, blob: file, error: '', recording_id: '', file_id: '', template_id};
+          this.generationOptions(d, choices);
           await this.store.put(d); this.check(epoch); items.push({id: d.id, type: 'local', title: d.title});
         }
       } finally { await this.loadDrafts(); this.emit(); }
@@ -340,14 +392,17 @@
         const current = await this.owned(id);
         if (current.recording_id || current.file_id) { await this.loadDrafts(); this.emit(); return; }
         const controller = new AbortController(); this.uploads.set(id, controller);
-        d.status = 'uploading'; d.template_frozen = true; d.error = ''; await this.store.put(d); await this.loadDrafts(); this.emit();
+        d.status = 'uploading'; this.freezeGeneration(d); delete d.upload_percent; d.error = ''; await this.store.put(d); await this.loadDrafts(); this.emit();
         try {
           const form = new FormData(); form.append('file', d.blob, d.title); form.append('client_id', d.id);
+          form.append('output_language', d.output_language); form.append('output_language_origin', d.output_language_origin);
+          form.append('template_id', d.template_id || '@default');
+          form.append('template_origin', d.template_origin || 'selection');
           if (d.kind === 'recording') {
             form.append('title', d.title); form.append('language', 'auto');
-            form.append('personal_mode', 'true'); form.append('source', 'import'); form.append('template_id', d.template_id || '@default');
+            form.append('personal_mode', 'true'); form.append('source', 'import');
           }
-          const r = await this.authorized(d.kind === 'recording' ? '/api/v1/recordings' : '/api/v1/files', {method: 'POST', body: form}, 1200000, controller.signal);
+          const r = await this.uploadForm(d.kind === 'recording' ? '/api/v1/recordings' : '/api/v1/files', form, controller.signal, percent => { d.upload_percent = percent; const live = this.drafts.find(v => v.id === id); if (live) live.upload_percent = percent; if (epoch === this.epoch) this.emit(); });
           const result = await r.json();
           // This result belongs to d.scope even if the user signed out while the server accepted it.
           d.recording_id = result.recording_id || ''; d.file_id = result.file_id || '';
@@ -365,6 +420,26 @@
         await run();
       }); else await run();
       return {};
+    }
+    async uploadForm(path, form, signal, progress) {
+      if (typeof XMLHttpRequest === 'undefined') return this.authorized(path, {method:'POST',body:form}, 1200000, signal);
+      const epoch = this.epoch; this.check(epoch);
+      const run = () => new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest(); xhr.open('POST', this.safePath(path)); xhr.timeout = 1200000;
+        xhr.setRequestHeader('Authorization', `Bearer ${this.session.access_token}`);
+        const stop = () => xhr.abort(); signal.addEventListener('abort', stop, {once:true});
+        const finish = () => signal.removeEventListener('abort', stop);
+        xhr.upload.onprogress = event => { if (event.lengthComputable) progress(Math.floor(event.loaded * 100 / event.total)); };
+        xhr.onload = () => { finish(); if (xhr.responseURL && new URL(xhr.responseURL).origin !== this.origin) { reject(new Error('Unexpected upload destination.')); return; } resolve(new Response(xhr.responseText, {status:xhr.status})); };
+        xhr.onerror = xhr.ontimeout = () => { finish(); reject(new Error('Connection interrupted. Check your internet connection and retry.')); };
+        xhr.onabort = () => { finish(); reject(new Error('Upload or request stopped. Retry when ready.')); };
+        if (signal.aborted) { finish(); reject(new Error('Upload stopped.')); return; }
+        xhr.send(form);
+      });
+      let token = this.session.access_token, result = await run(); this.check(epoch);
+      if (result.status === 401) { if (this.session.access_token === token) await this.refresh(epoch); this.check(epoch); result = await run(); this.check(epoch); }
+      if (!result.ok) throw await this.responseError(result);
+      return result;
     }
     async deleteLocal({id}) {
       await this.owned(id);
@@ -455,9 +530,10 @@
         case 'import': return this.pick(args);
         case 'note_template': {
           const epoch = this.epoch, d = await this.owned(args.id);
-          if (this.uploads.has(args.id) || d.template_frozen || d.recording_id) throw new Error('Processing has started. Generate a new note from recording details.');
+          if (args.template_id == null) return {template_id:d.template_id, output_language:d.output_language, output_language_origin:d.output_language_origin};
+          if (this.uploads.has(args.id) || d.template_frozen || d.recording_id || d.file_id) throw new Error('Processing has started. Generate a new note from recording details.');
           if (typeof args.template_id !== 'string' || !args.template_id || args.template_id.length > 128) throw new Error('Select a template.');
-          d.template_id = args.template_id; this.check(epoch); await this.store.put(d); await this.loadDrafts(); this.emit(); return {};
+          d.template_id = args.template_id; this.generationOptions(d, args); this.check(epoch); await this.store.put(d); await this.loadDrafts(); this.emit(); return {};
         }
         case 'retryUpload': return this.retryUpload(args);
         case 'deleteLocal': return this.deleteLocal(args);

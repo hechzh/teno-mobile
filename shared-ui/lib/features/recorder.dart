@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../platform/runtime.g.dart';
 import '../ui/widgets.dart';
+import '../ui/processing_progress.dart';
 import '../ui/personal_widgets.dart';
 import 'detail.dart';
-import 'note_templates.dart';
+import 'generation_options.dart';
 import 'personal_import.dart';
 
 Future<bool> ensureOptions(BuildContext context, TenoModel model) async {
@@ -224,6 +225,7 @@ class _DevicePageState extends State<DevicePage> {
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 20),
+              const UiText('Saved on recorder'),
               Text(
                 ui(context, device.status),
                 textAlign: TextAlign.center,
@@ -414,10 +416,42 @@ class _RecorderSheetState extends State<RecorderSheet> {
   bool writing = false;
   String ownerId = '';
   String template = '@default';
+  String? outputLanguage;
+  bool optionsTouched = false;
   @override
   void initState() {
     super.initState();
     ownerId = widget.model.runtime!.capture.localId;
+    if (ownerId.isNotEmpty) unawaited(restoreOptions());
+  }
+
+  Future<void> restoreOptions() async {
+    try {
+      final value = await widget.model.command('note_template', {
+        'id': ownerId,
+      });
+      if (mounted && !optionsTouched)
+        setState(() {
+          template = text(value['template_id']).isEmpty
+              ? '@default'
+              : text(value['template_id']);
+          outputLanguage = value['output_language_origin'] == 'override'
+              ? text(value['output_language'])
+              : null;
+        });
+    } catch (_) {
+      /* Older hosts keep defaults. */
+    }
+  }
+
+  Future<void> saveOptions() async {
+    final id = widget.model.runtime!.capture.localId;
+    if (id.isNotEmpty)
+      await widget.model.command('note_template', {
+        'id': id,
+        'template_id': template,
+        ...widget.model.generationLanguage(outputLanguage),
+      });
   }
 
   Future<void> save() async {
@@ -437,6 +471,12 @@ class _RecorderSheetState extends State<RecorderSheet> {
       return;
     debounce?.cancel();
     await save();
+    // A preference write must never prevent the recorder from saving audio.
+    if (stop) {
+      try {
+        await saveOptions();
+      } catch (_) {}
+    }
     final c = widget.model.runtime!.capture;
     if (c.source == 'device') {
       await widget.model.host.controlDevice(
@@ -475,8 +515,8 @@ class _RecorderSheetState extends State<RecorderSheet> {
             (keyboardOpen
                 ? .94
                 : MediaQuery.textScalerOf(context).scale(1) > 1.2
-                ? .72
-                : .51),
+                ? .92
+                : .82),
         child: Padding(
           padding: EdgeInsets.fromLTRB(
             22,
@@ -541,17 +581,47 @@ class _RecorderSheetState extends State<RecorderSheet> {
                 ],
               ),
               if (!keyboardOpen && active)
-                NoteTemplateChoice(
+                GenerationOptions(
                   widget.model,
-                  value: template,
-                  onChanged: (value) async {
-                    await widget.model.command('note_template', {
-                      'id': c.localId,
-                      'template_id': value,
-                    });
-                    if (mounted) setState(() => template = value);
+                  template: template,
+                  language: outputLanguage,
+                  onLanguage: (value) async {
+                    optionsTouched = true;
+                    final old = outputLanguage;
+                    outputLanguage = value;
+                    try {
+                      await saveOptions();
+                      if (mounted) setState(() {});
+                    } catch (_) {
+                      outputLanguage = old;
+                      rethrow;
+                    }
+                  },
+                  onTemplate: (value) async {
+                    optionsTouched = true;
+                    final old = template;
+                    template = value;
+                    try {
+                      await saveOptions();
+                      if (mounted) setState(() {});
+                    } catch (_) {
+                      template = old;
+                      rethrow;
+                    }
                   },
                 ),
+              if (!keyboardOpen && widget.model.runtime!.device.receiving)
+                ProcessingProgress({
+                  'stage': 'syncing',
+                  'stage_status': 'running',
+                  'preserved': {'device_file': true},
+                  if (widget.model.runtime!.device.expectedBytes > 0)
+                    'percent':
+                        (widget.model.runtime!.device.receivedBytes *
+                                100 /
+                                widget.model.runtime!.device.expectedBytes)
+                            .floor(),
+                }),
               if (!keyboardOpen &&
                   finished &&
                   c.localId.isNotEmpty &&

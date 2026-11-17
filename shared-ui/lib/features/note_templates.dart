@@ -4,6 +4,7 @@ import '../l10n/ui_strings.dart';
 import '../ui/widgets.dart';
 import 'routes/personal_notes.dart';
 import 'personal_actions.dart';
+import 'generation_options.dart';
 
 String templateLabel(String id) =>
     const {
@@ -25,16 +26,18 @@ class NoteTemplateChoice extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.enabled = true,
+    this.title = 'This template',
   });
   final TenoModel model;
   final String value;
   final bool enabled;
+  final String title;
   final Future<void> Function(String) onChanged;
   @override
   Widget build(BuildContext context) => ListTile(
     contentPadding: EdgeInsets.zero,
     leading: const Icon(Icons.article_outlined),
-    title: const UiText('Note template'),
+    title: UiText(title),
     subtitle: UiText(templateLabel(value)),
     trailing: const Icon(Icons.chevron_right, size: 18),
     enabled: enabled,
@@ -56,11 +59,11 @@ Future<void> generateAnotherNote(
   TenoModel model,
   String recordingId,
 ) async {
-  final chosen = await push<String>(context, PersonalTemplatePicker(model));
+  final chosen = await chooseGenerationOptions(context, model);
   if (chosen == null || !context.mounted) return;
   final job = await model.api('POST', '/api/v1/recordings/$recordingId/notes', {
     'client_id': requestId(),
-    'template_id': chosen.isEmpty ? 'teno:general' : chosen,
+    ...chosen,
   });
   if (context.mounted) await push(context, PersonalJobPage(model, job));
 }

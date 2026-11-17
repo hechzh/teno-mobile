@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'processing_progress.dart';
 import '../core/model.dart';
 import '../l10n/ui_strings.dart';
 import 'mvp_theme.dart';
@@ -405,7 +406,10 @@ class CoreTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, color: subtle(context)),
                   ),
-                if (item['status'] != null &&
+                if (object(item['processing']).isNotEmpty)
+                  ProcessingProgress(object(item['processing']), compact: true),
+                if (object(item['processing']).isEmpty &&
+                    item['status'] != null &&
                     !['ready', 'transcribed'].contains(item['status']))
                   Text(
                     ui(context, recordingStatus(item['status'])),

@@ -188,8 +188,13 @@ void main() {
             await snap('share-link');
             await click(find.text(label('Done')));
             await click(find.text(label('New note')));
+            await click(find.text(label('This template')));
             await snap('templates');
             await click(find.byTooltip(label('Back')));
+            Navigator.of(
+              tester.element(find.text(label('Generation options'))),
+            ).pop();
+            await tester.pumpAndSettle();
             await click(find.byTooltip(label('Back to library')));
             await click(navigation('Assistant'));
             await snap('assistant');

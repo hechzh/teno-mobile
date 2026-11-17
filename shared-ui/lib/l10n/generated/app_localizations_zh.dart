@@ -27,7 +27,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get followSystem => '跟随系统';
 
   @override
-  String get languageHint => '仅改变界面文字，不翻译已有录音、笔记或对话。';
+  String get languageHint => '新笔记默认跟随界面语言生成。已有录音、笔记和问答保持不变。';
 
   @override
   String get appearanceLanguage => '外观与语言';
@@ -2472,7 +2472,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contextDocument => '文档';
 
   @override
-  String get noSpeechSaved => '未检测到语音，音频已保存。';
+  String get noSpeechSaved => '未检测到语音，音频已保留。';
 
   @override
   String get recordingFileType => '录音';
@@ -2486,4 +2486,211 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get backgroundPostRecording =>
       'Android 可能延迟后台上传和完成通知。重新打开 Teno 可继续处理，转写使用保存后的录音。';
+
+  @override
+  String get iteration082Label0 => '输出语言';
+
+  @override
+  String get iteration082Label1 => '跟随界面';
+
+  @override
+  String get iteration082Label2 => '本次模板';
+
+  @override
+  String get iteration082Label3 => '本次生成选项';
+
+  @override
+  String get iteration082Label4 => '仅作用于本次资料，已有笔记保持不变。';
+
+  @override
+  String get iteration082Label5 => '生成笔记';
+
+  @override
+  String get iteration082Label6 => '当前记录';
+
+  @override
+  String get iteration082Label7 => '所选文件夹';
+
+  @override
+  String get iteration082Label8 => '所选资料';
+
+  @override
+  String get iteration082Label9 => '我的全部资料';
+
+  @override
+  String get iteration082Label10 => '正在准备个人检索，不会重新生成已有资料。';
+
+  @override
+  String get iteration082Label11 => '保存日期';
+
+  @override
+  String get iteration082Label12 => '版本更新';
+
+  @override
+  String get iteration082Label13 => '来源已不可用';
+
+  @override
+  String get iteration082Label14 => '示例原文';
+
+  @override
+  String get iteration082Label15 => '示例结果';
+
+  @override
+  String get iteration082Label16 => '已保存在录音卡';
+
+  @override
+  String get iteration082Label17 => '正在同步到手机';
+
+  @override
+  String get iteration082Label19 => '转写中';
+
+  @override
+  String get iteration082Label20 => '生成纪要';
+
+  @override
+  String get iteration082Label21 => '提取文字';
+
+  @override
+  String get iteration082Label22 => '准备音频';
+
+  @override
+  String get iteration082Label23 => '完成';
+
+  @override
+  String get iteration082Label24 => '尚未转写';
+
+  @override
+  String get iteration082Label25 => '尚未生成纪要';
+
+  @override
+  String get iteration082Label26 => '尚未提取文字';
+
+  @override
+  String get iteration082Label27 => '仅本机保存';
+
+  @override
+  String get iteration082Label28 => '等待 Wi-Fi';
+
+  @override
+  String get iteration082Label29 => '等待网络连接';
+
+  @override
+  String get iteration082Label30 => '云处理已关闭';
+
+  @override
+  String get iteration082Label31 => '登录后继续处理';
+
+  @override
+  String get iteration082Label32 => '等待服务处理';
+
+  @override
+  String get iteration082Label33 => '等待重试';
+
+  @override
+  String get iteration082Label34 => '尚未开始';
+
+  @override
+  String get iteration082Label35 => '未检测到语音，音频已保留';
+
+  @override
+  String get iteration082Label36 => '部分笔记内容待核实';
+
+  @override
+  String get iteration082Label37 => '清理稿处理失败，原始转写已保留';
+
+  @override
+  String get iteration082Label38 => '上次确认的状态，等待刷新';
+
+  @override
+  String get iteration082Label39 => '已保留内容';
+
+  @override
+  String get iteration082Label40 => '原文件';
+
+  @override
+  String get iteration082Label41 => '云端音频';
+
+  @override
+  String get iteration082Label42 => '云端文件';
+
+  @override
+  String get iteration082Label43 => '已提取文字';
+
+  @override
+  String get iteration082Label44 => '已保存笔记';
+
+  @override
+  String get iteration082Label45 => '重试此步骤';
+
+  @override
+  String get iteration082Label46 => '此步骤处理失败';
+
+  @override
+  String get iteration082Label47 => '本次任务已固定模板及输出语言。';
+
+  @override
+  String get iteration082Label48 => '新笔记默认跟随界面语言；处理前可仅修改本次输出语言。';
+
+  @override
+  String get iteration082Label49 => '录音已保存';
+
+  @override
+  String get iteration082Label50 => '正在同步';
+
+  @override
+  String get iteration082Label51 => '生成纪要';
+
+  @override
+  String get iteration082Label52 => '尚未发起纪要生成';
+
+  @override
+  String get iteration082Label53 => '尚未发起转写';
+
+  @override
+  String get iteration082Label54 => '尚未提取文字';
+
+  @override
+  String get iteration082Label55 => '正在查询处理状态';
+
+  @override
+  String get iteration082Label56 => '网络不可用';
+
+  @override
+  String get iteration082Label57 => '云处理已关闭 · 仅本机保存';
+
+  @override
+  String get iteration082Label58 => '需要登录后上传';
+
+  @override
+  String get iteration082Label59 => '服务排队中';
+
+  @override
+  String get iteration082Label61 => '显示上次确认的状态，尚未刷新。';
+
+  @override
+  String get iteration082Label62 => '云端原文件已保留';
+
+  @override
+  String get iteration082Label63 => '转写已保留';
+
+  @override
+  String get iteration082Label64 => '提取文字已保留';
+
+  @override
+  String get iteration082Label65 => '已有笔记已保留';
+
+  @override
+  String get iteration082Label66 => '部分内容待核实，请查看笔记中的标记。';
+
+  @override
+  String get iteration082Label67 => '清理稿处理失败，原始转写已保留。';
+
+  @override
+  String get iteration082Label68 => '重试纪要生成';
+
+  @override
+  String get iteration082Label69 => '新笔记默认跟随界面语言；处理前可仅修改本次输出语言。';
+
+  @override
+  String get iteration082Text09fef5d8 => '失败';
 }

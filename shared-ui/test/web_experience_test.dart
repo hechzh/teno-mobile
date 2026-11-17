@@ -41,9 +41,7 @@ void main() {
     ) async {
       final host = CoreHost();
       host.state = reviewState();
-      final path = web
-          ? '/api/v1/personal/chats/chat-web/messages'
-          : '/api/v1/chats/chat-web/messages';
+      const path = '/api/v1/personal/chats/chat-web/messages';
       host.overrides['GET /api/v1/chats/chat-web'] = {
         'data': {'contexts': <Json>[]},
       };

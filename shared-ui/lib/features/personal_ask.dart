@@ -1,5 +1,6 @@
 import '../l10n/ui_strings.dart';
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
@@ -157,11 +158,24 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
   final input = TextEditingController(), scroll = ScrollController();
   late String chatId = widget.chatId ?? '';
   late List<Json> selected = [...widget.initial];
+  late String scopeMode = widget.initial.isEmpty ? 'all' : 'current';
+  String folderId = '', folderTitle = '';
+  Json get searchScope => {
+    'mode': scopeMode,
+    if (scopeMode == 'folder') 'folder_id': folderId,
+  };
+  String get scopeLabel => const {
+    'all': 'All my files',
+    'current': 'Current record',
+    'folder': 'Selected folder',
+    'selected': 'Selected files',
+  }[scopeMode]!;
   List<Json> messages = [];
   String error = '', pendingQuestion = '';
   Json job = {};
   Timer? timer;
   bool sending = false, dictating = false;
+  String messageIdentity = '', messageIntent = '';
   @override
   void initState() {
     super.initState();
@@ -177,18 +191,18 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     try {
       final values = await Future.wait([
         widget.model.api('GET', '/api/v1/chats/$chatId'),
-        widget.model.api(
-          'GET',
-          widget.model.webExperience
-              ? '/api/v1/personal/chats/$chatId/messages'
-              : '/api/v1/chats/$chatId/messages',
-        ),
+        widget.model.api('GET', '/api/v1/personal/chats/$chatId/messages'),
       ]);
       if (!mounted) return;
       final data = object(values[0]['data']);
       setState(() {
         messages = rows(values[1]['items']);
         selected = rows(data['contexts']);
+        final scope = object(data['scope']);
+        scopeMode = text(scope['mode']).isEmpty
+            ? 'selected'
+            : text(scope['mode']);
+        folderId = text(scope['folder_id']);
         if (selected.isEmpty)
           selected = [
             for (final id in data['recording_ids'] as List? ?? [])
@@ -209,13 +223,89 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       context,
       PersonalContextPicker(widget.model, selected),
     );
-    if (value != null && mounted) setState(() => selected = value);
+    if (value != null && mounted)
+      setState(() {
+        selected = value;
+        scopeMode = 'selected';
+      });
+  }
+
+  Future<void> chooseScope() async {
+    final mode = await showModalBottomSheet<String>(
+      context: context,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final entry in [
+              ('current', 'Current record'),
+              ('folder', 'Selected folder'),
+              ('all', 'All my files'),
+              ('selected', 'Selected files'),
+            ])
+              ListTile(
+                title: UiText(entry.$2),
+                onTap: () => Navigator.pop(sheet, entry.$1),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (mode == null || !mounted) return;
+    if (mode == 'selected') {
+      await choose();
+      return;
+    }
+    if (mode == 'folder') {
+      final folder = await choosePersonalFolder(context, widget.model);
+      if (folder == null || !mounted) return;
+      if (folder.isEmpty) {
+        setState(() {
+          scopeMode = 'all';
+          folderId = '';
+        });
+        return;
+      }
+      final options = await widget.model.api(
+        'GET',
+        '/api/v1/library/search/options',
+      );
+      if (!mounted) return;
+      setState(() {
+        scopeMode = 'folder';
+        folderId = folder;
+        folderTitle =
+            rows(options['folders'])
+                .where((f) => f['id'] == folder)
+                .map((f) => text(f['title']))
+                .firstOrNull ??
+            '';
+      });
+    } else if (mode == 'current') {
+      if (widget.initial.isNotEmpty) {
+        setState(() {
+          scopeMode = mode;
+          selected = [...widget.initial];
+        });
+      } else {
+        await choose();
+        final records = selected.where((s) => s['type'] != 'folder').toList();
+        if (records.isNotEmpty && mounted)
+          setState(() {
+            scopeMode = mode;
+            selected = [records.first];
+          });
+      }
+    } else {
+      setState(() => scopeMode = 'all');
+    }
   }
 
   Future<void> send() async {
     final question = input.text.trim();
     if (question.isEmpty || sending) return;
-    if (selected.isEmpty) {
+    if (selected.isEmpty &&
+        (scopeMode == 'current' || scopeMode == 'selected')) {
       await choose();
       if (selected.isEmpty || !mounted) return;
     }
@@ -225,23 +315,41 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       pendingQuestion = question;
     });
     try {
+      final intent = jsonEncode([
+        question,
+        searchScope,
+        selected,
+        widget.model.outputLanguage,
+      ]);
+      if (messageIntent != intent) {
+        messageIntent = intent;
+        messageIdentity = requestId();
+      }
       if (chatId.isEmpty) {
         final chat = await widget.model.api('POST', '/api/v1/personal/chats', {
           'title': question.substring(0, question.length.clamp(0, 80)),
-          'contexts': selected,
+          'contexts': (scopeMode == 'current' || scopeMode == 'selected')
+              ? selected
+              : [],
+          'scope': searchScope,
         });
         chatId = text(chat['id']);
       } else
-        await widget.model.api(
-          'PATCH',
-          '/api/v1/personal/chats/$chatId/context',
-          {'contexts': selected},
-        );
-      job = await widget.model.api(
-        'POST',
-        '/api/v1/personal/chats/$chatId/messages',
-        {'question': question, 'client_id': requestId()},
-      );
+        await widget.model
+            .api('PATCH', '/api/v1/personal/chats/$chatId/context', {
+              'contexts': (scopeMode == 'current' || scopeMode == 'selected')
+                  ? selected
+                  : [],
+              'scope': searchScope,
+            });
+      job = await widget.model
+          .api('POST', '/api/v1/personal/chats/$chatId/messages', {
+            'question': question,
+            'client_id': messageIdentity,
+            'output_language': widget.model.outputLanguage,
+          });
+      messageIntent = '';
+      messageIdentity = '';
       input.clear();
       await poll();
     } catch (e) {
@@ -268,6 +376,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       } else if (job['status'] == 'failed') {
         setState(() {
           sending = false;
+          pendingQuestion = '';
           error = text(object(job['error'])['message']);
         });
       } else
@@ -277,6 +386,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         setState(() {
           error = TenoModel.friendly(e);
           sending = false;
+          pendingQuestion = '';
         });
     }
   }
@@ -374,7 +484,21 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     ),
     child: Column(
       children: [
-        if (selected.isNotEmpty)
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 21, vertical: 6),
+            child: ActionChip(
+              avatar: const Icon(Icons.travel_explore, size: 16),
+              label: Text(
+                '${ui(context, scopeLabel)}${scopeMode == 'folder' && folderTitle.isNotEmpty ? ' · $folderTitle' : ''}',
+              ),
+              onPressed: sending ? null : () => perform(context, chooseScope),
+            ),
+          ),
+        ),
+        if (selected.isNotEmpty &&
+            (scopeMode == 'current' || scopeMode == 'selected'))
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -464,6 +588,11 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
                         text(message['id']),
                       ),
                     if (pendingQuestion.isNotEmpty) ...[
+                      if (object(job['result'])['stage'] ==
+                          'preparing_search_index')
+                        const UiText(
+                          'Preparing personal search. Existing files are not regenerated.',
+                        ),
                       Align(
                         alignment: Alignment.centerRight,
                         child: Container(
@@ -501,56 +630,98 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         child: Text(text(data['question'])),
       ),
     ),
-    SelectableText(
-      text(data['answer']),
-      style: const TextStyle(fontSize: 14, height: 1.75),
-    ),
-    Wrap(
-      spacing: 6,
-      children: [
-        for (final cite in rows(data['citations']))
-          ActionChip(
-            label: Text(
-              cite['page'] != null
-                  ? context.strings.pageNumber(text(cite['page']))
-                  : context.strings.sourceTimestamp(duration(cite['start_ms'])),
-              style: const TextStyle(fontSize: 11),
-            ),
-            onPressed: () => openPersonalItem(context, widget.model, {
-              'type': cite['type'] ?? 'recording',
-              'id': cite['recording_id'] ?? cite['file_id'] ?? cite['note_id'],
-            }, cite),
-          ),
-      ],
-    ),
+    if (object(data['scope']).isNotEmpty)
+      UiText(switch (object(data['scope'])['mode']) {
+        'current' => 'Current record',
+        'folder' => 'Selected folder',
+        'selected' => 'Selected files',
+        _ => 'All my files',
+      }, style: TextStyle(fontSize: 11, color: subtle(context))),
+    if (rows(data['paragraphs']).isNotEmpty)
+      for (final paragraph in rows(data['paragraphs'])) ...[
+        SelectableText(
+          text(paragraph['text']),
+          style: const TextStyle(fontSize: 14, height: 1.75),
+        ),
+        citationLinks(rows(paragraph['citations'])),
+        const SizedBox(height: 10),
+      ]
+    else ...[
+      SelectableText(
+        data['sources_unavailable'] == true
+            ? ui(context, 'Sources unavailable')
+            : text(data['answer']),
+        style: const TextStyle(fontSize: 14, height: 1.75),
+      ),
+      citationLinks(rows(data['citations'])),
+    ],
     Row(
       children: [
         IconButton(
           tooltip: ui(context, 'Share answer'),
-          onPressed: () => widget.model.host.shareText(text(data['answer'])),
+          onPressed: data['sources_unavailable'] == true
+              ? null
+              : () => widget.model.host.shareText(text(data['answer'])),
           icon: const Icon(Icons.ios_share_outlined, size: 18),
         ),
         IconButton(
           tooltip: ui(context, 'Save as note'),
-          onPressed: () async {
-            final folder = await choosePersonalFolder(context, widget.model);
-            if (folder == null || !mounted) return;
-            final note = await widget.model.api(
-              'POST',
-              '/api/v1/personal/messages/$messageId/save',
-              {'folder_id': folder.isEmpty ? null : folder},
-            );
-            if (!mounted) return;
-            await push(
-              context,
-              PersonalNotePage(widget.model, text(note['id'])),
-            );
-          },
+          onPressed: data['sources_unavailable'] == true
+              ? null
+              : () async {
+                  final folder = await choosePersonalFolder(
+                    context,
+                    widget.model,
+                  );
+                  if (folder == null || !mounted) return;
+                  final note = await widget.model.api(
+                    'POST',
+                    '/api/v1/personal/messages/$messageId/save',
+                    {'folder_id': folder.isEmpty ? null : folder},
+                  );
+                  if (!mounted) return;
+                  await push(
+                    context,
+                    PersonalNotePage(widget.model, text(note['id'])),
+                  );
+                },
           icon: const Icon(Icons.bookmark_add_outlined, size: 18),
         ),
       ],
     ),
   ];
+  Widget citationLinks(List<Json> citations) => Wrap(
+    spacing: 6,
+    children: [
+      for (final cite in citations)
+        ActionChip(
+          label: Text(
+            [
+              if (text(cite['title']).isNotEmpty) text(cite['title']),
+              if (text(cite['saved_at']).isNotEmpty)
+                '${ui(context, 'Saved date')}: ${dateLabel(cite['saved_at'])}',
+              if (text(cite['version_updated_at']).isNotEmpty &&
+                  cite['version_updated_at'] != cite['saved_at'])
+                '${ui(context, 'Version updated')}: ${dateLabel(cite['version_updated_at'])}',
+              if (cite['page'] != null)
+                context.strings.pageNumber(text(cite['page']))
+              else if (cite['start_ms'] != null)
+                context.strings.sourceTimestamp(duration(cite['start_ms'])),
+            ].join(' · '),
+            style: const TextStyle(fontSize: 11),
+            maxLines: 3,
+          ),
+          onPressed: () => openPersonalItem(context, widget.model, {
+            'type': cite['type'] ?? 'recording',
+            'id': cite['type'] == 'note'
+                ? cite['note_id']
+                : cite['type'] == 'file'
+                ? cite['file_id']
+                : cite['recording_id'],
+          }, cite),
+        ),
+    ],
+  );
   @override
   void dispose() {
     timer?.cancel();

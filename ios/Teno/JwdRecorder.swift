@@ -466,6 +466,7 @@ import JwdVtrSDK
                     }
                     draft["duration_ms"] = Int64(duration * 1000); draft["notes"] = note
                     draft["template_id"] = store.preferences.string(forKey:"note.template." + store.scope + ".jwd:" + deviceId + "|" + string(entry["name"])) ?? "@default"
+                    try store.generationOptions(&draft,from:store.recorderOptions("jwd:" + deviceId + "|" + string(entry["name"])))
                     draft["source"] = "jwd_ble"; draft["jwd_device"] = deviceId; draft["jwd_file"] = string(entry["name"])
                     draft["validation"] = (crc32 ?? "").isEmpty ? "length + end marker (firmware supplied no CRC)" : "length + end marker + CRC32"
                     try store.save(draft); saved(stableId)

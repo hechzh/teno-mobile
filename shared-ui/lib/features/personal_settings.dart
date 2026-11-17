@@ -88,6 +88,7 @@ class PersonalSettings extends StatelessWidget {
       ),
       NoteTemplateChoice(
         model,
+        title: 'Note template',
         value: text(model.personalSettings['default_template_id']).isEmpty
             ? 'teno:general'
             : text(model.personalSettings['default_template_id']),
@@ -422,26 +423,15 @@ class _PersonalPreferencesState extends State<PersonalPreferences> {
               title: UiText('Audio language'),
               trailing: UiText('Automatic', style: TextStyle(fontSize: 12)),
             ),
-            DropdownButtonFormField<String>(
-              initialValue: text(settings['summary_language']).startsWith('zh')
-                  ? 'zh-CN'
-                  : 'en-US',
-              decoration: const InputDecoration(
-                label: UiText('Summary language'),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const UiText('Output language'),
+              subtitle: const UiText(
+                'New notes follow the interface language. Change it for one file before processing.',
               ),
-              items: const [
-                DropdownMenuItem(value: 'en-US', child: UiText('English')),
-                DropdownMenuItem(value: 'zh-CN', child: UiText('Chinese')),
-              ],
-              onChanged: (v) => perform(context, () async {
-                if (v == null) return;
-                await widget.model.api('PATCH', '/api/v1/me', {
-                  'language': 'auto',
-                  'summary_language': v,
-                  'timezone': settings['timezone'] ?? 'Asia/Shanghai',
-                });
-                await load();
-              }),
+              trailing: UiText(
+                widget.model.outputLanguage == 'zh-CN' ? 'Chinese' : 'English',
+              ),
             ),
           ],
         ),

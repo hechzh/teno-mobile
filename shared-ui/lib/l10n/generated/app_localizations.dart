@@ -137,7 +137,7 @@ abstract class AppLocalizations {
   /// No description provided for @languageHint.
   ///
   /// In en, this message translates to:
-  /// **'Changes interface text only. Recordings, notes and chats are not translated.'**
+  /// **'New notes follow the interface language by default. Existing recordings, notes and chats are unchanged.'**
   String get languageHint;
 
   /// No description provided for @appearanceLanguage.
@@ -4945,6 +4945,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Transcription uses the saved recording.'**
   String get backgroundPostRecording;
+
+  /// No description provided for @iteration082Label0.
+  ///
+  /// In en, this message translates to:
+  /// **'Output language'**
+  String get iteration082Label0;
+
+  /// No description provided for @iteration082Label1.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow interface'**
+  String get iteration082Label1;
+
+  /// No description provided for @iteration082Label2.
+  ///
+  /// In en, this message translates to:
+  /// **'This template'**
+  String get iteration082Label2;
+
+  /// No description provided for @iteration082Label3.
+  ///
+  /// In en, this message translates to:
+  /// **'Generation options'**
+  String get iteration082Label3;
+
+  /// No description provided for @iteration082Label4.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to this file only. Saved notes are unchanged.'**
+  String get iteration082Label4;
+
+  /// No description provided for @iteration082Label5.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate note'**
+  String get iteration082Label5;
+
+  /// No description provided for @iteration082Label6.
+  ///
+  /// In en, this message translates to:
+  /// **'Current record'**
+  String get iteration082Label6;
+
+  /// No description provided for @iteration082Label7.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected folder'**
+  String get iteration082Label7;
+
+  /// No description provided for @iteration082Label8.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected files'**
+  String get iteration082Label8;
+
+  /// No description provided for @iteration082Label9.
+  ///
+  /// In en, this message translates to:
+  /// **'All my files'**
+  String get iteration082Label9;
+
+  /// No description provided for @iteration082Label10.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing personal search. Existing files are not regenerated.'**
+  String get iteration082Label10;
+
+  /// No description provided for @iteration082Label11.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved date'**
+  String get iteration082Label11;
+
+  /// No description provided for @iteration082Label12.
+  ///
+  /// In en, this message translates to:
+  /// **'Version updated'**
+  String get iteration082Label12;
+
+  /// No description provided for @iteration082Label13.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources unavailable'**
+  String get iteration082Label13;
+
+  /// No description provided for @iteration082Label14.
+  ///
+  /// In en, this message translates to:
+  /// **'Example source'**
+  String get iteration082Label14;
+
+  /// No description provided for @iteration082Label15.
+  ///
+  /// In en, this message translates to:
+  /// **'Example result'**
+  String get iteration082Label15;
+
+  /// No description provided for @iteration082Label16.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on recorder'**
+  String get iteration082Label16;
+
+  /// No description provided for @iteration082Label17.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing to phone'**
+  String get iteration082Label17;
+
+  /// No description provided for @iteration082Label19.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcribing'**
+  String get iteration082Label19;
+
+  /// No description provided for @iteration082Label20.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating notes'**
+  String get iteration082Label20;
+
+  /// No description provided for @iteration082Label21.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracting text'**
+  String get iteration082Label21;
+
+  /// No description provided for @iteration082Label22.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing audio'**
+  String get iteration082Label22;
+
+  /// No description provided for @iteration082Label23.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get iteration082Label23;
+
+  /// No description provided for @iteration082Label24.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet transcribed'**
+  String get iteration082Label24;
+
+  /// No description provided for @iteration082Label25.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes not yet generated'**
+  String get iteration082Label25;
+
+  /// No description provided for @iteration082Label26.
+  ///
+  /// In en, this message translates to:
+  /// **'Text not yet extracted'**
+  String get iteration082Label26;
+
+  /// No description provided for @iteration082Label27.
+  ///
+  /// In en, this message translates to:
+  /// **'Only on this device'**
+  String get iteration082Label27;
+
+  /// No description provided for @iteration082Label28.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Wi-Fi'**
+  String get iteration082Label28;
+
+  /// No description provided for @iteration082Label29.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for network'**
+  String get iteration082Label29;
+
+  /// No description provided for @iteration082Label30.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud processing is off'**
+  String get iteration082Label30;
+
+  /// No description provided for @iteration082Label31.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue processing'**
+  String get iteration082Label31;
+
+  /// No description provided for @iteration082Label32.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for service'**
+  String get iteration082Label32;
+
+  /// No description provided for @iteration082Label33.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to retry'**
+  String get iteration082Label33;
+
+  /// No description provided for @iteration082Label34.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get iteration082Label34;
+
+  /// No description provided for @iteration082Label35.
+  ///
+  /// In en, this message translates to:
+  /// **'No speech found; audio is kept'**
+  String get iteration082Label35;
+
+  /// No description provided for @iteration082Label36.
+  ///
+  /// In en, this message translates to:
+  /// **'Some note content needs verification'**
+  String get iteration082Label36;
+
+  /// No description provided for @iteration082Label37.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleanup failed; original transcript is kept'**
+  String get iteration082Label37;
+
+  /// No description provided for @iteration082Label38.
+  ///
+  /// In en, this message translates to:
+  /// **'Last confirmed status; waiting to refresh'**
+  String get iteration082Label38;
+
+  /// No description provided for @iteration082Label39.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved copy'**
+  String get iteration082Label39;
+
+  /// No description provided for @iteration082Label40.
+  ///
+  /// In en, this message translates to:
+  /// **'Original file'**
+  String get iteration082Label40;
+
+  /// No description provided for @iteration082Label41.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud audio'**
+  String get iteration082Label41;
+
+  /// No description provided for @iteration082Label42.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud file'**
+  String get iteration082Label42;
+
+  /// No description provided for @iteration082Label43.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracted text'**
+  String get iteration082Label43;
+
+  /// No description provided for @iteration082Label44.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved notes'**
+  String get iteration082Label44;
+
+  /// No description provided for @iteration082Label45.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry this step'**
+  String get iteration082Label45;
+
+  /// No description provided for @iteration082Label46.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing stopped at this step'**
+  String get iteration082Label46;
+
+  /// No description provided for @iteration082Label47.
+  ///
+  /// In en, this message translates to:
+  /// **'This operation keeps its template and output language.'**
+  String get iteration082Label47;
+
+  /// No description provided for @iteration082Label48.
+  ///
+  /// In en, this message translates to:
+  /// **'New notes use the interface language. Change it for one file before processing.'**
+  String get iteration082Label48;
+
+  /// No description provided for @iteration082Label49.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording saved'**
+  String get iteration082Label49;
+
+  /// No description provided for @iteration082Label50.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing from recorder'**
+  String get iteration082Label50;
+
+  /// No description provided for @iteration082Label51.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating note'**
+  String get iteration082Label51;
+
+  /// No description provided for @iteration082Label52.
+  ///
+  /// In en, this message translates to:
+  /// **'Note generation not started'**
+  String get iteration082Label52;
+
+  /// No description provided for @iteration082Label53.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcription not started'**
+  String get iteration082Label53;
+
+  /// No description provided for @iteration082Label54.
+  ///
+  /// In en, this message translates to:
+  /// **'Text extraction not started'**
+  String get iteration082Label54;
+
+  /// No description provided for @iteration082Label55.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking processing status'**
+  String get iteration082Label55;
+
+  /// No description provided for @iteration082Label56.
+  ///
+  /// In en, this message translates to:
+  /// **'Network unavailable'**
+  String get iteration082Label56;
+
+  /// No description provided for @iteration082Label57.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud processing is off · Saved locally only'**
+  String get iteration082Label57;
+
+  /// No description provided for @iteration082Label58.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to upload'**
+  String get iteration082Label58;
+
+  /// No description provided for @iteration082Label59.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a processing slot'**
+  String get iteration082Label59;
+
+  /// No description provided for @iteration082Label61.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the last confirmed status. Not refreshed.'**
+  String get iteration082Label61;
+
+  /// No description provided for @iteration082Label62.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud file kept'**
+  String get iteration082Label62;
+
+  /// No description provided for @iteration082Label63.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcript kept'**
+  String get iteration082Label63;
+
+  /// No description provided for @iteration082Label64.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracted text kept'**
+  String get iteration082Label64;
+
+  /// No description provided for @iteration082Label65.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing notes kept'**
+  String get iteration082Label65;
+
+  /// No description provided for @iteration082Label66.
+  ///
+  /// In en, this message translates to:
+  /// **'Some content needs verification. Open the note for details.'**
+  String get iteration082Label66;
+
+  /// No description provided for @iteration082Label67.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcript cleanup failed. The original transcript is kept.'**
+  String get iteration082Label67;
+
+  /// No description provided for @iteration082Label68.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry note generation'**
+  String get iteration082Label68;
+
+  /// No description provided for @iteration082Label69.
+  ///
+  /// In en, this message translates to:
+  /// **'New notes follow the interface language. Change it for one file before processing.'**
+  String get iteration082Label69;
+
+  /// No description provided for @iteration082Text09fef5d8.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get iteration082Text09fef5d8;
 }
 
 class _AppLocalizationsDelegate

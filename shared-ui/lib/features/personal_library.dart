@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../ui/widgets.dart';
+import '../ui/processing_progress.dart';
+import 'generation_options.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
 import 'routes/personal_notes.dart';
@@ -127,7 +129,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
       final old = append ? branches[key] ?? <Json>[] : <Json>[];
       final data = await widget.model.api(
         'GET',
-        '/api/v1/library/items?limit=100&offset=${old.length}&sort=$sort&ascending=$ascending'
+        '/api/v1/library/items?include_processing=true&limit=100&offset=${old.length}&sort=$sort&ascending=$ascending'
             '&include_stats=$stats&${system ? 'type' : 'folder_id'}=${Uri.encodeQueryComponent(system ? key.substring(7) : key)}',
       );
       if (mounted)
@@ -151,7 +153,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
     try {
       final result = await widget.model.api(
         'GET',
-        '/api/v1/library/items?limit=100&offset=${append ? items.length : 0}&sort=$sort&ascending=$ascending&trash=${widget.trash}' +
+        '/api/v1/library/items?include_processing=true&limit=100&offset=${append ? items.length : 0}&sort=$sort&ascending=$ascending&trash=${widget.trash}' +
             '&include_stats=$stats' +
             (widget.root && view == 'all' ? '&root=true' : '') +
             (widget.folderId == null
@@ -841,7 +843,7 @@ class PersonalFilePage extends StatefulWidget {
 }
 
 class _PersonalFilePageState extends State<PersonalFilePage> {
-  Json file = {};
+  Json file = {}, processing = {};
   String error = '';
   late int selectedPage = widget.page ?? 1;
   Timer? timer;
@@ -853,13 +855,31 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
 
   Future<void> load() async {
     try {
-      final data = await widget.model.api('GET', '/api/v1/files/${widget.id}');
+      final values = await Future.wait([
+        widget.model.api('GET', '/api/v1/files/${widget.id}'),
+        widget.model.api(
+          'GET',
+          '/api/v1/personal/files/${widget.id}/processing',
+        ),
+      ]);
+      final data = values[0];
+      processing = values[1];
       if (!mounted) return;
-      setState(() => file = data);
-      if (!['ready', 'failed'].contains(file['status']))
+      setState(() {
+        file = data;
+        error = '';
+      });
+      if (processing['status'] == 'processing')
         timer = Timer(const Duration(seconds: 4), load);
     } catch (e) {
-      if (mounted) setState(() => error = TenoModel.friendly(e));
+      if (mounted) {
+        setState(() {
+          error = TenoModel.friendly(e);
+          processing = {...processing, 'stale': true};
+        });
+        if (processing['status'] == 'processing')
+          timer = Timer(const Duration(seconds: 8), load);
+      }
     }
   }
 
@@ -929,28 +949,24 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
           icon: const Icon(Icons.open_in_new, size: 18),
           label: const UiText('Open original'),
         ),
-        if (file['status'] == 'failed') ...[
-          ErrorNotice(text(object(file['error'])['message'])),
-          TextButton(
-            onPressed: () => perform(context, () async {
-              await widget.model.api(
-                'POST',
-                '/api/v1/files/${widget.id}/retry',
-              );
-              await load();
-            }),
-            child: const UiText('Retry'),
-          ),
-        ] else if (file['status'] != 'ready') ...[
-          const LinearProgressIndicator(minHeight: 2),
-          const UiText('Extracting text. The original file is saved.'),
-        ],
+        ProcessingProgress(
+          processing,
+          retry: object(processing['retry']).isEmpty
+              ? null
+              : () async {
+                  await widget.model.api(
+                    'POST',
+                    '/api/v1/jobs/${object(processing['retry'])['job_id']}/retry',
+                  );
+                  await load();
+                },
+        ),
         if (file['status'] == 'ready')
           OutlinedButton.icon(
             onPressed: () async {
-              final selected = await push<String>(
+              final selected = await chooseGenerationOptions(
                 context,
-                PersonalTemplatePicker(widget.model),
+                widget.model,
               );
               if (selected == null || !context.mounted) return;
               await perform(context, () async {
@@ -962,7 +978,7 @@ class _PersonalFilePageState extends State<PersonalFilePage> {
                     'contexts': [
                       {'type': 'file', 'id': widget.id},
                     ],
-                    if (selected.isNotEmpty) 'template_id': selected,
+                    ...selected,
                   },
                 );
                 if (context.mounted)

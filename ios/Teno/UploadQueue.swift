@@ -17,6 +17,26 @@ import UserNotifications
     private var monitor = NWPathMonitor()
     private var hasNetwork = false, hasWifi = false
     private(set) var activeId = "", status = ""
+    private var uploadPercent: Int64 = -1
+    func presentation(_ draft: JSONObject) -> JSONObject {
+        if var value = draft["processing"] as? JSONObject, Self.remote(draft) {
+            var kept = value["preserved"] as? JSONObject ?? [:]; kept["local_file"] = FileManager.default.fileExists(atPath:string(draft["path"])); value["preserved"] = kept
+            if !hasNetwork { value["stale"] = true }; return value
+        }
+        var status = string(draft["status"])
+        var stage = Self.remote(draft) ? "checking" : status == "uploading" ? "uploading" : draft["upload_requested"] as? Bool == true ? "waiting_upload" : "saved"
+        var reason = ""
+        if !store.cloudUpload && (draft["upload_requested"] as? Bool != true || draft["upload_automatic"] as? Bool == true) { reason = "cloud_disabled" }
+        else if !store.state().signedIn { reason = "sign_in" }
+        else if !hasNetwork { reason = "network" }
+        else if store.wifiOnly && !hasWifi { reason = "wifi_only" }
+        else if (draft["upload_retry_at"] as? Double ?? 0) > Date().timeIntervalSince1970 { reason = "retry_backoff" }
+        if reason == "cloud_disabled" && !Self.remote(draft) { stage = "saved"; status = "local" }
+        var value: JSONObject = ["stage":stage,"stage_status":["failed","processing_failed"].contains(status) ? "failed" : stage == "saved" ? "idle" : "running", "waiting_reason":reason,
+            "preserved":["local_file":FileManager.default.fileExists(atPath:string(draft["path"]))]]
+        if status == "uploading", activeId == string(draft["id"]), uploadPercent >= 0 { value["percent"] = uploadPercent }
+        return value
+    }
     var backgroundCompletion: (() -> Void)?
     private lazy var session: URLSession = {
         let config = URLSessionConfiguration.background(withIdentifier: Self.backgroundIdentifier)
@@ -60,6 +80,7 @@ import UserNotifications
             throw RuntimeFailure("INVALID_AUDIO", "No complete audio is available to upload.")
         }
         if id == activeId { return }
+        store.freezeGeneration(&draft)
         draft["upload_requested"] = true; draft["upload_automatic"] = automatic
         draft["upload_attempts"] = 0; draft["upload_retry_at"] = 0; draft["status"] = "queued"
         draft.removeValue(forKey: "error"); try store.save(draft); resume()
@@ -86,6 +107,7 @@ import UserNotifications
             let id = string(next["id"]), owner = store.scope
             do {
                 var attempting = try store.draft(id)
+                store.freezeGeneration(&attempting)
                 attempting["template_frozen"] = true
                 attempting["upload_attempts"] = (attempting["upload_attempts"] as? Int ?? 0) + 1
                 try store.save(attempting)
@@ -104,7 +126,7 @@ import UserNotifications
                 try store.save(draft)
                 let task = session.uploadTask(with: request, fromFile: payload.file)
                 task.taskDescription = jsonString(["id": id, "scope": owner, "payload": payload.file.lastPathComponent])
-                activeId = id; status = "Uploading · Local copy kept"; task.resume()
+                activeId = id; uploadPercent = -1; status = "Uploading · Local copy kept"; task.resume()
             } catch {
                 if attemptGeneration == generation, !paused { failed(id, owner: owner, message: error.localizedDescription, retryable: true) }
             }
@@ -123,7 +145,10 @@ import UserNotifications
     }
     func fields(_ draft: JSONObject) -> [(String,String)] {
         var values = [("client_id",string(draft["id"]))]
+        values.append(("template_origin",string(draft["template_origin"]).isEmpty ? "selection" : string(draft["template_origin"])))
+        if !string(draft["output_language"]).isEmpty { values += [("output_language",string(draft["output_language"])),("output_language_origin",string(draft["output_language_origin"]))] }
         if string(draft["kind"]) == "file" {
+            values.append(("template_id",string(draft["template_id"]).isEmpty ? "teno:general" : string(draft["template_id"])))
             let parent = parentRecording(draft)
             if !parent.isEmpty { values.append(("recording_id",parent)) }
             if let position = draft["at_ms"] as? NSNumber { values.append(("at_ms",position.stringValue)) }
@@ -145,8 +170,8 @@ import UserNotifications
     func processingRetry(_ path: String, result: JSONObject) {
         let recording = string(result["recording_id"])
         let file = path.hasPrefix("/api/v1/files/") ? String(path.dropFirst("/api/v1/files/".count).dropLast("/retry".count)) : ""
-        for var draft in store.drafts() where (!recording.isEmpty && recording == string(draft["recording_id"])) || (!file.isEmpty && file == string(draft["file_id"])) {
-            draft["status"] = "processing"; draft["ready_notified"] = false; draft.removeValue(forKey:"error"); try? store.save(draft)
+        for var draft in store.drafts() where (!recording.isEmpty && recording == string(draft["recording_id"])) || (!file.isEmpty && file == string(draft["file_id"])) || (recording.isEmpty && file.isEmpty && Self.remote(draft)) {
+            draft["status"] = "processing"; draft["ready_notified"] = false; draft.removeValue(forKey:"error"); draft.removeValue(forKey:"processing"); try? store.save(draft)
         }
     }
     private var checkingProcessing = false
@@ -155,11 +180,13 @@ import UserNotifications
         guard !paused, !checkingProcessing, hasNetwork, store.state().signedIn, Date().timeIntervalSince(lastProcessingCheck) >= 15 else { return }
         checkingProcessing = true; lastProcessingCheck = Date(); let owner = store.scope
         defer { checkingProcessing = false }
-        for item in store.drafts() where Self.remote(item) && item["ready_notified"] as? Bool != true {
+        for item in store.drafts() where Self.remote(item) && (item["ready_notified"] as? Bool != true || item["processing"] == nil) {
             guard owner == store.scope, !paused else { return }
             do {
                 let file = !string(item["file_id"]).isEmpty
-                let state = try await api.json("GET",file ? "/api/v1/files/" + string(item["file_id"]) : "/api/v1/personal/recordings/" + string(item["recording_id"]) + "/processing")
+                let state = try await api.json("GET",file ? "/api/v1/personal/files/" + string(item["file_id"]) + "/processing" : "/api/v1/personal/recordings/" + string(item["recording_id"]) + "/processing")
+                guard owner == store.scope, var progressDraft = try? store.draft(string(item["id"])) else { continue }
+                progressDraft["processing"] = state; try store.save(progressDraft)
                 guard owner == store.scope, ["ready","failed"].contains(string(state["status"])), var draft = try? store.draft(string(item["id"])) else { continue }
                 let failed = string(state["status"]) == "failed"
                 draft["status"] = failed ? "processing_failed" : "ready"; draft["ready_notified"] = true
@@ -225,7 +252,8 @@ import UserNotifications
     func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64,
                     totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
         guard metadata(task).map({ string($0["scope"]) == store.scope }) == true else { return }
-        status = "Uploading \(totalBytesExpectedToSend > 0 ? totalBytesSent * 100 / totalBytesExpectedToSend : 0)%"
+        uploadPercent = totalBytesExpectedToSend > 0 ? totalBytesSent * 100 / totalBytesExpectedToSend : -1
+        status = "Uploading \(max(0,uploadPercent))%"
     }
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         let bytes = responses.removeValue(forKey: task.taskIdentifier) ?? Data()

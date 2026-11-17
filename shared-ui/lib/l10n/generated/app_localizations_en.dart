@@ -28,7 +28,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageHint =>
-      'Changes interface text only. Recordings, notes and chats are not translated.';
+      'New notes follow the interface language by default. Existing recordings, notes and chats are unchanged.';
 
   @override
   String get appearanceLanguage => 'Appearance & language';
@@ -2676,4 +2676,221 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get backgroundPostRecording =>
       'Android may delay background uploads and completion notifications. Reopen Teno to resume app work. Transcription uses the saved recording.';
+
+  @override
+  String get iteration082Label0 => 'Output language';
+
+  @override
+  String get iteration082Label1 => 'Follow interface';
+
+  @override
+  String get iteration082Label2 => 'This template';
+
+  @override
+  String get iteration082Label3 => 'Generation options';
+
+  @override
+  String get iteration082Label4 =>
+      'Applies to this file only. Saved notes are unchanged.';
+
+  @override
+  String get iteration082Label5 => 'Generate note';
+
+  @override
+  String get iteration082Label6 => 'Current record';
+
+  @override
+  String get iteration082Label7 => 'Selected folder';
+
+  @override
+  String get iteration082Label8 => 'Selected files';
+
+  @override
+  String get iteration082Label9 => 'All my files';
+
+  @override
+  String get iteration082Label10 =>
+      'Preparing personal search. Existing files are not regenerated.';
+
+  @override
+  String get iteration082Label11 => 'Saved date';
+
+  @override
+  String get iteration082Label12 => 'Version updated';
+
+  @override
+  String get iteration082Label13 => 'Sources unavailable';
+
+  @override
+  String get iteration082Label14 => 'Example source';
+
+  @override
+  String get iteration082Label15 => 'Example result';
+
+  @override
+  String get iteration082Label16 => 'Saved on recorder';
+
+  @override
+  String get iteration082Label17 => 'Syncing to phone';
+
+  @override
+  String get iteration082Label19 => 'Transcribing';
+
+  @override
+  String get iteration082Label20 => 'Generating notes';
+
+  @override
+  String get iteration082Label21 => 'Extracting text';
+
+  @override
+  String get iteration082Label22 => 'Preparing audio';
+
+  @override
+  String get iteration082Label23 => 'Complete';
+
+  @override
+  String get iteration082Label24 => 'Not yet transcribed';
+
+  @override
+  String get iteration082Label25 => 'Notes not yet generated';
+
+  @override
+  String get iteration082Label26 => 'Text not yet extracted';
+
+  @override
+  String get iteration082Label27 => 'Only on this device';
+
+  @override
+  String get iteration082Label28 => 'Waiting for Wi-Fi';
+
+  @override
+  String get iteration082Label29 => 'Waiting for network';
+
+  @override
+  String get iteration082Label30 => 'Cloud processing is off';
+
+  @override
+  String get iteration082Label31 => 'Sign in to continue processing';
+
+  @override
+  String get iteration082Label32 => 'Waiting for service';
+
+  @override
+  String get iteration082Label33 => 'Waiting to retry';
+
+  @override
+  String get iteration082Label34 => 'Not started';
+
+  @override
+  String get iteration082Label35 => 'No speech found; audio is kept';
+
+  @override
+  String get iteration082Label36 => 'Some note content needs verification';
+
+  @override
+  String get iteration082Label37 =>
+      'Cleanup failed; original transcript is kept';
+
+  @override
+  String get iteration082Label38 => 'Last confirmed status; waiting to refresh';
+
+  @override
+  String get iteration082Label39 => 'Saved copy';
+
+  @override
+  String get iteration082Label40 => 'Original file';
+
+  @override
+  String get iteration082Label41 => 'Cloud audio';
+
+  @override
+  String get iteration082Label42 => 'Cloud file';
+
+  @override
+  String get iteration082Label43 => 'Extracted text';
+
+  @override
+  String get iteration082Label44 => 'Saved notes';
+
+  @override
+  String get iteration082Label45 => 'Retry this step';
+
+  @override
+  String get iteration082Label46 => 'Processing stopped at this step';
+
+  @override
+  String get iteration082Label47 =>
+      'This operation keeps its template and output language.';
+
+  @override
+  String get iteration082Label48 =>
+      'New notes use the interface language. Change it for one file before processing.';
+
+  @override
+  String get iteration082Label49 => 'Recording saved';
+
+  @override
+  String get iteration082Label50 => 'Syncing from recorder';
+
+  @override
+  String get iteration082Label51 => 'Generating note';
+
+  @override
+  String get iteration082Label52 => 'Note generation not started';
+
+  @override
+  String get iteration082Label53 => 'Transcription not started';
+
+  @override
+  String get iteration082Label54 => 'Text extraction not started';
+
+  @override
+  String get iteration082Label55 => 'Checking processing status';
+
+  @override
+  String get iteration082Label56 => 'Network unavailable';
+
+  @override
+  String get iteration082Label57 =>
+      'Cloud processing is off · Saved locally only';
+
+  @override
+  String get iteration082Label58 => 'Sign in to upload';
+
+  @override
+  String get iteration082Label59 => 'Waiting for a processing slot';
+
+  @override
+  String get iteration082Label61 =>
+      'Showing the last confirmed status. Not refreshed.';
+
+  @override
+  String get iteration082Label62 => 'Cloud file kept';
+
+  @override
+  String get iteration082Label63 => 'Transcript kept';
+
+  @override
+  String get iteration082Label64 => 'Extracted text kept';
+
+  @override
+  String get iteration082Label65 => 'Existing notes kept';
+
+  @override
+  String get iteration082Label66 =>
+      'Some content needs verification. Open the note for details.';
+
+  @override
+  String get iteration082Label67 =>
+      'Transcript cleanup failed. The original transcript is kept.';
+
+  @override
+  String get iteration082Label68 => 'Retry note generation';
+
+  @override
+  String get iteration082Label69 =>
+      'New notes follow the interface language. Change it for one file before processing.';
+
+  @override
+  String get iteration082Text09fef5d8 => 'Failed';
 }

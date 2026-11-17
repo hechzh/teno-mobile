@@ -22,6 +22,31 @@ function host(fetch) {
   runtime.session = {...user}; runtime.validated = true; return runtime;
 }
 const file = (name = 'acceptance.txt') => new File(['Synthetic Teno acceptance content.'], name, {type: 'text/plain'});
+test('0.8.2 import language survives failed upload, reload and opposite UI preference', async () => {
+  const bodies=[];const r=host(async (url,options) => { bodies.push([options.body.get('client_id'),options.body.get('output_language'),options.body.get('output_language_origin')]); throw new Error('offline'); });
+  await r.call('interface_locale',{locale:'zh'});
+  const {items}=await r.stage([file('sample.wav')]);const id=items[0].id;
+  await r.retryUpload({id});
+  await r.call('interface_locale',{locale:'en'});
+  const restored=new TenoWebRuntime({origin:r.origin,store:r.store,storage:r.storage,fetch:r.fetch});restored.session={...user};restored.validated=true;
+  await restored.loadDrafts();await restored.retryUpload({id});
+  assert.deepEqual(bodies,[[id,'zh-CN','interface'],[id,'zh-CN','interface']]);
+  const following=await restored.stage([file('second.wav')]);assert.equal((await restored.store.get(following.items[0].id)).output_language,'en-US');
+});
+test('0.8.2 one-off language applies to documents and does not modify account settings', async () => {
+  let fields;const r=host(async(url,options)=>{fields=options.body;return response({file_id:'synthetic-file'},202);});r.settings={summary_language:'en-US'};
+  await r.call('interface_locale',{locale:'en'});
+  const result=await r.stage([file()],r.epoch,'teno:actions',{output_language:'zh-CN',output_language_origin:'override'});
+  await r.retryUpload({id:result.items[0].id});
+  assert.equal(fields.get('output_language'),'zh-CN');assert.equal(fields.get('template_id'),'teno:actions');assert.equal(r.settings.summary_language,'en-US');
+  const next=await r.stage([file('next.txt')]);assert.equal((await r.store.get(next.items[0].id)).output_language,'en-US');
+});
+test('0.8.2 server note failure wins over older saved notes and keeps browser original', async () => {
+  const r=host(async()=>response({stage:'generating_note',status:'failed',stage_status:'failed',preserved:{notes:1,transcript:true}}));
+  const {items}=await r.stage([file('sample.wav')]);const d=await r.owned(items[0].id);d.recording_id='record';await r.store.put(d);await r.loadDrafts();
+  await r.pollProcessing();const p=r.view().drafts[0].processing;
+  assert.equal(p.stage_status,'failed');assert.equal(p.preserved.notes,1);assert.equal(p.preserved.local_file,true);assert.equal(p.percent,undefined);
+});
 test('template selection persists locally, freezes at upload and retry preserves it', async () => {
   const submitted = []; let fail = true;
   const r = host(async (url, options) => {

@@ -12,10 +12,11 @@ import Vision
     private var continuation: CheckedContinuation<JSONObject,Error>?
     private var owner = "", parent = "", template = "@default"
     private var atMs: Int64 = 0
+    private var generationOptions: JSONObject = [:]
     init(store: NativeStore, uploads: UploadQueue, presenter: @escaping () -> UIViewController?) {
         self.store = store; self.uploads = uploads; self.presenter = presenter
     }
-    func open(source: String, parent: String = "", atMs: Int64 = 0, template: String = "@default") async throws -> JSONObject {
+    func open(source: String, parent: String = "", atMs: Int64 = 0, template: String = "@default", generationOptions: JSONObject = [:]) async throws -> JSONObject {
         guard continuation == nil, !store.scope.isEmpty, var view = presenter() else { throw RuntimeFailure("IMPORT_BUSY", "Sign in and close the current import before trying again.") }
         while let shown = view.presentedViewController { view = shown }
         let requestedOwner = store.scope
@@ -25,7 +26,7 @@ import Vision
             guard granted else { throw RuntimeFailure("CAMERA_PERMISSION", "Allow camera access in Settings.") }
         }
         guard requestedOwner == store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.") }
-        owner = requestedOwner; self.parent = parent; self.atMs = max(0,atMs); self.template = template
+        owner = requestedOwner; self.parent = parent; self.atMs = max(0,atMs); self.template = template; self.generationOptions = generationOptions
         return try await withCheckedThrowingContinuation { result in
             continuation = result
             if source == "camera" {
@@ -119,6 +120,7 @@ import Vision
                 }
                 var draft = try store.newDraft(title,ext:ext,id:id)
                 draft["template_id"] = template
+                try store.generationOptions(&draft,from:generationOptions)
                 let target = URL(fileURLWithPath:string(draft["path"]))
                 created.append(draft)
                 if kind == "image" {

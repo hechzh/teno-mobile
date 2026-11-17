@@ -7,6 +7,8 @@ import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
 import 'routes/personal_ask.dart';
+import 'generation_options.dart';
+import 'template_examples.dart';
 
 class PersonalNotePage extends StatefulWidget {
   const PersonalNotePage(
@@ -86,11 +88,11 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
             );
             if (chosen != null && mounted) setState(() => revision = chosen);
           } else if (value == 'regenerate' || value == 'another') {
-            final template = await push<String>(
+            final options = await chooseGenerationOptions(
               context,
-              PersonalTemplatePicker(widget.model),
+              widget.model,
             );
-            if (template == null || !context.mounted) return;
+            if (options == null || !context.mounted) return;
             final rec = text(note['recording_id']);
             List<Json> sources = [];
             if (rec.isEmpty) {
@@ -125,7 +127,7 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
                 if (value == 'regenerate') 'note_id': widget.id,
                 if (value == 'regenerate') 'base_revision': note['revision'],
                 if (rec.isEmpty) 'contexts': sources,
-                if (template.isNotEmpty) 'template_id': template,
+                ...options,
               },
             );
             if (context.mounted)
@@ -227,6 +229,8 @@ class NoteContent extends StatelessWidget {
                   color: subtle(context),
                 ),
               ),
+              if (noteGenerationLabel(data).isNotEmpty)
+                Text(noteGenerationLabel(data)),
               const SizedBox(height: 12),
               Text(
                 text(note['title']),
@@ -260,6 +264,16 @@ class NoteContent extends StatelessWidget {
             ],
           ),
         ),
+        if ((data['generation_warnings'] as List? ?? []).isNotEmpty)
+          const UiText(
+            'Some content needs verification. Open the note for details.',
+          ),
+        if (data['schema_version'] == 'personal-notes-v2' &&
+            text(data['summary']).isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: SelectableText(text(data['summary'])),
+          ),
         SelectableText(
           text(data['body']).isNotEmpty
               ? text(data['body'])
@@ -469,14 +483,11 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
       'recent_templates': [id, ...recent].take(20).toList(),
     });
     if (!mounted) return;
-    if (widget.picker) {
-      Navigator.pop(context, id);
-      return;
-    }
     final apply = await showModalBottomSheet<bool>(
       context: context,
+      isScrollControlled: true,
       builder: (sheet) => SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -510,6 +521,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                   ],
                 ),
               ],
+              TemplateExample(id),
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () => Navigator.pop(sheet, true),
@@ -521,15 +533,25 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
       ),
     );
     if (apply != true || !mounted) return;
+    if (widget.picker) {
+      Navigator.pop(context, id);
+      return;
+    }
     final sources = await push<List<Json>>(
       context,
       PersonalContextPicker(widget.model, const []),
     );
     if (sources == null || sources.isEmpty || !mounted) return;
+    final options = await chooseGenerationOptions(
+      context,
+      widget.model,
+      template: id,
+    );
+    if (options == null || !mounted) return;
     final job = await widget.model.api('POST', '/api/v1/notes/generate', {
       'client_id': requestId(),
       'contexts': sources,
-      'template_id': id,
+      ...options,
     });
     if (mounted) await push(context, PersonalJobPage(widget.model, job));
   }
