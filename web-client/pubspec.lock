@@ -179,7 +179,7 @@ packages:
       path: "../shared-ui"
       relative: true
     source: path
-    version: "0.8.1+17"
+    version: "0.8.2+18"
   term_glyph:
     dependency: transitive
     description:

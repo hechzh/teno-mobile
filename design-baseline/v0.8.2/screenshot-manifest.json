@@ -4848,5 +4848,325 @@
     "screenshot": "templates/templates-zh-360.png",
     "sha256": "98585e27e2d71429b621f2bee0752115713bc8a8ef4d162835ec71315afc539a",
     "evidence": "Flutter rendered template picker; synthetic content; not a physical-device capture"
+  },
+  {
+    "id": "ask-en-1100",
+    "title": "ask",
+    "platform": "web",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/ask-en-1100.png",
+    "sha256": "68363ed665d314b1ced5043ea380fe623839c9ea7ea5d137075e276173977e76",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "ask-en-360",
+    "title": "ask",
+    "platform": "android",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/ask-en-360.png",
+    "sha256": "69f711596cd570876f76f5bff20953d44ce21ebd8695f80a6c2f2e49e5104ef3",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "ask-zh-1100",
+    "title": "ask",
+    "platform": "web",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/ask-zh-1100.png",
+    "sha256": "ef374276740963627bd51d7efe0474d1e507ccfca5ae733aa1534c9013f900c3",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "ask-zh-360",
+    "title": "ask",
+    "platform": "android",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/ask-zh-360.png",
+    "sha256": "d38d2cf66f9f8aa51f0cf9a25179ecb8fc8f9fa3cc00fb1ea2aadb5debdfae3f",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "choices-en-1100",
+    "title": "choices",
+    "platform": "web",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/choices-en-1100.png",
+    "sha256": "af33e70866c7790315b6abeea01b139774978dbc51e3e19c5bbcb98649954814",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "choices-en-360",
+    "title": "choices",
+    "platform": "android",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/choices-en-360.png",
+    "sha256": "721dda04652c11e0a89e51c5740133e358c01901993b60b659dd1f149aafe056",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "choices-zh-1100",
+    "title": "choices",
+    "platform": "web",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/choices-zh-1100.png",
+    "sha256": "d110dc221fcb3dba3fc6ff92b9b923ed04a4fa4e92dbb8bd9c80f89df62329e4",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "choices-zh-360",
+    "title": "choices",
+    "platform": "android",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/choices-zh-360.png",
+    "sha256": "e833598198ff742d93203eb1261e8f9ccbd016247a8d5ccdc0317ec89c2e8d3f",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "progress-en-1100",
+    "title": "progress",
+    "platform": "web",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/progress-en-1100.png",
+    "sha256": "f7c7829fbc6e52f939533dd95dd1c56841417efbaa9f6a01480cd66e773076ff",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "progress-en-360",
+    "title": "progress",
+    "platform": "android",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/progress-en-360.png",
+    "sha256": "076e08556bf3fda47256cc82045b377f8da595ef74ed40160d128e95b82f2cb1",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "progress-zh-1100",
+    "title": "progress",
+    "platform": "web",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/progress-zh-1100.png",
+    "sha256": "0106056dcfb5148b61b14560cff4c5e6846edc35a47475993e18c324c8629d3e",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "progress-zh-360",
+    "title": "progress",
+    "platform": "android",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/progress-zh-360.png",
+    "sha256": "6ba468edce2ca7ca964f4ce08deeac8668ab4f5326a97d2b667c9d4b367dcac4",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-actions-en-1100",
+    "title": "teno-actions",
+    "platform": "web",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-actions-en-1100.png",
+    "sha256": "3d83c7384fc60512e64b81438c316b7977f7fb5750d41302e01c9c8d3d6c64a9",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-actions-en-360",
+    "title": "teno-actions",
+    "platform": "android",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-actions-en-360.png",
+    "sha256": "9e761f40ddcf93c58824a079dacfd508ed20a08c542ef39b1d2eb5c92a7eb656",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-actions-zh-1100",
+    "title": "teno-actions",
+    "platform": "web",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-actions-zh-1100.png",
+    "sha256": "3eac8b8b8d6b41f100e2ed621c59218ebcd11b9c545be3f3cf71d44713633993",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-actions-zh-360",
+    "title": "teno-actions",
+    "platform": "android",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-actions-zh-360.png",
+    "sha256": "dcf0d64185e7b9f5d5713d5c840ab079b030672489edf36b9bcf1490a5fbd86c",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-inspiration-en-1100",
+    "title": "teno-inspiration",
+    "platform": "web",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-inspiration-en-1100.png",
+    "sha256": "1651e793282d613290ab63a36833ec394016acff3d4c546966cf10aa5bc42aa2",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-inspiration-en-360",
+    "title": "teno-inspiration",
+    "platform": "android",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-inspiration-en-360.png",
+    "sha256": "192c49bea1ee5be8738391cf817df9e1577d9c86864952dc8330481b8d5cdb05",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-inspiration-zh-1100",
+    "title": "teno-inspiration",
+    "platform": "web",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-inspiration-zh-1100.png",
+    "sha256": "223dee609aaef1a736f2fbd581a27d859d772a91c8b13a84155f5bf0b76dba09",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-inspiration-zh-360",
+    "title": "teno-inspiration",
+    "platform": "android",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-inspiration-zh-360.png",
+    "sha256": "a72f5e977c221abc80922f21e04f7cf91657aee31c65e663ab5b18e25279723d",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-interview-en-1100",
+    "title": "teno-interview",
+    "platform": "web",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-interview-en-1100.png",
+    "sha256": "9f3de1c5ca50ab66d6874225f5497481581e35801174e4f72fb125916650760a",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-interview-en-360",
+    "title": "teno-interview",
+    "platform": "android",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-interview-en-360.png",
+    "sha256": "54e41b28df7db292eff94ec4bc2a0d709a534751372e8f758460105f7a7221f3",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-interview-zh-1100",
+    "title": "teno-interview",
+    "platform": "web",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-interview-zh-1100.png",
+    "sha256": "fd185bad6b5d315353e59dd2dc395f5e8120e24d9bcb9b1bdd76314fbdfd9984",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-interview-zh-360",
+    "title": "teno-interview",
+    "platform": "android",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-interview-zh-360.png",
+    "sha256": "d7b5ed9c42440077e57f576947d8faf8978a662116294928158ad97982cbed7c",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-lecture-en-1100",
+    "title": "teno-lecture",
+    "platform": "web",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-lecture-en-1100.png",
+    "sha256": "b0ea225d42a9307e784568121b3e65a0c602f4cf98b7f11a0c437eb846a9db55",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-lecture-en-360",
+    "title": "teno-lecture",
+    "platform": "android",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-lecture-en-360.png",
+    "sha256": "06cba2d8b2c0e36f7be53cb906cc31255abdaf7f8bec383c3df0bcea196984d6",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-lecture-zh-1100",
+    "title": "teno-lecture",
+    "platform": "web",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-lecture-zh-1100.png",
+    "sha256": "cef5c72e4e23d687be2278b916c7da3efbad6db67b3f580ccec717ca10897b0d",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-lecture-zh-360",
+    "title": "teno-lecture",
+    "platform": "android",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-lecture-zh-360.png",
+    "sha256": "e6035a1e0892485687ceda374a94a44b9fceccd4c586caabca0dbbc38f1d2482",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-meeting-en-1100",
+    "title": "teno-meeting",
+    "platform": "web",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-meeting-en-1100.png",
+    "sha256": "2b53c31c591a833c820ef1ac6f9f7d294dbf737e3fa847cd26fec01bc9a9a46b",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-meeting-en-360",
+    "title": "teno-meeting",
+    "platform": "android",
+    "language": "en",
+    "mode": "light",
+    "screenshot": "iteration/teno-meeting-en-360.png",
+    "sha256": "3402e0450f37fc1c3ca012fe29614a73d67af3ec39d65857b739537a642baf31",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-meeting-zh-1100",
+    "title": "teno-meeting",
+    "platform": "web",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-meeting-zh-1100.png",
+    "sha256": "e45aff6450035ee5d3cbed5410153ee8944ccc515ce204178e64cea8d7adca90",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
+  },
+  {
+    "id": "teno-meeting-zh-360",
+    "title": "teno-meeting",
+    "platform": "android",
+    "language": "zh",
+    "mode": "light",
+    "screenshot": "iteration/teno-meeting-zh-360.png",
+    "sha256": "4e45629fb7e72cafd0a36497f45f2fd036ea1dfa54661ebd8b88845c0599ed20",
+    "evidence": "Current Flutter generation choices, template examples, progress and Ask scope; synthetic data; physical tests pending"
   }
 ]
