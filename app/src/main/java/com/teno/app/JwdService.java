@@ -119,7 +119,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             if(connected||converting||receiver!=null||!pending.isEmpty())throw new IOException("Disconnect the current device or wait for verification to finish");
             String candidate=i.getStringExtra("address");if(!BluetoothAdapter.checkBluetoothAddress(candidate))throw new IOException("Invalid Bluetooth address");
             if(adapter==null||!adapter.isEnabled())throw new IOException("Turn on Bluetooth");
-            stopScan();address=candidate;deviceName=i.getStringExtra("name");if(deviceName==null)deviceName="Unnamed device";
+            ownership.connectionAttempt();stopScan();address=candidate;deviceName=i.getStringExtra("name");if(deviceName==null)deviceName="Unnamed device";
             pairingRequested=false;pairingVariant=-1;pairingStage="";gattVerified=false;connectionStage="connecting";
             authorized=false;recordState=-1;firmware="";battery="Not received";capacity="";dirs.clear();files.clear();directory="";
             begin("probe","Verifying recorder protocol",27000);log("Checking device services");ble.probe(adapter.getRemoteDevice(address));publish();return;
@@ -127,7 +127,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         if(action.equals("connect")){
             if(!i.getBooleanExtra("automatic",false))cancelAutomaticConnection();
             if(converting||receiver!=null)throw new IOException("Finish or cancel the current transfer first");
-            lastDraft="";syncTarget="";
+            ownership.connectionAttempt();lastDraft="";syncTarget="";
             stopScan();ble.close();abortTransfer();resetSync();deferSync=i.getBooleanExtra("defer_sync",false);operation++;pending="";authorized=false;connected=false;recordState=-1;recordName="";firmware="";capacity="";battery="Not received";dirs.clear();files.clear();directory="";
             address=i.getStringExtra("address");deviceName=i.getStringExtra("name");if(deviceName==null)deviceName="JWD recorder";
             pairingRequested=false;pairingVariant=-1;pairingStage="";gattVerified=false;connectionStage="connecting";
@@ -294,7 +294,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     @Override public void command(byte[] data){
         if(!sessionCurrent()&&!authorized)return;
         try{for(String value:JwdProtocol.replies(data))if(!value.isEmpty())reply(value.trim());}
-        catch(Exception e){if(receiver!=null||pending.equals("download"))transferFailed("Invalid device response: "+e.getMessage());else{syncFailed(e.getMessage());problem("Invalid device response: "+e.getMessage());}}
+        catch(Exception e){if(receiver!=null||pending.equals("download"))transferFailed("Invalid device response: "+e.getMessage());else if(ownership.changing()){ownershipInventory=false;ownershipReading=false;ownership.fail(e.getMessage());}else{syncFailed(e.getMessage());problem("Invalid device response: "+e.getMessage());}}
     }
     private void reply(String value)throws Exception{
         String[] p=value.split("&",-1);if(p.length<2)return;String type=p[1];
@@ -435,10 +435,10 @@ public final class JwdService extends Service implements JwdBle.Listener {
                 store.deviceRecordSynced(mac,dir,name,seconds,draft.optString("id"));
                 try{UploadQueue.saved(this,draft);}catch(Exception ignored){/* The verified local draft remains available for manual retry. */}
                 source.delete();handler.post(()->{converting=false;releaseWake();if(syncTarget.isEmpty()&&lastDraft.isEmpty()||matchesTarget(name)){lastDraft=draft.optString("id");syncTarget="";store.pendingDeviceRecord(mac,"");}message="Saved on this phone"+(verification.equals("length_only")?" · Device checksum unavailable":" · Checksum verified");log(message);publish();if(syncing)try{nextSyncFile();}catch(Exception e){syncFailed(e.getMessage());problem(e.getMessage());}});
-            }catch(Exception e){handler.post(()->{converting=false;releaseWake();syncFailed(e.getMessage());problem("Audio could not finish syncing: "+e.getMessage()+". Original audio is kept.");});}
+            }catch(Exception e){handler.post(()->{converting=false;releaseWake();syncFailed(e.getMessage());if(ownership.changing()){ownershipInventory=false;ownershipReading=false;ownership.fail(e.getMessage());}else problem("Audio could not finish syncing: "+e.getMessage()+". Original audio is kept.");});}
         });
     }
-    private void transferFailed(String reason){abortTransfer();syncFailed(reason);ble.close();authorized=false;connected=false;recordState=-1;pending="";operation++;problem(reason);}
+    private void transferFailed(String reason){abortTransfer();syncFailed(reason);ble.close();authorized=false;connected=false;recordState=-1;pending="";operation++;if(ownership.changing()){ownershipInventory=false;ownershipReading=false;ownership.fail(reason);}else problem(reason);}
     private void abortTransfer(){
         handler.removeCallbacks(transferWatch);if(receiver!=null)try{receiver.close();}catch(Exception ignored){}receiver=null;
         if(raw!=null){raw.delete();raw=null;}if(!converting)releaseWake();

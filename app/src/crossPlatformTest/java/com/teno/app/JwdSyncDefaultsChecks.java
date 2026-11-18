@@ -69,6 +69,7 @@ final class JwdSyncDefaultsChecks {
             onService(()->{
                 set(service,"ble",new JwdTransport(){public void connect(BluetoothDevice d){}public void probe(BluetoothDevice d){}public void close(){}public void send(String value){respond(value);}});
                 set(service,"address",address);set(service,"deviceName","Synthetic recorder");set(service,"connected",true);set(service,"authorized",true);set(service,"recordState",0);
+                ((RecorderOwnership)get(service,"ownership")).state="owned";
                 set(service,"connectionOwner",store.scope());set(service,"connectionEpoch",JwdService.sessionEpoch.get());JwdService.accountClosing=false;
                 reply("MCU&AUTO&STA&"+filename);reply("MCU&AUTO&STO");
             });

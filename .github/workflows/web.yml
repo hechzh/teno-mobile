@@ -1,7 +1,7 @@
 name: Teno Web preview
 on:
   push:
-    branches: ["feature/teno-web-*", "feature/teno-mvp-*", "feature/teno-0.8.*", "fix/teno-0.8.*"]
+    branches: ["feature/teno-web-*", "feature/teno-mvp-*", "feature/teno-0.8.*", "feature/teno-0.9.*", "fix/teno-0.8.*"]
   workflow_dispatch:
 permissions:
   contents: read

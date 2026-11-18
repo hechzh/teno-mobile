@@ -51,6 +51,7 @@ final class JwdRuntimeChecks {
                 set(service,"ble",new JwdTransport(){public void connect(BluetoothDevice d){}public void probe(BluetoothDevice d){}public void close(){}public void send(String value){commands.add(value);}});
                 set(service,"address",address);set(service,"deviceName","HQ-10_P_FIXTURE");
                 set(service,"connected",true);set(service,"authorized",true);set(service,"recordState",0);
+                ((RecorderOwnership)get(service,"ownership")).state="owned";
             });
             test.check(JwdProtocol.candidateName("HQ-10_P_FIXTURE")&&JwdProtocol.candidateName("hq-11_p_fixture")&&JwdProtocol.candidateName("KIOLO_FIXTURE"),"jwd_vendor_names_are_candidates");
             test.check(!JwdProtocol.candidateName("Headphones")&&!JwdProtocol.candidateName(null),"unrelated_names_are_not_jwd_matches");

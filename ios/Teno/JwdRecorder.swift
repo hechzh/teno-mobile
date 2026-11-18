@@ -29,7 +29,7 @@ import JwdVtrSDK
     private var commandTask: Task<Void,Never>?
     private var connectionGeneration = 0
     lazy var ownership: RecorderOwnership = { let value = RecorderOwnership(store:store,api:api); value.port = self; return value }()
-    private var ownershipListing = false, ownershipReading = false, ownershipReconnectPending = false
+    private var ownershipListing = false, ownershipReading = false, ownershipReconnectPending = false, ownershipSeeking = false
     private var ownershipAuthRejected = false
     private var ownershipEntries: [String] = []
     private var listingDirectory = ""
@@ -91,7 +91,7 @@ import JwdVtrSDK
             guard store.state().signedIn else { throw RuntimeFailure("SIGN_IN", "Sign in to connect your recorder.") }
         }
         if action == .disconnect {
-            ownership.cancel(); ownershipReconnectPending = false
+            ownership.cancel(); ownershipReconnectPending = false; ownershipSeeking = false
             requestGeneration += 1; cancelAutomatic(); central?.stopScan()
             if let device = peripheral {
                 central?.cancelPeripheralConnection(device); disconnected(device,error:nil)
@@ -127,7 +127,7 @@ import JwdVtrSDK
             var found = discovered[selected]
             if found == nil, let uuid = UUID(uuidString: selected) { found = central.retrievePeripherals(withIdentifiers: [uuid]).first }
             guard let device = found else { throw RuntimeFailure("DEVICE_NOT_FOUND", "Scan for your recorder again.") }
-            central.stopScan(); peripheral = device; identifier = selected; self.name = name.isEmpty ? device.name ?? "Recorder" : name
+            ownership.connectionAttempt(); central.stopScan(); peripheral = device; identifier = selected; self.name = name.isEmpty ? device.name ?? "Recorder" : name
             probeOnly = action == .probe; busy = true; authorized = false; status = "Checking recorder service"
             central.connect(device); timeout("Connection timed out. Check your recorder and try again.", disconnect: true); return
         }
@@ -165,7 +165,7 @@ import JwdVtrSDK
         autoQueue.removeAll(); scanTimer?.cancel(); earlySelection?.cancel()
     }
     func cancelAccountConnection() {
-        ownership.cancel(); ownershipReconnectPending = false
+        ownership.cancel(); ownershipReconnectPending = false; ownershipSeeking = false
         requestGeneration += 1; connectionGeneration += 1
         cancelAutomatic(); central?.stopScan(); deadline?.cancel()
         commands.removeAll(); commandTask?.cancel(); commandTask = nil
@@ -191,7 +191,7 @@ import JwdVtrSDK
         while !autoQueue.isEmpty {
             let id = autoQueue.removeFirst()
             guard autoTried.insert(id).inserted, let device = discovered[id] else { continue }
-            autoProbing = true; probeOnly = true; busy = true; authorized = false
+            ownership.connectionAttempt(); autoProbing = true; probeOnly = true; busy = true; authorized = false
             peripheral = device; identifier = id; name = device.name ?? "JWD recorder"
             status = "Verifying recorder protocol"
             central.connect(device)
@@ -298,10 +298,12 @@ import JwdVtrSDK
         else if !probeOnly { status = "Recorder disconnected" }
         discardTransfer()
         ownershipListing = false; ownershipReading = false
-        if ownershipReconnectPending {
+        if ownershipSeeking {
+            ownershipSeeking = false; startOwnershipScan()
+        } else if ownershipReconnectPending {
             ownershipReconnectPending = false; reconnectOwnership(device)
         } else if continueSelection { nextAutomaticProbe() }
-        else if ownership.running && !ownershipAuthRejected { ownership.fail("Recorder disconnected. Continue the pending operation.") }
+        else if (ownership.running || ownership.requesting) && !ownershipAuthRejected { ownership.fail("Recorder disconnected. Continue the pending operation.") }
         else if candidates[identifier]?["key_rejected"] as? Bool == true { status = "Device key was rejected. Use the original key; the recorder was not reset." }
         ownershipAuthRejected = false
     }
@@ -352,7 +354,7 @@ import JwdVtrSDK
     func ownershipKey(_ key: String) { waiting = "auth"; busy = true; send { self.sdk.bindDevice(key) }; timeout("Recorder authorization timed out. Check the original key.",disconnect:true) }
     func ownershipChanged() { status = ownership.message; busy = ownership.requesting || ownership.running }
     func ownershipClose(_ message: String) {
-        ownershipReconnectPending = false; status = message; authorized = false; waiting = ""; busy = false
+        ownershipReconnectPending = false; ownershipSeeking = false; status = message; authorized = false; waiting = ""; busy = false
         if let peripheral { central?.cancelPeripheralConnection(peripheral) }
     }
     func ownershipReconnect() {
@@ -372,7 +374,11 @@ import JwdVtrSDK
     }
     func ownershipSeek() {
         if automatic, !autoQueue.isEmpty, let device = peripheral { autoProbing = true; central.cancelPeripheralConnection(device); return }
-        if let device = peripheral { central.cancelPeripheralConnection(device); disconnected(device,error:nil) }
+        if let device = peripheral { ownershipSeeking = true; central.cancelPeripheralConnection(device); return }
+        startOwnershipScan()
+    }
+    private func startOwnershipScan() {
+        busy = false; waiting = ""
         Task { do { try await command(.scan,id:"",name:"") } catch { ownership.fail(error.localizedDescription) } }
     }
     func ownershipUnbind() {
@@ -396,7 +402,7 @@ import JwdVtrSDK
         if Self.isStoppedReply(value,fileName:fileName,seconds:currentTime) {
             if ownershipListing, waiting == "ownership_state" { startOwnershipListing(); return }
             if phase == "saving" { return }
-            let shouldSync = waiting == "stop" || ["recording","paused","stopping","interrupted"].contains(phase)
+            let shouldSync = waiting == "stop" || waiting == "state" || ["recording","paused","stopping","interrupted"].contains(phase)
             accumulated = elapsed; recordStarted = nil; deadline?.cancel(); waiting = ""; busy = false; phase = "idle"
             status = "Recorder stopped"
             if shouldSync, store.state().signedIn { scheduleSync() } else { recordName = "" }
@@ -414,10 +420,10 @@ import JwdVtrSDK
             if status == 0 { startOwnershipListing() } else { ownership.fail("Stop recording before changing recorder ownership.") }; return
         }
         if status == 0 && (waiting.isEmpty || waiting == "state") && !receiving && phase != "saving" {
-            let wasRecording = ["recording","paused","stopping","interrupted"].contains(phase)
+            let shouldSync = waiting == "state" || ["recording","paused","stopping","interrupted"].contains(phase)
             deadline?.cancel(); waiting = ""; busy = false; recordStateKnown = true
             accumulated = elapsed; phase = "idle"; recordStarted = nil; self.status = "Recorder connected"
-            if wasRecording, store.state().signedIn { scheduleSync() } else { recordName = "" }
+            if shouldSync, store.state().signedIn { scheduleSync() } else { recordName = "" }
         } else if status == 1 {
             waiting = "state"; busy = true; send { self.sdk.getRecordInfo() }
             timeout("Recorder status did not arrive. Wake the recorder and reconnect.",disconnect:true)

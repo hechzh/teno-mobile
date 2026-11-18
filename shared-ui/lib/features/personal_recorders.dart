@@ -354,6 +354,9 @@ class _RecorderOperationPageState extends State<RecorderOperationPage> {
         final state = text(data['state']),
             mine = data['initiated_by_me'] == true,
             native = object(data['native']);
+        final code = text(data['transfer_code']).isNotEmpty
+            ? text(data['transfer_code'])
+            : widget.transferCode;
         return ListView(
           padding: const EdgeInsets.all(coreInset),
           children: [
@@ -367,13 +370,11 @@ class _RecorderOperationPageState extends State<RecorderOperationPage> {
             const UiText(
               'The app verifies the same recorder, checks all card files, changes authorization, and confirms that the old code is rejected. Keep the recorder nearby and do not start a recording.',
             ),
-            if (state == 'awaiting_recipient' &&
-                widget.transferCode.isNotEmpty) ...[
+            if (state == 'awaiting_recipient' && code.isNotEmpty) ...[
               const SizedBox(height: 16),
-              SelectableText(widget.transferCode),
+              SelectableText(code),
               TextButton(
-                onPressed: () =>
-                    Clipboard.setData(ClipboardData(text: widget.transferCode)),
+                onPressed: () => Clipboard.setData(ClipboardData(text: code)),
                 child: const UiText('Copy transfer code'),
               ),
               const UiText(

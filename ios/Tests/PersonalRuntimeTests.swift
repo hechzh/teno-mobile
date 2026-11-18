@@ -107,12 +107,16 @@ final class PersonalRuntimeTests: XCTestCase {
     }
     @MainActor func testSecureDeviceCodeAndLastDevicePolicy() throws {
         let (store,_) = try fixture()
+        store.identity("owner","one")
         let code = try JwdRecorder.newDeviceCode()
         XCTAssertNotNil(code.range(of:"^[A-Za-z0-9]{16}$",options:.regularExpression))
         let identifier = UUID().uuidString
         try store.saveDeviceKey(identifier,code); XCTAssertEqual(try store.deviceKey(identifier),code)
-        try store.logout(); XCTAssertEqual(try store.deviceKey(identifier),code)
-        try store.vault.set("device." + identifier,nil)
+        let scope = store.scope
+        try store.logout(); XCTAssertEqual(try store.deviceKey(identifier),"")
+        store.identity("other","two"); XCTAssertEqual(try store.deviceKey(identifier),"")
+        store.identity("owner","one"); XCTAssertEqual(try store.deviceKey(identifier),code)
+        try store.vault.set("device." + scope + "." + identifier,nil)
         let devices: [JSONObject] = [["address":"weak","rssi":-80],["address":"strong","rssi":-30],["address":"fake","rssi":-10,"gatt_status":"unsupported"]]
         XCTAssertEqual(JwdRecorder.connectionOrder(devices,previous:""),["strong","weak"])
         XCTAssertEqual(JwdRecorder.connectionOrder(devices,previous:"weak"),["weak"])
@@ -143,4 +147,56 @@ final class PersonalRuntimeTests: XCTestCase {
         XCTAssertFalse(JwdRecorder.isStoppedReply(3,fileName:"recording.opus",seconds:0))
         XCTAssertFalse(JwdRecorder.isStoppedReply(1,fileName:"recording.opus",seconds:0))
     }
+    @MainActor func testProtocolIdentityAndCompleteFileHashAreIndependentOfNamesAndOrder() throws {
+        XCTAssertEqual(try RecorderOwnership.canonical("a0:b1:c2:d3:e4:f5"),"A0B1C2D3E4F5")
+        XCTAssertEqual(try RecorderOwnership.canonical("A0-B1-C2-D3-E4-F5"),"A0B1C2D3E4F5")
+        XCTAssertThrowsError(try RecorderOwnership.canonical("VTR7860_P_8CBEDB9C"))
+        XCTAssertThrowsError(try RecorderOwnership.canonical("000000000000"))
+        let first = ["folder/a.wav|2|hashA","folder/b.wav|3|hashB"]
+        XCTAssertEqual(RecorderOwnership.inventoryHash(first),RecorderOwnership.inventoryHash(Array(first.reversed())))
+        XCTAssertNotEqual(RecorderOwnership.inventoryHash(first),RecorderOwnership.inventoryHash(["folder/a.wav|2|changed","folder/b.wav|3|hashB"]))
+        let (store,api) = try fixture(); store.identity("owner","one")
+        let upload = UploadQueue(store:store,api:api)
+        XCTAssertEqual(upload.fields(["id":"local-file","upload_client_id":"jwd-verified-file"]).first?.1,"jwd-verified-file")
+    }
+    @MainActor func testSameAccountRecoveryUsesServerKeyOnlyAfterVerifiedIdentity() async throws {
+        let (store,api) = try fixture(); store.identity("owner","one"); try store.saveTokens(["access_token":"fixture"])
+        let recorder: JSONObject = ["id":"owned-card","hardware_id":"A0B1C2D3E4F5","name":"VTR7860_P_8CBEDB9C","epoch":3]
+        var requests: [String] = []
+        FixtureProtocol.respond = { request in
+            requests.append(request.url!.path)
+            if request.url!.path.hasSuffix("/resolve") { return (200,["state":"owned","recorder":recorder]) }
+            if request.url!.path.hasSuffix("/restore") { return (200,recorder.merging(["device_key":"OriginalCode1234"]){_,new in new}) }
+            return (500,[:])
+        }
+        let controller=RecorderOwnership(store:store,api:api),port=OwnershipFixturePort(); controller.port=port
+        try controller.identity("a0:b1:c2:d3:e4:f5",id:"new-phone-peripheral",name:"Renamed recorder")
+        for _ in 0..<200 { if !port.keys.isEmpty { break }; try await Task.sleep(nanoseconds:10_000_000) }
+        XCTAssertEqual(port.keys,["OriginalCode1234"]); XCTAssertEqual(requests,["/api/v1/recorders/resolve","/api/v1/recorders/owned-card/restore"])
+        XCTAssertEqual(try store.deviceKey("new-phone-peripheral"),"OriginalCode1234")
+        XCTAssertFalse(port.ready); try controller.accepted(); XCTAssertTrue(port.ready)
+        store.identity("other","two"); XCTAssertEqual(try store.deviceKey("new-phone-peripheral"),"")
+    }
+    @MainActor func testUnownedAndForeignCardsNeverReceiveAnAutomaticNewCode() async throws {
+        let (store,api) = try fixture(); store.identity("owner","one"); try store.saveTokens(["access_token":"fixture"])
+        for result in ["claim_required","transfer_required"] {
+            FixtureProtocol.respond = { _ in (200,["state":result]) }
+            let controller=RecorderOwnership(store:store,api:api),port=OwnershipFixturePort();controller.port=port
+            try controller.identity("A0B1C2D3E4F5",id:"candidate",name:"VTR7860_P_8CBEDB9C")
+            for _ in 0..<200 { if controller.state==result { break }; try await Task.sleep(nanoseconds:10_000_000) }
+            XCTAssertEqual(controller.state,result);XCTAssertTrue(port.keys.isEmpty);XCTAssertFalse(port.ready)
+        }
+    }
+}
+
+@MainActor private final class OwnershipFixturePort: RecorderOwnershipPort {
+    var keys: [String] = [], ready=false
+    func ownershipKey(_ key: String){keys.append(key)}
+    func ownershipReconnect(){}
+    func ownershipInventory(){}
+    func ownershipUnbind(){}
+    func ownershipReady(){ready=true}
+    func ownershipChanged(){}
+    func ownershipClose(_ message: String){}
+    func ownershipSeek(){}
 }

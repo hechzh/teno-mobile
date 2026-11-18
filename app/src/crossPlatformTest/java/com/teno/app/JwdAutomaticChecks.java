@@ -20,7 +20,7 @@ final class JwdAutomaticChecks {
         SharedPreferences prefs=context.getSharedPreferences("teno",0);
         String strong="00:00:00:00:07:11",weak="00:00:00:00:07:12";
         Map<String,Object> saved=new HashMap<>();
-        for(String key:Arrays.asList("jwd.key."+strong,"jwd.key."+weak,"jwd.last_address","jwd.last_name","scope","username","session"))saved.put(key,prefs.getAll().get(key));
+        for(String key:Arrays.asList("jwd.key."+strong,"jwd.key."+weak,"jwd.last_address","jwd.last_name","scope","username","session","server"))saved.put(key,prefs.getAll().get(key));
         String snapshot=JwdService.snapshot;
         JwdService service=new JwdService();Method attach=ContextWrapper.class.getDeclaredMethod("attachBaseContext",Context.class);attach.setAccessible(true);attach.invoke(service,context);
         test.runOnMainSync(service::onCreate);Handler handler=(Handler)get(service,"handler");
@@ -33,7 +33,7 @@ final class JwdAutomaticChecks {
                 boolean rejected=false;try{handle.invoke(service,new Intent().setAction(action));}catch(InvocationTargetException e){rejected=e.getCause() instanceof java.io.IOException;}
                 test.check(rejected,"signed_out_service_rejects_"+action);
             }
-            store.identity("Synthetic JWD login gate","jwd-auth-fixture");
+            store.base("http://127.0.0.1:9");store.identity("Synthetic JWD login gate","jwd-auth-fixture");
             store.tokens(new JSONObject().put("access_token","synthetic-jwd-fixture"));
             prefs.edit().remove("jwd.key."+strong).remove("jwd.key."+weak).commit();
             call.accept(()->{
@@ -49,9 +49,12 @@ final class JwdAutomaticChecks {
             call.accept(()->service.serviceChecked(false,"Unsupported synthetic device"));
             test.check(probes.equals(Arrays.asList(strong,weak))&&store.deviceKey(strong).isEmpty(),"unsupported_protocol_is_skipped_without_binding");
             call.accept(()->service.serviceChecked(true,"Verified synthetic JWD"));
-            String key=store.deviceKey(weak);
-            test.check(JwdProtocol.validKey(key)&&connections.equals(Arrays.asList(weak)),"verified_device_gets_persisted_secure_code_before_connect");
+            test.check(store.deviceKey(weak).isEmpty()&&connections.equals(Arrays.asList(weak)),"verified_profile_connects_without_generating_a_new_code");
+            String key=JwdProtocol.newKey();store.deviceKey(weak,key);store.recorderIdentity(weak,new JSONObject().put("hardware_id","A0B1C2D3E4F5").put("id","fixture-owned"));
             call.accept(service::ready);
+            test.check(commands.contains("APP&MAC")&&commands.stream().noneMatch(v->v.startsWith("APP&SK&")),"hardware_identity_precedes_key_authorization");
+            call.accept(()->service.command("MCU&MAC&A0B1C2D3E4F5".getBytes(java.nio.charset.StandardCharsets.US_ASCII)));
+            test.until(()->commands.contains("APP&SK&"+key));
             test.check(commands.contains("APP&SK&"+key),"authorization_reads_the_saved_code");
             call.accept(()->service.command("MCU&SK&ERR".getBytes(java.nio.charset.StandardCharsets.US_ASCII)));
             test.check(store.deviceKey(weak).equals(key)&&connections.size()==1,"rejected_code_is_preserved_without_reset_or_fallthrough");

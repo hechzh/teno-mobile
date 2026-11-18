@@ -44,6 +44,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
             else if(mode.equals("jwd-auto"))JwdAutomaticChecks.run(this);
             else if(mode.equals("processing-082"))Processing082Checks.run(this,context);
             else if(mode.equals("sync-defaults"))new JwdSyncDefaultsChecks(this).run();
+            else if(mode.equals("ownership-090")){try(RecorderOwnershipChecks checks=new RecorderOwnershipChecks(this)){checks.run();}}
             else new RuntimeChecks(this).run();
             passed=true;
         } catch(Throwable e){try{report.put("failure",e.getClass().getSimpleName()+": "+e.getMessage());}catch(Exception ignored){}}

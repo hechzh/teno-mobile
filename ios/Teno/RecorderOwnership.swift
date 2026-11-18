@@ -39,6 +39,7 @@ import CryptoKit
     private var journal: String { "recorder.operation." + owner }
     private func persist() throws { operation["local_stage"] = stage; operation["files_before"] = before; try store.vault.set(journal,jsonData(operation)) }
     func cancel() { generation += 1; running = false; requesting = false; auth = ""; state = "disconnected" }
+    func connectionAttempt() { generation += 1; requesting = false; auth = "" }
     private func update(_ state: String, _ message: String) { self.state = state; self.message = message; port?.ownershipChanged() }
     func fail(_ text: String) { generation += 1; running = false; requesting = false; auth = ""; update("recovery_required",text); port?.ownershipClose(text) }
     private func request(_ path: String, _ body: JSONObject, done: @escaping (JSONObject) throws -> Void, offline: (() throws -> Void)? = nil) {
@@ -124,6 +125,12 @@ import CryptoKit
         }
     }
     func rejected() throws {
+        if running, auth == "claim" {
+            request("/api/v1/recorders/operations/" + string(operation["id"]) + "/claim-rejected",[:],done:{ [self] _ in
+                try store.vault.set(journal,nil); operation = [:]; stage = ""; running = false
+                update("claim_required","Device key was rejected. Use the original key; the recorder was not reset."); port?.ownershipClose(message)
+            }); return
+        }
         if auth == "reject_old" { try checkpoint("old_key_rejected") { self.port?.ownershipReconnect() }; return }
         if running, auth == "new", stage == "rotation_requested" { stage = "inventory_saved"; try persist(); port?.ownershipReconnect(); return }
         fail("Device key was rejected. Use the original key; the recorder was not reset.")

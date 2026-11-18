@@ -39,6 +39,7 @@ final class RecorderOwnership {
     boolean changing(){return running;}
     String hardware(){return hardware;}
     void cancel(){generation++;running=false;requesting=false;auth="";state="disconnected";}
+    void connectionAttempt(){generation++;requesting=false;auth="";}
     void dispose(){cancel();network.shutdownNow();}
     private void update(String state,String message){this.state=state;this.message=message;port.changed();}
     private String journal(){return "jwd.operation."+owner;}
@@ -118,6 +119,12 @@ final class RecorderOwnership {
         }
     }
     boolean rejected()throws Exception{
+        if(running&&auth.equals("claim")){
+            api("/api/v1/recorders/operations/"+operation.getString("id")+"/claim-rejected",new JSONObject(),value->{
+                store.secure(journal(),"");operation=new JSONObject();stage="";running=false;
+                update("claim_required","Device key was rejected. Use the original key; the recorder was not reset.");port.close(message);
+            },null);return true;
+        }
         if(auth.equals("reject_old")){checkpoint("old_key_rejected",()->port.reconnect());return true;}
         if(running&&auth.equals("new")&&stage.equals("rotation_requested")){
             // Power loss may have occurred before BLE&OFF. Re-verify the old key and inventory.
