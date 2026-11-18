@@ -85,6 +85,15 @@ def package(version,evidence_dir=None,private_values=(),report_enabled=True):
         manifest['jwd_selection_ui']=False
         manifest['jwd_first_connection']='strongest candidate, verified GATT channels, persisted secure code, protocol authorization'
         manifest['jwd_reconnection']='last successfully authorized recorder, existing code'
+    if tuple(map(int,version.split('.'))) >= (0,9,0):
+        ownership=read(qa/'ownership-090-runtime-report.json')
+        assert ownership['all_passed'] and ownership['apk_sha256']==sha(apk)
+        manifest['recorder_ownership_fixture_checks']=len(ownership['checks'])
+        manifest['jwd_first_connection']='verified protocol identity, explicit ownership consent, original authorization or new unowned-card authorization'
+        manifest['jwd_reconnection']='last successfully authorized recorder belonging to the current account; restore encrypted authorization for the same account'
+        manifest['device_ownership_implemented']=True
+        manifest['device_ownership_physical_acceptance']='pending'
+        manifest['mcp_scope']='explicitly selected personal text; immutable snapshot until manual update'
     for name in ('release-manifest.json',f'Teno-{version}-release-manifest.json'):(dist/name).write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
     (qa/'release-signature.txt').write_text(signature,encoding='utf-8');(qa/'release-badging.txt').write_text(badging,encoding='utf-8')
     (dist/'SHA256SUMS.txt').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in sorted(dist.iterdir()) if p.suffix in ('.apk','.ipa','.zip')),encoding='utf-8')
