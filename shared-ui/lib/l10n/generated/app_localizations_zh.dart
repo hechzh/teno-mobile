@@ -3082,4 +3082,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get recorderOwnership083 => '请稍后重试。';
+
+  @override
+  String get navigationRefresh => '刷新';
+
+  @override
+  String get navigationNext => '下一页';
+
+  @override
+  String get navigationPrevious => '上一页';
+
+  @override
+  String get deviceClaimRejectedOnly => '只有初次授权明确被拒绝后，才能重新登记。';
+
+  @override
+  String get deviceVerifySteps => '请按顺序完成设备验证。';
+
+  @override
+  String get deviceStartFirst => '请先开始设备验证。';
+
+  @override
+  String get deviceNewOperationsPaused => '暂时停止新的录音卡登记和转交。';
 }

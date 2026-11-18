@@ -33,7 +33,7 @@ final class JwdAutomaticChecks {
                 boolean rejected=false;try{handle.invoke(service,new Intent().setAction(action));}catch(InvocationTargetException e){rejected=e.getCause() instanceof java.io.IOException;}
                 test.check(rejected,"signed_out_service_rejects_"+action);
             }
-            store.base("http://127.0.0.1:9");store.identity("Synthetic JWD login gate","jwd-auth-fixture");
+            store.base("http://127.0.0.1:9");store.identity("Synthetic JWD login gate","jwd-auth-fixture-"+System.nanoTime());
             store.tokens(new JSONObject().put("access_token","synthetic-jwd-fixture"));
             prefs.edit().remove("jwd.key."+strong).remove("jwd.key."+weak).commit();
             call.accept(()->{

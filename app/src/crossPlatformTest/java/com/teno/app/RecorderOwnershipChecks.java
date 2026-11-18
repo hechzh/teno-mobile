@@ -85,7 +85,7 @@ final class RecorderOwnershipChecks implements AutoCloseable {
             test.until(()->new JSONObject(JwdService.snapshot).getJSONObject("ownership").optString("state").equals("claim_required"));
             test.check(!owned&&bound.equals("OtherOriginal123"),"explicit_key_rejection_releases_initial_claim_without_changing_card");
             bound=oldKey;onService(()->service.ready());
-            test.until(()->new JSONObject(JwdService.snapshot).getJSONObject("ownership").optString("state").equals("claim_required")&&new JSONObject(JwdService.snapshot).optBoolean("connected"));
+            test.until(()->new JSONObject(JwdService.snapshot).getJSONObject("ownership").optString("state").equals("claim_required")&&new JSONObject(JwdService.snapshot).optBoolean("connected")&&new JSONObject(JwdService.snapshot).optString("pending").isEmpty());
             action("ownership_claim",new JSONObject().put("confirm",true));
             test.until(()->owned&&new JSONObject(JwdService.snapshot).optBoolean("authorized"));
             test.until(()->store.drafts().length()>0&&!new JSONObject(JwdService.snapshot).optBoolean("busy"));

@@ -1158,5 +1158,12 @@
   "recorderOwnership080": "Verify old authorization rejection and unchanged card files.",
   "recorderOwnership081": "Confirm the recipient first.",
   "recorderOwnership082": "Check your password.",
-  "recorderOwnership083": "Try again shortly."
+  "recorderOwnership083": "Try again shortly.",
+  "navigationRefresh": "Refresh",
+  "navigationNext": "Next",
+  "navigationPrevious": "Previous",
+  "deviceClaimRejectedOnly": "Only a rejected initial authorization can be released.",
+  "deviceVerifySteps": "Complete each device verification step in order.",
+  "deviceStartFirst": "Start this recorder operation first.",
+  "deviceNewOperationsPaused": "New recorder registration and transfers are temporarily paused."
 }

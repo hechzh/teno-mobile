@@ -3327,4 +3327,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recorderOwnership083 => 'Try again shortly.';
+
+  @override
+  String get navigationRefresh => 'Refresh';
+
+  @override
+  String get navigationNext => 'Next';
+
+  @override
+  String get navigationPrevious => 'Previous';
+
+  @override
+  String get deviceClaimRejectedOnly =>
+      'Only a rejected initial authorization can be released.';
+
+  @override
+  String get deviceVerifySteps =>
+      'Complete each device verification step in order.';
+
+  @override
+  String get deviceStartFirst => 'Start this recorder operation first.';
+
+  @override
+  String get deviceNewOperationsPaused =>
+      'New recorder registration and transfers are temporarily paused.';
 }

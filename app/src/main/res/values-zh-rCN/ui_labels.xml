@@ -986,4 +986,11 @@
   <string name="ui_recorderownership081" formatted="false">请先确认接收方。</string>
   <string name="ui_recorderownership082" formatted="false">请检查账号密码。</string>
   <string name="ui_recorderownership083" formatted="false">请稍后重试。</string>
+  <string name="ui_navigationrefresh" formatted="false">刷新</string>
+  <string name="ui_navigationnext" formatted="false">下一页</string>
+  <string name="ui_navigationprevious" formatted="false">上一页</string>
+  <string name="ui_deviceclaimrejectedonly" formatted="false">只有初次授权明确被拒绝后，才能重新登记。</string>
+  <string name="ui_deviceverifysteps" formatted="false">请按顺序完成设备验证。</string>
+  <string name="ui_devicestartfirst" formatted="false">请先开始设备验证。</string>
+  <string name="ui_devicenewoperationspaused" formatted="false">暂时停止新的录音卡登记和转交。</string>
 </resources>

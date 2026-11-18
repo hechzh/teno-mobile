@@ -100,7 +100,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             if(!signedIn()||i.getLongExtra("session_epoch",sessionEpoch.get())!=sessionEpoch.get())throw new IOException("Sign in to connect your recorder.");
             if(Arrays.asList("scan","scan_compat","connect","probe","ownership_operation").contains(action)){connectionEpoch=sessionEpoch.get();connectionOwner=store.scope();}
         }
-        if(action.equals("ownership_claim")){ownership.claim(i.getStringExtra("original_key")==null?"":i.getStringExtra("original_key"),i.getBooleanExtra("confirm",false));return;}
+        if(action.equals("ownership_claim")){if(!connected||!pending.isEmpty())throw new IOException("Connect and authorize the recorder first");ownership.claim(i.getStringExtra("original_key")==null?"":i.getStringExtra("original_key"),i.getBooleanExtra("confirm",false));return;}
         if(action.equals("ownership_select")){
             if(recordState>0||converting||receiver!=null||syncing)throw new IOException("Finish recording and syncing before switching recorders.");
             ownership.cancel();ownershipReconnect=false;ble.close();connected=false;authorized=false;pending="";operation++;
@@ -304,7 +304,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
             if(p.length<3)return;
             if(p[2].equals("OK")&&pending.equals("auth")){
                 done("auth");if(found.containsKey(address))found.get(address).put("key_rejected",false);ownership.accepted();
-            }else if(p[2].equals("ERR")&&pending.equals("auth")){done("auth");abortTransfer();ble.close();connected=false;authorized=false;ownership.rejected();}
+            }else if(p[2].equals("ERR")&&pending.equals("auth")){done("auth");if(found.containsKey(address))found.get(address).put("key_rejected",true);abortTransfer();ble.close();connected=false;authorized=false;ownership.rejected();}
             publish();return;
         }
         if(!authorized)return;

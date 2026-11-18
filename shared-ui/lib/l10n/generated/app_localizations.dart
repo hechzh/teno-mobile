@@ -6133,6 +6133,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again shortly.'**
   String get recorderOwnership083;
+
+  /// No description provided for @navigationRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get navigationRefresh;
+
+  /// No description provided for @navigationNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get navigationNext;
+
+  /// No description provided for @navigationPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get navigationPrevious;
+
+  /// No description provided for @deviceClaimRejectedOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a rejected initial authorization can be released.'**
+  String get deviceClaimRejectedOnly;
+
+  /// No description provided for @deviceVerifySteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete each device verification step in order.'**
+  String get deviceVerifySteps;
+
+  /// No description provided for @deviceStartFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Start this recorder operation first.'**
+  String get deviceStartFirst;
+
+  /// No description provided for @deviceNewOperationsPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'New recorder registration and transfers are temporarily paused.'**
+  String get deviceNewOperationsPaused;
 }
 
 class _AppLocalizationsDelegate

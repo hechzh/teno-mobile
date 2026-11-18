@@ -35,7 +35,7 @@ subprocess.run(['node', str(repo/'scripts/compress_web_assets.cjs'), str(build)]
 files = {p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
          for p in release_files(build) if p.name != 'release.json'}
 manifest = {'version': version, 'build_number': int(build_number), 'source_commit': commit, 'app_ui_base': re.search(r"versionName '([^']+)'", (repo/'app/build.gradle').read_text(encoding='utf-8'))[1],
-            'backend_minimum': '1.7.0', 'files': files}
+            'backend_minimum': '1.8.0', 'files': files}
 (build/'release.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
 args.output.mkdir(parents=True, exist_ok=True)
 prefix = 'Teno-Web-'+version

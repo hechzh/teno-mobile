@@ -1057,5 +1057,12 @@
   "recorderOwnership080": "请确认旧授权失效，且卡内文件保持完整。",
   "recorderOwnership081": "请先确认接收方。",
   "recorderOwnership082": "请检查账号密码。",
-  "recorderOwnership083": "请稍后重试。"
+  "recorderOwnership083": "请稍后重试。",
+  "navigationRefresh": "刷新",
+  "navigationNext": "下一页",
+  "navigationPrevious": "上一页",
+  "deviceClaimRejectedOnly": "只有初次授权明确被拒绝后，才能重新登记。",
+  "deviceVerifySteps": "请按顺序完成设备验证。",
+  "deviceStartFirst": "请先开始设备验证。",
+  "deviceNewOperationsPaused": "暂时停止新的录音卡登记和转交。"
 }

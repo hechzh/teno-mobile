@@ -987,5 +987,12 @@ String lookupUiMessage(AppLocalizations l, String source) => switch (source) {
   "Confirm the recipient first." => l.recorderOwnership081,
   "Check your password." => l.recorderOwnership082,
   "Try again shortly." => l.recorderOwnership083,
+  "Refresh" => l.navigationRefresh,
+  "Next" => l.navigationNext,
+  "Previous" => l.navigationPrevious,
+  "Only a rejected initial authorization can be released." => l.deviceClaimRejectedOnly,
+  "Complete each device verification step in order." => l.deviceVerifySteps,
+  "Start this recorder operation first." => l.deviceStartFirst,
+  "New recorder registration and transfers are temporarily paused." => l.deviceNewOperationsPaused,
   _ => source,
 };

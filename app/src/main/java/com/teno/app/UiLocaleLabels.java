@@ -988,6 +988,13 @@ final class UiLocaleLabels {
       case "Confirm the recipient first.": return R.string.ui_recorderownership081;
       case "Check your password.": return R.string.ui_recorderownership082;
       case "Try again shortly.": return R.string.ui_recorderownership083;
+      case "Refresh": return R.string.ui_navigationrefresh;
+      case "Next": return R.string.ui_navigationnext;
+      case "Previous": return R.string.ui_navigationprevious;
+      case "Only a rejected initial authorization can be released.": return R.string.ui_deviceclaimrejectedonly;
+      case "Complete each device verification step in order.": return R.string.ui_deviceverifysteps;
+      case "Start this recorder operation first.": return R.string.ui_devicestartfirst;
+      case "New recorder registration and transfers are temporarily paused.": return R.string.ui_devicenewoperationspaused;
       default: return 0;
     }
   }

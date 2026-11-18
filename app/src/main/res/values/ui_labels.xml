@@ -986,4 +986,11 @@
   <string name="ui_recorderownership081" formatted="false">Confirm the recipient first.</string>
   <string name="ui_recorderownership082" formatted="false">Check your password.</string>
   <string name="ui_recorderownership083" formatted="false">Try again shortly.</string>
+  <string name="ui_navigationrefresh" formatted="false">Refresh</string>
+  <string name="ui_navigationnext" formatted="false">Next</string>
+  <string name="ui_navigationprevious" formatted="false">Previous</string>
+  <string name="ui_deviceclaimrejectedonly" formatted="false">Only a rejected initial authorization can be released.</string>
+  <string name="ui_deviceverifysteps" formatted="false">Complete each device verification step in order.</string>
+  <string name="ui_devicestartfirst" formatted="false">Start this recorder operation first.</string>
+  <string name="ui_devicenewoperationspaused" formatted="false">New recorder registration and transfers are temporarily paused.</string>
 </resources>
