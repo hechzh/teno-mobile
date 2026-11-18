@@ -9,6 +9,7 @@ import '../ui/personal_widgets.dart';
 import 'detail.dart';
 import 'generation_options.dart';
 import 'personal_import.dart';
+import 'personal_recorders.dart';
 
 Future<void> startPhone(BuildContext context, TenoModel model) async =>
     perform(context, () async {
@@ -240,6 +241,7 @@ class _DevicePageState extends State<DevicePage> {
               style: const TextStyle(color: muted),
             ),
             const SizedBox(height: 24),
+            RecorderRegistration(model),
             if (device.authorized) ...[
               MenuRow(
                 Icons.battery_std,

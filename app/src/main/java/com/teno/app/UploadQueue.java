@@ -123,7 +123,7 @@ final class UploadQueue {
             synchronized(Store.class){draft=store.draft(id);store.freezeGeneration(draft);draft.put("template_frozen",true).put("status","uploading").put("upload_attempts",draft.optInt("upload_attempts")+1).remove("error");store.save(draft);}
             File audio=new File(draft.getString("path"));if(!audio.isFile()||audio.length()==0)throw new IOException("No valid audio file found");
             boolean document=draft.optString("kind").equals("file");
-            JSONObject fields=new JSONObject().put("client_id",id);
+            JSONObject fields=new JSONObject().put("client_id",draft.optString("upload_client_id",id));
             fields.put("template_id",draft.optString("template_id","teno:general"));
             fields.put("template_origin",draft.optString("template_origin","selection"));
             fields.put("output_language",draft.getString("output_language")).put("output_language_origin",draft.optString("output_language_origin","interface"));

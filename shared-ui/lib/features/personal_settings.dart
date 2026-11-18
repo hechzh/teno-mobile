@@ -12,6 +12,8 @@ import 'routes/recorder.dart';
 import 'interface_language.dart';
 import 'routes/personal_notes.dart';
 import 'note_templates.dart';
+import 'routes/personal_mcp.dart';
+import 'routes/personal_recorders.dart';
 import '../l10n/ui_strings.dart';
 
 Widget settingsGroup(BuildContext context, String title) => Padding(
@@ -77,6 +79,7 @@ class PersonalSettings extends StatelessWidget {
           () => push(context, PersonalCalendarPage(model)),
         ),
       ],
+      settingsEntry(context,'My recorders',Icons.devices_other,()=>push(context,MyRecordersPage(model))),
       settingsEntry(
         context,
         'Templates',
@@ -118,6 +121,12 @@ class PersonalSettings extends StatelessWidget {
         ),
       const Divider(height: 24),
       settingsGroup(context, 'Privacy & data'),
+      settingsEntry(
+        context,
+        'Codex connections',
+        Icons.hub_outlined,
+        () => push(context, McpConnectionsPage(model)),
+      ),
       settingsEntry(
         context,
         'Account & security',

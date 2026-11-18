@@ -39,6 +39,7 @@ class _TenoAppState extends State<TenoApp> {
     animation: widget.model,
     builder: (context, _) => MaterialApp(
       title: 'Teno',
+      initialRoute: '/',
       builder: widget.builder,
       locale: widget.model.interfaceLanguage == 'system'
           ? null

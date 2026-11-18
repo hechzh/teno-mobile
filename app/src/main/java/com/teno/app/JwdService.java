@@ -43,9 +43,24 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private String downloadName="",downloadDir="",downloadScope="";private long downloadSeconds;private boolean endSeen;
     private boolean syncing,deferSync;private String syncScope="",syncTarget="",syncError="";private int syncDirectory,syncRetry;
     private final ArrayList<JSONObject> syncFiles=new ArrayList<>();
+    private RecorderOwnership ownership;
+    private boolean ownershipInventory,ownershipReading,ownershipReconnect;
+    private int inventoryDirectory;
+    private final ArrayList<String> inventoryEntries=new ArrayList<>();
+    private final ArrayDeque<JSONObject> inventoryFiles=new ArrayDeque<>();
     @Override public IBinder onBind(Intent intent){return null;}
     @Override public void onCreate(){
         super.onCreate();store=new Store(this);thread=new HandlerThread("Teno-JWD");thread.start();handler=new Handler(thread.getLooper());ble=new JwdBle(this,handler,this);
+        ownership=new RecorderOwnership(store,handler,new RecorderOwnership.Port(){
+            public void sendKey(String key){try{begin("auth","Authorizing recorder",15000);ble.send("APP&SK&"+key);}catch(Exception e){problem(e.getMessage());}}
+            public void reconnect(){reconnectOwnership();}
+            public void inventory(){try{authorized=true;deferSync=true;ownershipInventory=true;inventoryDirectory=0;inventoryEntries.clear();inventoryFiles.clear();refresh();}catch(Exception e){problem(e.getMessage());}}
+            public void unbind(){try{ownershipReconnect=true;begin("rotate","Updating recorder authorization",20000);ble.send("APP&BLE&OFF");}catch(Exception e){ownershipReconnect=false;problem(e.getMessage());}}
+            public void ready(){try{authorized=true;deferSync=false;autoDiscovery=false;syncTarget=store.pendingDeviceRecord(address);ble.send("APP&T&"+new SimpleDateFormat("yyyyMMddHHmmss",Locale.ROOT).format(new Date()));refresh();}catch(Exception e){problem(e.getMessage());}}
+            public void changed(){message=ownership.message;publish();}
+            public void close(String text){ownershipReconnect=false;ble.close();connected=false;authorized=false;pending="";operation++;message=text;publish();}
+            public void seek(){ble.close();connected=false;authorized=false;pending="";operation++;if(autoDiscovery){nextAutomaticProbe();}else try{scan(false);}catch(Exception e){problem(e.getMessage());}}
+        });
         adapter=((BluetoothManager)getSystemService(BLUETOOTH_SERVICE)).getAdapter();
         IntentFilter pairingFilter=new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST);
         pairingFilter.addAction(BluetoothDevice.ACTION_FOUND);pairingFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
@@ -83,11 +98,21 @@ public final class JwdService extends Service implements JwdBle.Listener {
         String action=i.getAction();if(action==null)return;
         if(!Arrays.asList("disconnect","stop","cancel").contains(action)){
             if(!signedIn()||i.getLongExtra("session_epoch",sessionEpoch.get())!=sessionEpoch.get())throw new IOException("Sign in to connect your recorder.");
-            if(Arrays.asList("scan","scan_compat","connect","probe").contains(action)){connectionEpoch=sessionEpoch.get();connectionOwner=store.scope();}
+            if(Arrays.asList("scan","scan_compat","connect","probe","ownership_operation").contains(action)){connectionEpoch=sessionEpoch.get();connectionOwner=store.scope();}
+        }
+        if(action.equals("ownership_claim")){ownership.claim(i.getStringExtra("original_key")==null?"":i.getStringExtra("original_key"),i.getBooleanExtra("confirm",false));return;}
+        if(action.equals("ownership_select")){
+            if(recordState>0||converting||receiver!=null||syncing)throw new IOException("Finish recording and syncing before switching recorders.");
+            ownership.cancel();ownershipReconnect=false;ble.close();connected=false;authorized=false;pending="";operation++;
+            store.selectRecorder(RecorderOwnership.canonical(i.getStringExtra("hardware_id")));message="Recorder selected";publish();return;
+        }
+        if(action.equals("ownership_operation")){
+            if(recordState>0||converting||receiver!=null||syncing||RecorderService.active||RecorderService.finishing)throw new IOException("Finish recording and syncing before transferring this recorder.");
+            deferSync=true;ownership.start(i.getStringExtra("operation_id"));return;
         }
         if(action.equals("prepare_recording")){deferSync=true;syncing=false;syncFiles.clear();publish();return;}
         if(action.equals("resume_sync")){deferSync=false;if(authorized&&recordState==0&&pending.isEmpty()&&receiver==null&&!converting)startSync();return;}
-        if(action.equals("disconnect")){cancelAutomaticConnection();if(converting)throw new IOException("Wait for the decoded file to finish saving before disconnecting");releaseRecordingWake();stopScan();abortTransfer();resetSync();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;message="Disconnected. Check the recorder: it may still be recording.";publish();stopSelf();return;}
+        if(action.equals("disconnect")){cancelAutomaticConnection();if(converting)throw new IOException("Wait for the decoded file to finish saving before disconnecting");ownership.cancel();ownershipReconnect=false;releaseRecordingWake();stopScan();abortTransfer();resetSync();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;message="Disconnected. Check the recorder: it may still be recording.";publish();stopSelf();return;}
         if(action.equals("scan")||action.equals("scan_compat")){scan(action.equals("scan_compat"));return;}
         if(action.equals("probe")){
             if(!i.getBooleanExtra("automatic",false))cancelAutomaticConnection();
@@ -107,11 +132,10 @@ public final class JwdService extends Service implements JwdBle.Listener {
             address=i.getStringExtra("address");deviceName=i.getStringExtra("name");if(deviceName==null)deviceName="JWD recorder";
             pairingRequested=false;pairingVariant=-1;pairingStage="";gattVerified=false;connectionStage="connecting";
             if(!BluetoothAdapter.checkBluetoothAddress(address))throw new IOException("Invalid Bluetooth address");
-            if(store.deviceKey(address).isEmpty())throw new IOException("Save a device key before connecting");
             if(adapter==null||!adapter.isEnabled())throw new IOException("Turn on Bluetooth");
             begin("connect","Connecting automatically",27000);log("Connecting recorder");ble.connect(adapter.getRemoteDevice(address));handler.postDelayed(()->{if(deferSync){deferSync=false;if(authorized&&recordState==0&&pending.isEmpty())try{startSync();}catch(Exception e){syncFailed(e.getMessage());}}},45000);publish();return;
         }
-        if(!authorized)throw new IOException("Connect and authorize the recorder first");
+        if(!authorized||ownership.blocked())throw new IOException("Connect and authorize the recorder first");
         if(action.equals("cancel")){
             if(converting)throw new IOException("Decoding audio…");
             // Close the connection to fence late packets before another file transfer can start.
@@ -185,9 +209,6 @@ public final class JwdService extends Service implements JwdBle.Listener {
         autoProbing=false;
         if(!matches){nextAutomaticProbe();return;}
         try{
-            // Persist before APP&SK, then reuse the same code after retries/restarts.
-            if(store.deviceKey(address).isEmpty())store.deviceKey(address,JwdProtocol.newKey());
-            autoDiscovery=false;autoQueue.clear();
             handle(new Intent().setAction("connect").putExtra("address",address).putExtra("name",deviceName).putExtra("automatic",true));
         }catch(Exception e){cancelAutomaticConnection();problem("The device code could not be saved. Try connecting again.");}
     }
@@ -228,9 +249,28 @@ public final class JwdService extends Service implements JwdBle.Listener {
     }
     @Override public void ready(){
         if(!sessionCurrent()){ble.close();return;}
-        connected=true;connectionStage="app_key_auth";try{begin("auth","Connected. Checking device key…",15000);ble.send("APP&SK&"+store.deviceKey(address));publish();}catch(Exception e){problem("The key could not be read. Enter the original key again.");ble.close();connected=false;publish();}
+        connected=true;connectionStage="hardware_identity";try{begin("identity","Reading recorder identity",15000);ble.send("APP&MAC");publish();}catch(Exception e){problem(e.getMessage());ble.close();connected=false;publish();}
+    }
+    private void reconnectOwnership(){
+        if(!sessionCurrent())return;
+        ownershipReconnect=false;ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;
+        long epoch=connectionEpoch;
+        handler.postDelayed(()->{if(!sessionCurrent()||epoch!=connectionEpoch)return;try{begin("connect","Reconnecting to verify authorization",27000);ble.connect(adapter.getRemoteDevice(address));}catch(Exception e){problem(e.getMessage());}},700);
+    }
+    private void nextOwnershipDirectory()throws Exception{
+        if(!ownershipInventory)return;
+        if(recordState!=0){ownershipInventory=false;throw new IOException("Stop recording before changing recorder ownership.");}
+        if(inventoryDirectory<dirs.size()){directory=dirs.get(inventoryDirectory++);files.clear();begin("files","Verifying card files",20000);ble.send("APP&LIST&"+directory);}
+        else{ownershipInventory=false;ownershipReading=true;nextOwnershipFile();}
+    }
+    private void nextOwnershipFile()throws Exception{
+        if(!sessionCurrent()||recordState!=0)throw new IOException("Stop recording before changing recorder ownership.");
+        if(inventoryFiles.isEmpty()){ownershipReading=false;ownership.inventory(inventoryEntries);return;}
+        JSONObject file=inventoryFiles.removeFirst();downloadFile(file.getString("dir"),file.getString("name"),file.getLong("seconds"));
     }
     @Override public void closed(String reason){
+        if(ownershipReconnect&&sessionCurrent()){ownershipReconnect=false;reconnectOwnership();return;}
+        ownershipInventory=false;ownershipReading=false;ownership.disconnected();
         releaseRecordingWake();
         abortTransfer();syncFailed(reason);connected=false;authorized=false;recordState=-1;pending="";operation++;if(autoProbing){autoProbing=false;nextAutomaticProbe();return;}message=(pairingRequested?"Android requested a PIN. Cancel the prompt and export diagnostics. ":"")+reason;log(reason);publish();
     }
@@ -240,8 +280,9 @@ public final class JwdService extends Service implements JwdBle.Listener {
             if(generation!=operation||pending.isEmpty()||destroyed)return;
             if(pending.equals("download")){transferFailed("Transfer did not start in time. Reconnect and try again.");return;}
             String old=pending;pending="";message="Recorder did not confirm the action ("+old+"). Refresh device status or reconnect.";
+            if(ownership.changing()){ownershipInventory=false;ownershipReading=false;ownershipReconnect=false;ownership.fail(message);return;}
             if(syncing)syncFailed(message);
-            if(old.equals("auth")||old.equals("start")||old.equals("stop")||old.equals("probe")||old.equals("connect")){releaseRecordingWake();ble.close();authorized=false;connected=false;recordState=-1;}
+            if(old.equals("auth")||old.equals("identity")||old.equals("rotate")||old.equals("start")||old.equals("stop")||old.equals("probe")||old.equals("connect")){ownershipReconnect=false;releaseRecordingWake();ble.close();authorized=false;connected=false;recordState=-1;}
             log(message);publish();if(old.equals("probe"))automaticProbeFinished(false);
         },timeout);
     }
@@ -257,12 +298,13 @@ public final class JwdService extends Service implements JwdBle.Listener {
     }
     private void reply(String value)throws Exception{
         String[] p=value.split("&",-1);if(p.length<2)return;String type=p[1];
+        if(type.equals("MAC")&&pending.equals("identity")&&p.length==3){done("identity");ownership.identity(p[2],address,deviceName);publish();return;}
         if(type.equals("SK")){
             if(!sessionCurrent())return;
             if(p.length<3)return;
             if(p[2].equals("OK")&&pending.equals("auth")){
-                done("auth");authorized=true;if(found.containsKey(address))found.get(address).put("key_rejected",false);store.rememberRecorder(address,deviceName);syncTarget=store.pendingDeviceRecord(address);log("Recorder authorized");ble.send("APP&T&"+new SimpleDateFormat("yyyyMMddHHmmss",Locale.ROOT).format(new Date()));refresh();
-            }else if(p[2].equals("ERR")){abortTransfer();ble.close();connected=false;authorized=false;pending="";operation++;if(found.containsKey(address))found.get(address).put("key_rejected",true);cancelAutomaticConnection();message="Device key was rejected. Use the original key; the recorder was not reset.";log(message);}
+                done("auth");if(found.containsKey(address))found.get(address).put("key_rejected",false);ownership.accepted();
+            }else if(p[2].equals("ERR")&&pending.equals("auth")){done("auth");abortTransfer();ble.close();connected=false;authorized=false;ownership.rejected();}
             publish();return;
         }
         if(!authorized)return;
@@ -285,9 +327,9 @@ public final class JwdService extends Service implements JwdBle.Listener {
             case "AUTO":if(p.length>2&&p[2].equals("STO")){stopped();scheduleSync();}else if(p.length>3&&p[2].equals("STA"))recording(p[3],0);break;
             case "DISK":case "REC":if(value.endsWith("&ERR")){pending="";operation++;recordState=-1;problem(type.equals("DISK")?"Recorder storage is full":"The recorder reported an audio error");}break;
             case "DIRS":if(pending.equals("dirs")&&p.length>2){String dir=JwdProtocol.part(p[2]);if(!dirs.contains(dir))dirs.add(dir);}break;
-            case "DIRS_SUM":if(pending.equals("dirs")&&p.length>2){int total=Integer.parseInt(p[2]);done("dirs");if(total!=dirs.size()){dirs.clear();throw new IOException("Folder list is incomplete. Refresh it.");}Collections.sort(dirs,Collections.reverseOrder());message="Recorder connected · "+dirs.size()+" folders";if(syncing)nextSyncDirectory();else if(!deferSync)scheduleSync();}break;
+            case "DIRS_SUM":if(pending.equals("dirs")&&p.length>2){int total=Integer.parseInt(p[2]);done("dirs");if(total!=dirs.size()){dirs.clear();throw new IOException("Folder list is incomplete. Refresh it.");}Collections.sort(dirs,Collections.reverseOrder());message="Recorder connected · "+dirs.size()+" folders";if(ownershipInventory)nextOwnershipDirectory();else if(syncing)nextSyncDirectory();else if(!deferSync)scheduleSync();}break;
             case "F":if(pending.equals("files")&&p.length>=5&&directory.equals(p[2])){String name=JwdProtocol.part(p[3]);boolean exists=false;for(JSONObject file:files)if(file.optString("name").equals(name))exists=true;if(!exists)files.add(new JSONObject().put("name",name).put("seconds",Long.parseLong(p[4])));}break;
-            case "LIST":if(pending.equals("files")&&p.length>2){int total=Integer.parseInt(p[2]);done("files");if(total!=files.size()){files.clear();throw new IOException("File list is incomplete. Load it again.");}Collections.sort(files,(a,b)->b.optString("name").compareTo(a.optString("name")));message="Loaded "+files.size()+" recordings";if(syncing){for(JSONObject file:files)if(!store.deviceRecordSynced(address,directory,file.optString("name"),file.optLong("seconds")))syncFiles.add(new JSONObject(file.toString()).put("dir",directory));nextSyncDirectory();}}break;
+            case "LIST":if(pending.equals("files")&&p.length>2){int total=Integer.parseInt(p[2]);done("files");if(total!=files.size()){files.clear();throw new IOException("File list is incomplete. Load it again.");}Collections.sort(files,(a,b)->b.optString("name").compareTo(a.optString("name")));message="Loaded "+files.size()+" recordings";if(ownershipInventory){for(JSONObject file:files)inventoryFiles.add(new JSONObject(file.toString()).put("dir",directory));nextOwnershipDirectory();}else if(syncing){for(JSONObject file:files)if(!store.deviceRecordSynced(address,directory,file.optString("name"),file.optLong("seconds")))syncFiles.add(new JSONObject(file.toString()).put("dir",directory));nextSyncDirectory();}}break;
             case "U":
                 if(p.length>2&&p[2].equals("ERR")){transferFailed("The recorder could not read this file. Stop recording and try again.");break;}
                 if(pending.equals("download")&&p.length>2){
@@ -319,7 +361,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     }
     private final Runnable syncLater=()->{if(authorized&&recordState==0&&!deferSync&&!syncing&&pending.isEmpty()&&receiver==null&&!converting)try{startSync();}catch(Exception e){syncFailed(e.getMessage());problem(e.getMessage());}};
     private void startSync()throws Exception{
-        if(!sessionCurrent())return;
+        if(!sessionCurrent()||ownership.blocked())return;
         if(recordState!=0||!pending.isEmpty()||receiver!=null||converting)return;
         syncing=true;syncScope=store.scope();syncError="";syncFiles.clear();syncDirectory=0;refresh();publish();
     }
@@ -380,7 +422,14 @@ public final class JwdService extends Service implements JwdBle.Listener {
         decoder.execute(()->{
             try{
                 if(!identity.equals(store.scope()))throw new IOException("The account changed. The original file was kept without adding it to another account.");
+                String digest=JwdAudio.fileHash(source);
+                if(ownershipReading){
+                    source.delete();handler.post(()->{converting=false;releaseWake();try{inventoryEntries.add(dir+"/"+name+"|"+seconds+"|"+digest);nextOwnershipFile();}catch(Exception e){ownership.fail(e.getMessage());}});return;
+                }
                 JSONObject draft=JwdAudio.importVerified(store,source,mac,dir,name,seconds,verification,percent->handler.post(()->{if(!destroyed){message="Decoding audio "+percent+"%";publish();}}));
+                if(!ownership.hardware().isEmpty()&&draft.optInt("upload_attempts")==0&&draft.optString("recording_id").isEmpty()&&draft.optString("upload_client_id").isEmpty()){
+                    draft.put("upload_client_id","jwd-"+JwdAudio.hash((ownership.hardware()+"\n"+dir+"\n"+name+"\n"+digest).getBytes(StandardCharsets.UTF_8)));
+                }
                 draft.put("template_id",store.recorderTemplate("jwd:"+mac+"|"+name));store.generationOptions(draft,store.recorderOptions("jwd:"+mac+"|"+name));store.save(draft);
                 String notes=store.recorderNotes(mac,name);if(!notes.isEmpty()){draft.put("notes",notes);store.save(draft);}
                 store.deviceRecordSynced(mac,dir,name,seconds,draft.optString("id"));
@@ -407,7 +456,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private void publish(){
         if(destroyed)return;try{
             JSONObject s=new JSONObject().put("message",message).put("connection_stage",connectionStage).put("jwd_service_verified",gattVerified).put("system_pairing_requested",pairingRequested).put("system_pairing_variant",pairingVariant).put("system_pairing_stage",pairingStage).put("scanning",scanning).put("compatibility_scan",compatibilityScanning).put("connected",connected).put("authorized",authorized).put("name",deviceName).put("address",address).put("battery",battery).put("firmware",firmware).put("capacity",capacity).put("record_state",recordState).put("record_name",recordName).put("record_start",recordStart).put("directory",directory).put("pending",pending).put("converting",converting).put("last_draft",lastDraft).put("busy",converting||receiver!=null||!pending.isEmpty()).put("receiving",receiver!=null||pending.equals("download")).put("received",receiver==null?0:receiver.received()).put("expected",receiver==null?0:receiver.expected).put("devices",verifiedDevices()).put("dirs",new JSONArray(dirs)).put("files",new JSONArray(files)).put("log",new JSONArray(logs));
-            s.put("syncing",syncing).put("sync_target",syncTarget).put("sync_error",syncError).put("busy",syncing||converting||receiver!=null||!pending.isEmpty());
+            s.put("ownership",ownership.view()).put("syncing",syncing).put("sync_target",syncTarget).put("sync_error",syncError).put("busy",syncing||converting||receiver!=null||!pending.isEmpty()||ownership.changing());
             long now=SystemClock.elapsedRealtime();
             long elapsed=recordState>0?Math.max(0,(recordState==2?recordPausedAt:now)-recordStart-recordPausedTotal)
                 :recordName.isEmpty()?0:elapsed(new JSONObject(snapshot),now);
@@ -421,6 +470,6 @@ public final class JwdService extends Service implements JwdBle.Listener {
     @Override public void onDestroy(){
         try{unregisterReceiver(pairingReceiver);}catch(IllegalArgumentException ignored){}
         active=false;handler.post(()->{releaseRecordingWake();stopScan();abortTransfer();ble.close();connected=false;authorized=false;recordState=-1;pending="";operation++;publish();destroyed=true;releaseWake();thread.quitSafely();});
-        decoder.shutdownNow();super.onDestroy();
+        ownership.dispose();decoder.shutdownNow();super.onDestroy();
     }
 }

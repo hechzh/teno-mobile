@@ -47,6 +47,22 @@ final class PersonalRuntime {
     void command(String command,String json,Result<String> result){
         try{
             JSONObject args=json==null?new JSONObject():new JSONObject(json);
+            if(command.startsWith("recorder_")){
+                runtime.signedIn();
+                if(command.equals("recorder_ownership")){JSONObject value=runtime.device().optJSONObject("ownership");result.success((value==null?new JSONObject():value).toString());return;}
+                if(command.equals("recorder_select")){
+                    if(runtime.device().optBoolean("busy")||runtime.device().optInt("record_state",-1)>0)throw new IOException("Finish recording and syncing before switching recorders.");
+                    String hardware=RecorderOwnership.canonical(args.getString("hardware_id"));
+                    activity.startForegroundService(new Intent(activity,JwdService.class).setAction("ownership_select").putExtra("hardware_id",hardware).putExtra("session_epoch",JwdService.sessionEpoch.get()));result.success("{}");return;
+                }
+                if(command.equals("recorder_claim")||command.equals("recorder_operation")){
+                    if(JwdService.accountClosing)throw new IOException("Sign in to continue.");
+                    activity.startForegroundService(new Intent(activity,JwdService.class).setAction(command.equals("recorder_claim")?"ownership_claim":"ownership_operation")
+                        .putExtra("confirm",args.optBoolean("confirm")).putExtra("original_key",args.optString("original_key"))
+                        .putExtra("operation_id",args.optString("operation_id")).putExtra("session_epoch",JwdService.sessionEpoch.get()));
+                    result.success("{}");return;
+                }
+            }
             if(command.equals("interface_locale")){
                 if(args.has("locale"))UiLocale.set(activity,args.getString("locale"));
                 result.success(new JSONObject().put("locale",UiLocale.preference(activity)).toString());return;

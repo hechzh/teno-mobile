@@ -10,6 +10,12 @@ import java.nio.file.*;
 import java.util.*;
 
 final class JwdAudio {
+    static String hash(byte[] bytes)throws Exception{return hex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));}
+    private static String hex(byte[] bytes){StringBuilder value=new StringBuilder();for(byte b:bytes)value.append(String.format(Locale.ROOT,"%02x",b&255));return value.toString();}
+    static String fileHash(File file)throws Exception{
+        java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");byte[] buffer=new byte[65536];
+        try(InputStream input=new FileInputStream(file)){for(int n;(n=input.read(buffer))>0;)digest.update(buffer,0,n);}return hex(digest.digest());
+    }
     interface Progress {void update(int percent);}
     static boolean opusFrame(byte[] b){
         if(b.length!=80)return false;int toc=b[0]&255;

@@ -858,4 +858,132 @@
   <string name="ui_recorderautomaticsyncpreparing" formatted="false">Preparing to sync recording</string>
   <string name="ui_recordingautomaticcloudhelp" formatted="false">Recorder files sync to this phone after recording stops. Cloud processing uploads a copy for transcription and notes.</string>
   <string name="ui_recordersyncwaitforstop" formatted="false">Wait for the recorder to stop before syncing.</string>
+  <string name="ui_mcpconnections" formatted="false">Codex connections</string>
+  <string name="ui_mcpintroduction" formatted="false">Connect Codex to recordings and notes you select. Each connection keeps a fixed snapshot until you update it.</string>
+  <string name="ui_mcpcreateconnection" formatted="false">Create connection</string>
+  <string name="ui_mcpactive" formatted="false">Active connection</string>
+  <string name="ui_mcppaused" formatted="false">Paused connection</string>
+  <string name="ui_mcprevoked" formatted="false">Revoked connection</string>
+  <string name="ui_mcpsnapshot" formatted="false">Snapshot</string>
+  <string name="ui_mcpconnect" formatted="false">Connect Codex</string>
+  <string name="ui_mcpselectionhelp" formatted="false">Select saved transcript text and notes. Audio and unselected attachments are not included.</string>
+  <string name="ui_mcpname" formatted="false">Connection name</string>
+  <string name="ui_mcpincludesource" formatted="false">Include the transcript version used by this note</string>
+  <string name="ui_mcpexpiry" formatted="false">Connection expiry</string>
+  <string name="ui_mcpuntilrevoked" formatted="false">Until revoked</string>
+  <string name="ui_mcpsevendays" formatted="false">7 days</string>
+  <string name="ui_mcpthirtydays" formatted="false">30 days</string>
+  <string name="ui_mcpreview" formatted="false">Review selected content</string>
+  <string name="ui_mcpexactcontent" formatted="false">This exact content will be shared with Codex after you authorize it.</string>
+  <string name="ui_mcpcreatelink" formatted="false">Create MCP link</string>
+  <string name="ui_mcprevokenotice" formatted="false">Revoking stops future reads. It cannot remove content already read by Codex.</string>
+  <string name="ui_mcpdefaultname" formatted="false">Selected personal context</string>
+  <string name="ui_mcpsourcerevision" formatted="false">Source version</string>
+  <string name="ui_mcpsavedon" formatted="false">Saved on</string>
+  <string name="ui_mcpsourcerevoked" formatted="false">Source access revoked</string>
+  <string name="ui_mcpupdatequestion" formatted="false">Update connection snapshot?</string>
+  <string name="ui_mcpupdatenotice" formatted="false">Codex will read these versions on its next request. Existing external conversations keep what they already read.</string>
+  <string name="ui_mcpupdate" formatted="false">Update content</string>
+  <string name="ui_mcprevokequestion" formatted="false">Revoke this connection?</string>
+  <string name="ui_mcpconnection" formatted="false">Codex connection</string>
+  <string name="ui_mcplastread" formatted="false">Last read</string>
+  <string name="ui_mcpcopylink" formatted="false">Copy MCP link</string>
+  <string name="ui_mcpcodexsetup" formatted="false">In Codex, open Settings → MCP servers, add this URL, then authenticate with the same Teno account.</string>
+  <string name="ui_mcpfrozenhelp" formatted="false">Fixed snapshot. Your later edits appear only after you choose Update content.</string>
+  <string name="ui_mcpopencitation" formatted="false">Open cited passage</string>
+  <string name="ui_mcppause" formatted="false">Pause connection</string>
+  <string name="ui_mcpresume" formatted="false">Resume connection</string>
+  <string name="ui_mcprevoke" formatted="false">Revoke connection</string>
+  <string name="ui_mcpsnapshottext" formatted="false">Snapshot text</string>
+  <string name="ui_mcptextunavailable" formatted="false">Finish transcribing the selected recording first.</string>
+  <string name="ui_mcpsourceunavailable" formatted="false">The selected transcript version is unavailable.</string>
+  <string name="ui_mcpemptynote" formatted="false">The selected note has no saved text.</string>
+  <string name="ui_mcpversionchanged" formatted="false">The selected content changed. Review it again.</string>
+  <string name="ui_mcprestored" formatted="false">Create a new connection to authorize restored content again.</string>
+  <string name="ui_mcpnosourceversion" formatted="false">This note has no saved source transcript version.</string>
+  <string name="ui_mcpsnapshotchanged" formatted="false">The owner updated this connection. List sources again.</string>
+  <string name="ui_mcpunavailable" formatted="false">This connection has expired, paused or been revoked.</string>
+  <string name="ui_recorderownership000" formatted="false">Ready to register</string>
+  <string name="ui_recorderownership001" formatted="false">Waiting for the recipient</string>
+  <string name="ui_recorderownership002" formatted="false">Confirm the recipient</string>
+  <string name="ui_recorderownership003" formatted="false">Ready for device verification</string>
+  <string name="ui_recorderownership004" formatted="false">Device verification pending</string>
+  <string name="ui_recorderownership005" formatted="false">Recorder operation completed</string>
+  <string name="ui_recorderownership006" formatted="false">My recorders</string>
+  <string name="ui_recorderownership007" formatted="false">Transfer recorder</string>
+  <string name="ui_recorderownership008" formatted="false">Release recorder ownership</string>
+  <string name="ui_recorderownership009" formatted="false">Card recordings will remain on the card and can be received by the next owner. Your cloud library and local copies stay with your account.</string>
+  <string name="ui_recorderownership010" formatted="false">Account password</string>
+  <string name="ui_recorderownership011" formatted="false">I confirm that the card recordings may be transferred.</string>
+  <string name="ui_recorderownership012" formatted="false">Receive a recorder</string>
+  <string name="ui_recorderownership013" formatted="false">Transfer code</string>
+  <string name="ui_recorderownership014" formatted="false">I agree to receive the recordings already on this card.</string>
+  <string name="ui_recorderownership015" formatted="false">Receive recorder</string>
+  <string name="ui_recorderownership016" formatted="false">One account can own several recorders. Each recorder belongs to one account at a time.</string>
+  <string name="ui_recorderownership017" formatted="false">Use the mobile app with your recorder nearby to register, restore or transfer it.</string>
+  <string name="ui_recorderownership018" formatted="false">Recorder identity</string>
+  <string name="ui_recorderownership019" formatted="false">Authorization generation</string>
+  <string name="ui_recorderownership020" formatted="false">Authorization backed up for this account</string>
+  <string name="ui_recorderownership021" formatted="false">Use this recorder</string>
+  <string name="ui_recorderownership022" formatted="false">Recorder operations</string>
+  <string name="ui_recorderownership023" formatted="false">No recorders registered to this account yet.</string>
+  <string name="ui_recorderownership024" formatted="false">Recorder operation</string>
+  <string name="ui_recorderownership025" formatted="false">Recipient</string>
+  <string name="ui_recorderownership026" formatted="false">The app verifies the same recorder, checks all card files, changes authorization, and confirms that the old code is rejected. Keep the recorder nearby and do not start a recording.</string>
+  <string name="ui_recorderownership027" formatted="false">Copy transfer code</string>
+  <string name="ui_recorderownership028" formatted="false">The recipient enters this code in My recorders. It does not grant access to your cloud library.</string>
+  <string name="ui_recorderownership029" formatted="false">Prepared at</string>
+  <string name="ui_recorderownership030" formatted="false">Continue this operation in the mobile app.</string>
+  <string name="ui_recorderownership031" formatted="false">Continue device verification</string>
+  <string name="ui_recorderownership032" formatted="false">Verify recorder and finish</string>
+  <string name="ui_recorderownership033" formatted="false">Cancel operation</string>
+  <string name="ui_recorderownership034" formatted="false">Cloud recordings and notes remain with their original account.</string>
+  <string name="ui_recorderownership035" formatted="false">Register this recorder</string>
+  <string name="ui_recorderownership036" formatted="false">This recorder will belong to your account. Existing card recordings will sync using your cloud processing settings.</string>
+  <string name="ui_recorderownership037" formatted="false">Original device code, if needed</string>
+  <string name="ui_recorderownership038" formatted="false">Leave this blank for a new recorder or when the original code is already saved on this phone.</string>
+  <string name="ui_recorderownership039" formatted="false">Register recorder</string>
+  <string name="ui_recorderownership040" formatted="false">Open recorder operation</string>
+  <string name="ui_recorderownership041" formatted="false">Recorder identity could not be verified.</string>
+  <string name="ui_recorderownership042" formatted="false">Saved authorization is unreadable.</string>
+  <string name="ui_recorderownership043" formatted="false">Could not save recorder identity.</string>
+  <string name="ui_recorderownership044" formatted="false">Could not save recorder authorization.</string>
+  <string name="ui_recorderownership045" formatted="false">Checking recorder ownership</string>
+  <string name="ui_recorderownership046" formatted="false">Continue the pending recorder operation.</string>
+  <string name="ui_recorderownership047" formatted="false">Confirm this recorder and its existing recordings.</string>
+  <string name="ui_recorderownership048" formatted="false">Ask the owner to transfer this recorder.</string>
+  <string name="ui_recorderownership049" formatted="false">Connect to the internet to restore recorder authorization.</string>
+  <string name="ui_recorderownership050" formatted="false">Connect to the internet to continue the pending recorder operation.</string>
+  <string name="ui_recorderownership051" formatted="false">Confirm the connected recorder first.</string>
+  <string name="ui_recorderownership052" formatted="false">Wait for the current recorder request.</string>
+  <string name="ui_recorderownership053" formatted="false">Verifying recorder authorization</string>
+  <string name="ui_recorderownership054" formatted="false">The previous authorization is still accepted. Transfer was not completed.</string>
+  <string name="ui_recorderownership055" formatted="false">Recorder disconnected. Continue the pending operation.</string>
+  <string name="ui_recorderownership056" formatted="false">Card files changed. Keep the card unchanged while completing the transfer.</string>
+  <string name="ui_recorderownership057" formatted="false">Card file verification failed. Transfer was not completed.</string>
+  <string name="ui_recorderownership058" formatted="false">Finish recording and syncing before transferring this recorder.</string>
+  <string name="ui_recorderownership059" formatted="false">Finish recording and syncing before switching recorders.</string>
+  <string name="ui_recorderownership061" formatted="false">Updating recorder authorization</string>
+  <string name="ui_recorderownership062" formatted="false">Reading recorder identity</string>
+  <string name="ui_recorderownership063" formatted="false">Reconnecting to verify authorization</string>
+  <string name="ui_recorderownership064" formatted="false">Stop recording before changing recorder ownership.</string>
+  <string name="ui_recorderownership065" formatted="false">Verifying card files</string>
+  <string name="ui_recorderownership066" formatted="false">Recorder did not confirm the authorization change. Continue the pending operation.</string>
+  <string name="ui_recorderownership067" formatted="false">Recorder authorization timed out. Check the original key.</string>
+  <string name="ui_recorderownership068" formatted="false">Device recovery is temporarily unavailable.</string>
+  <string name="ui_recorderownership069" formatted="false">The saved device authorization cannot be recovered.</string>
+  <string name="ui_recorderownership070" formatted="false">This recorder is not assigned to this account.</string>
+  <string name="ui_recorderownership071" formatted="false">Finish the pending recorder operation.</string>
+  <string name="ui_recorderownership072" formatted="false">This transfer code is unavailable.</string>
+  <string name="ui_recorderownership073" formatted="false">Operation is unavailable.</string>
+  <string name="ui_recorderownership074" formatted="false">Reload this transfer.</string>
+  <string name="ui_recorderownership075" formatted="false">Complete both account confirmations first.</string>
+  <string name="ui_recorderownership076" formatted="false">Create a new recorder operation.</string>
+  <string name="ui_recorderownership077" formatted="false">Continue the device verification before changing this operation.</string>
+  <string name="ui_recorderownership078" formatted="false">Reload the current recorder operation.</string>
+  <string name="ui_recorderownership079" formatted="false">Verify the same recorder and its new authorization.</string>
+  <string name="ui_recorderownership080" formatted="false">Verify old authorization rejection and unchanged card files.</string>
+  <string name="ui_recorderownership081" formatted="false">Confirm the recipient first.</string>
+  <string name="ui_recorderownership082" formatted="false">Check your password.</string>
+  <string name="ui_recorderownership083" formatted="false">Try again shortly.</string>
 </resources>

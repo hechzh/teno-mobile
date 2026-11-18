@@ -18,7 +18,8 @@ public final class Store {
     public static final String DEFAULT_URL="https://54-214-180-183.sslip.io";
     private final Context context;
     private final SharedPreferences prefs;
-    public Store(Context c) {context=c.getApplicationContext();prefs=context.getSharedPreferences("teno",0);}
+    public Store(Context c) {context=c.getApplicationContext();prefs=context.getSharedPreferences("teno",0);
+        synchronized(Store.class){if(!prefs.contains("jwd.legacy_owner"))prefs.edit().putString("jwd.legacy_owner",scope()).commit();}}
     public String base(){return prefs.getString("server",DEFAULT_URL);}
     public void base(String url){prefs.edit().putString("server",url.replaceAll("/+$","")).apply();}
     public String name(){return prefs.getString("username","");}
@@ -59,9 +60,31 @@ public final class Store {
     public boolean wifiUpload(){return prefs.getBoolean("wifi_upload."+scope(),false);}
     public boolean liveDefault(){return false;} // Legacy setting cannot enable recording-time transcription.
     public void recordingOptions(boolean cloud,boolean wifi,boolean live){prefs.edit().putBoolean("recording_options."+scope(),true).putBoolean("auto_upload."+scope(),cloud).putBoolean("wifi_upload."+scope(),wifi).putBoolean("live_default",false).commit();}
-    public String recorderAddress(){return prefs.getString("jwd.last_address","");}
-    public String recorderName(){return prefs.getString("jwd.last_name","Recorder");}
-    public void rememberRecorder(String address,String name){prefs.edit().putString("jwd.last_address",address).putString("jwd.last_name",name).commit();}
+    private boolean legacyOwner(){return !scope().isEmpty()&&scope().equals(prefs.getString("jwd.legacy_owner",""));}
+    public String recorderAddress(){return prefs.getString("jwd.last_address."+scope(),legacyOwner()?prefs.getString("jwd.last_address",""):"");}
+    public String recorderName(){return prefs.getString("jwd.last_name."+scope(),legacyOwner()?prefs.getString("jwd.last_name","Recorder"):"Recorder");}
+    public void rememberRecorder(String address,String name){prefs.edit().putString("jwd.last_address."+scope(),address).putString("jwd.last_name."+scope(),name).commit();}
+    public String selectedRecorder(){return prefs.getString("jwd.selected."+scope(),"");}
+    public void selectRecorder(String hardware){prefs.edit().putString("jwd.selected."+scope(),hardware).putString("jwd.last_address."+scope(),"").commit();}
+    public JSONObject recorderIdentity(String address)throws Exception{return new JSONObject(prefs.getString("jwd.identity."+scope()+"."+address,"{}"));}
+    public void recorderIdentity(String address,JSONObject value)throws Exception{
+        if(!prefs.edit().putString("jwd.identity."+scope()+"."+address,value.toString()).commit())throw new IOException("Could not save recorder identity.");
+    }
+    public void forgetRecorder(String address)throws Exception{
+        secure("jwd.account_key."+scope()+"."+address,"");recorderIdentity(address,new JSONObject());
+        prefs.edit().putBoolean("jwd.revoked."+scope()+"."+address,true).putString("jwd.last_address."+scope(),"").remove("jwd.selected."+scope()).commit();
+    }
+    public synchronized String secure(String name)throws Exception{
+        String value=prefs.getString(name,"");if(value.isEmpty())return "";String[] parts=value.split(":");
+        if(parts.length!=2)throw new IOException("Saved authorization is unreadable.");
+        Cipher c=Cipher.getInstance("AES/GCM/NoPadding");c.init(Cipher.DECRYPT_MODE,key(),new GCMParameterSpec(128,Base64.decode(parts[0],Base64.NO_WRAP)));
+        return new String(c.doFinal(Base64.decode(parts[1],Base64.NO_WRAP)),StandardCharsets.UTF_8);
+    }
+    public synchronized void secure(String name,String value)throws Exception{
+        Cipher c=Cipher.getInstance("AES/GCM/NoPadding");c.init(Cipher.ENCRYPT_MODE,key());
+        String encoded=value.isEmpty()?"":Base64.encodeToString(c.getIV(),Base64.NO_WRAP)+":"+Base64.encodeToString(c.doFinal(value.getBytes(StandardCharsets.UTF_8)),Base64.NO_WRAP);
+        if(!prefs.edit().putString(name,encoded).commit())throw new IOException("Could not save recorder authorization.");
+    }
     private String deviceRecordKey(String address,String dir,String name,long seconds){return "jwd.synced."+scope()+"."+address+"."+dir+"."+name+"."+seconds;}
     public boolean deviceRecordSynced(String address,String dir,String name,long seconds){return prefs.contains(deviceRecordKey(address,dir,name,seconds));}
     public void deviceRecordSynced(String address,String dir,String name,long seconds,String id){prefs.edit().putString(deviceRecordKey(address,dir,name,seconds),id).commit();}
@@ -94,16 +117,15 @@ public final class Store {
         }catch(Exception e){return "";}
     }
     public synchronized String deviceKey(String address)throws Exception{
-        String value=prefs.getString("jwd.key."+address,"");if(value.isEmpty())return "";
-        String[] parts=value.split(":");
-        Cipher c=Cipher.getInstance("AES/GCM/NoPadding");c.init(Cipher.DECRYPT_MODE,key(),new GCMParameterSpec(128,Base64.decode(parts[0],Base64.NO_WRAP)));
-        return new String(c.doFinal(Base64.decode(parts[1],Base64.NO_WRAP)),StandardCharsets.US_ASCII);
+        if(scope().isEmpty())return "";
+        String value=secure("jwd.account_key."+scope()+"."+address);
+        if(!value.isEmpty())return value;
+        return legacyOwner()&&!prefs.getBoolean("jwd.revoked."+scope()+"."+address,false)?secure("jwd.key."+address):"";
     }
     public synchronized void deviceKey(String address,String value)throws Exception{
         if(!JwdProtocol.validKey(value))throw new IOException("Enter a 16-character key using letters and numbers");
-        Cipher c=Cipher.getInstance("AES/GCM/NoPadding");c.init(Cipher.ENCRYPT_MODE,key());
-        String encoded=Base64.encodeToString(c.getIV(),Base64.NO_WRAP)+":"+Base64.encodeToString(c.doFinal(value.getBytes(StandardCharsets.US_ASCII)),Base64.NO_WRAP);
-        if(!prefs.edit().putString("jwd.key."+address,encoded).commit())throw new IOException("The key could not be saved. No binding command was sent.");
+        if(scope().isEmpty())throw new IOException("Sign in to connect your recorder.");
+        secure("jwd.account_key."+scope()+"."+address,value);
     }
     public void logout(){prefs.edit().remove("session").remove("scope").remove("username").commit();}
     public String recorderNotes(String address,String name){return prefs.getString("jwd.notes."+scope()+"."+address+"."+name,"");}

@@ -2348,7 +2348,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoJwdSaveCode => '无法保存设备码，请重新连接。';
 
   @override
-  String get autoJwdAuth => '正在验证设备码';
+  String get autoJwdAuth => '正在验证录音卡授权';
 
   @override
   String get autoJwdChannels => '设备通道不符合 JWD 协议。';
@@ -2696,4 +2696,390 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get recorderSyncWaitForStop => '请等待录音器停止录音后同步。';
+
+  @override
+  String get mcpConnections => 'Codex 连接';
+
+  @override
+  String get mcpIntroduction => '让 Codex 读取你选择的录音和笔记。每个连接固定保存一份快照，只有手动更新后才改变。';
+
+  @override
+  String get mcpCreateConnection => '创建连接';
+
+  @override
+  String get mcpActive => '连接有效';
+
+  @override
+  String get mcpPaused => '连接已暂停';
+
+  @override
+  String get mcpRevoked => '连接已撤销';
+
+  @override
+  String get mcpSnapshot => '快照';
+
+  @override
+  String get mcpConnect => '连接 Codex';
+
+  @override
+  String get mcpSelectionHelp => '选择已保存的转写文字和笔记，不包含音频及未选择的附件。';
+
+  @override
+  String get mcpName => '连接名称';
+
+  @override
+  String get mcpIncludeSource => '包含这份笔记所依据的原文版本';
+
+  @override
+  String get mcpExpiry => '连接有效期';
+
+  @override
+  String get mcpUntilRevoked => '持续到撤销';
+
+  @override
+  String get mcpSevenDays => '7 天';
+
+  @override
+  String get mcpThirtyDays => '30 天';
+
+  @override
+  String get mcpReview => '核对所选内容';
+
+  @override
+  String get mcpExactContent => '完成授权后，Codex 将读取以下内容及版本。';
+
+  @override
+  String get mcpCreateLink => '创建 MCP 链接';
+
+  @override
+  String get mcpRevokeNotice => '撤销可阻止后续读取，但无法收回 Codex 已读取的内容。';
+
+  @override
+  String get mcpDefaultName => '所选个人资料';
+
+  @override
+  String get mcpSourceRevision => '原文版本';
+
+  @override
+  String get mcpSavedOn => '保存日期';
+
+  @override
+  String get mcpSourceRevoked => '此来源授权已撤销';
+
+  @override
+  String get mcpUpdateQuestion => '更新连接快照？';
+
+  @override
+  String get mcpUpdateNotice => 'Codex 下次读取时将使用以下版本。外部已有会话仍保留之前读取的内容。';
+
+  @override
+  String get mcpUpdate => '更新内容';
+
+  @override
+  String get mcpRevokeQuestion => '撤销此连接？';
+
+  @override
+  String get mcpConnection => 'Codex 连接';
+
+  @override
+  String get mcpLastRead => '最近读取';
+
+  @override
+  String get mcpCopyLink => '复制 MCP 链接';
+
+  @override
+  String get mcpCodexSetup =>
+      '在 Codex 中打开设置 → MCP 服务器，添加此地址，再使用创建连接的 Teno 账号登录授权。';
+
+  @override
+  String get mcpFrozenHelp => '当前内容已固定。后续编辑只有在点击“更新内容”后才会同步给此连接。';
+
+  @override
+  String get mcpOpenCitation => '查看引用段落';
+
+  @override
+  String get mcpPause => '暂停连接';
+
+  @override
+  String get mcpResume => '恢复连接';
+
+  @override
+  String get mcpRevoke => '撤销连接';
+
+  @override
+  String get mcpSnapshotText => '快照正文';
+
+  @override
+  String get mcpTextUnavailable => '所选录音尚未完成转写。';
+
+  @override
+  String get mcpSourceUnavailable => '所选原文版本不可用。';
+
+  @override
+  String get mcpEmptyNote => '所选笔记还没有保存的正文。';
+
+  @override
+  String get mcpVersionChanged => '所选内容已变化，请重新核对。';
+
+  @override
+  String get mcpRestored => '恢复的资料需要创建新连接后重新授权。';
+
+  @override
+  String get mcpNoSourceVersion => '这份笔记没有可用的对应原文版本。';
+
+  @override
+  String get mcpSnapshotChanged => '此连接已更新，请重新打开当前快照。';
+
+  @override
+  String get mcpUnavailable => '此连接已过期、暂停或撤销。';
+
+  @override
+  String get recorderOwnership000 => '待登记';
+
+  @override
+  String get recorderOwnership001 => '等待接收方';
+
+  @override
+  String get recorderOwnership002 => '确认接收方';
+
+  @override
+  String get recorderOwnership003 => '等待设备验证';
+
+  @override
+  String get recorderOwnership004 => '设备验证待完成';
+
+  @override
+  String get recorderOwnership005 => '录音卡操作已完成';
+
+  @override
+  String get recorderOwnership006 => '我的录音卡';
+
+  @override
+  String get recorderOwnership007 => '转交录音卡';
+
+  @override
+  String get recorderOwnership008 => '解除录音卡归属';
+
+  @override
+  String get recorderOwnership009 => '卡内录音会保留，并可由下一位所有者接收。你的云端资料和本机副本仍归当前账号。';
+
+  @override
+  String get recorderOwnership010 => '账号密码';
+
+  @override
+  String get recorderOwnership011 => '我确认允许转交卡内已有录音。';
+
+  @override
+  String get recorderOwnership012 => '接收录音卡';
+
+  @override
+  String get recorderOwnership013 => '转交码';
+
+  @override
+  String get recorderOwnership014 => '我同意接收这张卡内已有的录音。';
+
+  @override
+  String get recorderOwnership015 => '接收录音卡';
+
+  @override
+  String get recorderOwnership016 => '一个账号可以绑定多张录音卡，每张卡同一时间只归属一个账号。';
+
+  @override
+  String get recorderOwnership017 => '登记、恢复或转交录音卡时，请在手机 App 中操作，并将录音卡放在附近。';
+
+  @override
+  String get recorderOwnership018 => '录音卡身份';
+
+  @override
+  String get recorderOwnership019 => '授权代次';
+
+  @override
+  String get recorderOwnership020 => '授权已加密备份至当前账号';
+
+  @override
+  String get recorderOwnership021 => '使用这张录音卡';
+
+  @override
+  String get recorderOwnership022 => '录音卡操作';
+
+  @override
+  String get recorderOwnership023 => '当前账号尚未登记录音卡。';
+
+  @override
+  String get recorderOwnership024 => '录音卡操作';
+
+  @override
+  String get recorderOwnership025 => '接收方';
+
+  @override
+  String get recorderOwnership026 =>
+      'App 将确认设备身份、完整校验卡内文件、更换授权，并验证旧码失效。请保持录音卡在附近，期间不要开始录音。';
+
+  @override
+  String get recorderOwnership027 => '复制转交码';
+
+  @override
+  String get recorderOwnership028 => '接收方在“我的录音卡”中输入此码。此码不开放你的云端资料。';
+
+  @override
+  String get recorderOwnership029 => '更新时间';
+
+  @override
+  String get recorderOwnership030 => '请在手机 App 中继续此操作。';
+
+  @override
+  String get recorderOwnership031 => '继续设备验证';
+
+  @override
+  String get recorderOwnership032 => '验证设备并完成';
+
+  @override
+  String get recorderOwnership033 => '取消操作';
+
+  @override
+  String get recorderOwnership034 => '云端录音和笔记仍归原账号。';
+
+  @override
+  String get recorderOwnership035 => '登记这张录音卡';
+
+  @override
+  String get recorderOwnership036 => '这张录音卡将归属你的账号。卡内已有录音会按你的云处理设置同步。';
+
+  @override
+  String get recorderOwnership037 => '原设备码（需要时填写）';
+
+  @override
+  String get recorderOwnership038 => '新卡或本机已保存原设备码时可留空。';
+
+  @override
+  String get recorderOwnership039 => '登记录音卡';
+
+  @override
+  String get recorderOwnership040 => '查看录音卡操作';
+
+  @override
+  String get recorderOwnership041 => '无法核验录音卡身份。';
+
+  @override
+  String get recorderOwnership042 => '无法读取已保存的设备授权。';
+
+  @override
+  String get recorderOwnership043 => '无法保存录音卡身份。';
+
+  @override
+  String get recorderOwnership044 => '无法保存录音卡授权。';
+
+  @override
+  String get recorderOwnership045 => '正在核对录音卡归属';
+
+  @override
+  String get recorderOwnership046 => '请继续未完成的录音卡操作。';
+
+  @override
+  String get recorderOwnership047 => '请确认这张录音卡及卡内已有录音。';
+
+  @override
+  String get recorderOwnership048 => '请让原所有者转交这张录音卡。';
+
+  @override
+  String get recorderOwnership049 => '请联网后恢复录音卡授权。';
+
+  @override
+  String get recorderOwnership050 => '请联网后继续未完成的录音卡操作。';
+
+  @override
+  String get recorderOwnership051 => '请先确认当前连接的录音卡。';
+
+  @override
+  String get recorderOwnership052 => '请等待当前录音卡请求完成。';
+
+  @override
+  String get recorderOwnership053 => '正在验证录音卡授权';
+
+  @override
+  String get recorderOwnership054 => '旧授权仍可使用，转交尚未完成。';
+
+  @override
+  String get recorderOwnership055 => '录音卡已断开，请继续未完成的操作。';
+
+  @override
+  String get recorderOwnership056 => '卡内文件发生变化，完成转交期间请勿修改卡内内容。';
+
+  @override
+  String get recorderOwnership057 => '卡内文件校验未通过，转交尚未完成。';
+
+  @override
+  String get recorderOwnership058 => '请先完成录音和同步，再转交录音卡。';
+
+  @override
+  String get recorderOwnership059 => '请先完成录音和同步，再切换录音卡。';
+
+  @override
+  String get recorderOwnership061 => '正在更换录音卡授权';
+
+  @override
+  String get recorderOwnership062 => '正在读取录音卡身份';
+
+  @override
+  String get recorderOwnership063 => '正在重新连接以核验授权';
+
+  @override
+  String get recorderOwnership064 => '请先停止录音，再变更录音卡归属。';
+
+  @override
+  String get recorderOwnership065 => '正在校验卡内文件';
+
+  @override
+  String get recorderOwnership066 => '录音卡尚未确认授权变更，请继续未完成的操作。';
+
+  @override
+  String get recorderOwnership067 => '录音卡授权超时，请核对原设备码。';
+
+  @override
+  String get recorderOwnership068 => '设备授权恢复暂时不可用。';
+
+  @override
+  String get recorderOwnership069 => '无法恢复已保存的设备授权。';
+
+  @override
+  String get recorderOwnership070 => '这张录音卡不归属当前账号。';
+
+  @override
+  String get recorderOwnership071 => '请完成待处理的录音卡操作。';
+
+  @override
+  String get recorderOwnership072 => '此转交码不可用。';
+
+  @override
+  String get recorderOwnership073 => '此操作不可用。';
+
+  @override
+  String get recorderOwnership074 => '请刷新此转交操作。';
+
+  @override
+  String get recorderOwnership075 => '请先完成双方账号确认。';
+
+  @override
+  String get recorderOwnership076 => '请重新发起录音卡操作。';
+
+  @override
+  String get recorderOwnership077 => '请先继续完成设备验证。';
+
+  @override
+  String get recorderOwnership078 => '请刷新当前录音卡操作。';
+
+  @override
+  String get recorderOwnership079 => '请核验同一张录音卡及其新授权。';
+
+  @override
+  String get recorderOwnership080 => '请确认旧授权失效，且卡内文件保持完整。';
+
+  @override
+  String get recorderOwnership081 => '请先确认接收方。';
+
+  @override
+  String get recorderOwnership082 => '请检查账号密码。';
+
+  @override
+  String get recorderOwnership083 => '请稍后重试。';
 }

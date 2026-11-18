@@ -8,6 +8,7 @@ import '../ui/processing_progress.dart';
 import 'generation_options.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
+import 'routes/personal_mcp.dart';
 import 'routes/personal_notes.dart';
 import 'routes/personal_import.dart';
 import 'routes/personal_search.dart';
@@ -260,6 +261,16 @@ class _PersonalListBodyState extends State<PersonalListBody> {
         'This removes the selected cloud content and its shared links. Local copies stay on this phone.',
       ))
         await apply(action, values);
+    } else if (action == 'mcp') {
+      await push(
+        context,
+        McpCreatePage(
+          widget.model,
+          initial: [
+            for (final item in values) {'type': item['type'], 'id': item['id']},
+          ],
+        ),
+      );
     } else if (action == 'merge') {
       if (values.any((v) => v['type'] != 'recording'))
         throw StateError('Select recordings to merge.');
@@ -298,6 +309,8 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                 ),
                 ('delete_folder', 'Delete folder', Icons.delete_outline),
               ] else ...[
+                if (['recording', 'note'].contains(item['type']))
+                  ('mcp', 'Connect Codex', Icons.hub_outlined),
                 ('move', 'Move to folder', Icons.drive_file_move_outline),
                 ('trash', 'Move to trash', Icons.delete_outline),
               ],
@@ -791,6 +804,12 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                           else
                             ('move', 'Move', Icons.drive_file_move_outline),
                           if (!widget.trash) ('merge', 'Merge', Icons.merge),
+                          if (!widget.trash &&
+                              chosen.every(
+                                (v) =>
+                                    ['recording', 'note'].contains(v['type']),
+                              ))
+                            ('mcp', 'Codex', Icons.hub_outlined),
                           (
                             widget.trash ? 'delete' : 'trash',
                             widget.trash ? 'Delete' : 'Trash',

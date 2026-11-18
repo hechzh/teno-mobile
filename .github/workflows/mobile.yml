@@ -1,7 +1,7 @@
 name: Teno mobile
 on:
   push:
-    branches: [main, "refactor/**", "feature/teno-0.6.*", "feature/teno-0.8.*", "fix/teno-0.8.*", "feature/teno-mvp-*"]
+    branches: [main, "refactor/**", "feature/teno-0.6.*", "feature/teno-0.8.*", "feature/teno-0.9.*", "fix/teno-0.8.*", "feature/teno-mvp-*"]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -67,7 +67,7 @@ jobs:
           path: development-outbox
   ios:
     # Explicit iOS source handoff on this feature branch; no signing or store upload.
-    if: github.ref == 'refs/heads/refactor/teno-cross-platform' || github.ref == 'refs/heads/feature/teno-0.7.1-login-errors' || github.ref == 'refs/heads/feature/teno-0.8.0-templates-login' || github.ref == 'refs/heads/feature/teno-0.8.1-language-switch' || github.ref == 'refs/heads/feature/teno-0.8.2-processing-language-ask' || github.ref == 'refs/heads/fix/teno-0.8.2-recorder-auto-sync'
+    if: github.ref == 'refs/heads/refactor/teno-cross-platform' || github.ref == 'refs/heads/feature/teno-0.7.1-login-errors' || github.ref == 'refs/heads/feature/teno-0.8.0-templates-login' || github.ref == 'refs/heads/feature/teno-0.8.1-language-switch' || github.ref == 'refs/heads/feature/teno-0.8.2-processing-language-ask' || github.ref == 'refs/heads/fix/teno-0.8.2-recorder-auto-sync' || github.ref == 'refs/heads/feature/teno-0.9.0-device-mcp'
     runs-on: macos-15-intel
     env:
       DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer

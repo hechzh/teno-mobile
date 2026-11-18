@@ -12,6 +12,7 @@ external void _listen(JSFunction listener);
 
 /// The browser host implements the existing bridge without native channels.
 class WebRuntime extends RuntimeHost {
+  final String initialFragment = Uri.base.fragment;
   Future<String> call(String method, [Json args = const {}]) async {
     final result = (await _call(
       method.toJS,
@@ -89,7 +90,9 @@ class WebRuntime extends RuntimeHost {
       ),
       draftsJson: jsonEncode(data['drafts'] ?? []),
       uploadStatus: text(data['uploadStatus']),
-      openRoute: '',
+      openRoute: initialFragment.startsWith('/mcp?')
+          ? 'mcp:$initialFragment'
+          : '',
     );
   }
 

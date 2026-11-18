@@ -192,9 +192,7 @@ final class NativeRuntime implements RuntimeHost {
             if(candidates!=null)for(int i=0;i<candidates.length();i++){JSONObject d=candidates.getJSONObject(i);if(id.equals(d.optString("address"))&&d.optString("gatt_status").equals("verified"))verified=true;}
             if(!verified)throw new IOException("Check the recorder service before saving a device key.");
             String value=key;if(createNew){
-                if(!store.deviceKey(id).isEmpty())throw new IOException("This recorder already has a saved key.");
-                String alphabet="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";SecureRandom random=new SecureRandom();StringBuilder generated=new StringBuilder();
-                for(int i=0;i<16;i++)generated.append(alphabet.charAt(random.nextInt(alphabet.length())));value=generated.toString();
+                throw new IOException("Confirm the connected recorder first.");
             }
             store.deviceKey(id,value);return true;
         });

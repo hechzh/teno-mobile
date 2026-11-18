@@ -2897,4 +2897,434 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recorderSyncWaitForStop =>
       'Wait for the recorder to stop before syncing.';
+
+  @override
+  String get mcpConnections => 'Codex connections';
+
+  @override
+  String get mcpIntroduction =>
+      'Connect Codex to recordings and notes you select. Each connection keeps a fixed snapshot until you update it.';
+
+  @override
+  String get mcpCreateConnection => 'Create connection';
+
+  @override
+  String get mcpActive => 'Active connection';
+
+  @override
+  String get mcpPaused => 'Paused connection';
+
+  @override
+  String get mcpRevoked => 'Revoked connection';
+
+  @override
+  String get mcpSnapshot => 'Snapshot';
+
+  @override
+  String get mcpConnect => 'Connect Codex';
+
+  @override
+  String get mcpSelectionHelp =>
+      'Select saved transcript text and notes. Audio and unselected attachments are not included.';
+
+  @override
+  String get mcpName => 'Connection name';
+
+  @override
+  String get mcpIncludeSource =>
+      'Include the transcript version used by this note';
+
+  @override
+  String get mcpExpiry => 'Connection expiry';
+
+  @override
+  String get mcpUntilRevoked => 'Until revoked';
+
+  @override
+  String get mcpSevenDays => '7 days';
+
+  @override
+  String get mcpThirtyDays => '30 days';
+
+  @override
+  String get mcpReview => 'Review selected content';
+
+  @override
+  String get mcpExactContent =>
+      'This exact content will be shared with Codex after you authorize it.';
+
+  @override
+  String get mcpCreateLink => 'Create MCP link';
+
+  @override
+  String get mcpRevokeNotice =>
+      'Revoking stops future reads. It cannot remove content already read by Codex.';
+
+  @override
+  String get mcpDefaultName => 'Selected personal context';
+
+  @override
+  String get mcpSourceRevision => 'Source version';
+
+  @override
+  String get mcpSavedOn => 'Saved on';
+
+  @override
+  String get mcpSourceRevoked => 'Source access revoked';
+
+  @override
+  String get mcpUpdateQuestion => 'Update connection snapshot?';
+
+  @override
+  String get mcpUpdateNotice =>
+      'Codex will read these versions on its next request. Existing external conversations keep what they already read.';
+
+  @override
+  String get mcpUpdate => 'Update content';
+
+  @override
+  String get mcpRevokeQuestion => 'Revoke this connection?';
+
+  @override
+  String get mcpConnection => 'Codex connection';
+
+  @override
+  String get mcpLastRead => 'Last read';
+
+  @override
+  String get mcpCopyLink => 'Copy MCP link';
+
+  @override
+  String get mcpCodexSetup =>
+      'In Codex, open Settings → MCP servers, add this URL, then authenticate with the same Teno account.';
+
+  @override
+  String get mcpFrozenHelp =>
+      'Fixed snapshot. Your later edits appear only after you choose Update content.';
+
+  @override
+  String get mcpOpenCitation => 'Open cited passage';
+
+  @override
+  String get mcpPause => 'Pause connection';
+
+  @override
+  String get mcpResume => 'Resume connection';
+
+  @override
+  String get mcpRevoke => 'Revoke connection';
+
+  @override
+  String get mcpSnapshotText => 'Snapshot text';
+
+  @override
+  String get mcpTextUnavailable =>
+      'Finish transcribing the selected recording first.';
+
+  @override
+  String get mcpSourceUnavailable =>
+      'The selected transcript version is unavailable.';
+
+  @override
+  String get mcpEmptyNote => 'The selected note has no saved text.';
+
+  @override
+  String get mcpVersionChanged =>
+      'The selected content changed. Review it again.';
+
+  @override
+  String get mcpRestored =>
+      'Create a new connection to authorize restored content again.';
+
+  @override
+  String get mcpNoSourceVersion =>
+      'This note has no saved source transcript version.';
+
+  @override
+  String get mcpSnapshotChanged =>
+      'The owner updated this connection. List sources again.';
+
+  @override
+  String get mcpUnavailable =>
+      'This connection has expired, paused or been revoked.';
+
+  @override
+  String get recorderOwnership000 => 'Ready to register';
+
+  @override
+  String get recorderOwnership001 => 'Waiting for the recipient';
+
+  @override
+  String get recorderOwnership002 => 'Confirm the recipient';
+
+  @override
+  String get recorderOwnership003 => 'Ready for device verification';
+
+  @override
+  String get recorderOwnership004 => 'Device verification pending';
+
+  @override
+  String get recorderOwnership005 => 'Recorder operation completed';
+
+  @override
+  String get recorderOwnership006 => 'My recorders';
+
+  @override
+  String get recorderOwnership007 => 'Transfer recorder';
+
+  @override
+  String get recorderOwnership008 => 'Release recorder ownership';
+
+  @override
+  String get recorderOwnership009 =>
+      'Card recordings will remain on the card and can be received by the next owner. Your cloud library and local copies stay with your account.';
+
+  @override
+  String get recorderOwnership010 => 'Account password';
+
+  @override
+  String get recorderOwnership011 =>
+      'I confirm that the card recordings may be transferred.';
+
+  @override
+  String get recorderOwnership012 => 'Receive a recorder';
+
+  @override
+  String get recorderOwnership013 => 'Transfer code';
+
+  @override
+  String get recorderOwnership014 =>
+      'I agree to receive the recordings already on this card.';
+
+  @override
+  String get recorderOwnership015 => 'Receive recorder';
+
+  @override
+  String get recorderOwnership016 =>
+      'One account can own several recorders. Each recorder belongs to one account at a time.';
+
+  @override
+  String get recorderOwnership017 =>
+      'Use the mobile app with your recorder nearby to register, restore or transfer it.';
+
+  @override
+  String get recorderOwnership018 => 'Recorder identity';
+
+  @override
+  String get recorderOwnership019 => 'Authorization generation';
+
+  @override
+  String get recorderOwnership020 => 'Authorization backed up for this account';
+
+  @override
+  String get recorderOwnership021 => 'Use this recorder';
+
+  @override
+  String get recorderOwnership022 => 'Recorder operations';
+
+  @override
+  String get recorderOwnership023 =>
+      'No recorders registered to this account yet.';
+
+  @override
+  String get recorderOwnership024 => 'Recorder operation';
+
+  @override
+  String get recorderOwnership025 => 'Recipient';
+
+  @override
+  String get recorderOwnership026 =>
+      'The app verifies the same recorder, checks all card files, changes authorization, and confirms that the old code is rejected. Keep the recorder nearby and do not start a recording.';
+
+  @override
+  String get recorderOwnership027 => 'Copy transfer code';
+
+  @override
+  String get recorderOwnership028 =>
+      'The recipient enters this code in My recorders. It does not grant access to your cloud library.';
+
+  @override
+  String get recorderOwnership029 => 'Prepared at';
+
+  @override
+  String get recorderOwnership030 =>
+      'Continue this operation in the mobile app.';
+
+  @override
+  String get recorderOwnership031 => 'Continue device verification';
+
+  @override
+  String get recorderOwnership032 => 'Verify recorder and finish';
+
+  @override
+  String get recorderOwnership033 => 'Cancel operation';
+
+  @override
+  String get recorderOwnership034 =>
+      'Cloud recordings and notes remain with their original account.';
+
+  @override
+  String get recorderOwnership035 => 'Register this recorder';
+
+  @override
+  String get recorderOwnership036 =>
+      'This recorder will belong to your account. Existing card recordings will sync using your cloud processing settings.';
+
+  @override
+  String get recorderOwnership037 => 'Original device code, if needed';
+
+  @override
+  String get recorderOwnership038 =>
+      'Leave this blank for a new recorder or when the original code is already saved on this phone.';
+
+  @override
+  String get recorderOwnership039 => 'Register recorder';
+
+  @override
+  String get recorderOwnership040 => 'Open recorder operation';
+
+  @override
+  String get recorderOwnership041 => 'Recorder identity could not be verified.';
+
+  @override
+  String get recorderOwnership042 => 'Saved authorization is unreadable.';
+
+  @override
+  String get recorderOwnership043 => 'Could not save recorder identity.';
+
+  @override
+  String get recorderOwnership044 => 'Could not save recorder authorization.';
+
+  @override
+  String get recorderOwnership045 => 'Checking recorder ownership';
+
+  @override
+  String get recorderOwnership046 => 'Continue the pending recorder operation.';
+
+  @override
+  String get recorderOwnership047 =>
+      'Confirm this recorder and its existing recordings.';
+
+  @override
+  String get recorderOwnership048 => 'Ask the owner to transfer this recorder.';
+
+  @override
+  String get recorderOwnership049 =>
+      'Connect to the internet to restore recorder authorization.';
+
+  @override
+  String get recorderOwnership050 =>
+      'Connect to the internet to continue the pending recorder operation.';
+
+  @override
+  String get recorderOwnership051 => 'Confirm the connected recorder first.';
+
+  @override
+  String get recorderOwnership052 => 'Wait for the current recorder request.';
+
+  @override
+  String get recorderOwnership053 => 'Verifying recorder authorization';
+
+  @override
+  String get recorderOwnership054 =>
+      'The previous authorization is still accepted. Transfer was not completed.';
+
+  @override
+  String get recorderOwnership055 =>
+      'Recorder disconnected. Continue the pending operation.';
+
+  @override
+  String get recorderOwnership056 =>
+      'Card files changed. Keep the card unchanged while completing the transfer.';
+
+  @override
+  String get recorderOwnership057 =>
+      'Card file verification failed. Transfer was not completed.';
+
+  @override
+  String get recorderOwnership058 =>
+      'Finish recording and syncing before transferring this recorder.';
+
+  @override
+  String get recorderOwnership059 =>
+      'Finish recording and syncing before switching recorders.';
+
+  @override
+  String get recorderOwnership061 => 'Updating recorder authorization';
+
+  @override
+  String get recorderOwnership062 => 'Reading recorder identity';
+
+  @override
+  String get recorderOwnership063 => 'Reconnecting to verify authorization';
+
+  @override
+  String get recorderOwnership064 =>
+      'Stop recording before changing recorder ownership.';
+
+  @override
+  String get recorderOwnership065 => 'Verifying card files';
+
+  @override
+  String get recorderOwnership066 =>
+      'Recorder did not confirm the authorization change. Continue the pending operation.';
+
+  @override
+  String get recorderOwnership067 =>
+      'Recorder authorization timed out. Check the original key.';
+
+  @override
+  String get recorderOwnership068 =>
+      'Device recovery is temporarily unavailable.';
+
+  @override
+  String get recorderOwnership069 =>
+      'The saved device authorization cannot be recovered.';
+
+  @override
+  String get recorderOwnership070 =>
+      'This recorder is not assigned to this account.';
+
+  @override
+  String get recorderOwnership071 => 'Finish the pending recorder operation.';
+
+  @override
+  String get recorderOwnership072 => 'This transfer code is unavailable.';
+
+  @override
+  String get recorderOwnership073 => 'Operation is unavailable.';
+
+  @override
+  String get recorderOwnership074 => 'Reload this transfer.';
+
+  @override
+  String get recorderOwnership075 =>
+      'Complete both account confirmations first.';
+
+  @override
+  String get recorderOwnership076 => 'Create a new recorder operation.';
+
+  @override
+  String get recorderOwnership077 =>
+      'Continue the device verification before changing this operation.';
+
+  @override
+  String get recorderOwnership078 => 'Reload the current recorder operation.';
+
+  @override
+  String get recorderOwnership079 =>
+      'Verify the same recorder and its new authorization.';
+
+  @override
+  String get recorderOwnership080 =>
+      'Verify old authorization rejection and unchanged card files.';
+
+  @override
+  String get recorderOwnership081 => 'Confirm the recipient first.';
+
+  @override
+  String get recorderOwnership082 => 'Check your password.';
+
+  @override
+  String get recorderOwnership083 => 'Try again shortly.';
 }

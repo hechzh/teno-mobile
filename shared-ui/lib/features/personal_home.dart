@@ -13,6 +13,7 @@ import 'routes/personal_notes.dart';
 import 'routes/personal_ask.dart';
 import 'routes/personal_settings.dart';
 import 'routes/personal_recording.dart';
+import 'routes/personal_mcp.dart';
 
 class PersonalHome extends StatefulWidget {
   const PersonalHome(this.model, {super.key, this.initialSection = 'Home'});
@@ -52,7 +53,26 @@ class _PersonalHomeState extends State<PersonalHome> {
     lastRoute = value;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (value.startsWith('recording:')) {
+      if (value.startsWith('mcp:')) {
+        final query =
+            Uri.tryParse(value.substring(4))?.queryParameters ??
+            <String, String>{};
+        final id = query['connection'];
+        if (id != null && RegExp(r'^[0-9a-f-]{36}$').hasMatch(id)) {
+          unawaited(
+            push(
+              context,
+              McpConnectionPage(
+                widget.model,
+                id,
+                sourceKey: query['source'],
+                snapshotId: query['snapshot'],
+                chunk: int.tryParse(query['chunk'] ?? '') ?? 0,
+              ),
+            ),
+          );
+        }
+      } else if (value.startsWith('recording:')) {
         unawaited(
           push(
             context,

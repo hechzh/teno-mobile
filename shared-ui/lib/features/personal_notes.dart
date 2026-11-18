@@ -9,6 +9,7 @@ import 'personal_actions.dart';
 import 'routes/personal_ask.dart';
 import 'generation_options.dart';
 import 'template_examples.dart';
+import 'routes/personal_mcp.dart';
 
 class PersonalNotePage extends StatefulWidget {
   const PersonalNotePage(
@@ -44,6 +45,22 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
         tooltip: ui(context, 'Note options'),
         icon: const Icon(Icons.more_horiz),
         onSelected: (value) => perform(context, () async {
+          if (value == 'mcp') {
+            await push(
+              context,
+              McpCreatePage(
+                widget.model,
+                initial: [
+                  {
+                    'type': 'note',
+                    'id': widget.id,
+                    if (revision != null) 'revision': revision,
+                  },
+                ],
+              ),
+            );
+            return;
+          }
           final note = await widget.model.api(
             'GET',
             '/api/v1/notes/${widget.id}${value == 'export' && displayedRevision != null ? '?revision=$displayedRevision' : ''}',
@@ -144,6 +161,7 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
           ),
           PopupMenuItem(value: 'regenerate', child: UiText('Regenerate')),
           PopupMenuItem(value: 'export', child: UiText('Export as')),
+          PopupMenuItem(value: 'mcp', child: UiText('Connect Codex')),
         ],
       ),
     ],

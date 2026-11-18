@@ -5365,6 +5365,774 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wait for the recorder to stop before syncing.'**
   String get recorderSyncWaitForStop;
+
+  /// No description provided for @mcpConnections.
+  ///
+  /// In en, this message translates to:
+  /// **'Codex connections'**
+  String get mcpConnections;
+
+  /// No description provided for @mcpIntroduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Codex to recordings and notes you select. Each connection keeps a fixed snapshot until you update it.'**
+  String get mcpIntroduction;
+
+  /// No description provided for @mcpCreateConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Create connection'**
+  String get mcpCreateConnection;
+
+  /// No description provided for @mcpActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active connection'**
+  String get mcpActive;
+
+  /// No description provided for @mcpPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused connection'**
+  String get mcpPaused;
+
+  /// No description provided for @mcpRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked connection'**
+  String get mcpRevoked;
+
+  /// No description provided for @mcpSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Snapshot'**
+  String get mcpSnapshot;
+
+  /// No description provided for @mcpConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Codex'**
+  String get mcpConnect;
+
+  /// No description provided for @mcpSelectionHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Select saved transcript text and notes. Audio and unselected attachments are not included.'**
+  String get mcpSelectionHelp;
+
+  /// No description provided for @mcpName.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection name'**
+  String get mcpName;
+
+  /// No description provided for @mcpIncludeSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Include the transcript version used by this note'**
+  String get mcpIncludeSource;
+
+  /// No description provided for @mcpExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection expiry'**
+  String get mcpExpiry;
+
+  /// No description provided for @mcpUntilRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Until revoked'**
+  String get mcpUntilRevoked;
+
+  /// No description provided for @mcpSevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get mcpSevenDays;
+
+  /// No description provided for @mcpThirtyDays.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get mcpThirtyDays;
+
+  /// No description provided for @mcpReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review selected content'**
+  String get mcpReview;
+
+  /// No description provided for @mcpExactContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This exact content will be shared with Codex after you authorize it.'**
+  String get mcpExactContent;
+
+  /// No description provided for @mcpCreateLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Create MCP link'**
+  String get mcpCreateLink;
+
+  /// No description provided for @mcpRevokeNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoking stops future reads. It cannot remove content already read by Codex.'**
+  String get mcpRevokeNotice;
+
+  /// No description provided for @mcpDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected personal context'**
+  String get mcpDefaultName;
+
+  /// No description provided for @mcpSourceRevision.
+  ///
+  /// In en, this message translates to:
+  /// **'Source version'**
+  String get mcpSourceRevision;
+
+  /// No description provided for @mcpSavedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on'**
+  String get mcpSavedOn;
+
+  /// No description provided for @mcpSourceRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Source access revoked'**
+  String get mcpSourceRevoked;
+
+  /// No description provided for @mcpUpdateQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Update connection snapshot?'**
+  String get mcpUpdateQuestion;
+
+  /// No description provided for @mcpUpdateNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Codex will read these versions on its next request. Existing external conversations keep what they already read.'**
+  String get mcpUpdateNotice;
+
+  /// No description provided for @mcpUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update content'**
+  String get mcpUpdate;
+
+  /// No description provided for @mcpRevokeQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke this connection?'**
+  String get mcpRevokeQuestion;
+
+  /// No description provided for @mcpConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Codex connection'**
+  String get mcpConnection;
+
+  /// No description provided for @mcpLastRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Last read'**
+  String get mcpLastRead;
+
+  /// No description provided for @mcpCopyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy MCP link'**
+  String get mcpCopyLink;
+
+  /// No description provided for @mcpCodexSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'In Codex, open Settings → MCP servers, add this URL, then authenticate with the same Teno account.'**
+  String get mcpCodexSetup;
+
+  /// No description provided for @mcpFrozenHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed snapshot. Your later edits appear only after you choose Update content.'**
+  String get mcpFrozenHelp;
+
+  /// No description provided for @mcpOpenCitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Open cited passage'**
+  String get mcpOpenCitation;
+
+  /// No description provided for @mcpPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause connection'**
+  String get mcpPause;
+
+  /// No description provided for @mcpResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume connection'**
+  String get mcpResume;
+
+  /// No description provided for @mcpRevoke.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke connection'**
+  String get mcpRevoke;
+
+  /// No description provided for @mcpSnapshotText.
+  ///
+  /// In en, this message translates to:
+  /// **'Snapshot text'**
+  String get mcpSnapshotText;
+
+  /// No description provided for @mcpTextUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish transcribing the selected recording first.'**
+  String get mcpTextUnavailable;
+
+  /// No description provided for @mcpSourceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected transcript version is unavailable.'**
+  String get mcpSourceUnavailable;
+
+  /// No description provided for @mcpEmptyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected note has no saved text.'**
+  String get mcpEmptyNote;
+
+  /// No description provided for @mcpVersionChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected content changed. Review it again.'**
+  String get mcpVersionChanged;
+
+  /// No description provided for @mcpRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new connection to authorize restored content again.'**
+  String get mcpRestored;
+
+  /// No description provided for @mcpNoSourceVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'This note has no saved source transcript version.'**
+  String get mcpNoSourceVersion;
+
+  /// No description provided for @mcpSnapshotChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The owner updated this connection. List sources again.'**
+  String get mcpSnapshotChanged;
+
+  /// No description provided for @mcpUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This connection has expired, paused or been revoked.'**
+  String get mcpUnavailable;
+
+  /// No description provided for @recorderOwnership000.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to register'**
+  String get recorderOwnership000;
+
+  /// No description provided for @recorderOwnership001.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recipient'**
+  String get recorderOwnership001;
+
+  /// No description provided for @recorderOwnership002.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the recipient'**
+  String get recorderOwnership002;
+
+  /// No description provided for @recorderOwnership003.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for device verification'**
+  String get recorderOwnership003;
+
+  /// No description provided for @recorderOwnership004.
+  ///
+  /// In en, this message translates to:
+  /// **'Device verification pending'**
+  String get recorderOwnership004;
+
+  /// No description provided for @recorderOwnership005.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder operation completed'**
+  String get recorderOwnership005;
+
+  /// No description provided for @recorderOwnership006.
+  ///
+  /// In en, this message translates to:
+  /// **'My recorders'**
+  String get recorderOwnership006;
+
+  /// No description provided for @recorderOwnership007.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer recorder'**
+  String get recorderOwnership007;
+
+  /// No description provided for @recorderOwnership008.
+  ///
+  /// In en, this message translates to:
+  /// **'Release recorder ownership'**
+  String get recorderOwnership008;
+
+  /// No description provided for @recorderOwnership009.
+  ///
+  /// In en, this message translates to:
+  /// **'Card recordings will remain on the card and can be received by the next owner. Your cloud library and local copies stay with your account.'**
+  String get recorderOwnership009;
+
+  /// No description provided for @recorderOwnership010.
+  ///
+  /// In en, this message translates to:
+  /// **'Account password'**
+  String get recorderOwnership010;
+
+  /// No description provided for @recorderOwnership011.
+  ///
+  /// In en, this message translates to:
+  /// **'I confirm that the card recordings may be transferred.'**
+  String get recorderOwnership011;
+
+  /// No description provided for @recorderOwnership012.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive a recorder'**
+  String get recorderOwnership012;
+
+  /// No description provided for @recorderOwnership013.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer code'**
+  String get recorderOwnership013;
+
+  /// No description provided for @recorderOwnership014.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to receive the recordings already on this card.'**
+  String get recorderOwnership014;
+
+  /// No description provided for @recorderOwnership015.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive recorder'**
+  String get recorderOwnership015;
+
+  /// No description provided for @recorderOwnership016.
+  ///
+  /// In en, this message translates to:
+  /// **'One account can own several recorders. Each recorder belongs to one account at a time.'**
+  String get recorderOwnership016;
+
+  /// No description provided for @recorderOwnership017.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the mobile app with your recorder nearby to register, restore or transfer it.'**
+  String get recorderOwnership017;
+
+  /// No description provided for @recorderOwnership018.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder identity'**
+  String get recorderOwnership018;
+
+  /// No description provided for @recorderOwnership019.
+  ///
+  /// In en, this message translates to:
+  /// **'Authorization generation'**
+  String get recorderOwnership019;
+
+  /// No description provided for @recorderOwnership020.
+  ///
+  /// In en, this message translates to:
+  /// **'Authorization backed up for this account'**
+  String get recorderOwnership020;
+
+  /// No description provided for @recorderOwnership021.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this recorder'**
+  String get recorderOwnership021;
+
+  /// No description provided for @recorderOwnership022.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder operations'**
+  String get recorderOwnership022;
+
+  /// No description provided for @recorderOwnership023.
+  ///
+  /// In en, this message translates to:
+  /// **'No recorders registered to this account yet.'**
+  String get recorderOwnership023;
+
+  /// No description provided for @recorderOwnership024.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder operation'**
+  String get recorderOwnership024;
+
+  /// No description provided for @recorderOwnership025.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get recorderOwnership025;
+
+  /// No description provided for @recorderOwnership026.
+  ///
+  /// In en, this message translates to:
+  /// **'The app verifies the same recorder, checks all card files, changes authorization, and confirms that the old code is rejected. Keep the recorder nearby and do not start a recording.'**
+  String get recorderOwnership026;
+
+  /// No description provided for @recorderOwnership027.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy transfer code'**
+  String get recorderOwnership027;
+
+  /// No description provided for @recorderOwnership028.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient enters this code in My recorders. It does not grant access to your cloud library.'**
+  String get recorderOwnership028;
+
+  /// No description provided for @recorderOwnership029.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepared at'**
+  String get recorderOwnership029;
+
+  /// No description provided for @recorderOwnership030.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue this operation in the mobile app.'**
+  String get recorderOwnership030;
+
+  /// No description provided for @recorderOwnership031.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue device verification'**
+  String get recorderOwnership031;
+
+  /// No description provided for @recorderOwnership032.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify recorder and finish'**
+  String get recorderOwnership032;
+
+  /// No description provided for @recorderOwnership033.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel operation'**
+  String get recorderOwnership033;
+
+  /// No description provided for @recorderOwnership034.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud recordings and notes remain with their original account.'**
+  String get recorderOwnership034;
+
+  /// No description provided for @recorderOwnership035.
+  ///
+  /// In en, this message translates to:
+  /// **'Register this recorder'**
+  String get recorderOwnership035;
+
+  /// No description provided for @recorderOwnership036.
+  ///
+  /// In en, this message translates to:
+  /// **'This recorder will belong to your account. Existing card recordings will sync using your cloud processing settings.'**
+  String get recorderOwnership036;
+
+  /// No description provided for @recorderOwnership037.
+  ///
+  /// In en, this message translates to:
+  /// **'Original device code, if needed'**
+  String get recorderOwnership037;
+
+  /// No description provided for @recorderOwnership038.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this blank for a new recorder or when the original code is already saved on this phone.'**
+  String get recorderOwnership038;
+
+  /// No description provided for @recorderOwnership039.
+  ///
+  /// In en, this message translates to:
+  /// **'Register recorder'**
+  String get recorderOwnership039;
+
+  /// No description provided for @recorderOwnership040.
+  ///
+  /// In en, this message translates to:
+  /// **'Open recorder operation'**
+  String get recorderOwnership040;
+
+  /// No description provided for @recorderOwnership041.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder identity could not be verified.'**
+  String get recorderOwnership041;
+
+  /// No description provided for @recorderOwnership042.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved authorization is unreadable.'**
+  String get recorderOwnership042;
+
+  /// No description provided for @recorderOwnership043.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save recorder identity.'**
+  String get recorderOwnership043;
+
+  /// No description provided for @recorderOwnership044.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save recorder authorization.'**
+  String get recorderOwnership044;
+
+  /// No description provided for @recorderOwnership045.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking recorder ownership'**
+  String get recorderOwnership045;
+
+  /// No description provided for @recorderOwnership046.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue the pending recorder operation.'**
+  String get recorderOwnership046;
+
+  /// No description provided for @recorderOwnership047.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm this recorder and its existing recordings.'**
+  String get recorderOwnership047;
+
+  /// No description provided for @recorderOwnership048.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the owner to transfer this recorder.'**
+  String get recorderOwnership048;
+
+  /// No description provided for @recorderOwnership049.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet to restore recorder authorization.'**
+  String get recorderOwnership049;
+
+  /// No description provided for @recorderOwnership050.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet to continue the pending recorder operation.'**
+  String get recorderOwnership050;
+
+  /// No description provided for @recorderOwnership051.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the connected recorder first.'**
+  String get recorderOwnership051;
+
+  /// No description provided for @recorderOwnership052.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait for the current recorder request.'**
+  String get recorderOwnership052;
+
+  /// No description provided for @recorderOwnership053.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying recorder authorization'**
+  String get recorderOwnership053;
+
+  /// No description provided for @recorderOwnership054.
+  ///
+  /// In en, this message translates to:
+  /// **'The previous authorization is still accepted. Transfer was not completed.'**
+  String get recorderOwnership054;
+
+  /// No description provided for @recorderOwnership055.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder disconnected. Continue the pending operation.'**
+  String get recorderOwnership055;
+
+  /// No description provided for @recorderOwnership056.
+  ///
+  /// In en, this message translates to:
+  /// **'Card files changed. Keep the card unchanged while completing the transfer.'**
+  String get recorderOwnership056;
+
+  /// No description provided for @recorderOwnership057.
+  ///
+  /// In en, this message translates to:
+  /// **'Card file verification failed. Transfer was not completed.'**
+  String get recorderOwnership057;
+
+  /// No description provided for @recorderOwnership058.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish recording and syncing before transferring this recorder.'**
+  String get recorderOwnership058;
+
+  /// No description provided for @recorderOwnership059.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish recording and syncing before switching recorders.'**
+  String get recorderOwnership059;
+
+  /// No description provided for @recorderOwnership061.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating recorder authorization'**
+  String get recorderOwnership061;
+
+  /// No description provided for @recorderOwnership062.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading recorder identity'**
+  String get recorderOwnership062;
+
+  /// No description provided for @recorderOwnership063.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting to verify authorization'**
+  String get recorderOwnership063;
+
+  /// No description provided for @recorderOwnership064.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop recording before changing recorder ownership.'**
+  String get recorderOwnership064;
+
+  /// No description provided for @recorderOwnership065.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying card files'**
+  String get recorderOwnership065;
+
+  /// No description provided for @recorderOwnership066.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder did not confirm the authorization change. Continue the pending operation.'**
+  String get recorderOwnership066;
+
+  /// No description provided for @recorderOwnership067.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder authorization timed out. Check the original key.'**
+  String get recorderOwnership067;
+
+  /// No description provided for @recorderOwnership068.
+  ///
+  /// In en, this message translates to:
+  /// **'Device recovery is temporarily unavailable.'**
+  String get recorderOwnership068;
+
+  /// No description provided for @recorderOwnership069.
+  ///
+  /// In en, this message translates to:
+  /// **'The saved device authorization cannot be recovered.'**
+  String get recorderOwnership069;
+
+  /// No description provided for @recorderOwnership070.
+  ///
+  /// In en, this message translates to:
+  /// **'This recorder is not assigned to this account.'**
+  String get recorderOwnership070;
+
+  /// No description provided for @recorderOwnership071.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the pending recorder operation.'**
+  String get recorderOwnership071;
+
+  /// No description provided for @recorderOwnership072.
+  ///
+  /// In en, this message translates to:
+  /// **'This transfer code is unavailable.'**
+  String get recorderOwnership072;
+
+  /// No description provided for @recorderOwnership073.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation is unavailable.'**
+  String get recorderOwnership073;
+
+  /// No description provided for @recorderOwnership074.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload this transfer.'**
+  String get recorderOwnership074;
+
+  /// No description provided for @recorderOwnership075.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete both account confirmations first.'**
+  String get recorderOwnership075;
+
+  /// No description provided for @recorderOwnership076.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new recorder operation.'**
+  String get recorderOwnership076;
+
+  /// No description provided for @recorderOwnership077.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue the device verification before changing this operation.'**
+  String get recorderOwnership077;
+
+  /// No description provided for @recorderOwnership078.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload the current recorder operation.'**
+  String get recorderOwnership078;
+
+  /// No description provided for @recorderOwnership079.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify the same recorder and its new authorization.'**
+  String get recorderOwnership079;
+
+  /// No description provided for @recorderOwnership080.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify old authorization rejection and unchanged card files.'**
+  String get recorderOwnership080;
+
+  /// No description provided for @recorderOwnership081.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the recipient first.'**
+  String get recorderOwnership081;
+
+  /// No description provided for @recorderOwnership082.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your password.'**
+  String get recorderOwnership082;
+
+  /// No description provided for @recorderOwnership083.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again shortly.'**
+  String get recorderOwnership083;
 }
 
 class _AppLocalizationsDelegate

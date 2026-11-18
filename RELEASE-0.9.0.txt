@@ -1,0 +1,32 @@
+Teno 0.9.0 — Recorder ownership and selected personal Codex context
+
+Android 0.9.0 / 20; iOS 1.2.0 / 16 (com.jwd.ZhiYan); Web 0.4.0 / 12.
+Compatible backend: 1.8.0. Candidate delivery; formal baselines are unchanged.
+
+My recorders supports multiple cards per account, one owner per card, confirmed
+registration, account-scoped encrypted authorization, and same-account recovery.
+Transfer/release requires account reauthentication, explicit card-recording
+consent, and physical device verification. Transfer includes recipient confirmation.
+The native operation checks the protocol hardware identity, hashes complete card
+files before and after the change, and requires explicit old-key rejection.
+It never formats the card. Interrupted operations retain a durable recovery record.
+Old cloud recordings, notes, local files and queues stay with the original account.
+Verified raw-file identity provides same-account deduplication across phones.
+
+Selected personal recordings and notes can be connected to Codex through HTTPS
+Streamable HTTP MCP with OAuth and PKCE. The address itself is not a read credential.
+The three read-only tools list, search and fetch the selected frozen content.
+Snapshots include the actual selected text, titles and versions. Editing a source
+does not change a connection until its owner manually updates it. Removing a source,
+pausing or revoking access blocks subsequent reads. Previously read external copies
+cannot be recalled. Team content, unselected attachments and audio are excluded.
+
+Android, iOS and Web provide bilingual connection creation and management. Web
+shows recorder ownership and operation status; Bluetooth changes use the mobile app.
+Post-recording auto sync/upload/transcription, cloud-off preferences and generation
+language defaults are preserved. No live transcription is restored.
+
+Acceptance: see the delivery-specific record. Protocol fixtures and simulators do
+not establish hardware compatibility. Real JWD identity stability, pre-auth MAC,
+file-preserving unbind, old-key invalidation, background/lock-screen behavior and
+original-Team iPhone signed installation require physical acceptance.

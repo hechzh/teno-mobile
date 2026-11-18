@@ -1,4 +1,5 @@
 import '../l10n/ui_strings.dart';
+import 'routes/personal_mcp.dart';
 import 'dart:async';
 import 'generation_options.dart';
 import 'package:flutter/material.dart';
@@ -298,6 +299,19 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
 
   Future<void> menu(String action) => perform(context, () async {
     switch (action) {
+      case 'mcp':
+        await push(
+          context,
+          McpCreatePage(
+            widget.model,
+            initial: [
+              {'type': 'recording', 'id': widget.id},
+              if (!audio && notes.isNotEmpty)
+                {'type': 'note', 'id': notes[noteIndex]['id']},
+            ],
+          ),
+        );
+        return;
       case 'speakers':
         await speakers();
         return;
@@ -463,6 +477,7 @@ class _PersonalRecordingPageState extends State<PersonalRecordingPage> {
                           follow ? 'Stop following audio' : 'Follow audio',
                         ),
                       ('export', 'Export as'),
+                      ('mcp', 'Connect Codex'),
                       ('trash', 'Move to trash'),
                     ])
                       PopupMenuItem(value: entry.$1, child: UiText(entry.$2)),

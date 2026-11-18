@@ -144,7 +144,7 @@ import UserNotifications
         return (try? store.draft(parent)).map { string($0["recording_id"]) } ?? ""
     }
     func fields(_ draft: JSONObject) -> [(String,String)] {
-        var values = [("client_id",string(draft["id"]))]
+        var values = [("client_id",string(draft["upload_client_id"]).isEmpty ? string(draft["id"]) : string(draft["upload_client_id"]))]
         values.append(("template_origin",string(draft["template_origin"]).isEmpty ? "selection" : string(draft["template_origin"])))
         if !string(draft["output_language"]).isEmpty { values += [("output_language",string(draft["output_language"])),("output_language_origin",string(draft["output_language_origin"]))] }
         if string(draft["kind"]) == "file" {

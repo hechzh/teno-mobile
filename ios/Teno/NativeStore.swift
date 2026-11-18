@@ -62,6 +62,7 @@ final class KeyVault {
         try FileManager.default.createDirectory(at: self.root, withIntermediateDirectories: true)
         var noBackup = URLResourceValues(); noBackup.isExcludedFromBackup = true
         var location = self.root; try location.setResourceValues(noBackup)
+        if preferences.object(forKey:"recorder.legacy_owner") == nil { preferences.set(scope,forKey:"recorder.legacy_owner") }
     }
     var base: String {
         get { preferences.string(forKey: "server") ?? "https://54-214-180-183.sslip.io" }
@@ -126,14 +127,30 @@ final class KeyVault {
         preferences.removeObject(forKey: "username"); preferences.removeObject(forKey: "scope")
     }
     func deviceKey(_ identifier: String) throws -> String {
-        guard let value = try vault.data("device." + identifier) else { return "" }
+        guard !scope.isEmpty else { return "" }
+        let scoped = try vault.data("device." + scope + "." + identifier)
+        let legacy = scope == preferences.string(forKey:"recorder.legacy_owner") && !preferences.bool(forKey:"recorder.revoked." + scope + "." + identifier)
+        guard let value = try scoped ?? (legacy ? vault.data("device." + identifier) : nil) else { return "" }
         return String(data: value, encoding: .utf8) ?? ""
     }
     func saveDeviceKey(_ identifier: String, _ key: String) throws {
         guard key.range(of: "^[A-Za-z0-9]{16}$", options: .regularExpression) != nil else {
             throw RuntimeFailure("DEVICE_KEY", "Enter a 16-character key using letters and numbers.")
         }
-        try vault.set("device." + identifier, Data(key.utf8))
+        guard !scope.isEmpty else { throw RuntimeFailure("SIGN_IN","Sign in to connect your recorder.") }
+        try vault.set("device." + scope + "." + identifier, Data(key.utf8))
+    }
+    var recorderId: String { preferences.string(forKey:"recorder.id." + scope) ?? (scope == preferences.string(forKey:"recorder.legacy_owner") ? preferences.string(forKey:"recorder.id") ?? "" : "") }
+    var recorderName: String { preferences.string(forKey:"recorder.name." + scope) ?? "Recorder" }
+    var selectedRecorder: String { preferences.string(forKey:"recorder.selected." + scope) ?? "" }
+    func selectRecorder(_ hardware: String) { preferences.set(hardware,forKey:"recorder.selected." + scope); preferences.set("",forKey:"recorder.id." + scope) }
+    func rememberRecorder(_ id: String, _ name: String) { preferences.set(id,forKey:"recorder.id." + scope); preferences.set(name,forKey:"recorder.name." + scope) }
+    func recorderIdentity(_ id: String) -> JSONObject { preferences.data(forKey:"recorder.identity." + scope + "." + id).flatMap { try? jsonObject($0) } ?? [:] }
+    func recorderIdentity(_ id: String, _ value: JSONObject) throws { preferences.set(try jsonData(value),forKey:"recorder.identity." + scope + "." + id) }
+    func forgetRecorder(_ id: String) throws {
+        try vault.set("device." + scope + "." + id,nil); try recorderIdentity(id,[:])
+        preferences.set(true,forKey:"recorder.revoked." + scope + "." + id)
+        preferences.set("",forKey:"recorder.id." + scope); preferences.removeObject(forKey:"recorder.selected." + scope)
     }
     func directory(_ owner: String? = nil) throws -> URL {
         let account = owner ?? scope

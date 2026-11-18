@@ -42,6 +42,16 @@ import QuickLook
         if command == "discard_imports" { try importer.discardPending(); return [:] }
         try signedIn()
         switch command {
+        case "recorder_ownership": return runtime.recorder.ownership.view
+        case "recorder_select":
+            guard !runtime.recorder.active, !runtime.recorder.receiving, !runtime.recorder.state().busy else { throw RuntimeFailure("RECORDER_BUSY","Finish recording and syncing before switching recorders.") }
+            let hardware = try RecorderOwnership.canonical(string(args["hardware_id"]))
+            try await runtime.recorder.command(.disconnect,id:"",name:""); store.selectRecorder(hardware); return [:]
+        case "recorder_claim":
+            try runtime.recorder.ownership.claim(string(args["original_key"]),confirmed:args["confirm"] as? Bool == true); return [:]
+        case "recorder_operation":
+            guard !runtime.phone.active, !runtime.recorder.active, !runtime.recorder.receiving else { throw RuntimeFailure("RECORDER_BUSY","Finish recording and syncing before transferring this recorder.") }
+            try runtime.recorder.ownership.start(string(args["operation_id"])); return [:]
         case "note_template":
             let id = string(args["id"]), template = string(args["template_id"])
             if args["template_id"] == nil { if id.hasPrefix("jwd:") { return store.recorderOptions(id) }; return try store.draft(id) }

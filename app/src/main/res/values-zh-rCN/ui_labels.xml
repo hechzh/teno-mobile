@@ -761,7 +761,7 @@
   <string name="ui_autojwdlastmissing" formatted="false">上次连接的录音器暂不可用，请唤醒设备后重试。</string>
   <string name="ui_autojwdkeyrejected" formatted="false">设备码未被接受，请使用原设备码。录音器未被重置。</string>
   <string name="ui_autojwdsavecode" formatted="false">无法保存设备码，请重新连接。</string>
-  <string name="ui_autojwdauth" formatted="false">正在验证设备码</string>
+  <string name="ui_autojwdauth" formatted="false">正在验证录音卡授权</string>
   <string name="ui_autojwdchannels" formatted="false">设备通道不符合 JWD 协议。</string>
   <string name="ui_notetemplate" formatted="false">笔记模板</string>
   <string name="ui_templateaccountdefault" formatted="false">账号默认模板</string>
@@ -858,4 +858,132 @@
   <string name="ui_recorderautomaticsyncpreparing" formatted="false">正在准备同步录音</string>
   <string name="ui_recordingautomaticcloudhelp" formatted="false">录音停止后，文件会自动同步到手机。开启云处理后会上传并转写、生成纪要。</string>
   <string name="ui_recordersyncwaitforstop" formatted="false">请等待录音器停止录音后同步。</string>
+  <string name="ui_mcpconnections" formatted="false">Codex 连接</string>
+  <string name="ui_mcpintroduction" formatted="false">让 Codex 读取你选择的录音和笔记。每个连接固定保存一份快照，只有手动更新后才改变。</string>
+  <string name="ui_mcpcreateconnection" formatted="false">创建连接</string>
+  <string name="ui_mcpactive" formatted="false">连接有效</string>
+  <string name="ui_mcppaused" formatted="false">连接已暂停</string>
+  <string name="ui_mcprevoked" formatted="false">连接已撤销</string>
+  <string name="ui_mcpsnapshot" formatted="false">快照</string>
+  <string name="ui_mcpconnect" formatted="false">连接 Codex</string>
+  <string name="ui_mcpselectionhelp" formatted="false">选择已保存的转写文字和笔记，不包含音频及未选择的附件。</string>
+  <string name="ui_mcpname" formatted="false">连接名称</string>
+  <string name="ui_mcpincludesource" formatted="false">包含这份笔记所依据的原文版本</string>
+  <string name="ui_mcpexpiry" formatted="false">连接有效期</string>
+  <string name="ui_mcpuntilrevoked" formatted="false">持续到撤销</string>
+  <string name="ui_mcpsevendays" formatted="false">7 天</string>
+  <string name="ui_mcpthirtydays" formatted="false">30 天</string>
+  <string name="ui_mcpreview" formatted="false">核对所选内容</string>
+  <string name="ui_mcpexactcontent" formatted="false">完成授权后，Codex 将读取以下内容及版本。</string>
+  <string name="ui_mcpcreatelink" formatted="false">创建 MCP 链接</string>
+  <string name="ui_mcprevokenotice" formatted="false">撤销可阻止后续读取，但无法收回 Codex 已读取的内容。</string>
+  <string name="ui_mcpdefaultname" formatted="false">所选个人资料</string>
+  <string name="ui_mcpsourcerevision" formatted="false">原文版本</string>
+  <string name="ui_mcpsavedon" formatted="false">保存日期</string>
+  <string name="ui_mcpsourcerevoked" formatted="false">此来源授权已撤销</string>
+  <string name="ui_mcpupdatequestion" formatted="false">更新连接快照？</string>
+  <string name="ui_mcpupdatenotice" formatted="false">Codex 下次读取时将使用以下版本。外部已有会话仍保留之前读取的内容。</string>
+  <string name="ui_mcpupdate" formatted="false">更新内容</string>
+  <string name="ui_mcprevokequestion" formatted="false">撤销此连接？</string>
+  <string name="ui_mcpconnection" formatted="false">Codex 连接</string>
+  <string name="ui_mcplastread" formatted="false">最近读取</string>
+  <string name="ui_mcpcopylink" formatted="false">复制 MCP 链接</string>
+  <string name="ui_mcpcodexsetup" formatted="false">在 Codex 中打开设置 → MCP 服务器，添加此地址，再使用创建连接的 Teno 账号登录授权。</string>
+  <string name="ui_mcpfrozenhelp" formatted="false">当前内容已固定。后续编辑只有在点击“更新内容”后才会同步给此连接。</string>
+  <string name="ui_mcpopencitation" formatted="false">查看引用段落</string>
+  <string name="ui_mcppause" formatted="false">暂停连接</string>
+  <string name="ui_mcpresume" formatted="false">恢复连接</string>
+  <string name="ui_mcprevoke" formatted="false">撤销连接</string>
+  <string name="ui_mcpsnapshottext" formatted="false">快照正文</string>
+  <string name="ui_mcptextunavailable" formatted="false">所选录音尚未完成转写。</string>
+  <string name="ui_mcpsourceunavailable" formatted="false">所选原文版本不可用。</string>
+  <string name="ui_mcpemptynote" formatted="false">所选笔记还没有保存的正文。</string>
+  <string name="ui_mcpversionchanged" formatted="false">所选内容已变化，请重新核对。</string>
+  <string name="ui_mcprestored" formatted="false">恢复的资料需要创建新连接后重新授权。</string>
+  <string name="ui_mcpnosourceversion" formatted="false">这份笔记没有可用的对应原文版本。</string>
+  <string name="ui_mcpsnapshotchanged" formatted="false">此连接已更新，请重新打开当前快照。</string>
+  <string name="ui_mcpunavailable" formatted="false">此连接已过期、暂停或撤销。</string>
+  <string name="ui_recorderownership000" formatted="false">待登记</string>
+  <string name="ui_recorderownership001" formatted="false">等待接收方</string>
+  <string name="ui_recorderownership002" formatted="false">确认接收方</string>
+  <string name="ui_recorderownership003" formatted="false">等待设备验证</string>
+  <string name="ui_recorderownership004" formatted="false">设备验证待完成</string>
+  <string name="ui_recorderownership005" formatted="false">录音卡操作已完成</string>
+  <string name="ui_recorderownership006" formatted="false">我的录音卡</string>
+  <string name="ui_recorderownership007" formatted="false">转交录音卡</string>
+  <string name="ui_recorderownership008" formatted="false">解除录音卡归属</string>
+  <string name="ui_recorderownership009" formatted="false">卡内录音会保留，并可由下一位所有者接收。你的云端资料和本机副本仍归当前账号。</string>
+  <string name="ui_recorderownership010" formatted="false">账号密码</string>
+  <string name="ui_recorderownership011" formatted="false">我确认允许转交卡内已有录音。</string>
+  <string name="ui_recorderownership012" formatted="false">接收录音卡</string>
+  <string name="ui_recorderownership013" formatted="false">转交码</string>
+  <string name="ui_recorderownership014" formatted="false">我同意接收这张卡内已有的录音。</string>
+  <string name="ui_recorderownership015" formatted="false">接收录音卡</string>
+  <string name="ui_recorderownership016" formatted="false">一个账号可以绑定多张录音卡，每张卡同一时间只归属一个账号。</string>
+  <string name="ui_recorderownership017" formatted="false">登记、恢复或转交录音卡时，请在手机 App 中操作，并将录音卡放在附近。</string>
+  <string name="ui_recorderownership018" formatted="false">录音卡身份</string>
+  <string name="ui_recorderownership019" formatted="false">授权代次</string>
+  <string name="ui_recorderownership020" formatted="false">授权已加密备份至当前账号</string>
+  <string name="ui_recorderownership021" formatted="false">使用这张录音卡</string>
+  <string name="ui_recorderownership022" formatted="false">录音卡操作</string>
+  <string name="ui_recorderownership023" formatted="false">当前账号尚未登记录音卡。</string>
+  <string name="ui_recorderownership024" formatted="false">录音卡操作</string>
+  <string name="ui_recorderownership025" formatted="false">接收方</string>
+  <string name="ui_recorderownership026" formatted="false">App 将确认设备身份、完整校验卡内文件、更换授权，并验证旧码失效。请保持录音卡在附近，期间不要开始录音。</string>
+  <string name="ui_recorderownership027" formatted="false">复制转交码</string>
+  <string name="ui_recorderownership028" formatted="false">接收方在“我的录音卡”中输入此码。此码不开放你的云端资料。</string>
+  <string name="ui_recorderownership029" formatted="false">更新时间</string>
+  <string name="ui_recorderownership030" formatted="false">请在手机 App 中继续此操作。</string>
+  <string name="ui_recorderownership031" formatted="false">继续设备验证</string>
+  <string name="ui_recorderownership032" formatted="false">验证设备并完成</string>
+  <string name="ui_recorderownership033" formatted="false">取消操作</string>
+  <string name="ui_recorderownership034" formatted="false">云端录音和笔记仍归原账号。</string>
+  <string name="ui_recorderownership035" formatted="false">登记这张录音卡</string>
+  <string name="ui_recorderownership036" formatted="false">这张录音卡将归属你的账号。卡内已有录音会按你的云处理设置同步。</string>
+  <string name="ui_recorderownership037" formatted="false">原设备码（需要时填写）</string>
+  <string name="ui_recorderownership038" formatted="false">新卡或本机已保存原设备码时可留空。</string>
+  <string name="ui_recorderownership039" formatted="false">登记录音卡</string>
+  <string name="ui_recorderownership040" formatted="false">查看录音卡操作</string>
+  <string name="ui_recorderownership041" formatted="false">无法核验录音卡身份。</string>
+  <string name="ui_recorderownership042" formatted="false">无法读取已保存的设备授权。</string>
+  <string name="ui_recorderownership043" formatted="false">无法保存录音卡身份。</string>
+  <string name="ui_recorderownership044" formatted="false">无法保存录音卡授权。</string>
+  <string name="ui_recorderownership045" formatted="false">正在核对录音卡归属</string>
+  <string name="ui_recorderownership046" formatted="false">请继续未完成的录音卡操作。</string>
+  <string name="ui_recorderownership047" formatted="false">请确认这张录音卡及卡内已有录音。</string>
+  <string name="ui_recorderownership048" formatted="false">请让原所有者转交这张录音卡。</string>
+  <string name="ui_recorderownership049" formatted="false">请联网后恢复录音卡授权。</string>
+  <string name="ui_recorderownership050" formatted="false">请联网后继续未完成的录音卡操作。</string>
+  <string name="ui_recorderownership051" formatted="false">请先确认当前连接的录音卡。</string>
+  <string name="ui_recorderownership052" formatted="false">请等待当前录音卡请求完成。</string>
+  <string name="ui_recorderownership053" formatted="false">正在验证录音卡授权</string>
+  <string name="ui_recorderownership054" formatted="false">旧授权仍可使用，转交尚未完成。</string>
+  <string name="ui_recorderownership055" formatted="false">录音卡已断开，请继续未完成的操作。</string>
+  <string name="ui_recorderownership056" formatted="false">卡内文件发生变化，完成转交期间请勿修改卡内内容。</string>
+  <string name="ui_recorderownership057" formatted="false">卡内文件校验未通过，转交尚未完成。</string>
+  <string name="ui_recorderownership058" formatted="false">请先完成录音和同步，再转交录音卡。</string>
+  <string name="ui_recorderownership059" formatted="false">请先完成录音和同步，再切换录音卡。</string>
+  <string name="ui_recorderownership061" formatted="false">正在更换录音卡授权</string>
+  <string name="ui_recorderownership062" formatted="false">正在读取录音卡身份</string>
+  <string name="ui_recorderownership063" formatted="false">正在重新连接以核验授权</string>
+  <string name="ui_recorderownership064" formatted="false">请先停止录音，再变更录音卡归属。</string>
+  <string name="ui_recorderownership065" formatted="false">正在校验卡内文件</string>
+  <string name="ui_recorderownership066" formatted="false">录音卡尚未确认授权变更，请继续未完成的操作。</string>
+  <string name="ui_recorderownership067" formatted="false">录音卡授权超时，请核对原设备码。</string>
+  <string name="ui_recorderownership068" formatted="false">设备授权恢复暂时不可用。</string>
+  <string name="ui_recorderownership069" formatted="false">无法恢复已保存的设备授权。</string>
+  <string name="ui_recorderownership070" formatted="false">这张录音卡不归属当前账号。</string>
+  <string name="ui_recorderownership071" formatted="false">请完成待处理的录音卡操作。</string>
+  <string name="ui_recorderownership072" formatted="false">此转交码不可用。</string>
+  <string name="ui_recorderownership073" formatted="false">此操作不可用。</string>
+  <string name="ui_recorderownership074" formatted="false">请刷新此转交操作。</string>
+  <string name="ui_recorderownership075" formatted="false">请先完成双方账号确认。</string>
+  <string name="ui_recorderownership076" formatted="false">请重新发起录音卡操作。</string>
+  <string name="ui_recorderownership077" formatted="false">请先继续完成设备验证。</string>
+  <string name="ui_recorderownership078" formatted="false">请刷新当前录音卡操作。</string>
+  <string name="ui_recorderownership079" formatted="false">请核验同一张录音卡及其新授权。</string>
+  <string name="ui_recorderownership080" formatted="false">请确认旧授权失效，且卡内文件保持完整。</string>
+  <string name="ui_recorderownership081" formatted="false">请先确认接收方。</string>
+  <string name="ui_recorderownership082" formatted="false">请检查账号密码。</string>
+  <string name="ui_recorderownership083" formatted="false">请稍后重试。</string>
 </resources>
