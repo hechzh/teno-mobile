@@ -40,13 +40,13 @@ def reuse(archive, expected_sha, output):
             assert '..' not in relative.parts and not relative.is_absolute()
             assert relative.parts[0] in ('App.xcframework', 'Flutter.xcframework')
             data = bundle.read(name)
-            mode = (bundle.getinfo(name).external_attr >> 16) & 0o777
+            file_mode = (bundle.getinfo(name).external_attr >> 16) & 0o777
             hashes[relative.as_posix()] = hashlib.sha256(data).hexdigest()
             for mode in ('Release', 'Debug'):
                 target = output / mode / relative
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(data)
-                target.chmod(mode or 0o644)
+                target.chmod(file_mode or 0o644)
     result = {'source_archive_sha256': digest, 'source_commit': meta['commit'],
               'shared_ui_files_equal': len(verified), 'framework_files': hashes,
               'flutter_recompiled': False}
