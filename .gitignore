@@ -105,3 +105,6 @@
 **/*.mobileprovision
 **/.flutter-plugins*
 **/Flutter/ephemeral/
+
+/ios/CompatibilityChecks/
+/ios/LegacyDerivedData/

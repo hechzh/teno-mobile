@@ -1,7 +1,19 @@
-Teno iOS 1.2.0 / Build16 · Bundle ID com.jwd.ZhiYan
+Teno iOS 1.2.0 / Build17 · Xcode 14.3.1 兼容候选 · Bundle ID com.jwd.ZhiYan
 
-交付文件：Teno-iOS-1.2.0-build16-Xcode.zip。
-完整解压，打开 ios/Teno.xcodeproj，选择 Teno scheme。在 Signing & Capabilities 中选择原 App 使用、且拥有 com.jwd.ZhiYan 权限的 Team，然后编译或 Archive。最低 iOS15；验证环境 Xcode16.4，需使用与测试 iPhone 系统兼容的 Xcode。
+交付文件：Teno-iOS-1.2.0-build17-Xcode.zip。
+完整解压，打开 ios/Teno.xcodeproj，选择 Teno scheme。工程已使用 Xcode 14.0 格式（objectVersion56），并对 iOS17 日历接口增加编译器版本分支。最低 iOS15。
+Xcode14.3.1 的完整编译、签名与安装需在接收方 Mac 上验收；云端使用 Xcode16.4 做回归，不将其记为旧版 Xcode 实测通过。具体结果见同批验收记录。
+
+在你的 Mac 上检查：
+1. 先打开一次 Xcode14.3.1，完成首次组件安装。
+2. 打开“终端”，输入 /bin/bash 和一个空格，将 ios/Verify-Xcode.command 文件拖入终端，按回车。
+3. 脚本自动寻找 /Applications 或“下载”中的 Xcode14.3.1，执行工程读取、未签名 iPhone 编译和 Intel 模拟器编译。
+4. 完成后会显示 CompatibilityChecks 下的 summary.txt。保存该文件与失败步骤对应的日志，供继续排查。
+脚本仅在本机编译；不上传日志、不安装 App、不更改系统默认 Xcode、不要求 Flutter。
+
+编译通过后，在 Signing & Capabilities 中选择原 App 使用、且拥有 com.jwd.ZhiYan 权限的 Team，然后编译或 Archive。
+若只有 Personal Team，且该账号无权使用 com.jwd.ZhiYan，可仅在本机将 Teno target 的 Bundle Identifier 改成自己的唯一测试标识；这会成为独立测试 App，不用于覆盖原 App。交付源码仍保留正式标识。
+Xcode14.3.1 的官方真机支持范围为 iOS11–16.4。更高系统的 iPhone（包括本次所述 iOS27）能否通过旧版 Xcode 连接安装需另外验证；工程能编译不代表真机安装已通过。
 
 包内包含 0.9.0 共用界面、原生源码和配套 App/Flutter XCFramework（设备 Release、模拟器 Debug）。直接编译与签名无需 Flutter、CocoaPods 或 XcodeGen。修改 Dart 时使用 Flutter3.47.9 重建两套框架。
 

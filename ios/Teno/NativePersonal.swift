@@ -124,8 +124,15 @@ import QuickLook
     }
     private func readCalendar() async throws -> JSONObject {
         let granted: Bool
+        // Xcode 14.3.1 ships Swift 5.8.1 and the iOS 16.4 SDK. Runtime
+        // availability alone cannot hide an SDK 17 symbol from that compiler.
+        #if compiler(>=5.9) && !TENO_LEGACY_CALENDAR_CHECK
         if #available(iOS 17.0, *) { granted = try await events.requestFullAccessToEvents() }
         else { granted = try await events.requestAccess(to:.event) }
+        #else
+        // Apps linked with SDK 16 keep the original full-access request path.
+        granted = try await events.requestAccess(to:.event)
+        #endif
         guard granted else { throw RuntimeFailure("CALENDAR_PERMISSION", "Calendar permission is required. You can add an event manually.") }
         let start = Date().addingTimeInterval(-86400), end = Date().addingTimeInterval(30 * 86400)
         let predicate = events.predicateForEvents(withStart:start,end:end,calendars:nil)

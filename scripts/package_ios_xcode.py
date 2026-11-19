@@ -9,6 +9,7 @@ import subprocess
 import zipfile
 from pathlib import Path
 from ios_metadata import metadata as ios_metadata
+from ios_project_compatibility import convert as compatible_project
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -63,36 +64,17 @@ def prepare(frameworks: Path, output: Path) -> Path:
     project = project.replace('    run:\n      config: Debug', '    run:\n      config: Release')
     (folder / 'ios/project.yml').write_text(project)
     subprocess.run(['xcodegen', 'generate', '--spec', str(folder / 'ios/project.yml')], check=True)
-    readme = f'''Teno iOS {version} / Build {build} · Xcode 签名源码包
-
-使用 macOS 与 Xcode 16.4 或更新兼容版本，部署目标 iOS 15。
-1. 解压整个目录，直接打开 ios/Teno.xcodeproj，选择 Teno scheme。
-2. 在 Teno target 的 Signing & Capabilities 中选择原 App 使用的 Team。包名 {bundle_id}；
-   签名方需拥有该标识的权限，并使用对应的 Apple App 记录。
-3. 选择 iPhone 真机或 Any iOS Device，Product > Archive，再由签名方上传。
-4. 首次安装允许蓝牙/麦克风等实际使用的权限。真实 iPhone/JWD 测试仍需验收。
-
-Frameworks 已包含当前 shared-ui 的设备 Release 与模拟器 Debug App/Flutter 切片；
-打开、编译、签名此交付包不需要安装 Flutter、CocoaPods 或 XcodeGen，也不需要 CI 路径。
-原生 Swift/Objective-C 源码可直接编辑。修改 Dart UI 后需要 Flutter 3.47.9 重新生成
-App.xcframework，并同时使用配套 Flutter.xcframework；shared-ui/ 为完整共享 UI 源码。
-ios/project.development.yml 保留 Flutter 开发集成规格；它不用于本包的直接签名编译。
-
-包含中英文、新版资料库/导入/转写与 Notes/模板/Ask/分享、iOS 系统录音与 JWD 自动连接。
-登录后才允许扫描、连接和授权。首次登记核验协议身份并明确确认归属；旧卡使用原设备码，新手机可恢复同账号已备份的授权。
-一个账号可拥有多张卡，自动重连上次成功且属于当前账号的卡。转交或解除归属需要实体卡、明确确认和设备侧核验，不格式化卡内录音。
-个人录音和笔记可创建 Codex MCP 连接，只开放明确选择的文字快照，手动更新后才改变内容；支持暂停和撤销。
-本版依赖兼容后端 1.8.0。设备身份稳定性、保留文件解绑及旧授权失效仍待真实 JWD 验收。
-账号、处理接口与现有后端共用。后台传输由 iOS 调度，处理状态在前台定期更新。
-不包含 Apple 账号、证书、描述文件、私钥或真实用户数据；本包尚未签名或上传商店。
-此标识与旧 com.teno.app 不同，本机文件和设备码不会跨应用身份自动迁移。
-现有服务器账号继续使用；请保留旧 App 资料，已有 JWD 绑定按需恢复原设备码。
-'''
+    compatibility = compatible_project(folder / 'ios/Teno.xcodeproj/project.pbxproj')
+    (folder / 'ios/Verify-Xcode.command').chmod(0o755)
+    readme = (ROOT / 'ios/INSTALL.txt').read_text(encoding='utf-8')
+    assert f'iOS {version} / Build{build}' in readme, 'Update the recipient guide with the build identity'
     (folder / '开始使用.txt').write_text(readme, encoding='utf-8')
     ui_version = re.search(r'^version:\s*([^+\s]+)', (ROOT/'shared-ui/pubspec.yaml').read_text(), re.M)[1]
     metadata = {'version':version,'version_code':int(build),'bundle_id':bundle_id,'app_ui_base':ui_version,'commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         'flutter':'3.47.9','signing':'recipient','framework_mode':'Release device + Debug simulator','xcode_only':True,
-        'hardware_acceptance':'pending: physical iPhone and JWD'}
+        'hardware_acceptance':'pending: physical iPhone and JWD',
+        'xcode_compatibility_target':'14.3.1','project_compatibility':compatibility,
+        'recipient_verification':'ios/Verify-Xcode.command'}
     (folder / 'manifest.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2),encoding='utf-8')
     return folder
 
