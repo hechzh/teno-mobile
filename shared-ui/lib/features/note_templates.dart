@@ -6,18 +6,30 @@ import 'routes/personal_notes.dart';
 import 'personal_actions.dart';
 import 'generation_options.dart';
 
-String templateLabel(String id) =>
-    const {
-      '@default': 'Account default',
-      'teno:general': 'General notes',
-      'teno:meeting': 'Meeting notes',
-      'teno:interview': 'Interview insights',
-      'teno:lecture': 'Lecture notes',
-      'teno:inspiration': 'Inspiration',
-      'teno:actions': 'Action items',
-      'teno:brief': 'Concise recap',
-    }[id] ??
-    'Custom template';
+String templateLabel(BuildContext context, String id) {
+  const en = {
+    '@default': 'Account default',
+    'teno:general': 'General notes',
+    'teno:meeting': 'Meeting notes',
+    'teno:interview': 'Interview insights',
+    'teno:lecture': 'Lecture notes',
+    'teno:inspiration': 'Inspiration',
+    'teno:actions': 'Action items',
+    'teno:brief': 'Concise recap',
+  };
+  const zh = {
+    '@default': '账号默认',
+    'teno:general': '通用笔记',
+    'teno:meeting': '会议纪要',
+    'teno:interview': '访谈',
+    'teno:lecture': '课堂',
+    'teno:inspiration': '灵感',
+    'teno:actions': '待办',
+    'teno:brief': '简短概览',
+  };
+  final chinese = Localizations.localeOf(context).languageCode == 'zh';
+  return (chinese ? zh[id] : en[id]) ?? (chinese ? '自定义模板' : 'Custom template');
+}
 
 class NoteTemplateChoice extends StatelessWidget {
   const NoteTemplateChoice(
@@ -38,7 +50,7 @@ class NoteTemplateChoice extends StatelessWidget {
     contentPadding: EdgeInsets.zero,
     leading: const Icon(Icons.article_outlined),
     title: UiText(title),
-    subtitle: UiText(templateLabel(value)),
+    subtitle: Text(templateLabel(context, value)),
     trailing: const Icon(Icons.chevron_right, size: 18),
     enabled: enabled,
     onTap: !enabled

@@ -70,7 +70,7 @@ class ReportingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp,patch.dict(os.environ,env,clear=True):
             envelope=report.ci_envelope('ios','success',tmp)
             self.assertEqual(envelope['report']['version'],'1.0.0')
-            self.assertIn('1.0 / Build 13',envelope['report']['title']['en'])
+            self.assertIn('1.0 / Build 14',envelope['report']['title']['en'])
             self.assertIn('com.jwd.ZhiYan',envelope['report']['changes'][0]['en'])
             self.assertEqual(envelope['report']['distribution'],'evidence')
             self.assertEqual(envelope['files'],[])

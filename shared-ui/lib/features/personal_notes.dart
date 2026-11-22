@@ -431,6 +431,18 @@ String templateDisplayText(BuildContext context, Json item, String field) {
   return ui(context, original);
 }
 
+String templateCategory(BuildContext context, String value) {
+  if (Localizations.localeOf(context).languageCode != 'zh') return value;
+  return const {
+        'General': '通用',
+        'Meeting': '会议',
+        'Interview': '访谈',
+        'Learning': '学习',
+        'Inspiration': '灵感',
+      }[value] ??
+      value;
+}
+
 class PersonalTemplatePicker extends StatelessWidget {
   const PersonalTemplatePicker(
     this.model, {
@@ -924,7 +936,10 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
                               _ => Icons.category_outlined,
                             }, size: 22),
                             const SizedBox(height: 10),
-                            UiText(value, style: const TextStyle(fontSize: 16)),
+                            Text(
+                              templateCategory(context, value),
+                              style: const TextStyle(fontSize: 16),
+                            ),
                           ],
                         ),
                       ),
@@ -939,7 +954,7 @@ class _PersonalTemplatesState extends State<PersonalTemplates> {
               onTap: () => openCollection(value, category: value),
               child: Row(
                 children: [
-                  heading(value),
+                  heading(templateCategory(context, value)),
                   const SizedBox(width: 8),
                   Icon(Icons.chevron_right, size: 20, color: subtle(context)),
                 ],
