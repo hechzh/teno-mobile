@@ -65,6 +65,12 @@ targets:
         NSMicrophoneUsageDescription: Record audio on your phone and save a local copy.
         NSBluetoothAlwaysUsageDescription: Connect your recorder, control recording, and sync complete audio files.
         NSFaceIDUsageDescription: Authenticate before viewing your recorder's private device key.
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: "$(PRODUCT_MODULE_NAME).TenoSceneDelegate"
         UIBackgroundModes: [audio, bluetooth-central]
         LSSupportsOpeningDocumentsInPlace: true
         CFBundleLocalizations: [en, zh-Hans]
