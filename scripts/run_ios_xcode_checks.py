@@ -65,6 +65,14 @@ def simulator():
     xcode_version = subprocess.check_output(['xcodebuild','-version'],text=True).strip()
     (BUILD/'simulator-selection.json').write_text(json.dumps({'udid':selected,'runtime':runtime['version'],'xcode':xcode_version}))
     print('Selected iOS Simulator:',runtime['version'],selected,flush=True)
+    # Build the macOS screenshot checker before booting. Compiling a Vision
+    # tool against the Xcode 27 macOS SDK can spend several minutes filling a
+    # cold module cache on a fresh runner, so it gets its own budget.
+    (BUILD/'screenshots').mkdir(parents=True,exist_ok=True)
+    module_cache = BUILD/'swift-module-cache'
+    module_cache.mkdir(exist_ok=True)
+    run(['xcrun','--sdk','macosx','swiftc','scripts/capture_ios.swift','-o',str(BUILD/'capture-ios'),
+        '-module-cache-path',str(module_cache)],'ios-capture-compile.log',900)
     subprocess.run(['xcrun','simctl','boot',selected],capture_output=True,timeout=60)
     # Fresh hosted runtimes can spend more than three minutes migrating system
     # apps before our app is installed. Keep a separate bounded startup budget.
@@ -79,8 +87,6 @@ def simulator():
     run(['xcrun','simctl','install',selected,str(ROOT/'ios/DerivedData/Build/Products/Debug-iphonesimulator/Teno.app')],'ios-install.log',120)
     subprocess.run(['xcrun','simctl','terminate',selected,IDENTITY['bundle_id']],capture_output=True,timeout=30)
     run(['xcrun','simctl','launch',selected,IDENTITY['bundle_id']],'ios-launch.log',90)
-    (BUILD/'screenshots').mkdir(exist_ok=True)
-    run(['swiftc','scripts/capture_ios.swift','-o',str(BUILD/'capture-ios')],'ios-capture-compile.log',180)
     run([str(BUILD/'capture-ios'),selected,str(BUILD/'screenshots/01-login.png')],'ios-capture.log',180)
 
 

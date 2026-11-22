@@ -68,7 +68,7 @@ jobs:
           cd ios/build
           zip -qr "${{ steps.identity.outputs.ipa_name }}" Payload
       - name: Run native regressions and simulator login
-        timeout-minutes: 30
+        timeout-minutes: 45
         run: python3 scripts/run_ios_xcode_checks.py simulator
       - name: Scan delivered files
         run: |
