@@ -68,12 +68,12 @@ jobs:
   ios:
     # Explicit iOS source handoff on this feature branch; no signing or store upload.
     if: github.ref == 'refs/heads/refactor/teno-cross-platform' || github.ref == 'refs/heads/feature/teno-0.7.1-login-errors' || github.ref == 'refs/heads/feature/teno-0.8.0-templates-login' || github.ref == 'refs/heads/feature/teno-0.8.1-language-switch' || github.ref == 'refs/heads/feature/teno-0.8.2-processing-language-ask' || github.ref == 'refs/heads/fix/teno-0.8.2-recorder-auto-sync' || github.ref == 'refs/heads/feature/teno-0.9.0-device-mcp'
-    runs-on: macos-15-intel
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    runs-on: xcode-27
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+      - name: Select Xcode 26+ toolchain
+        run: python3 scripts/ios_toolchain.py --github-env
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.47.9"
@@ -83,8 +83,8 @@ jobs:
         id: ios-framework-cache
         with:
           path: ios/build/frameworks
-          key: teno-ios-frameworks-v2-3.47.9-${{ hashFiles('shared-ui/lib/**', 'shared-ui/pubspec.*', 'shared-ui/assets/**') }}
-          restore-keys: teno-ios-frameworks-3.47.9-${{ hashFiles('shared-ui/lib/**', 'shared-ui/pubspec.*', 'shared-ui/assets/**') }}
+          key: teno-ios-frameworks-v3-xcode27-arm64-3.47.9-${{ hashFiles('shared-ui/lib/**', 'shared-ui/pubspec.*', 'shared-ui/assets/**') }}
+          restore-keys: teno-ios-frameworks-v3-xcode27-arm64-3.47.9-
       - name: Read iOS identity
         id: identity
         run: python3 scripts/ios_metadata.py >> "$GITHUB_OUTPUT"
@@ -105,6 +105,8 @@ jobs:
           python3 scripts/package_ios_xcode.py --frameworks ios/build/frameworks
           python3 scripts/package_ios_xcode.py --archive ios/build/handoff/${{ steps.identity.outputs.source_name }}
           python3 -m zipfile -e ios/build/handoff/${{ steps.identity.outputs.source_name }}.zip /tmp/teno-xcode-relocated
+          python3 scripts/ios_project_compatibility.py /tmp/teno-xcode-relocated/${{ steps.identity.outputs.source_name }}/ios/Teno.xcodeproj/project.pbxproj > ios/build/project-compatibility.json
+          python3 scripts/verify_ios_frameworks.py --no-repair --frameworks /tmp/teno-xcode-relocated/${{ steps.identity.outputs.source_name }}/ios/Frameworks --output ios/build/framework-signatures.json
       - uses: actions/cache/save@v4
         if: always() && steps.ios-framework-cache.outputs.cache-hit != 'true' && hashFiles('ios/build/frameworks/Release/App.xcframework/Info.plist') != ''
         with:
@@ -137,6 +139,9 @@ jobs:
             ios/build/screenshots
             ios/build/TestResults.xcresult
             ios/build/handoff/*.zip
+            ios/build/project-compatibility.json
+            ios/build/toolchain.json
+            ios/build/framework-signatures.json
             ios-build.log
             ios-release.log
             ios-tests.log

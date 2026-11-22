@@ -1,3 +1,7 @@
+# Teno iOS 1.0 / Build 12 — Xcode 27 signing handoff
+
+iOS CI now runs on the Xcode 27 runner and refuses to build below Xcode 26 + iOS 26 SDK (the App Store requirement since 2026-04-28). The portable handoff `Teno-iOS-1.0-build12-Xcode.zip` uses the Xcode 16 project format (objectVersion 77) and keeps Google's signature on every inner Flutter slice; a wrapper is re-signed ad hoc only when the simulator slice is merged, so no unsigned XCFramework ships. Android, Web, backend and the formal baselines are unchanged.
+
 # Teno Android 0.8.1 and iOS 1.1.1 / Build 13
 
 本批同步移除录音中实时转写，只在录音结束、完整文件保存后按云处理设置上传转写。
@@ -132,7 +136,7 @@ Phone PCM recording is limited to 54 minutes; general audio import to 120 minute
 
 ## Pinned tools and builds
 
-See `toolchain.json` and `shared-ui/pubspec.lock`. Flutter 3.47.9, Pigeon 29.1.0, Java 21, Gradle 9.1.0, AGP 9.0.1, Kotlin 2.2.20; Android min/compile/target = 26/36/35. iOS minimum 15, Xcode 16.4, XcodeGen 2.46.0, Swift 5 mode. Use the pinned Flutter release for generated contracts and native packages.
+See `toolchain.json` and `shared-ui/pubspec.lock`. Flutter 3.47.9, Pigeon 29.1.0, Java 21, Gradle 9.1.0, AGP 9.0.1, Kotlin 2.2.20; Android min/compile/target = 26/36/35. iOS minimum 15, Xcode 27 (minimum Xcode 26 / iOS 26 SDK), XcodeGen 2.46.0, Swift 5 mode. Use the pinned Flutter release for generated contracts and native packages.
 
 Windows Android build:
 
@@ -154,7 +158,7 @@ Set the local Android SDK location in ignored `local.properties`. The existing p
 macOS iOS build:
 
 ```sh
-export DEVELOPER_DIR=/Applications/Xcode_16.4.app/Contents/Developer
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer  # Xcode 26+ (27 preferred)
 cd shared-ui
 flutter pub get --enforce-lockfile
 flutter build swift-package --platform ios --no-codesign

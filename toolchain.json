@@ -9,6 +9,8 @@
   "android_compile_sdk": 36,
   "android_min_sdk": 26,
   "ios_deployment_target": "15.0",
-  "xcode": "16.4",
+  "xcode": "27",
+  "ios_sdk_min": "26.0",
+  "app_store_sdk_requirement": "Xcode 26 + iOS 26 SDK since 2026-04-28",
   "xcodegen": "2.46.0"
 }

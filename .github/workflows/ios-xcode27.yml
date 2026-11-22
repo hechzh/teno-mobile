@@ -1,0 +1,93 @@
+name: Teno iOS Xcode 27
+on:
+  push:
+    branches: [fix/teno-ios-xcode1431]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  ios:
+    # Apple requires Xcode 26 or later with an iOS 26 SDK or later since
+    # 2026-04-28. This job pins the Xcode 27 runner and fails if the selected
+    # toolchain or SDK drops below that floor. The runner is arm64, so the
+    # simulator slices are rebuilt here instead of being reused from the
+    # earlier Intel (x86_64) build16 handoff.
+    runs-on: xcode-27
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan source and history
+        run: python3 scripts/secret_audit.py --history
+      - name: Select Xcode 26+ toolchain
+        run: python3 scripts/ios_toolchain.py --github-env
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.9"
+          channel: stable
+          cache: true
+      - name: Read iOS identity
+        id: identity
+        run: python3 scripts/ios_metadata.py >> "$GITHUB_OUTPUT"
+      - name: Build Flutter frameworks with Xcode 27
+        run: |
+          brew install xcodegen
+          test "$(xcodegen version)" = 'Version: 2.46.0'
+          cd shared-ui
+          flutter pub get --enforce-lockfile
+          flutter build ios-framework --no-codesign --no-debug --no-profile --no-plugins --output="$GITHUB_WORKSPACE/ios/build/frameworks"
+          flutter build ios-framework --no-codesign --no-release --no-profile --no-plugins --output="$GITHUB_WORKSPACE/ios/build/frameworks"
+          cd ..
+          python3 scripts/verify_ios_frameworks.py --frameworks ios/build/frameworks --output ios/build/framework-signatures-source.json
+      - name: Package portable Xcode project
+        run: |
+          python3 scripts/package_ios_xcode.py --frameworks ios/build/frameworks
+          python3 scripts/package_ios_xcode.py --archive ios/build/handoff/${{ steps.identity.outputs.source_name }}
+          python3 -m zipfile -e ios/build/handoff/${{ steps.identity.outputs.source_name }}.zip /tmp/teno-xcode-relocated
+          python3 scripts/ios_project_compatibility.py /tmp/teno-xcode-relocated/${{ steps.identity.outputs.source_name }}/ios/Teno.xcodeproj/project.pbxproj > ios/build/project-compatibility.json
+          python3 scripts/verify_ios_frameworks.py --no-repair --frameworks /tmp/teno-xcode-relocated/${{ steps.identity.outputs.source_name }}/ios/Frameworks --output ios/build/framework-signatures.json
+          /bin/bash -n /tmp/teno-xcode-relocated/${{ steps.identity.outputs.source_name }}/ios/Verify-Xcode.command
+      - name: Read project with Xcode 27
+        run: |
+          xcodebuild -project /tmp/teno-xcode-relocated/${{ steps.identity.outputs.source_name }}/ios/Teno.xcodeproj -list -json > ios/build/project-read.json
+          python3 - <<'PY'
+          import json, pathlib
+          data = json.loads(pathlib.Path('ios/build/project-read.json').read_text())
+          targets = set(data['project']['targets'])
+          assert {'Teno', 'TenoTests', 'JwdVtrSDK'} <= targets, targets
+          print('Xcode 27 read targets:', ', '.join(sorted(targets)))
+          PY
+      - name: Compile unsigned iPhone build with Xcode 27
+        run: |
+          xcodebuild -version | tee ios/build/ci-xcode-version.txt
+          python3 scripts/run_ios_xcode_checks.py device
+          mkdir -p ios/build/Payload
+          cp -R ios/DerivedData/Build/Products/Release-iphoneos/Teno.app ios/build/Payload/
+          cd ios/build
+          zip -qr "${{ steps.identity.outputs.ipa_name }}" Payload
+      - name: Run native regressions and simulator login
+        timeout-minutes: 30
+        run: python3 scripts/run_ios_xcode_checks.py simulator
+      - name: Scan delivered files
+        run: |
+          python3 scripts/secret_audit.py --artifact ios/build/handoff/${{ steps.identity.outputs.source_name }}.zip
+          python3 scripts/secret_audit.py --artifact ios/build/${{ steps.identity.outputs.ipa_name }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Teno-iOS
+          path: |
+            ios/build/${{ steps.identity.outputs.ipa_name }}
+            ios/build/handoff/*.zip
+            ios/build/screenshots
+            ios/build/TestResults.xcresult
+            ios/build/project-compatibility.json
+            ios/build/project-read.json
+            ios/build/toolchain.json
+            ios/build/framework-signatures.json
+            ios/build/framework-signatures-source.json
+            ios/build/ci-xcode-version.txt
+            ios/build/simulator-*.json
+            ios-*.log

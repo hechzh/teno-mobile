@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import subprocess
 import sys
@@ -44,14 +45,25 @@ def simulator():
     BUILD.mkdir(parents=True,exist_ok=True)
     (BUILD/'simulator-inventory.json').write_text(json.dumps({'runtimes':runtimes,'devices':devices},indent=2))
     supported = [r for r in runtimes['runtimes'] if r.get('isAvailable') and '.iOS-' in r['identifier']
-        and (15,0) <= tuple(map(int,r['version'].split('.'))) <= (18,5)]
+        and tuple(map(int,r['version'].split('.'))) >= (15,0)]
     if not supported:
-        raise RuntimeError('Install an iOS15–18.5 Simulator runtime for the pinned Xcode16.4; inventory saved.')
+        raise RuntimeError('Install an iOS Simulator runtime for Xcode 26+ (iOS 26/27 recommended); inventory saved.')
     runtime = max(supported,key=lambda r:tuple(map(int,r['version'].split('.'))))
     selected = next((d['udid'] for d in devices['devices'].get(runtime['identifier'],[]) if d['name'].startswith('iPhone')),None)
     if not selected:
-        selected = subprocess.check_output(['xcrun','simctl','create','Teno071CI','com.apple.CoreSimulator.SimDeviceType.iPhone-16',runtime['identifier']],text=True).strip()
-    (BUILD/'simulator-selection.json').write_text(json.dumps({'udid':selected,'runtime':runtime['version'],'xcode':'16.4'}))
+        # Device types from older Xcode releases are not always present in a
+        # newer runtime; pick the newest iPhone type the host actually offers.
+        types = json.loads(subprocess.check_output(['xcrun','simctl','list','devicetypes','-j']))['devicetypes']
+        iphones = [t['identifier'] for t in types if t['name'].startswith('iPhone')]
+        if not iphones:
+            raise RuntimeError('No iPhone Simulator device type is installed.')
+        def rank(identifier):
+            numbers = re.findall(r'\d+', identifier)
+            return tuple(map(int,numbers)) if numbers else (0,)
+        device_type = max(iphones,key=rank)
+        selected = subprocess.check_output(['xcrun','simctl','create','TenoCI',device_type,runtime['identifier']],text=True).strip()
+    xcode_version = subprocess.check_output(['xcodebuild','-version'],text=True).strip()
+    (BUILD/'simulator-selection.json').write_text(json.dumps({'udid':selected,'runtime':runtime['version'],'xcode':xcode_version}))
     print('Selected iOS Simulator:',runtime['version'],selected,flush=True)
     subprocess.run(['xcrun','simctl','boot',selected],capture_output=True,timeout=60)
     # Fresh hosted runtimes can spend more than three minutes migrating system
