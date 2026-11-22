@@ -121,7 +121,7 @@ class PageFrame extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: Text(
-        title,
+        ui(context, title),
         style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
       ),
       leading: Padding(
