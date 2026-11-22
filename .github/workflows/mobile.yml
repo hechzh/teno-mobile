@@ -91,7 +91,7 @@ jobs:
       - name: Prepare native host
         id: release
         run: |
-          brew install xcodegen
+          brew install xcodegen tesseract
           test "$(xcodegen version)" = "Version: 2.46.0"
           cd shared-ui
           flutter pub get --enforce-lockfile

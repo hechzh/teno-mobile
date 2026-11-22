@@ -33,7 +33,7 @@ jobs:
         run: python3 scripts/ios_metadata.py >> "$GITHUB_OUTPUT"
       - name: Build Flutter frameworks with Xcode 27
         run: |
-          brew install xcodegen
+          brew install xcodegen tesseract
           test "$(xcodegen version)" = 'Version: 2.46.0'
           cd shared-ui
           flutter pub get --enforce-lockfile

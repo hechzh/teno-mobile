@@ -4,9 +4,11 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import signal
 import subprocess
 import sys
+import time
 from ios_metadata import metadata as ios_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,14 +67,9 @@ def simulator():
     xcode_version = subprocess.check_output(['xcodebuild','-version'],text=True).strip()
     (BUILD/'simulator-selection.json').write_text(json.dumps({'udid':selected,'runtime':runtime['version'],'xcode':xcode_version}))
     print('Selected iOS Simulator:',runtime['version'],selected,flush=True)
-    # Build the macOS screenshot checker before booting. Compiling a Vision
-    # tool against the Xcode 27 macOS SDK can spend several minutes filling a
-    # cold module cache on a fresh runner, so it gets its own budget.
+    if not shutil.which('tesseract'):
+        raise SystemExit('tesseract is required for the simulator screenshot check (brew install tesseract).')
     (BUILD/'screenshots').mkdir(parents=True,exist_ok=True)
-    module_cache = BUILD/'swift-module-cache'
-    module_cache.mkdir(exist_ok=True)
-    run(['xcrun','--sdk','macosx','swiftc','scripts/capture_ios.swift','-o',str(BUILD/'capture-ios'),
-        '-module-cache-path',str(module_cache)],'ios-capture-compile.log',900)
     subprocess.run(['xcrun','simctl','boot',selected],capture_output=True,timeout=60)
     # Fresh hosted runtimes can spend more than three minutes migrating system
     # apps before our app is installed. Keep a separate bounded startup budget.
@@ -87,7 +84,34 @@ def simulator():
     run(['xcrun','simctl','install',selected,str(ROOT/'ios/DerivedData/Build/Products/Debug-iphonesimulator/Teno.app')],'ios-install.log',120)
     subprocess.run(['xcrun','simctl','terminate',selected,IDENTITY['bundle_id']],capture_output=True,timeout=30)
     run(['xcrun','simctl','launch',selected,IDENTITY['bundle_id']],'ios-launch.log',90)
-    run([str(BUILD/'capture-ios'),selected,str(BUILD/'screenshots/01-login.png')],'ios-capture.log',180)
+    capture_login_screen(selected)
+
+
+def capture_login_screen(selected):
+    """Capture the simulator and require the rendered Teno sign-in text.
+
+    A successful ``simctl launch`` is not proof that Flutter painted its first
+    frame. Vision OCR crashes on the Xcode 27 host, so the screenshot is read
+    with the tesseract CLI instead of a compiled helper.
+    """
+    png = BUILD/'screenshots/01-login.png'; log = ROOT/'ios-capture.log'
+    deadline = time.time() + 60; verified = False
+    with log.open('w') as stream:
+        while time.time() < deadline:
+            shot = subprocess.run(['xcrun','simctl','io',selected,'screenshot',str(png)],
+                capture_output=True, text=True)
+            stream.write(shot.stdout + shot.stderr)
+            if shot.returncode == 0 and png.is_file():
+                ocr = subprocess.run(['tesseract',str(png),'stdout'],capture_output=True,text=True)
+                stream.write(ocr.stdout + ocr.stderr)
+                words = (ocr.stdout or '').lower()
+                if 'teno' in words and ('sign in' in words or 'signin' in words):
+                    verified = True; break
+            time.sleep(2)
+    if not verified:
+        print(log.read_text(errors='replace')[-2000:])
+        raise SystemExit('Teno sign-in screen did not render within 60 seconds; inspect '+str(png))
+    print('Teno sign-in screen verified from the native simulator screenshot.')
 
 
 if __name__ == '__main__':
