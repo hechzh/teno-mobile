@@ -96,17 +96,24 @@ def capture_login_screen(selected):
     """
     png = BUILD/'screenshots/01-login.png'; log = ROOT/'ios-capture.log'
     deadline = time.time() + 60; verified = False
+    # Some Xcode 27 runners expose an extra virtual display, and simctl then
+    # refuses a screenshot without an explicit display selector.
+    displays = ([], ['--display=internal'], ['--display=1'], ['--display=3'])
     with log.open('w') as stream:
         while time.time() < deadline:
-            shot = subprocess.run(['xcrun','simctl','io',selected,'screenshot',str(png)],
-                capture_output=True, text=True)
-            stream.write(shot.stdout + shot.stderr)
-            if shot.returncode == 0 and png.is_file():
+            for extra in displays:
+                shot = subprocess.run(['xcrun','simctl','io',selected,'screenshot',*extra,str(png)],
+                    capture_output=True, text=True)
+                stream.write(shot.stdout + shot.stderr)
+                if shot.returncode != 0 or not png.is_file():
+                    continue
                 ocr = subprocess.run(['tesseract',str(png),'stdout'],capture_output=True,text=True)
                 stream.write(ocr.stdout + ocr.stderr)
                 words = (ocr.stdout or '').lower()
                 if 'teno' in words and ('sign in' in words or 'signin' in words):
                     verified = True; break
+            if verified:
+                break
             time.sleep(2)
     if not verified:
         print(log.read_text(errors='replace')[-2000:])
