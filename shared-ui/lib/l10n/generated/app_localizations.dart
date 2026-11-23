@@ -6451,6 +6451,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recording could not start.'**
   String get labelf4e871ec79db;
+
+  /// No description provided for @labelffb4b44abb4f.
+  ///
+  /// In en, this message translates to:
+  /// **'All templates'**
+  String get labelffb4b44abb4f;
+
+  /// No description provided for @label830ec7f812f9.
+  ///
+  /// In en, this message translates to:
+  /// **'Last used'**
+  String get label830ec7f812f9;
 }
 
 class _AppLocalizationsDelegate

@@ -58,7 +58,7 @@ class NoteTemplateChoice extends StatelessWidget {
         : () => perform(context, () async {
             final chosen = await push<String>(
               context,
-              PersonalTemplatePicker(model),
+              PersonalTemplatePicker(model, initial: value),
             );
             if (chosen != null && context.mounted)
               await onChanged(chosen.isEmpty ? 'teno:general' : chosen);

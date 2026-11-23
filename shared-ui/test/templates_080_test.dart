@@ -65,6 +65,8 @@ void main() {
                 'title': t.$2,
                 'title_zh': t.$3,
                 'recommended': true,
+                'favorite': t.$1 == 'interview',
+                'recent': t.$1 == 'meeting',
                 'category': 'General',
                 'description': 'Synthetic template acceptance',
                 'description_zh': '仅整理有原文依据的内容',
@@ -74,6 +76,8 @@ void main() {
               },
           ],
         };
+        host.prefs['recent_templates'] = ['teno:meeting'];
+        host.prefs['favorite_templates'] = ['teno:interview'];
         final model = fixtures.coreModel(host)..interfaceLanguage = language;
         final boundary = GlobalKey();
         await tester.pumpWidget(
@@ -113,12 +117,12 @@ void main() {
             file.writeAsBytesSync(bytes!.buffer.asUint8List());
             image.dispose();
           });
+        expect(find.text(ui(ctx, 'Recently used')), findsOneWidget);
+        expect(find.text(ui(ctx, 'Favorites')), findsOneWidget);
         final chosen = language == 'zh' ? '会议纪要' : 'Meeting notes';
         await tester.ensureVisible(find.text(chosen).first);
         await tester.tap(find.text(chosen).first);
         await tester.pumpAndSettle();
-        expect(find.text(ui(ctx, 'Example source')), findsOneWidget);
-        await tester.ensureVisible(find.text(ui(ctx, 'Use this template')));
         await tester.tap(find.text(ui(ctx, 'Use this template')));
         await tester.pumpAndSettle();
         expect(host.prefs['default_template_id'], 'teno:meeting');

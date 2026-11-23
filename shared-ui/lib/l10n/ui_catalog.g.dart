@@ -1040,5 +1040,7 @@ String lookupUiMessage(AppLocalizations l, String source) => switch (source) {
   "Use" => l.labelc36d819e7bc6,
   "Source transcript" => l.label8a122ea399dd,
   "Recording could not start." => l.labelf4e871ec79db,
+  "All templates" => l.labelffb4b44abb4f,
+  "Last used" => l.label830ec7f812f9,
   _ => source,
 };

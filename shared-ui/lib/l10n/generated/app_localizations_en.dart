@@ -3498,4 +3498,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get labelf4e871ec79db => 'Recording could not start.';
+
+  @override
+  String get labelffb4b44abb4f => 'All templates';
+
+  @override
+  String get label830ec7f812f9 => 'Last used';
 }

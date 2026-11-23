@@ -443,23 +443,306 @@ String templateCategory(BuildContext context, String value) {
       value;
 }
 
-class PersonalTemplatePicker extends StatelessWidget {
+class PersonalTemplatePicker extends StatefulWidget {
   const PersonalTemplatePicker(
     this.model, {
     super.key,
     this.allowTranscript = false,
+    this.initial,
   });
   final TenoModel model;
   final bool allowTranscript;
+  final String? initial;
   @override
-  Widget build(BuildContext context) => CoreFrame(
-    title: 'Select a template',
-    child: PersonalTemplates(
-      model,
-      picker: true,
-      allowTranscript: allowTranscript,
+  State<PersonalTemplatePicker> createState() =>
+      _PersonalTemplatePickerState();
+}
+
+class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
+  List<Json> templates = [];
+  String error = '', query = '';
+  bool loading = true, searching = false;
+  String? selected;
+
+  @override
+  void initState() {
+    super.initState();
+    selected = widget.initial;
+    load();
+  }
+
+  List<String> get recentIds =>
+      (widget.model.personalSettings['recent_templates'] as List? ?? [])
+          .map(text)
+          .toList();
+
+  Future<void> load() async {
+    try {
+      final data = await widget.model.list('/api/v1/personal/templates');
+      if (!mounted) return;
+      setState(() {
+        templates = data;
+        if (selected == null || selected == '@default') {
+          final fallback = text(
+            widget.model.personalSettings['default_template_id'],
+          );
+          selected = fallback.isEmpty ? null : fallback;
+        }
+        if (selected == null) {
+          final recent = recentIds;
+          if (recent.isNotEmpty) selected = recent.first;
+        }
+      });
+    } catch (e) {
+      if (mounted) setState(() => error = TenoModel.friendly(e));
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  bool matches(Json item) {
+    final value = query.toLowerCase();
+    if (value.isEmpty) return true;
+    return [
+      templateDisplayText(context, item, 'title'),
+      templateDisplayText(context, item, 'description'),
+      templateCategory(context, text(item['category'])),
+    ].join(' ').toLowerCase().contains(value);
+  }
+
+  List<Json> get favorites => [
+    for (final item in templates)
+      if (item['favorite'] == true && matches(item)) item,
+  ];
+
+  List<Json> get recent => [
+    for (final id in recentIds)
+      for (final item in templates)
+        if (text(item['id']) == id && matches(item)) item,
+  ];
+
+  List<Json> get all => [
+    for (final item in templates)
+      if (matches(item)) item,
+  ];
+
+  Future<void> apply() async {
+    final id = selected;
+    if (id == null || id.isEmpty) return;
+    final next = [
+      id,
+      ...recentIds.where((value) => value != id),
+    ].take(20).toList();
+    await widget.model.updatePersonal({'recent_templates': next});
+    if (mounted) Navigator.pop(context, id);
+  }
+
+  Widget pill(String text, {bool accent = false}) => Container(
+    margin: const EdgeInsets.only(right: 6),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(
+      color: accent
+          ? Theme.of(context).colorScheme.secondaryContainer
+          : Theme.of(context).colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: 11,
+        color: accent
+            ? Theme.of(context).colorScheme.onSecondaryContainer
+            : subtle(context),
+      ),
     ),
   );
+
+  Widget card(Json item, {bool lastUsed = false}) {
+    final id = text(item['id']);
+    final chosen = selected == id;
+    final author = item['recommended'] == true
+        ? 'Teno'
+        : (text(item['author']).isEmpty
+              ? ui(context, 'Custom template')
+              : text(item['author']));
+    return InkWell(
+      onTap: () => setState(() => selected = id),
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: chosen
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outlineVariant,
+            width: chosen ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              switch (text(item['category'])) {
+                'Meeting' => Icons.people_outline,
+                'Interview' => Icons.question_answer_outlined,
+                'Learning' => Icons.school_outlined,
+                'Inspiration' => Icons.lightbulb_outline,
+                _ => Icons.article_outlined,
+              },
+              size: 24,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const Spacer(),
+            Text(
+              templateDisplayText(context, item, 'title'),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              templateDisplayText(context, item, 'description'),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, height: 1.3, color: subtle(context)),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                pill(author),
+                if (lastUsed) pill(ui(context, 'Last used'), accent: true),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget shelf(String title, List<Json> items, {bool lastUsed = false}) =>
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 18, 4, 10),
+            child: heading(title),
+          ),
+          SizedBox(
+            height: 196 * MediaQuery.textScalerOf(context).scale(1),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                for (var index = 0; index < items.length; index++)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: SizedBox(
+                      width: 232,
+                      child: card(items[index], lastUsed: lastUsed && index == 0),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      );
+
+  Widget vertical(String title, List<Json> items) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(4, 18, 4, 10),
+        child: heading(title),
+      ),
+      for (final item in items)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: SizedBox(
+            height: 168 * MediaQuery.textScalerOf(context).scale(1),
+            child: card(item),
+          ),
+        ),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = query.isNotEmpty;
+    final recentItems = recent;
+    final favoriteItems = favorites;
+    return CoreFrame(
+      title: 'Select a template',
+      actions: [
+        CoreAction(
+          Icons.search,
+          'Search',
+          () => setState(() {
+            searching = !searching;
+            if (!searching) query = '';
+          }),
+        ),
+      ],
+      bottom: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: FilledButton(
+            onPressed: selected == null ? null : apply,
+            child: const UiText('Use this template'),
+          ),
+        ),
+      ),
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(coreInset, 0, coreInset, 16),
+        children: [
+          if (loading) const LinearProgressIndicator(minHeight: 2),
+          if (error.isNotEmpty) ErrorNotice(error, retry: load),
+          if (searching)
+            Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 8),
+              child: TextField(
+                autofocus: true,
+                onChanged: (value) => setState(() => query = value),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  hint: UiText('Search templates'),
+                ),
+              ),
+            ),
+          if (widget.allowTranscript)
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+              leading: const Icon(Icons.article_outlined),
+              title: const UiText('Transcript'),
+              subtitle: const UiText(
+                'Open the existing transcript without generating a new note.',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.pop(context, '__transcript__'),
+            ),
+          if (!loading && filtered)
+            vertical('All templates', all)
+          else if (!loading) ...[
+            if (recentItems.isNotEmpty)
+              shelf('Recently used', recentItems, lastUsed: true),
+            if (favoriteItems.isNotEmpty) shelf('Favorites', favoriteItems),
+            vertical('All templates', all),
+          ],
+          if (!loading && all.isEmpty && error.isEmpty)
+            const EmptyState(
+              'No templates here',
+              'Save a favorite, create a template or choose another category.',
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class PersonalTemplates extends StatefulWidget {
