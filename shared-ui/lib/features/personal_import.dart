@@ -353,7 +353,7 @@ class PersonalLocalPage extends StatelessWidget {
               ),
             if (draft['generation_frozen'] == true)
               Text(
-                '${ui(context, templateLabel(text(draft['template_id'])))} · ${ui(context, 'Output language')}: ${ui(context, draft['output_language'] == 'zh-CN' ? 'Chinese' : 'English')}',
+                '${templateLabel(context, text(draft['template_id']))} · ${ui(context, 'Output language')}: ${ui(context, draft['output_language'] == 'zh-CN' ? 'Chinese' : 'English')}',
               ),
             if (!file &&
                 (remote.isNotEmpty || draft['template_frozen'] == true)) ...[
