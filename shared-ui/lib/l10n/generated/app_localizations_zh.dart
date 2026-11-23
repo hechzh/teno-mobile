@@ -3103,4 +3103,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deviceNewOperationsPaused => '暂时停止新的录音卡登记和转交。';
+
+  @override
+  String get label7ca4fbf49056 => '已删除的录音会保留在这里，直到你永久删除。';
+
+  @override
+  String get label7b8c3b6a1714 => '云端内容和手机上的本地副本将一并删除，以释放空间。';
+
+  @override
+  String get label7ac1710277d0 => '清空回收站';
+
+  @override
+  String get label029c636b9a50 => '清空回收站？';
+
+  @override
+  String get labelfa838c6a27e5 => '所有已删除内容及其本地副本都会被移除。';
+
+  @override
+  String get labela086066395cd => '已移入回收站';
+
+  @override
+  String get labela8283ade3185 => '撤销';
 }

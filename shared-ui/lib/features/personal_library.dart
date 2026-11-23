@@ -204,6 +204,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
       ],
       if (folder != null) 'folder_id': folder.isEmpty ? null : folder,
     });
+    if (action == 'delete') await deleteLocalCopies(values);
     if (mounted)
       setState(() {
         selected.clear();
@@ -211,6 +212,124 @@ class _PersonalListBodyState extends State<PersonalListBody> {
       });
     widget.onSelectionChanged?.call(null);
     await load();
+  }
+
+  Future<void> deleteLocalCopies(List<Json> values) async {
+    final recordings = {
+      for (final value in values)
+        if (value['type'] == 'recording') text(value['id']),
+    };
+    final files = {
+      for (final value in values)
+        if (value['type'] == 'file') text(value['id']),
+    };
+    if (recordings.isEmpty && files.isEmpty) return;
+    for (final draft in widget.model.drafts) {
+      final matches =
+          recordings.contains(text(draft['recording_id'])) ||
+          files.contains(text(draft['file_id']));
+      if (!matches) continue;
+      try {
+        await widget.model.host.deleteLocal(text(draft['id']));
+      } catch (_) {
+        /* The cloud item is gone; a locked local file must not undo it. */
+      }
+    }
+  }
+
+  Future<void> swipe(Json item) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final undo = ui(context, 'Undo');
+    setState(() => items.removeWhere((i) => identity(i) == identity(item)));
+    await perform(context, () async {
+      if (widget.trash) {
+        await apply('delete', [item]);
+        return;
+      }
+      await apply('trash', [item]);
+      if (!mounted) return;
+      messenger?.showSnackBar(
+        SnackBar(
+          content: const UiText('Moved to trash'),
+          action: SnackBarAction(
+            label: undo,
+            onPressed: () => perform(context, () => apply('restore', [item])),
+          ),
+        ),
+      );
+    });
+    if (mounted) await load();
+  }
+
+  Future<void> trashMenu(Json item) async {
+    final value = await showModalBottomSheet<String>(
+      context: context,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.restore),
+              title: const UiText('Restore'),
+              onTap: () => Navigator.pop(sheet, 'restore'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_forever_outlined),
+              title: const UiText('Delete permanently'),
+              onTap: () => Navigator.pop(sheet, 'delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || value == null) return;
+    await actions(value, [item]);
+  }
+
+  Future<void> emptyTrash() async {
+    if (!await confirm(
+      context,
+      'Empty trash?',
+      'All deleted items and their local copies will be removed.',
+    ))
+      return;
+    if (!mounted) return;
+    await perform(context, () async {
+      final all = <Json>[];
+      var offset = 0;
+      while (true) {
+        final page = await widget.model.api(
+          'GET',
+          '/api/v1/library/items?include_processing=true&limit=100&offset=$offset&trash=true',
+        );
+        final pageItems = rows(page['items']);
+        all.addAll(pageItems);
+        offset += pageItems.length;
+        if (pageItems.isEmpty ||
+            offset >= (page['total'] as num? ?? offset))
+          break;
+      }
+      for (var start = 0; start < all.length; start += 100) {
+        final chunk = all.sublist(
+          start,
+          start + 100 > all.length ? all.length : start + 100,
+        );
+        await widget.model.api('POST', '/api/v1/library/batch', {
+          'action': 'delete',
+          'items': [
+            for (final item in chunk) {'type': item['type'], 'id': item['id']},
+          ],
+        });
+        await deleteLocalCopies(chunk);
+      }
+      if (mounted) {
+        setState(() {
+          selected.clear();
+          selecting = false;
+        });
+      }
+      await load();
+    });
   }
 
   Future<void> actions(
@@ -258,7 +377,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
       if (await confirm(
         context,
         'Delete permanently?',
-        'This removes the selected cloud content and its shared links. Local copies stay on this phone.',
+        'Cloud content and local copies on this phone are deleted to free space.',
       ))
         await apply(action, values);
     } else if (action == 'mcp') {
@@ -410,6 +529,8 @@ class _PersonalListBodyState extends State<PersonalListBody> {
       item,
       () => folder
           ? expand(text(item['id']))
+          : widget.trash
+          ? trashMenu(item)
           : openPersonalItem(context, widget.model, item),
       selected: selecting ? selected.contains(identity(item)) : null,
       select: selecting
@@ -439,7 +560,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
             )
           : null,
     );
-    if (selecting || widget.trash) return child;
+    if (selecting) return child;
     if (folder)
       return DragTarget<Json>(
         onWillAcceptWithDetails: (d) => d.data['type'] != 'folder',
@@ -454,6 +575,30 @@ class _PersonalListBodyState extends State<PersonalListBody> {
           child: child,
         ),
       );
+    final swipeable = Dismissible(
+      key: ValueKey(identity(item)),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        color: Theme.of(context).colorScheme.errorContainer,
+        child: Icon(
+          Icons.delete_outline,
+          color: Theme.of(context).colorScheme.onErrorContainer,
+        ),
+      ),
+      confirmDismiss: (_) async {
+        if (!widget.trash) return true;
+        return confirm(
+          context,
+          'Delete permanently?',
+          'Cloud content and local copies on this phone are deleted to free space.',
+        );
+      },
+      onDismissed: (_) => swipe(item),
+      child: child,
+    );
+    if (widget.trash) return swipeable;
     return LongPressDraggable<Json>(
       data: item,
       onDragStarted: () {
@@ -471,8 +616,8 @@ class _PersonalListBodyState extends State<PersonalListBody> {
           child: Text(text(item['title'])),
         ),
       ),
-      childWhenDragging: Opacity(opacity: .35, child: child),
-      child: child,
+      childWhenDragging: Opacity(opacity: .35, child: swipeable),
+      child: swipeable,
     );
   }
 
@@ -670,6 +815,10 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                             setState(() => selecting = true);
                             return;
                           }
+                          if (value == 'empty') {
+                            unawaited(emptyTrash());
+                            return;
+                          }
                           setState(() => sort = value);
                           unawaited(load());
                         },
@@ -681,6 +830,17 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                             ('name', 'Name'),
                           ])
                             PopupMenuItem(value: v.$1, child: UiText(v.$2)),
+                          if (widget.trash && items.isNotEmpty)
+                            const PopupMenuItem(
+                              value: 'empty',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_sweep_outlined, size: 20),
+                                  SizedBox(width: 12),
+                                  UiText('Empty trash'),
+                                ],
+                              ),
+                            ),
                         ],
                         icon: const Icon(Icons.more_horiz, size: 21),
                       ),
@@ -705,9 +865,14 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                     visible.isEmpty &&
                     !(widget.root && view == 'all') &&
                     error.isEmpty)
-                  const EmptyState(
-                    'No files here',
-                    'Add a recording, import a file or create a note.',
+                  EmptyState(
+                    widget.trash ? 'Trash is empty' : 'No files here',
+                    widget.trash
+                        ? 'Deleted recordings stay here until you delete them permanently.'
+                        : 'Add a recording, import a file or create a note.',
+                    icon: widget.trash
+                        ? Icons.delete_outline
+                        : Icons.notes_outlined,
                   ),
                 if (more)
                   TextButton(

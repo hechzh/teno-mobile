@@ -994,5 +994,12 @@ String lookupUiMessage(AppLocalizations l, String source) => switch (source) {
   "Complete each device verification step in order." => l.deviceVerifySteps,
   "Start this recorder operation first." => l.deviceStartFirst,
   "New recorder registration and transfers are temporarily paused." => l.deviceNewOperationsPaused,
+  "Deleted recordings stay here until you delete them permanently." => l.label7ca4fbf49056,
+  "Cloud content and local copies on this phone are deleted to free space." => l.label7b8c3b6a1714,
+  "Empty trash" => l.label7ac1710277d0,
+  "Empty trash?" => l.label029c636b9a50,
+  "All deleted items and their local copies will be removed." => l.labelfa838c6a27e5,
+  "Moved to trash" => l.labela086066395cd,
+  "Undo" => l.labela8283ade3185,
   _ => source,
 };

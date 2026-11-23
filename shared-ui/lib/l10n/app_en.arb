@@ -1165,5 +1165,12 @@
   "deviceClaimRejectedOnly": "Only a rejected initial authorization can be released.",
   "deviceVerifySteps": "Complete each device verification step in order.",
   "deviceStartFirst": "Start this recorder operation first.",
-  "deviceNewOperationsPaused": "New recorder registration and transfers are temporarily paused."
+  "deviceNewOperationsPaused": "New recorder registration and transfers are temporarily paused.",
+  "label7ca4fbf49056": "Deleted recordings stay here until you delete them permanently.",
+  "label7b8c3b6a1714": "Cloud content and local copies on this phone are deleted to free space.",
+  "label7ac1710277d0": "Empty trash",
+  "label029c636b9a50": "Empty trash?",
+  "labelfa838c6a27e5": "All deleted items and their local copies will be removed.",
+  "labela086066395cd": "Moved to trash",
+  "labela8283ade3185": "Undo"
 }
