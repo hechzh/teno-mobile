@@ -12,6 +12,22 @@ Local release
 - The initial normalizer has reviewed scopes for 0.4.4 and 0.5.0. Future versions
   require their own evidence catalog; they never inherit old hardware acceptance.
 
+UI showcase
+- The development page's "Latest version UI" reads the separate showcase record,
+  not the build's screenshot assets. publish_manual_release.py now publishes it
+  automatically for Android after the build report succeeds.
+- Preferred source: design-baseline/v<version>/pages.json with light/dark/large
+  screenshots. If that version is missing, the newest available gallery is used
+  and the acceptance record is marked partial; it never silently claims the new
+  version was fully recaptured.
+- Repair an existing build without re-reporting it:
+  python scripts/publish_manual_release.py --showcase-only --build-id <build-id>
+- Disable or override the gallery:
+  --no-showcase
+  --showcase-gallery design-baseline/v0.9.0
+- The showcase uploads its own screenshot and evidence assets with the same
+  release-authority credential. A 409 means the immutable gallery already exists.
+
 Local build/test commands
 Use the reporting wrapper so both successful and failed checks are recorded:
 python scripts/run_and_report.py --platform android --name "Android release build and lint" --environment static -- ./gradlew.bat :app:assembleRelease :app:lintRelease

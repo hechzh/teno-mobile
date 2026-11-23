@@ -164,7 +164,7 @@ def public_web_release():
 def acceptance(report: dict, gallery_version: str, stale: bool, pages: list, web):
     version = report['version']
     web = web or {}
-    app_ui_base = web.get('app_ui_base') or version
+    app_ui_base = version
     source_commit = web.get('source_commit') or report['commit']
     if not re.fullmatch(r'[a-f0-9]{40}', source_commit or ''):
         source_commit = report['commit']

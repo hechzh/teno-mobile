@@ -53,7 +53,7 @@ def android():
     report = {
         'platform': 'android', 'version': VERSION,
         'build_number': 'manual-0.9.4-' + sha(MANIFEST)[:12] + '-android',
-        'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+        'commit': manifest.get('source_commit') or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
         'occurred_at': now, 'outcome': 'passed', 'implementation': 'implemented',
         'physical': 'pending', 'distribution': 'internal',
         'title': words('Android 0.9.4：模板选择对齐 PLAUD', 'Android 0.9.4: PLAUD-aligned template picker'),
