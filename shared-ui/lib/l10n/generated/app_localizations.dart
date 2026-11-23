@@ -6175,6 +6175,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New recorder registration and transfers are temporarily paused.'**
   String get deviceNewOperationsPaused;
+
+  /// No description provided for @label7ca4fbf49056.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted recordings stay here until you delete them permanently.'**
+  String get label7ca4fbf49056;
+
+  /// No description provided for @label7b8c3b6a1714.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud content and local copies on this phone are deleted to free space.'**
+  String get label7b8c3b6a1714;
+
+  /// No description provided for @label7ac1710277d0.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty trash'**
+  String get label7ac1710277d0;
+
+  /// No description provided for @label029c636b9a50.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty trash?'**
+  String get label029c636b9a50;
+
+  /// No description provided for @labelfa838c6a27e5.
+  ///
+  /// In en, this message translates to:
+  /// **'All deleted items and their local copies will be removed.'**
+  String get labelfa838c6a27e5;
+
+  /// No description provided for @labela086066395cd.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved to trash'**
+  String get labela086066395cd;
+
+  /// No description provided for @labela8283ade3185.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get labela8283ade3185;
 }
 
 class _AppLocalizationsDelegate

@@ -3351,4 +3351,28 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deviceNewOperationsPaused =>
       'New recorder registration and transfers are temporarily paused.';
+
+  @override
+  String get label7ca4fbf49056 =>
+      'Deleted recordings stay here until you delete them permanently.';
+
+  @override
+  String get label7b8c3b6a1714 =>
+      'Cloud content and local copies on this phone are deleted to free space.';
+
+  @override
+  String get label7ac1710277d0 => 'Empty trash';
+
+  @override
+  String get label029c636b9a50 => 'Empty trash?';
+
+  @override
+  String get labelfa838c6a27e5 =>
+      'All deleted items and their local copies will be removed.';
+
+  @override
+  String get labela086066395cd => 'Moved to trash';
+
+  @override
+  String get labela8283ade3185 => 'Undo';
 }
