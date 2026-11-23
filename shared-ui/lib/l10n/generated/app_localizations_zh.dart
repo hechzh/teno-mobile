@@ -3124,4 +3124,121 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get labela8283ade3185 => '撤销';
+
+  @override
+  String get labelc0e5d79302d0 => '已选择录音卡';
+
+  @override
+  String get labele57ae5d2c4a4 => '录音卡未确认操作';
+
+  @override
+  String get label1e577a37daf2 => '录音卡已连接';
+
+  @override
+  String get labeld01476dfee7e => '已加载';
+
+  @override
+  String get label4eb2e44d7305 => '正在解码音频';
+
+  @override
+  String get label3fa831e13e63 => '正在加载设备文件';
+
+  @override
+  String get label0e47c03bbd2d => '等待录音开始';
+
+  @override
+  String get labelb2a2568dd524 => '等待录音卡停止并保存';
+
+  @override
+  String get label6938ffbc5a52 => '等待录音卡暂停';
+
+  @override
+  String get label4deb2240394f => '等待录音卡继续';
+
+  @override
+  String get label4559b989b625 => '蓝牙扫描失败';
+
+  @override
+  String get label3ba7e7cb1f37 => '传输未及时开始，请重新连接后重试。';
+
+  @override
+  String get label080b96d349f1 => '正在加载设备状态和文件夹';
+
+  @override
+  String get label95fdb4800ee2 => '设备响应无效';
+
+  @override
+  String get label8094dcc1c6b3 => '录音卡无法读取此文件，请停止录音后重试。';
+
+  @override
+  String get label81ef2bfe3770 => '传输已中断，请重新连接后重试。';
+
+  @override
+  String get labelb989fad51804 => '传输过程中开始了录音，请先停止录音再传输文件。';
+
+  @override
+  String get labeld3a591b3fab2 => '请登录原账号以继续同步。';
+
+  @override
+  String get labelf772229f2308 => '正在检查待同步录音';
+
+  @override
+  String get label5339623da837 => '账号已切换，请重新连接后同步。';
+
+  @override
+  String get label47e47bca0d1e => '等待传输开始';
+
+  @override
+  String get labelee3d2f636647 => '文件传输超时或不完整，未生成可上传文件。';
+
+  @override
+  String get labela5c62f206197 => '音频同步未能完成';
+
+  @override
+  String get labelcfce761befa8 => '请求失败';
+
+  @override
+  String get label9a874de202cb => '请求未能完成';
+
+  @override
+  String get label49eb25f81970 => '请刷新设备状态或重新连接。';
+
+  @override
+  String get label0e8c13c841be => '正在上传团队音频';
+
+  @override
+  String get label5b6c9e3ac578 => '音频已上传，服务器处理中。';
+
+  @override
+  String get label6efc5d27f30b => '上传失败';
+
+  @override
+  String get label7497d27f9bf7 => '等待录音';
+
+  @override
+  String get label31ad2b835706 => '自动云处理已关闭';
+
+  @override
+  String get label47eaed3f03ed => '校验通过';
+
+  @override
+  String get label77ffbd2f2bc3 => '设备未提供校验值';
+
+  @override
+  String get label63b853306141 => '个文件夹';
+
+  @override
+  String get label3ebb153fb24e => '录音';
+
+  @override
+  String get labelacbb77435d3b => '录音';
+
+  @override
+  String get labelc36d819e7bc6 => '使用';
+
+  @override
+  String get label8a122ea399dd => '来源转写';
+
+  @override
+  String get labelf4e871ec79db => '录音无法开始。';
 }

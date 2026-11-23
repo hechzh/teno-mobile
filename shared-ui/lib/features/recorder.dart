@@ -178,7 +178,7 @@ class _DevicePageState extends State<DevicePage> {
               const SizedBox(height: 20),
               const UiText('Saved on recorder'),
               Text(
-                ui(context, device.status),
+                statusText(context, device.status),
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: muted),
               ),
@@ -236,7 +236,7 @@ class _DevicePageState extends State<DevicePage> {
             ),
             const SizedBox(height: 12),
             Text(
-              ui(context, device.status),
+              statusText(context, device.status),
               textAlign: TextAlign.center,
               style: const TextStyle(color: muted),
             ),
@@ -591,7 +591,7 @@ class _RecorderSheetState extends State<RecorderSheet> {
                 const SizedBox(height: 10),
                 if (!['recording', 'paused'].contains(c.phase))
                   Text(
-                    ui(context, c.status),
+                    statusText(context, c.status),
                     style: const TextStyle(fontSize: 12, color: muted),
                   ),
               ],
