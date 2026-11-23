@@ -13,6 +13,7 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from report_development import ROOT, words, sha, configuration, send
+from showcase import prepare as prepare_showcase, publish as publish_showcase
 
 VERSION = '0.9.4'
 CODE = 25
@@ -45,7 +46,10 @@ def sources():
 
 
 def android():
-    now = datetime.now(timezone(timedelta(hours=8))).isoformat()
+    manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
+    now = manifest.get('packaged_at')
+    if not now:
+        now = datetime.now(timezone(timedelta(hours=8))).isoformat()
     report = {
         'platform': 'android', 'version': VERSION,
         'build_number': 'manual-0.9.4-' + sha(MANIFEST)[:12] + '-android',
@@ -93,14 +97,14 @@ def android():
     return {'report': report, 'files': files}
 
 
-def ios(include_ipa=True):
+def ios(include_ipa=False):
     now = datetime.now(timezone(timedelta(hours=8))).isoformat()
     report = {
         'platform': 'ios', 'version': '1.0.0',
         'build_number': 'manual-1.0-build17-' + sha(IOS_SOURCE)[:12] + '-ios',
         'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT.parent / 'android-ios1431', text=True).strip(),
         'occurred_at': now, 'outcome': 'passed', 'implementation': 'implemented',
-        'physical': 'pending', 'distribution': 'unsigned',
+        'physical': 'pending', 'distribution': 'evidence',
         'title': words('iOS 1.0 / build17：模板选择对齐 PLAUD', 'iOS 1.0 build17: PLAUD-aligned template picker'),
         'changes': [
             words('模板选择页与 Android 0.9.4 一致：搜索、最近/收藏、来源徽标、页内选择与固定应用。',
@@ -125,7 +129,7 @@ def ios(include_ipa=True):
         'sources': [
             {'label': 'iOS GitHub Actions run', 'reference': CI_RUN},
             {'label': 'Release notes', 'reference': rel(NOTES), 'sha256': sha(NOTES)},
-            {'label': 'Xcode signing handoff', 'reference': rel(MANIFEST), 'sha256': sha(MANIFEST)},
+            {'label': 'Xcode signing handoff', 'reference': 'ios/INSTALL.txt', 'sha256': sha(IOS_INSTALL)},
         ],
         'pending': [words('真实 iPhone 的原 Team 签名安装、覆盖升级、麦克风/蓝牙后台与 JWD 联调仍待实机。',
                           'Physical iPhone signing, upgrade, microphone/Bluetooth background and JWD validation remain pending.')],
@@ -150,6 +154,10 @@ def main():
     parser.add_argument('--credential', type=Path, default=Path.home() / '.ssh/teno-development-local.json')
     parser.add_argument('--prepare-only', action='store_true')
     parser.add_argument('--skip-ios', action='store_true')
+    parser.add_argument('--no-showcase', action='store_true')
+    parser.add_argument('--showcase-gallery', type=Path)
+    parser.add_argument('--showcase-only', action='store_true')
+    parser.add_argument('--build-id')
     parser.add_argument('--output', type=Path, default=Path.home() / '.teno/development-releases/manual')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -160,11 +168,37 @@ def main():
     for envelope in envelopes:
         (args.output / f"{envelope['report']['platform']}.json").write_text(
             json.dumps(envelope, ensure_ascii=False, indent=2), encoding='utf-8')
+    if not args.no_showcase:
+        android_report = envelopes[0]['report']
+        root, gallery_version, stale, pages, acceptance_value = prepare_showcase(
+            android_report['version'], android_report['commit'],
+            str(args.showcase_gallery) if args.showcase_gallery else None,
+        )
+        (args.output / 'showcase-preview.json').write_text(json.dumps({
+            'gallery': str(root),
+            'gallery_version': gallery_version,
+            'stale': stale,
+            'pages': len(pages),
+            'screenshots': sum(len(page['variants']) for page in pages),
+            'acceptance': acceptance_value,
+        }, ensure_ascii=False, indent=2), encoding='utf-8')
+        print('Showcase prepared:', len(pages), 'pages,',
+              sum(len(page['variants']) for page in pages), 'screenshots',
+              '(stale gallery)' if stale else '(version-specific gallery)')
     if args.prepare_only:
         print('Prepared', len(envelopes), 'envelopes in', args.output)
         return
 
     config = configuration(args.credential)
+    if args.showcase_only:
+        if not args.build_id:
+            raise SystemExit('--showcase-only requires --build-id')
+        if args.no_showcase:
+            raise SystemExit('--showcase-only conflicts with --no-showcase')
+        report = android()['report']
+        publish_showcase(args.build_id, report['version'], report['commit'], config,
+                         args.output, str(args.showcase_gallery) if args.showcase_gallery else None)
+        return
     for envelope in envelopes:
         platform = envelope['report']['platform']
         try:
@@ -177,6 +211,12 @@ def main():
             print('IPA asset rejected; publishing the Xcode handoff instead')
             result = send(ios(include_ipa=False), config, Path.home() / '.teno/development-outbox')
         print(platform, 'published:', result.get('id'), '(duplicate)' if result.get('duplicate') else '')
+        if platform == 'android' and not args.no_showcase:
+            report = envelope['report']
+            publish_showcase(
+                result['id'], report['version'], report['commit'], config,
+                args.output, str(args.showcase_gallery) if args.showcase_gallery else None,
+            )
 
 
 if __name__ == '__main__':
