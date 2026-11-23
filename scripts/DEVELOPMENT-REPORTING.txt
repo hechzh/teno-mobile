@@ -20,6 +20,13 @@ UI showcase
   screenshots. If that version is missing, the newest available gallery is used
   and the acceptance record is marked partial; it never silently claims the new
   version was fully recaptured.
+- Render a fresh version-specific gallery from current Flutter code:
+  TENO_PERSONAL_SCREENSHOTS=design-baseline/v0.9.4/screenshots/android \
+  flutter test test/personal_test.dart test/jwd_recording_test.dart \
+               test/device_mcp_090_test.dart
+  python scripts/build_gallery_pages.py --version 0.9.4
+  The generator reuses the previous page titles/descriptions and re-binds all
+  screenshot paths and SHA-256 values to the new renders.
 - Repair an existing build without re-reporting it:
   python scripts/publish_manual_release.py --showcase-only --build-id <build-id>
 - Disable or override the gallery:

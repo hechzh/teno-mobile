@@ -1,0 +1,1190 @@
+[
+  {
+    "screenshot": "screenshots/android/light/01-home.png",
+    "sha256": "b0b3fd1a21e6dcb3148d4ea7d27dc6694b6c521fa719381147b23a9ae6572e92"
+  },
+  {
+    "screenshot": "screenshots/android/dark/01-home.png",
+    "sha256": "8bab30b868af608015962d5f8dbe29aa0c14c773f311d6da9ecfee8c9d5a8cc5"
+  },
+  {
+    "screenshot": "screenshots/android/large/01-home.png",
+    "sha256": "5eb16e6a5d2c33ca4898bab4ae449d9047c53d5553ad2193d2853b8ac9352771"
+  },
+  {
+    "screenshot": "screenshots/android/light/02-navigation.png",
+    "sha256": "b0b3fd1a21e6dcb3148d4ea7d27dc6694b6c521fa719381147b23a9ae6572e92"
+  },
+  {
+    "screenshot": "screenshots/android/dark/02-navigation.png",
+    "sha256": "8bab30b868af608015962d5f8dbe29aa0c14c773f311d6da9ecfee8c9d5a8cc5"
+  },
+  {
+    "screenshot": "screenshots/android/large/02-navigation.png",
+    "sha256": "5eb16e6a5d2c33ca4898bab4ae449d9047c53d5553ad2193d2853b8ac9352771"
+  },
+  {
+    "screenshot": "screenshots/android/light/03-create-menu.png",
+    "sha256": "d01425bda8ab5f99112ae0212d87f0b363b544a34b337b8e1b1edb436e82fbe6"
+  },
+  {
+    "screenshot": "screenshots/android/dark/03-create-menu.png",
+    "sha256": "cac4dd377910a9ef3766729745bf939b20e77d3830689602778b606de20381f5"
+  },
+  {
+    "screenshot": "screenshots/android/large/03-create-menu.png",
+    "sha256": "3ccfd6bbc6c4a34187e35465dc9b4e23d8b5add2facd01468a9432cd28eba0d5"
+  },
+  {
+    "screenshot": "screenshots/android/light/04-library.png",
+    "sha256": "d9d087cfaec0c80ba9993f24f03fa39b863ca6bd6f1b2e8475aa53b8c274aee2"
+  },
+  {
+    "screenshot": "screenshots/android/dark/04-library.png",
+    "sha256": "afdcd16c4b5cced053a0dd095c0896869961cf2c2450951bed0de5b28b19c67e"
+  },
+  {
+    "screenshot": "screenshots/android/large/04-library.png",
+    "sha256": "dbde795d4980bb579a16efa1c839b98b42df01f84e3fe9e9c047709bdd68df3c"
+  },
+  {
+    "screenshot": "screenshots/android/light/05-recordings.png",
+    "sha256": "97a125c49c846927210d940b38adeb365c31184575086f3474e9e068bd35dbec"
+  },
+  {
+    "screenshot": "screenshots/android/dark/05-recordings.png",
+    "sha256": "843b84267b95bd0b1214f96b0206165bd6501bb210ff75c38fba35b65585d769"
+  },
+  {
+    "screenshot": "screenshots/android/large/05-recordings.png",
+    "sha256": "0abd1237e5e5e0f42314f8fc36dc2d988f3c87e78a3900ff74fd48d676042487"
+  },
+  {
+    "screenshot": "screenshots/android/light/06-search.png",
+    "sha256": "c4e174c132072fa02359742874237ade94e3c9046e7877676d2490bdddd6a3f7"
+  },
+  {
+    "screenshot": "screenshots/android/dark/06-search.png",
+    "sha256": "23570083e03c8efd6802c65ce4cb6950e0f6e2b157aed5d6fd4c755dca4d8c40"
+  },
+  {
+    "screenshot": "screenshots/android/large/06-search.png",
+    "sha256": "335e66331b0dc333c393f06d5ecaca431c9b974e7c2ca1e69e6fd4945e0920e8"
+  },
+  {
+    "screenshot": "screenshots/android/light/07-device-connect.png",
+    "sha256": "46cc7d971f98f8d7749fac20ff03b4e617011a9f78de1ab154ea9fd5e8cfd545"
+  },
+  {
+    "screenshot": "screenshots/android/dark/07-device-connect.png",
+    "sha256": "d96377c4221439f5e5fbf843084b4b127f0593c0d6e0bb925084c822bcfa0faa"
+  },
+  {
+    "screenshot": "screenshots/android/large/07-device-connect.png",
+    "sha256": "6c8237faf5e7966dd0527f16bcf98947675c06b558c7ef6d38c69c1c91f2de8d"
+  },
+  {
+    "screenshot": "screenshots/android/light/09-recording.png",
+    "sha256": "96fdbddc897f0c3a6d51da559f630ec019626c050f2f31d5df3fd921c8047db8"
+  },
+  {
+    "screenshot": "screenshots/android/dark/09-recording.png",
+    "sha256": "daac9dbad83324de489dd20fb51e948bc7231420e6dc944b87bafe7e2142f321"
+  },
+  {
+    "screenshot": "screenshots/android/large/09-recording.png",
+    "sha256": "81c68752e308c5f8339b4396707a61336934880c1c04041215cde8f3ee1370ae"
+  },
+  {
+    "screenshot": "screenshots/android/light/10-paused.png",
+    "sha256": "24acdcb62146840f2b35eec6864f7c1c47148c63835fc4c351a7a865f03a1057"
+  },
+  {
+    "screenshot": "screenshots/android/dark/10-paused.png",
+    "sha256": "734b84270bba2454286d78ef4e16b2eae0b559307cd1a244528bb3bf95630e0c"
+  },
+  {
+    "screenshot": "screenshots/android/large/10-paused.png",
+    "sha256": "68aabbc52f860ab1ce50d82f0fe42480ab37c7d77005c8d178c831b34a4bd773"
+  },
+  {
+    "screenshot": "screenshots/android/light/14-recording-notes.png",
+    "sha256": "aad32727945950dcacf308011aa44d88ebe59a975c6b2e36405180fbf4e767e9"
+  },
+  {
+    "screenshot": "screenshots/android/dark/14-recording-notes.png",
+    "sha256": "3ed84fdd4b20efe662474e3effe113803409553492ee35660c92673552a0d965"
+  },
+  {
+    "screenshot": "screenshots/android/large/14-recording-notes.png",
+    "sha256": "9f44e52d967d117aaa9cda28236f0c12dac1ea01e7916e5d5724b523a51bdb37"
+  },
+  {
+    "screenshot": "screenshots/android/light/15-transcript.png",
+    "sha256": "d54ac3677d39115ab88d3de4922a65e45c2d9a718b789d816c313d0015792646"
+  },
+  {
+    "screenshot": "screenshots/android/dark/15-transcript.png",
+    "sha256": "99744dcd0bf9e785aacc955ad764b58cb564bd99138f6cd9170e2d94519d9f7f"
+  },
+  {
+    "screenshot": "screenshots/android/large/15-transcript.png",
+    "sha256": "11944c1fd2369fc827dc82e2566e7ae9dd06af334ea23b77e5d86c5d63ecce5a"
+  },
+  {
+    "screenshot": "screenshots/android/light/17-templates.png",
+    "sha256": "7ed68aed15a639184d3a30dcefc7049a46d07bfddcd528c82ed60fd213de0b3d"
+  },
+  {
+    "screenshot": "screenshots/android/dark/17-templates.png",
+    "sha256": "9f653f09e09c0d04d91d3eceebf4683ef88455e7ce343b9caeca332a7b32760f"
+  },
+  {
+    "screenshot": "screenshots/android/large/17-templates.png",
+    "sha256": "89d1021b11b3f34ae6c451398ace29fae8a37a329162086ab330d96acd952f5e"
+  },
+  {
+    "screenshot": "screenshots/android/light/18-chat-history.png",
+    "sha256": "9e3223d9e7a719bbeadb0d88d0ef75fce7250dbaa826d3115bfb4fda54c38ffe"
+  },
+  {
+    "screenshot": "screenshots/android/dark/18-chat-history.png",
+    "sha256": "5f7418f8a0ae4be6ddbec26c32970a2871d6da2e19f7dadba6b43483ba7aaff5"
+  },
+  {
+    "screenshot": "screenshots/android/large/18-chat-history.png",
+    "sha256": "a93622b62a1c9ceb8b2a3d2848dc92b5c03897f5757a1e41bc2faf9b967ee3ce"
+  },
+  {
+    "screenshot": "screenshots/android/light/19-new-chat.png",
+    "sha256": "0836c9bc2d4d5a9720d48fa954092ea37a013d85e4b4b260bc791f2bb640505f"
+  },
+  {
+    "screenshot": "screenshots/android/dark/19-new-chat.png",
+    "sha256": "fab63ea61f8a1d5eab01f6f16a0a494e76722f75f7bdfa36b7d329eccd2dbb2a"
+  },
+  {
+    "screenshot": "screenshots/android/large/19-new-chat.png",
+    "sha256": "bc2e0699fe634a02c1eb7a541495513d4e63a2eaf6ed6f3b1c937f4aaed69680"
+  },
+  {
+    "screenshot": "screenshots/android/light/20-chat-context.png",
+    "sha256": "cd49149d4810c183befd04116ce6153fde23c4d267c2be96d4f5cc07727190b4"
+  },
+  {
+    "screenshot": "screenshots/android/dark/20-chat-context.png",
+    "sha256": "ba667f02f0a279b4af54fb03aaa5ad805b5d2953601fd544c1dc50420a6d842a"
+  },
+  {
+    "screenshot": "screenshots/android/large/20-chat-context.png",
+    "sha256": "bebdfab1446f035b5d24c05a6d24517605ffad1d342857613db965f8dfe16a15"
+  },
+  {
+    "screenshot": "screenshots/android/light/21-settings.png",
+    "sha256": "5be16af2363020e9f007793f2c7ce825bba470f3a8f29631322f3e694b1e8c93"
+  },
+  {
+    "screenshot": "screenshots/android/dark/21-settings.png",
+    "sha256": "6bfc171203a9d5ede6f0aeef8ff607d6a0a35f9ec4429f5edcb75c6213b2d9fa"
+  },
+  {
+    "screenshot": "screenshots/android/large/21-settings.png",
+    "sha256": "be1794cceec1b12461c45caf5a9a1910bb49744ecf62698884ab4233bbbeaac9"
+  },
+  {
+    "screenshot": "screenshots/android/light/22-preferences.png",
+    "sha256": "0b0ed7e57c9c34b88632113d370a414959cb2f7f542c0fde0ed44d76ae72826a"
+  },
+  {
+    "screenshot": "screenshots/android/dark/22-preferences.png",
+    "sha256": "0c298a998ce9b6c39f8db830ab6a418b437a63ea041f388138e137fb170cbe28"
+  },
+  {
+    "screenshot": "screenshots/android/large/22-preferences.png",
+    "sha256": "cb31647913193e20d0ec729699efb4db9378d4c3ab24abfe00fb46948ef6d027"
+  },
+  {
+    "screenshot": "screenshots/android/light/23-export.png",
+    "sha256": "6464b0dd38369d748418782bfeb7121cad5487c35db1653b43822caf07da19bc"
+  },
+  {
+    "screenshot": "screenshots/android/dark/23-export.png",
+    "sha256": "dac00646385742a60f73ccc5bcfe604f24234676e4a32e225b810ce9f96be348"
+  },
+  {
+    "screenshot": "screenshots/android/large/23-export.png",
+    "sha256": "b0270c386e6004ef6cc0833db44305af5378abe3e60c425a1bd6babda49621cc"
+  },
+  {
+    "screenshot": "screenshots/android/light/24-trash.png",
+    "sha256": "997071b258e61a2c52e9cb25d530ec54f8c0a72a043b76f465d9e8e7515005c2"
+  },
+  {
+    "screenshot": "screenshots/android/dark/24-trash.png",
+    "sha256": "4d54221e9c9ec1dd6d417a82c04a4e3ac65281943a2d95ed20f78b20c8f0ad3a"
+  },
+  {
+    "screenshot": "screenshots/android/large/24-trash.png",
+    "sha256": "92269131c8b71f94e152fcb23aab645b9ef3a66f3d8a717ff8aa52b4cba1861f"
+  },
+  {
+    "screenshot": "screenshots/android/light/25-login.png",
+    "sha256": "97490f77ff97f357ba702ad47f180af54dda0af6b03c4e76f01c7ac9af43ac6d"
+  },
+  {
+    "screenshot": "screenshots/android/dark/25-login.png",
+    "sha256": "16cfbf1b0eabdd8a149357371d65f15bd50d28630658f6444e71f3c830ad81a6"
+  },
+  {
+    "screenshot": "screenshots/android/large/25-login.png",
+    "sha256": "16ed4a23783e5bd92552b32f82461537f560b10de4aaeafb688ab5a1f6ccaf15"
+  },
+  {
+    "screenshot": "screenshots/android/light/26-import.png",
+    "sha256": "bd43cb755eaf3124f86ec80c28ed92b8df812026ddd6b8f332243884e0187f33"
+  },
+  {
+    "screenshot": "screenshots/android/dark/26-import.png",
+    "sha256": "2f668feeaa40506df98f2772a0b7c056052eb027ac4949c82259ff5960f73514"
+  },
+  {
+    "screenshot": "screenshots/android/large/26-import.png",
+    "sha256": "3ccfd6bbc6c4a34187e35465dc9b4e23d8b5add2facd01468a9432cd28eba0d5"
+  },
+  {
+    "screenshot": "screenshots/android/light/27-share.png",
+    "sha256": "21facdaca11a44fa12080e305f090d34c79eb81985d998a1b2f2ac26a05af873"
+  },
+  {
+    "screenshot": "screenshots/android/dark/27-share.png",
+    "sha256": "d74709f5eb51623b220d8e41d7602f165e6955e1b422d49393b5f3cd479ad926"
+  },
+  {
+    "screenshot": "screenshots/android/large/27-share.png",
+    "sha256": "4ce56b52a9a9e3712c6a24137d16cd592275c06b5f95e69054b7dc4e556903be"
+  },
+  {
+    "screenshot": "screenshots/android/light/28-calendar.png",
+    "sha256": "0ca3d38e38143a52bc607973f827858c15208ebcdb6d55f029bd42a2543afde9"
+  },
+  {
+    "screenshot": "screenshots/android/dark/28-calendar.png",
+    "sha256": "6985da1d0fc940a4ad709c0c30c630515ce48151a405a941e6f16bc5bf463168"
+  },
+  {
+    "screenshot": "screenshots/android/large/28-calendar.png",
+    "sha256": "e0510856ea5fbbf48548ea5caf3e97b613278c4ed0ad32f6352654c79b9e54f6"
+  },
+  {
+    "screenshot": "screenshots/android/light/29-photos.png",
+    "sha256": "deaac2cf65ba841ded061c13a004bd1407d2cd2346ed3f918098a6ceafeae94c"
+  },
+  {
+    "screenshot": "screenshots/android/dark/29-photos.png",
+    "sha256": "c3d95bfdaeb602e1d0434e704dedaeab41fc84646cfd945ef4cc605543506917"
+  },
+  {
+    "screenshot": "screenshots/android/large/29-photos.png",
+    "sha256": "5acd0ca9bd1d2df998b3ab32062919cf3de0e3ac79df48ba9a89070916540291"
+  },
+  {
+    "screenshot": "screenshots/android/light/30-notes.png",
+    "sha256": "308e56a2e7147de212260868bcb4d7c0453da97dbecb06bdbb3e384eba9a218f"
+  },
+  {
+    "screenshot": "screenshots/android/dark/30-notes.png",
+    "sha256": "a2a0ce85f90c10c45259ba3dd038961b0868a76cd39d92050f0e699e3697d45b"
+  },
+  {
+    "screenshot": "screenshots/android/large/30-notes.png",
+    "sha256": "db12be4596a82e4c3d082056f2c59b6599e51a95bc193148e8803debc7439678"
+  },
+  {
+    "screenshot": "screenshots/android/light/31-imports.png",
+    "sha256": "0c73952de3a0f97a62fbebf3c33866eef78e46254bc3615355f109b7d92a8df9"
+  },
+  {
+    "screenshot": "screenshots/android/dark/31-imports.png",
+    "sha256": "1a06f75f77f2985247a71937e0ae38faba50977b6a98601a9b9735992e326d10"
+  },
+  {
+    "screenshot": "screenshots/android/large/31-imports.png",
+    "sha256": "68785d86c547c7164e9d5628f6a5e189c36a77250b8363669d1999a87eefab61"
+  },
+  {
+    "screenshot": "screenshots/android/light/32-note.png",
+    "sha256": "54f8f84dc804c7206e539cf70154029150841d7ec83ec3a2c1878d085f66c01a"
+  },
+  {
+    "screenshot": "screenshots/android/dark/32-note.png",
+    "sha256": "e228aaa8c3097406284b5622b617f3ea107342b2cbc7962bf510b9197563ec74"
+  },
+  {
+    "screenshot": "screenshots/android/large/32-note.png",
+    "sha256": "402d42c1e1a104a12cd4d97b4f2c8d36f697d8ff748605c8bdbeff9f397e873a"
+  },
+  {
+    "screenshot": "screenshots/android/light/33-note-editor.png",
+    "sha256": "da55197bc13ece986a6049aec0ca073903548b24ccabe444b252d683db46eec9"
+  },
+  {
+    "screenshot": "screenshots/android/dark/33-note-editor.png",
+    "sha256": "9d8b42725e6ac1f5f5d6feebdbf17c8ffc3abf60f10961dd2c619331e0af316e"
+  },
+  {
+    "screenshot": "screenshots/android/large/33-note-editor.png",
+    "sha256": "87544fc5122b3db4e3d6afaccfa24022e3e24fa2432e91db982c9876ea1a3bb5"
+  },
+  {
+    "screenshot": "screenshots/android/light/34-document.png",
+    "sha256": "5379b2a4a889b07878a027327f210fbe3c88171cb3eecea6d736d0eeb5f1c586"
+  },
+  {
+    "screenshot": "screenshots/android/dark/34-document.png",
+    "sha256": "e010d2d5fb97dd3d79c11a6f881ab9fa2b06675297469d87830ad1c9e58d782c"
+  },
+  {
+    "screenshot": "screenshots/android/large/34-document.png",
+    "sha256": "ba79acba57217fb4bc3621fbf2a3b2f60182b81c7bf24830f2c46998aa0e917c"
+  },
+  {
+    "screenshot": "screenshots/android/light/35-local-files.png",
+    "sha256": "9fc849487b0634c6c217c3b777d8f8839ae4b331514f5efbb4b86d58586f70c2"
+  },
+  {
+    "screenshot": "screenshots/android/dark/35-local-files.png",
+    "sha256": "507104bfe28ea16cac9125026975578106d2c0cb559ea323817b9597754a713d"
+  },
+  {
+    "screenshot": "screenshots/android/large/35-local-files.png",
+    "sha256": "0ac502feca48b0632b926d24223d2fe88f66918040396866632299c269128fba"
+  },
+  {
+    "screenshot": "screenshots/android/light/36-local-recording.png",
+    "sha256": "6bedd378ff9cf9d9a9134a6c1352d6fc2294fade7e9f254c0bc82afb1a886aab"
+  },
+  {
+    "screenshot": "screenshots/android/dark/36-local-recording.png",
+    "sha256": "ec84318d689ab7db81ec854f6c7a53f4eaca41c564a11f47fdb08bda3848dd16"
+  },
+  {
+    "screenshot": "screenshots/android/large/36-local-recording.png",
+    "sha256": "67d782fcfa6038b143d03f3e472f75f1468a2447e476db06c774d3d71f990c42"
+  },
+  {
+    "screenshot": "screenshots/android/light/37-storage.png",
+    "sha256": "ef6e9111da31ac483f8ce2733f577eb2c783df63964a874c353e0909e7e77541"
+  },
+  {
+    "screenshot": "screenshots/android/dark/37-storage.png",
+    "sha256": "43adfdaee042261dd5531f34ad2f90f309942e865e4f93adf47f872301739cc2"
+  },
+  {
+    "screenshot": "screenshots/android/large/37-storage.png",
+    "sha256": "cc4be3d2b561d7c0b3f478cd31903c6d040055a424e293514011d4569ae9c0f0"
+  },
+  {
+    "screenshot": "screenshots/android/light/38-links.png",
+    "sha256": "38efdf6434ae8d8f4041f7b9992a8a73e23758559777129f032166be2c953c74"
+  },
+  {
+    "screenshot": "screenshots/android/dark/38-links.png",
+    "sha256": "df49b49b7f50db12f615077ad5071f8fd46378484bcab33817db77e82629f425"
+  },
+  {
+    "screenshot": "screenshots/android/large/38-links.png",
+    "sha256": "1e35aa3d3c6780c1da8040dac29b3b9a0c57366180dfb70385fd4a137f342775"
+  },
+  {
+    "screenshot": "screenshots/android/light/39-home-empty.png",
+    "sha256": "4dd5b6baca1d031437b350501ca48f252c1365386c671e6c92cd52215c1a6a06"
+  },
+  {
+    "screenshot": "screenshots/android/dark/39-home-empty.png",
+    "sha256": "fead7b4d4c6bf50205c354107742c0293cdc9405725a143f0a501cccb66f077a"
+  },
+  {
+    "screenshot": "screenshots/android/large/39-home-empty.png",
+    "sha256": "663cd9c26dfb9dde27b076f4a37e0a6f40ac3a111f9ab75721b7ffe16b94d35f"
+  },
+  {
+    "screenshot": "screenshots/android/light/40-library-empty.png",
+    "sha256": "9f18b8bd1a57adcdcb466147b832f7dbd5cb38816fc6d56d923ce5d85bf6ab6e"
+  },
+  {
+    "screenshot": "screenshots/android/dark/40-library-empty.png",
+    "sha256": "252599af9bd0a0bbe0a504687b394731fa8bf0487495c2a44aaafba15b58628c"
+  },
+  {
+    "screenshot": "screenshots/android/large/40-library-empty.png",
+    "sha256": "8b7d72caf97b5b1e362096912c80799b95b2d3e5a55b09391df07a062c7883c5"
+  },
+  {
+    "screenshot": "screenshots/android/light/41-library-offline.png",
+    "sha256": "4f04573cdf75ff93c71f0c81da2c6384d7c7c2a3e8c16d59cd25b02de57d4620"
+  },
+  {
+    "screenshot": "screenshots/android/dark/41-library-offline.png",
+    "sha256": "0566b30618b68ff17636c7b0e6fc4a2ba24966903fa0a4a043648bad89d207d1"
+  },
+  {
+    "screenshot": "screenshots/android/large/41-library-offline.png",
+    "sha256": "0a8428b105d88c74e18de83fe73d3c4c9bdc0b946cf1ea9e15f21fde2427be31"
+  },
+  {
+    "screenshot": "screenshots/android/light/42-home-loading.png",
+    "sha256": "838e174b4aa37354500fb2e2ec4b467c6fd8de4e05348f6cdb40deb6a09c79f2"
+  },
+  {
+    "screenshot": "screenshots/android/dark/42-home-loading.png",
+    "sha256": "c0f2e51080c17a0c616d7ce175020804f3a48e179aa0f8cbbfda66cfbf821c54"
+  },
+  {
+    "screenshot": "screenshots/android/large/42-home-loading.png",
+    "sha256": "bd87218ad5cdf76666cdb10027b802a094246764f34a864546ce00f7180ecfa6"
+  },
+  {
+    "screenshot": "screenshots/android/light/43-search-matches.png",
+    "sha256": "16152856c1cc9571302012a692b552a58679534013d86362c7421b80b1efc4fa"
+  },
+  {
+    "screenshot": "screenshots/android/dark/43-search-matches.png",
+    "sha256": "07584f1659182ce459a9dea4d3d0432e61c400d0c488683e3d3f89ee2955ea69"
+  },
+  {
+    "screenshot": "screenshots/android/large/43-search-matches.png",
+    "sha256": "2aec8837b0e97c8894bd961cc3259edbed6d531053db17188a69b54465b5b084"
+  },
+  {
+    "screenshot": "screenshots/android/light/44-library-sort.png",
+    "sha256": "e4d15cec10f1a52639494edaff78b170025726585883d50a9ee695d0e1a5eb99"
+  },
+  {
+    "screenshot": "screenshots/android/dark/44-library-sort.png",
+    "sha256": "b766cb2e576eed021c16f45c868d627c5f297f82e7e6f38407c22cced6dc06fe"
+  },
+  {
+    "screenshot": "screenshots/android/large/44-library-sort.png",
+    "sha256": "14eb6d0bce4e8459579b2ef86925832da304d9eefce6b05644ad8d27eb6c8052"
+  },
+  {
+    "screenshot": "screenshots/android/light/45-library-select.png",
+    "sha256": "aa84de33cc392f71cf0216e29bb79843c2c715a0e2ffeca1972c74a396c38f23"
+  },
+  {
+    "screenshot": "screenshots/android/dark/45-library-select.png",
+    "sha256": "0db41d595403fe5dfc4fc6d9361a092e3e665c14f7445cdc51f61a7bbc8441dd"
+  },
+  {
+    "screenshot": "screenshots/android/large/45-library-select.png",
+    "sha256": "f340b85951dbc67ea8824c3b82e64fdd0ea67de51184558ac9bce3fad763023d"
+  },
+  {
+    "screenshot": "screenshots/android/light/46-library-create.png",
+    "sha256": "07909ff2c5d32526612860d7bb896b707c3a6498ca130536091c66eee253de01"
+  },
+  {
+    "screenshot": "screenshots/android/dark/46-library-create.png",
+    "sha256": "f37f7da3c4881df8fb9186ceacee64ecf93f7ad2cd5f9d4e5a9f817fcc55945c"
+  },
+  {
+    "screenshot": "screenshots/android/large/46-library-create.png",
+    "sha256": "2a89130234cd3570b985fbd6370abdae45202ef6d7bfc4ef84281ff2475058c1"
+  },
+  {
+    "screenshot": "screenshots/android/light/47-folder-menu.png",
+    "sha256": "092c50194dbc6a033d84dbc8b0b601c4a3c1cef966605ec78a94620e7fd2cad9"
+  },
+  {
+    "screenshot": "screenshots/android/dark/47-folder-menu.png",
+    "sha256": "d5a2b4697e9f35d3d5f942cad140c2d0a9c0b7a9ce67fd5dad1651f26ed9d6a7"
+  },
+  {
+    "screenshot": "screenshots/android/large/47-folder-menu.png",
+    "sha256": "f7e3eea59c96cafcb1c2773a6262c7923dcca00b351d3ecf5e5443ae42becb38"
+  },
+  {
+    "screenshot": "screenshots/android/light/48-recording-options.png",
+    "sha256": "866b06fb62e5a5e2bfaaf0f6beb82f33c9c5bdfeb2442afdfdc963be1b756a56"
+  },
+  {
+    "screenshot": "screenshots/android/dark/48-recording-options.png",
+    "sha256": "b4843d0446befbce224d7914e1964a6de31d43bbbc6205780b1ccad32d89583a"
+  },
+  {
+    "screenshot": "screenshots/android/large/48-recording-options.png",
+    "sha256": "00b4dc08833435ace72bcd29e2adf5cb228e382dd59399fbbed8078cbcf0868e"
+  },
+  {
+    "screenshot": "screenshots/android/light/49-speaker-names.png",
+    "sha256": "317d7d3e93bdf2249a651ef2529575b50c982923c7f7535790898314737facfa"
+  },
+  {
+    "screenshot": "screenshots/android/dark/49-speaker-names.png",
+    "sha256": "0d67aa5953307a96f848df2b2eea74d6758014f47c2dc5f9ce07c84d1e67afa8"
+  },
+  {
+    "screenshot": "screenshots/android/large/49-speaker-names.png",
+    "sha256": "8d73a6e9124bbcd05d8e0ac2c2afa16ae4ec24095f593132b45dbb5497183a43"
+  },
+  {
+    "screenshot": "screenshots/android/light/50-find-replace.png",
+    "sha256": "27d904b9a5b2a95ce16b8b2cb20160138ed5b8f6f1ef49e89cfa9c951c8d405d"
+  },
+  {
+    "screenshot": "screenshots/android/dark/50-find-replace.png",
+    "sha256": "2864644b0b7ac77bef2e87dabbefa73e547549e693928c8a35561ac3ae8e9a5f"
+  },
+  {
+    "screenshot": "screenshots/android/large/50-find-replace.png",
+    "sha256": "e18fc274cc0ae015ab1e25a9771fea7b1ec77d9dd714a9f43781433661881d89"
+  },
+  {
+    "screenshot": "screenshots/android/light/51-trim-audio.png",
+    "sha256": "7be18dd3ef8b18e65b2811b5833899a490f1332f7274fc16bffa7c717ffdfda4"
+  },
+  {
+    "screenshot": "screenshots/android/dark/51-trim-audio.png",
+    "sha256": "ef390c73d1b1ee5a3322bf9f21ca490965758db96ceccc93e8d77816c611e3da"
+  },
+  {
+    "screenshot": "screenshots/android/large/51-trim-audio.png",
+    "sha256": "eeced128ba3103b22b775e5a273b2e9dc232a53de8041a648ec1afa7b13fe6c4"
+  },
+  {
+    "screenshot": "screenshots/android/light/52-transcript-variants.png",
+    "sha256": "6f6aa94a57f7cf1be919f022dd74dc8aeab0adde64c419dd1fc594c18bef8acb"
+  },
+  {
+    "screenshot": "screenshots/android/dark/52-transcript-variants.png",
+    "sha256": "cb4033de00ea46e8f14013c1dc8ade5dff5598556ee6c3ccd2d66852240181c8"
+  },
+  {
+    "screenshot": "screenshots/android/large/52-transcript-variants.png",
+    "sha256": "296949b5d60a32650845c23cdab1f3d52903185ec52b4d1f37817c9d9953563b"
+  },
+  {
+    "screenshot": "screenshots/android/light/53-template-picker.png",
+    "sha256": "af37fef8cc4b1fbe7411d111a287ce840cebfbd34789c1b618068b95596e5b08"
+  },
+  {
+    "screenshot": "screenshots/android/dark/53-template-picker.png",
+    "sha256": "d585659274a4b6ce9bef1739d643ed225be748b078d804ffdd7c57ea1f5e428d"
+  },
+  {
+    "screenshot": "screenshots/android/large/53-template-picker.png",
+    "sha256": "c5efc19cd319c493e002341f608f47a99efad24453effc7a70a3525377e90461"
+  },
+  {
+    "screenshot": "screenshots/android/light/54-note-versions.png",
+    "sha256": "7438bc8eadb991edc84dd4555d9ca5b34630610117e04b0c14d0422fd15760b6"
+  },
+  {
+    "screenshot": "screenshots/android/dark/54-note-versions.png",
+    "sha256": "d5d57d16a24028e48697ca37b7512ce6bbe22f2d13af4bdd747cdf306e3fba92"
+  },
+  {
+    "screenshot": "screenshots/android/large/54-note-versions.png",
+    "sha256": "78518ea46bd0338c9931e802ae15e68c77124b0865dfb0e6eb934a077d6850ee"
+  },
+  {
+    "screenshot": "screenshots/android/light/55-export-audio.png",
+    "sha256": "96c7f0cf4f3308e8b293e2a561c1794b41cf27074fdca5f6f8dc376f14ea1887"
+  },
+  {
+    "screenshot": "screenshots/android/dark/55-export-audio.png",
+    "sha256": "fc961fdf0c6f0489be676307dd6de9d4cd6a107eaac75350073379f7e6ace39a"
+  },
+  {
+    "screenshot": "screenshots/android/large/55-export-audio.png",
+    "sha256": "41ec91071769a5f2bafce10c75b5dd80ccb31cdae8db3bece339b73b1bd32f81"
+  },
+  {
+    "screenshot": "screenshots/android/light/56-calendar-permission.png",
+    "sha256": "ebd04b4a4b7c1fc318605033ce17ee51e1b7fdbd5dbe9abc55c388d499f24e0d"
+  },
+  {
+    "screenshot": "screenshots/android/dark/56-calendar-permission.png",
+    "sha256": "00829a42f86563175863f119e4c1755cf7c8b4d553dbe1d57a7e4f9a04d0e730"
+  },
+  {
+    "screenshot": "screenshots/android/large/56-calendar-permission.png",
+    "sha256": "0c65446f540c441e37ef1731ccb797f45b03bc28f662140e908912d9a5d1db85"
+  },
+  {
+    "screenshot": "screenshots/android/light/57-document-failed.png",
+    "sha256": "aff9148876e7d7ae51e5d5f9e7c96241cb8126ed1bbf82e2c319547e8e3d518e"
+  },
+  {
+    "screenshot": "screenshots/android/dark/57-document-failed.png",
+    "sha256": "5f340c50f85e131cd264b10c19efe95cf9ef9bd94864709774d96d14c6780d68"
+  },
+  {
+    "screenshot": "screenshots/android/large/57-document-failed.png",
+    "sha256": "7438475624293760f5366778c610a8d2885d517a73a8c0ba7717cf85236677c9"
+  },
+  {
+    "screenshot": "screenshots/android/light/58-document-processing.png",
+    "sha256": "aff9148876e7d7ae51e5d5f9e7c96241cb8126ed1bbf82e2c319547e8e3d518e"
+  },
+  {
+    "screenshot": "screenshots/android/dark/58-document-processing.png",
+    "sha256": "5f340c50f85e131cd264b10c19efe95cf9ef9bd94864709774d96d14c6780d68"
+  },
+  {
+    "screenshot": "screenshots/android/large/58-document-processing.png",
+    "sha256": "7438475624293760f5366778c610a8d2885d517a73a8c0ba7717cf85236677c9"
+  },
+  {
+    "screenshot": "screenshots/android/light/59-import-pending.png",
+    "sha256": "bd43cb755eaf3124f86ec80c28ed92b8df812026ddd6b8f332243884e0187f33"
+  },
+  {
+    "screenshot": "screenshots/android/dark/59-import-pending.png",
+    "sha256": "2f668feeaa40506df98f2772a0b7c056052eb027ac4949c82259ff5960f73514"
+  },
+  {
+    "screenshot": "screenshots/android/large/59-import-pending.png",
+    "sha256": "61aa77f6d0463222a3647ad27409942300bd368597c9d07cf8709a53b4ea0d50"
+  },
+  {
+    "screenshot": "screenshots/android/light/60-import-error.png",
+    "sha256": "bd43cb755eaf3124f86ec80c28ed92b8df812026ddd6b8f332243884e0187f33"
+  },
+  {
+    "screenshot": "screenshots/android/dark/60-import-error.png",
+    "sha256": "2f668feeaa40506df98f2772a0b7c056052eb027ac4949c82259ff5960f73514"
+  },
+  {
+    "screenshot": "screenshots/android/large/60-import-error.png",
+    "sha256": "61aa77f6d0463222a3647ad27409942300bd368597c9d07cf8709a53b4ea0d50"
+  },
+  {
+    "screenshot": "screenshots/android/light/61-note-keyboard.png",
+    "sha256": "cbcd854c5c7d90efee0afd112413dbea32cefa366b5df4b5ac03f3a2e78eaa90"
+  },
+  {
+    "screenshot": "screenshots/android/dark/61-note-keyboard.png",
+    "sha256": "42cb7b49d8dbf0838e4d3aa312fbb60c7f360414a585e7d85f68ff1dce3cddb2"
+  },
+  {
+    "screenshot": "screenshots/android/large/61-note-keyboard.png",
+    "sha256": "21a3b1c16c0bafeb0b63c300c2e880191f0417f63dbe40d251e606398a8aaa18"
+  },
+  {
+    "screenshot": "screenshots/android/light/62-processing-failed.png",
+    "sha256": "3cccf66cd0ae4e2a36a546fe282ad2a52bf2d7352a0020799c84b88b8ec2bee4"
+  },
+  {
+    "screenshot": "screenshots/android/dark/62-processing-failed.png",
+    "sha256": "353e5deb64a3a002ea806f016a4f1f0538a48381dfff83b639e895adcc824a60"
+  },
+  {
+    "screenshot": "screenshots/android/large/62-processing-failed.png",
+    "sha256": "bc1cd7ac7c8dcf1c762ed5a2556db24b671f1938ddc0c120fbee19d9f29b9413"
+  },
+  {
+    "screenshot": "screenshots/android/light/63-calendar-upcoming.png",
+    "sha256": "b0b3fd1a21e6dcb3148d4ea7d27dc6694b6c521fa719381147b23a9ae6572e92"
+  },
+  {
+    "screenshot": "screenshots/android/dark/63-calendar-upcoming.png",
+    "sha256": "8bab30b868af608015962d5f8dbe29aa0c14c773f311d6da9ecfee8c9d5a8cc5"
+  },
+  {
+    "screenshot": "screenshots/android/large/63-calendar-upcoming.png",
+    "sha256": "5eb16e6a5d2c33ca4898bab4ae449d9047c53d5553ad2193d2853b8ac9352771"
+  },
+  {
+    "screenshot": "screenshots/android/light/64-share-created.png",
+    "sha256": "96f26e401e2776a1a3cf57c1c7755f660647979ee9ee896651b51d094da29ca1"
+  },
+  {
+    "screenshot": "screenshots/android/dark/64-share-created.png",
+    "sha256": "672431be592aa2ba100187cf9eeb38b105258d359c349c4fd5cdee4f90b049d5"
+  },
+  {
+    "screenshot": "screenshots/android/large/64-share-created.png",
+    "sha256": "903ce5ba31f9093e2b91c05826987cae175add22359a0a6f8e95f88dc3b4e6f9"
+  },
+  {
+    "screenshot": "screenshots/android/light/65-filter-folder.png",
+    "sha256": "fbd8291201091006f6e90f033618ae9c4a1f1b37b08b4a5647369a0dedb1a442"
+  },
+  {
+    "screenshot": "screenshots/android/dark/65-filter-folder.png",
+    "sha256": "0d0bb5b54a482dbf41f06597aaf5c6a43b12b97aa65694e140e1c58b5923de95"
+  },
+  {
+    "screenshot": "screenshots/android/large/65-filter-folder.png",
+    "sha256": "cb1a2cbf084f33cfbb0cb1014dc38fd5c67eeaa10541e95743118c7d1edd23d6"
+  },
+  {
+    "screenshot": "screenshots/android/light/66-filter-type.png",
+    "sha256": "1d61c2ad1fda590c6028f683a7fa855d7d1ee8868cdeb8119d08e6ad0acd5b96"
+  },
+  {
+    "screenshot": "screenshots/android/dark/66-filter-type.png",
+    "sha256": "6daf5531d88b95376c7dc118855ec06234fba01498cd728426a028e3a1b52a14"
+  },
+  {
+    "screenshot": "screenshots/android/large/66-filter-type.png",
+    "sha256": "16638da4a7323177b77a0bde0bc238cc7aa0b636381e3c8634afdef5a28479ee"
+  },
+  {
+    "screenshot": "screenshots/android/light/67-filter-speaker.png",
+    "sha256": "c22f4f9cf7ff117c44c246d3cb4519fe22185c8dac131b090d515b1565f37a72"
+  },
+  {
+    "screenshot": "screenshots/android/dark/67-filter-speaker.png",
+    "sha256": "3a638feced415e42f29ba37f194f7c91d06d05ae0ca32d76f9299f2b653075b9"
+  },
+  {
+    "screenshot": "screenshots/android/large/67-filter-speaker.png",
+    "sha256": "75c26c238fd31036b9b7543b39cbd11bb56f2160d6be2e9998d8329e1a244a31"
+  },
+  {
+    "screenshot": "screenshots/android/light/68-filter-date.png",
+    "sha256": "792b6bd6197f982612b1f4d46c5fee0f2af4024775f2994b9915c652dc968618"
+  },
+  {
+    "screenshot": "screenshots/android/dark/68-filter-date.png",
+    "sha256": "bbde400af7f37f8d0f458080f5dcbb6ee8b03747e5943491455a428e06cbffdd"
+  },
+  {
+    "screenshot": "screenshots/android/large/68-filter-date.png",
+    "sha256": "9019fef9452cc29e458522d5d0d04d1fabbe4c3fc3e632ad651473d19ca25bc4"
+  },
+  {
+    "screenshot": "screenshots/android/light/69-search-filtered.png",
+    "sha256": "90bb3ee6a95feede1e7aaf0816805a3dafb7ad41cd677d90bb7816e5871c7933"
+  },
+  {
+    "screenshot": "screenshots/android/dark/69-search-filtered.png",
+    "sha256": "22169f2cabf16173919339ad62b9240b2925f21801ac04f677e88eedf36dc16d"
+  },
+  {
+    "screenshot": "screenshots/android/large/69-search-filtered.png",
+    "sha256": "05412029ca91618a6a46f0a40f3f8f9dd7f253d5a0acc458d8a93d5b066c6f61"
+  },
+  {
+    "screenshot": "screenshots/android/light/70-folder-expanded.png",
+    "sha256": "c3beefc7afc35752871c9222b0a01c543438d4c785f1758c332101c7df992a36"
+  },
+  {
+    "screenshot": "screenshots/android/dark/70-folder-expanded.png",
+    "sha256": "61db90cff7eb953dd49121687a150cfe9741cbba50ec62a20eb2e4c272adc413"
+  },
+  {
+    "screenshot": "screenshots/android/large/70-folder-expanded.png",
+    "sha256": "f892d44d0a8c557fe84f7d5711584482706cf8d8bbf0e726d7c970ca04f5ec42"
+  },
+  {
+    "screenshot": "screenshots/android/light/71-folder-selected.png",
+    "sha256": "4514a0ba1b0bebfca9ddaac61364f9a1d98836a89ea6226140f52aca514fbe86"
+  },
+  {
+    "screenshot": "screenshots/android/dark/71-folder-selected.png",
+    "sha256": "e12a415b5d61f03d58072d92683a6b2883d6c2fec101e4af405cd1c6737961aa"
+  },
+  {
+    "screenshot": "screenshots/android/large/71-folder-selected.png",
+    "sha256": "43b28060cfc61bc21624c0d6b1d858574539e7040da95ac96feb979b7af01226"
+  },
+  {
+    "screenshot": "screenshots/android/light/72-my-files-views.png",
+    "sha256": "5922102eaa55979454862a2b1e6fa6aa9d002de6184384466ec4eab79671db92"
+  },
+  {
+    "screenshot": "screenshots/android/dark/72-my-files-views.png",
+    "sha256": "a0817609b69e02749b27188038e595b464db3918a4aa0133a8560cc381e490a1"
+  },
+  {
+    "screenshot": "screenshots/android/large/72-my-files-views.png",
+    "sha256": "e5bb3f2ce87a8419abec50d711c85173036901384af4350d5e9dd521dc4f07ea"
+  },
+  {
+    "screenshot": "screenshots/android/light/73-share-content.png",
+    "sha256": "8a7be158701aa3bef0bc953f5ab4ea65426dc03219cde1a35b019d413909f18b"
+  },
+  {
+    "screenshot": "screenshots/android/dark/73-share-content.png",
+    "sha256": "441e2c2fe9e7f8ef1dddfcb34838cb684796ec1537b86565f9c3cb353cbfdd60"
+  },
+  {
+    "screenshot": "screenshots/android/large/73-share-content.png",
+    "sha256": "b65da1454a5644e267f0e47170b9e23883793950c40ab00bd4ab50e8ae1260e5"
+  },
+  {
+    "screenshot": "screenshots/android/light/74-my-templates.png",
+    "sha256": "f4c13edadae45970cd1b21afe3af7b5b9c3959cbd6bb266fc5183d252fa78569"
+  },
+  {
+    "screenshot": "screenshots/android/dark/74-my-templates.png",
+    "sha256": "b2e75b176b8b3b50b4e670235b71ec4e485e4af6bdb799e69f9edf4aa8fff69f"
+  },
+  {
+    "screenshot": "screenshots/android/large/74-my-templates.png",
+    "sha256": "020fcc1eb506b1861653f26ae4ac7988dd95f5b4d7691cb85f8e9ebe9a2c1318"
+  },
+  {
+    "screenshot": "screenshots/android/light/75-template-search.png",
+    "sha256": "f02dd6ee22da76b05e8da929b61756819dea085717f6d5087b829f39e49bc7a9"
+  },
+  {
+    "screenshot": "screenshots/android/dark/75-template-search.png",
+    "sha256": "358920528a5a5b066fceb18b4bee6a9491cb9421451c235b60ab3d1100f2ddda"
+  },
+  {
+    "screenshot": "screenshots/android/large/75-template-search.png",
+    "sha256": "0106911e3955fbd3a25a6cf17f15ab8148431480b143397d2d0fa30340ab5c95"
+  },
+  {
+    "screenshot": "screenshots/android/light/76-theme.png",
+    "sha256": "2c5a2a7af9ebdb269da9d7e7fbbdd2f4c74b81f7f44cc0bec98ef387f5997435"
+  },
+  {
+    "screenshot": "screenshots/android/dark/76-theme.png",
+    "sha256": "ce293da5510139f6f91dcd8fcfcd54e2821e972c081599e275a96834209b6378"
+  },
+  {
+    "screenshot": "screenshots/android/large/76-theme.png",
+    "sha256": "79ae6cfa9b3de7200efd7ad2dd8ba856cb5242415db54ae4f51185e5fb956e64"
+  },
+  {
+    "screenshot": "screenshots/android/light/77-notifications.png",
+    "sha256": "fe2ebbf5208e57fd431b0b6868b83b94f4a5a48fb28758fc648523cfb969de1f"
+  },
+  {
+    "screenshot": "screenshots/android/dark/77-notifications.png",
+    "sha256": "4cb7302b3db6675789a45c97bdc59f790f17467ea5b929ec5558462270918545"
+  },
+  {
+    "screenshot": "screenshots/android/large/77-notifications.png",
+    "sha256": "8095ab5ff8562c1887d779f42c0742b6833eadb18bc4cabbbcf4eab646f5709a"
+  },
+  {
+    "screenshot": "screenshots/android/light/78-account.png",
+    "sha256": "b0ae21b15b48062e1c87203d4b4bf5b4df5a2e1f5106297e0e6c8ddc88f973c7"
+  },
+  {
+    "screenshot": "screenshots/android/dark/78-account.png",
+    "sha256": "d27b43050582d3bf3a55dfb47e63035640a9a35234242ce41d575c067b02af5a"
+  },
+  {
+    "screenshot": "screenshots/android/large/78-account.png",
+    "sha256": "f769c2e9e655d8fd329be42e441088b6202d21721d4b27663be0e31fce6e360b"
+  },
+  {
+    "screenshot": "screenshots/android/light/79-transcription-preferences.png",
+    "sha256": "268769f0b206fcb4c7316fee5f0cdb396a4c0a4829d94de591104fd8f4a8abad"
+  },
+  {
+    "screenshot": "screenshots/android/dark/79-transcription-preferences.png",
+    "sha256": "ac3ee5b348eefa19bfc6fbeef667765cc940fdf44c1bb5a2a89e4ad53dc29caa"
+  },
+  {
+    "screenshot": "screenshots/android/large/79-transcription-preferences.png",
+    "sha256": "e9d15adb9b613697a19defce1d2e2bcb281d2e745c3b14bbd55ec6c125c74eb9"
+  },
+  {
+    "screenshot": "screenshots/android/light/80-calendar-actions.png",
+    "sha256": "6423bc5aaa4e99a160df2c20ebb5af3d10356da0012fe05685f15892d47918fe"
+  },
+  {
+    "screenshot": "screenshots/android/dark/80-calendar-actions.png",
+    "sha256": "6f0b6fc1ee59b99d3a0bce2886a36563ce27ee1f57a0286d0381fe750fbeeb30"
+  },
+  {
+    "screenshot": "screenshots/android/large/80-calendar-actions.png",
+    "sha256": "8650d649736b2874641b5b061cd05767de0e31fb74a36a6a045c635ddad6912e"
+  },
+  {
+    "screenshot": "screenshots/android/light/81-export-menu.png",
+    "sha256": "49b254789b3875655e84a21c0bd3fbb6b168346729f9037a5559159d4a2f3825"
+  },
+  {
+    "screenshot": "screenshots/android/dark/81-export-menu.png",
+    "sha256": "99c887c33f26ee80b76f1e13db90554f7bf8bef92581056c61fddb125730876a"
+  },
+  {
+    "screenshot": "screenshots/android/large/81-export-menu.png",
+    "sha256": "f362e12a76f5a543dd437ddf9763ff003458e23fcf3eb550abc4ac3c70439761"
+  },
+  {
+    "screenshot": "screenshots/android/light/82-search-sort.png",
+    "sha256": "eb8ff518b95ad6ff96d9d9fd9569520cd971d11cbb638a081f19cc6a9b238b45"
+  },
+  {
+    "screenshot": "screenshots/android/dark/82-search-sort.png",
+    "sha256": "83dc59261bff6f61f5a0aed272a6bff19db4a4cfbc188396846b78a4ed6ef597"
+  },
+  {
+    "screenshot": "screenshots/android/large/82-search-sort.png",
+    "sha256": "e438d6a17480494146c3a1db1c8a21798e520a8eaac91ee20a135c083c6af655"
+  },
+  {
+    "screenshot": "screenshots/android/light/83-audio-settings.png",
+    "sha256": "76e93a2e77414cec3ace8361ae79cc410228563e33c70701233316a28a37881a"
+  },
+  {
+    "screenshot": "screenshots/android/dark/83-audio-settings.png",
+    "sha256": "3f9e4b7473254460f45abd0c01a305898460ca5ea76dc4b3627edc87d84f90a6"
+  },
+  {
+    "screenshot": "screenshots/android/large/83-audio-settings.png",
+    "sha256": "f51d54517e98eab37a154bf3b6646510714ee4513ce9f39ee74fb8782532c91c"
+  },
+  {
+    "screenshot": "screenshots/android/light/84-transcript-menu.png",
+    "sha256": "b8286b34003755e1546b4ab38a6d05b222b6be6c443b4abbfc659a545c029c13"
+  },
+  {
+    "screenshot": "screenshots/android/dark/84-transcript-menu.png",
+    "sha256": "58d6bdfc055e7b2ad8f3ef4d4965aa4e200f2058ca3f903d673907d9040946a6"
+  },
+  {
+    "screenshot": "screenshots/android/large/84-transcript-menu.png",
+    "sha256": "fca258484f88d4d99e3c4ab79c7ddf19fbcda08fcccc5702a3d39283d2922019"
+  },
+  {
+    "screenshot": "screenshots/android/light/85-calendar-events.png",
+    "sha256": "7455cadd09218da28d391547733cee3e4105db3e3ee8a8ccaefa0854640cce2c"
+  },
+  {
+    "screenshot": "screenshots/android/dark/85-calendar-events.png",
+    "sha256": "b9957125d3524f2c23feb8e9701b7aadf3367db83c65f5fffe1812e737950b96"
+  },
+  {
+    "screenshot": "screenshots/android/large/85-calendar-events.png",
+    "sha256": "3b22fbdbf1a6b073e3ab7740485f2f122d3264c96bb34fe1fbc4773b16de3bf6"
+  },
+  {
+    "screenshot": "screenshots/android/light/90-jwd-matches.png",
+    "sha256": "a8174633064d505682270bbff8624cb87a454735ad6edab43ab110b11190bc1b"
+  },
+  {
+    "screenshot": "screenshots/android/dark/90-jwd-matches.png",
+    "sha256": "87c83cd305f656aa0be1b0e07c68a04739ecd73fceb20ec1966b8d8d09a0607b"
+  },
+  {
+    "screenshot": "screenshots/android/large/90-jwd-matches.png",
+    "sha256": "f1834bac92cf45adb27756437a612d6f89b96864df060a323ee14c47bc8df4c1"
+  },
+  {
+    "screenshot": "screenshots/android/light/91-jwd-verifying.png",
+    "sha256": "509eb6c369d50b5539bfec4665b2f94f7faae83272272954a48ddd21ee411dc6"
+  },
+  {
+    "screenshot": "screenshots/android/dark/91-jwd-verifying.png",
+    "sha256": "c8b64ee27bcfa46e068255c565967ad3f352f484647f5bb4fb94464c45e43623"
+  },
+  {
+    "screenshot": "screenshots/android/large/91-jwd-verifying.png",
+    "sha256": "319a6d4e8ecfe58528d90bb8a4af7cd134f7805c80b69e4ebc34df4234601e52"
+  },
+  {
+    "screenshot": "screenshots/android/light/92-jwd-binding.png",
+    "sha256": "aacafa5f352db6180e4b84b07bb1402632cc528d5d941eeb7141877950a00ca1"
+  },
+  {
+    "screenshot": "screenshots/android/dark/92-jwd-binding.png",
+    "sha256": "85204751f5397908b0066bb7705e41ec664654e5c67ae1e9aa7abc4520f3262b"
+  },
+  {
+    "screenshot": "screenshots/android/large/92-jwd-binding.png",
+    "sha256": "3bcc801983415604c19b60f4eaa5e2aff94a784d9bd9bdead30fbddf900a7bc6"
+  },
+  {
+    "screenshot": "screenshots/android/light/93-jwd-post-recording.png",
+    "sha256": "3380ef8c8eec643e5d50fc0bb0586b2802d41ded37351db5fba4702ef30b04d0"
+  },
+  {
+    "screenshot": "screenshots/android/dark/93-jwd-post-recording.png",
+    "sha256": "741c384d2612d9dd158197d5517271a23d2addb2b46a9a5cf6680e3cde004680"
+  },
+  {
+    "screenshot": "screenshots/android/large/93-jwd-post-recording.png",
+    "sha256": "b7b8ed4d4dc8a00ef6d65c4fa4d6a52f28298ce73aed172c8f29a627d020e97c"
+  },
+  {
+    "screenshot": "screenshots/android/light/94-jwd-legacy-status-hidden.png",
+    "sha256": "3380ef8c8eec643e5d50fc0bb0586b2802d41ded37351db5fba4702ef30b04d0"
+  },
+  {
+    "screenshot": "screenshots/android/dark/94-jwd-legacy-status-hidden.png",
+    "sha256": "741c384d2612d9dd158197d5517271a23d2addb2b46a9a5cf6680e3cde004680"
+  },
+  {
+    "screenshot": "screenshots/android/large/94-jwd-legacy-status-hidden.png",
+    "sha256": "b7b8ed4d4dc8a00ef6d65c4fa4d6a52f28298ce73aed172c8f29a627d020e97c"
+  },
+  {
+    "screenshot": "screenshots/android/light/95-jwd-post-recording-local.png",
+    "sha256": "3380ef8c8eec643e5d50fc0bb0586b2802d41ded37351db5fba4702ef30b04d0"
+  },
+  {
+    "screenshot": "screenshots/android/dark/95-jwd-post-recording-local.png",
+    "sha256": "741c384d2612d9dd158197d5517271a23d2addb2b46a9a5cf6680e3cde004680"
+  },
+  {
+    "screenshot": "screenshots/android/large/95-jwd-post-recording-local.png",
+    "sha256": "b7b8ed4d4dc8a00ef6d65c4fa4d6a52f28298ce73aed172c8f29a627d020e97c"
+  },
+  {
+    "screenshot": "screenshots/android/light/96-jwd-legacy-text-hidden.png",
+    "sha256": "3380ef8c8eec643e5d50fc0bb0586b2802d41ded37351db5fba4702ef30b04d0"
+  },
+  {
+    "screenshot": "screenshots/android/dark/96-jwd-legacy-text-hidden.png",
+    "sha256": "741c384d2612d9dd158197d5517271a23d2addb2b46a9a5cf6680e3cde004680"
+  },
+  {
+    "screenshot": "screenshots/android/large/96-jwd-legacy-text-hidden.png",
+    "sha256": "b7b8ed4d4dc8a00ef6d65c4fa4d6a52f28298ce73aed172c8f29a627d020e97c"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connections-en-360.png",
+    "sha256": "33aadddfae1564ef039f45808f112236204b946fa4cc8f9fc818b8fe164600e4"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connections-en-390.png",
+    "sha256": "087779de60ffe0094489ff38e3b804ae171ac695cbf0434f0eff70fd5493b1f0"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connections-en-1100.png",
+    "sha256": "999b289abd99127cdfebd9b66f4d838d08ce5657cfee7f6ae6a457943dbfd460"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/choose-en-360.png",
+    "sha256": "97fb76ddc1775368bdfeb33baf0eeec7dd63f1ae83067113948690f45ce3e65a"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/choose-en-390.png",
+    "sha256": "d7b633a287803b884857b10f4278740c8a13cea5214eced6ede8bff1ebd4cd91"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/choose-en-1100.png",
+    "sha256": "74de534583bac654524e1b10a12db7545ca5784f5ffea2963570d25afd130d28"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connection-en-360.png",
+    "sha256": "31721bfe45c5dca00f3ccc355c333ae6b30ce7111c5bcf0b532a89a31fea49fa"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connection-en-390.png",
+    "sha256": "18c7eed0bc8a701b477f436d59fd10d564ecc65991258df99fff62725924dcd3"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connection-en-1100.png",
+    "sha256": "c426ca17cba311199c818c5986bcfb08df7ec2b7f05812856505f653a11e10d0"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/read-en-360.png",
+    "sha256": "171cf9840e48fbe2599a93c50c4e05cb7048c2025e5a3952f198b5a992135009"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/read-en-390.png",
+    "sha256": "f90733895c3db4125f4938d4c487531f068006f1d796b6b037a3b92fd2fe2aa7"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/read-en-1100.png",
+    "sha256": "b6de5557dafaecaf6fcf91e9a4a2ada48762a6dcdbea10fdaa691fa0bfc0e85b"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/recorders-en-360.png",
+    "sha256": "54c31c552f97267239db05346edd8f6f4a7e68351991fdd14f5a7d44a15a2809"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/recorders-en-390.png",
+    "sha256": "eda2b6d37668bb99f66b292381cfa54e7a25035c2886fafb240829a630a626e3"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/recorders-en-1100.png",
+    "sha256": "f5564a8fe2f8cc7ae00de9986ecbd1e70b24c13686f80cdcb6a2fed9e3e76b60"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/transfer-en-360.png",
+    "sha256": "24739e5a749257ba8541e2674792a26c808eb1e2e8cd03b0bc00d3903eebad5d"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/transfer-en-390.png",
+    "sha256": "92ba0c08c738c4f05151407ebdd424328532c0dd7aba0243d843b5db0109e2f5"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/transfer-en-1100.png",
+    "sha256": "004ac7bc3f65c7ae17890abe58d39f39423052c26da095eeb6da0a6c66b0786e"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connections-zh-360.png",
+    "sha256": "a9cb26c763113ba390488045c103b48758752d013366ec8d502ed9badc226300"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connections-zh-390.png",
+    "sha256": "fcd3d57de19623c27768b303184299ce65e261cc92be994e78d8417921dc53f0"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connections-zh-1100.png",
+    "sha256": "90187ee3b12d89e41b52499a174872a196d0e657eced58ec119dec722d0f9f01"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/choose-zh-360.png",
+    "sha256": "1fe46332767d0d7d5557345cbb892feef904e00d894e9ade9f3e7231fa404d4c"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/choose-zh-390.png",
+    "sha256": "7d21b2f901fe600f1753eaa86b3a86a90b9f0675a89d22711cc60db29f6c301a"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/choose-zh-1100.png",
+    "sha256": "8c3767a33d003e738a2f7be95dc8481fe5c31ab9da30b766b083ec56511aa276"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connection-zh-360.png",
+    "sha256": "2887944586cdb04f8c151ff94d305ea0578a6aaa183dee0bd73834a27387113d"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connection-zh-390.png",
+    "sha256": "9d0069f3cd6cddf8e634023ea77c25b4dbf12895333baca745f00918a03fc813"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/connection-zh-1100.png",
+    "sha256": "b2396dd9eeb3f39ee0c0e5105fe0b52587c78138bcd7b5c479128d74269a9af5"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/read-zh-360.png",
+    "sha256": "fdc1e6447bf5f15e6adefaa4d0bfe6cd7af9a6d2c28a5a1f41c1d853db4c9e27"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/read-zh-390.png",
+    "sha256": "0308f44c21daf97346ef98cd07eda7e86c204f9b0ae7d315a5eda68850b316b1"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/read-zh-1100.png",
+    "sha256": "9e26ee471f70f3a37e401f30830204597e5f2f63e114bfda5a52e623e1448815"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/recorders-zh-360.png",
+    "sha256": "7122e63c025077c494fc14a64fc8e24dd06c5bdbc789a613f18103cb79c4e57d"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/recorders-zh-390.png",
+    "sha256": "0e55c5f5634edb55415cff0e0e2d2490676a6d6d237632d9bc7ba220cd380768"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/recorders-zh-1100.png",
+    "sha256": "aaed3f7f919689021b83aebd25551232a8d3f41f7207bfe8a7132dbc6d95c9b0"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/transfer-zh-360.png",
+    "sha256": "b27ad976ed13830b85250b18b34e4091aa4fb54319942727416117fb716dd58d"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/transfer-zh-390.png",
+    "sha256": "0026085df3ede66e61f6cbf3776fe68b475770d83d17447ffc932c22ba3a8e7a"
+  },
+  {
+    "screenshot": "screenshots/android/device-mcp/transfer-zh-1100.png",
+    "sha256": "e4478d1b40051de2bc85ca2c9c8d97ad6e954816316b3108f96f2dd4a50a6a58"
+  }
+]
