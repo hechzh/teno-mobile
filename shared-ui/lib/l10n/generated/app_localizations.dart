@@ -6217,6 +6217,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Undo'**
   String get labela8283ade3185;
+
+  /// No description provided for @labelc0e5d79302d0.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder selected'**
+  String get labelc0e5d79302d0;
+
+  /// No description provided for @labele57ae5d2c4a4.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder did not confirm the action'**
+  String get labele57ae5d2c4a4;
+
+  /// No description provided for @label1e577a37daf2.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder connected'**
+  String get label1e577a37daf2;
+
+  /// No description provided for @labeld01476dfee7e.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded'**
+  String get labeld01476dfee7e;
+
+  /// No description provided for @label4eb2e44d7305.
+  ///
+  /// In en, this message translates to:
+  /// **'Decoding audio'**
+  String get label4eb2e44d7305;
+
+  /// No description provided for @label3fa831e13e63.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading device files'**
+  String get label3fa831e13e63;
+
+  /// No description provided for @label0e47c03bbd2d.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for recording to start'**
+  String get label0e47c03bbd2d;
+
+  /// No description provided for @labelb2a2568dd524.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recorder to stop and save'**
+  String get labelb2a2568dd524;
+
+  /// No description provided for @label6938ffbc5a52.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recorder to pause'**
+  String get label6938ffbc5a52;
+
+  /// No description provided for @label4deb2240394f.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recorder to resume'**
+  String get label4deb2240394f;
+
+  /// No description provided for @label4559b989b625.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth scan failed'**
+  String get label4559b989b625;
+
+  /// No description provided for @label3ba7e7cb1f37.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer did not start in time. Reconnect and try again.'**
+  String get label3ba7e7cb1f37;
+
+  /// No description provided for @label080b96d349f1.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading device status and folders'**
+  String get label080b96d349f1;
+
+  /// No description provided for @label95fdb4800ee2.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid device response'**
+  String get label95fdb4800ee2;
+
+  /// No description provided for @label8094dcc1c6b3.
+  ///
+  /// In en, this message translates to:
+  /// **'The recorder could not read this file. Stop recording and try again.'**
+  String get label8094dcc1c6b3;
+
+  /// No description provided for @label81ef2bfe3770.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer interrupted. Reconnect and try again.'**
+  String get label81ef2bfe3770;
+
+  /// No description provided for @labelb989fad51804.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording started during transfer. Stop recording before transferring files.'**
+  String get labelb989fad51804;
+
+  /// No description provided for @labeld3a591b3fab2.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to the original account to continue syncing.'**
+  String get labeld3a591b3fab2;
+
+  /// No description provided for @labelf772229f2308.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for recordings to sync'**
+  String get labelf772229f2308;
+
+  /// No description provided for @label5339623da837.
+  ///
+  /// In en, this message translates to:
+  /// **'Account changed. Reconnect to sync.'**
+  String get label5339623da837;
+
+  /// No description provided for @label47e47bca0d1e.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for transfer to start'**
+  String get label47e47bca0d1e;
+
+  /// No description provided for @labelee3d2f636647.
+  ///
+  /// In en, this message translates to:
+  /// **'File transfer timed out or is incomplete. No uploadable file was created.'**
+  String get labelee3d2f636647;
+
+  /// No description provided for @labela5c62f206197.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio could not finish syncing'**
+  String get labela5c62f206197;
+
+  /// No description provided for @labelcfce761befa8.
+  ///
+  /// In en, this message translates to:
+  /// **'Request failed'**
+  String get labelcfce761befa8;
+
+  /// No description provided for @label9a874de202cb.
+  ///
+  /// In en, this message translates to:
+  /// **'Request could not be completed'**
+  String get label9a874de202cb;
+
+  /// No description provided for @label49eb25f81970.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh device status or reconnect.'**
+  String get label49eb25f81970;
+
+  /// No description provided for @label0e8c13c841be.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading team audio'**
+  String get label0e8c13c841be;
+
+  /// No description provided for @label5b6c9e3ac578.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio uploaded. Processing on the server.'**
+  String get label5b6c9e3ac578;
+
+  /// No description provided for @label6efc5d27f30b.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed'**
+  String get label6efc5d27f30b;
+
+  /// No description provided for @label7497d27f9bf7.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for recording'**
+  String get label7497d27f9bf7;
+
+  /// No description provided for @label31ad2b835706.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic cloud processing is off'**
+  String get label31ad2b835706;
+
+  /// No description provided for @label47eaed3f03ed.
+  ///
+  /// In en, this message translates to:
+  /// **'Checksum verified'**
+  String get label47eaed3f03ed;
+
+  /// No description provided for @label77ffbd2f2bc3.
+  ///
+  /// In en, this message translates to:
+  /// **'Device checksum unavailable'**
+  String get label77ffbd2f2bc3;
+
+  /// No description provided for @label63b853306141.
+  ///
+  /// In en, this message translates to:
+  /// **'folders'**
+  String get label63b853306141;
+
+  /// No description provided for @label3ebb153fb24e.
+  ///
+  /// In en, this message translates to:
+  /// **'recording'**
+  String get label3ebb153fb24e;
+
+  /// No description provided for @labelacbb77435d3b.
+  ///
+  /// In en, this message translates to:
+  /// **'recordings'**
+  String get labelacbb77435d3b;
+
+  /// No description provided for @labelc36d819e7bc6.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get labelc36d819e7bc6;
+
+  /// No description provided for @label8a122ea399dd.
+  ///
+  /// In en, this message translates to:
+  /// **'Source transcript'**
+  String get label8a122ea399dd;
+
+  /// No description provided for @labelf4e871ec79db.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording could not start.'**
+  String get labelf4e871ec79db;
 }
 
 class _AppLocalizationsDelegate

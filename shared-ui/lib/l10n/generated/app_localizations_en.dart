@@ -3375,4 +3375,127 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get labela8283ade3185 => 'Undo';
+
+  @override
+  String get labelc0e5d79302d0 => 'Recorder selected';
+
+  @override
+  String get labele57ae5d2c4a4 => 'Recorder did not confirm the action';
+
+  @override
+  String get label1e577a37daf2 => 'Recorder connected';
+
+  @override
+  String get labeld01476dfee7e => 'Loaded';
+
+  @override
+  String get label4eb2e44d7305 => 'Decoding audio';
+
+  @override
+  String get label3fa831e13e63 => 'Loading device files';
+
+  @override
+  String get label0e47c03bbd2d => 'Waiting for recording to start';
+
+  @override
+  String get labelb2a2568dd524 => 'Waiting for the recorder to stop and save';
+
+  @override
+  String get label6938ffbc5a52 => 'Waiting for the recorder to pause';
+
+  @override
+  String get label4deb2240394f => 'Waiting for the recorder to resume';
+
+  @override
+  String get label4559b989b625 => 'Bluetooth scan failed';
+
+  @override
+  String get label3ba7e7cb1f37 =>
+      'Transfer did not start in time. Reconnect and try again.';
+
+  @override
+  String get label080b96d349f1 => 'Loading device status and folders';
+
+  @override
+  String get label95fdb4800ee2 => 'Invalid device response';
+
+  @override
+  String get label8094dcc1c6b3 =>
+      'The recorder could not read this file. Stop recording and try again.';
+
+  @override
+  String get label81ef2bfe3770 =>
+      'Transfer interrupted. Reconnect and try again.';
+
+  @override
+  String get labelb989fad51804 =>
+      'Recording started during transfer. Stop recording before transferring files.';
+
+  @override
+  String get labeld3a591b3fab2 =>
+      'Sign in to the original account to continue syncing.';
+
+  @override
+  String get labelf772229f2308 => 'Checking for recordings to sync';
+
+  @override
+  String get label5339623da837 => 'Account changed. Reconnect to sync.';
+
+  @override
+  String get label47e47bca0d1e => 'Waiting for transfer to start';
+
+  @override
+  String get labelee3d2f636647 =>
+      'File transfer timed out or is incomplete. No uploadable file was created.';
+
+  @override
+  String get labela5c62f206197 => 'Audio could not finish syncing';
+
+  @override
+  String get labelcfce761befa8 => 'Request failed';
+
+  @override
+  String get label9a874de202cb => 'Request could not be completed';
+
+  @override
+  String get label49eb25f81970 => 'Refresh device status or reconnect.';
+
+  @override
+  String get label0e8c13c841be => 'Uploading team audio';
+
+  @override
+  String get label5b6c9e3ac578 => 'Audio uploaded. Processing on the server.';
+
+  @override
+  String get label6efc5d27f30b => 'Upload failed';
+
+  @override
+  String get label7497d27f9bf7 => 'Waiting for recording';
+
+  @override
+  String get label31ad2b835706 => 'Automatic cloud processing is off';
+
+  @override
+  String get label47eaed3f03ed => 'Checksum verified';
+
+  @override
+  String get label77ffbd2f2bc3 => 'Device checksum unavailable';
+
+  @override
+  String get label63b853306141 => 'folders';
+
+  @override
+  String get label3ebb153fb24e => 'recording';
+
+  @override
+  String get labelacbb77435d3b => 'recordings';
+
+  @override
+  String get labelc36d819e7bc6 => 'Use';
+
+  @override
+  String get label8a122ea399dd => 'Source transcript';
+
+  @override
+  String get labelf4e871ec79db => 'Recording could not start.';
 }

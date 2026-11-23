@@ -407,7 +407,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           icon: const Icon(Icons.description_outlined, size: 16),
-          label: Text('Source · ' + duration(cite['start_ms'])),
+          label: Text('${ui(context, 'Source')} · ${duration(cite['start_ms'])}'),
         ),
       ),
     Align(
@@ -481,9 +481,8 @@ class _ContextPickerState extends State<ContextPicker> {
           ? null
           : () => Navigator.pop(context, selected.toList()),
       child: Text(
-        'Use ' +
-            selected.length.toString() +
-            (selected.length == 1 ? ' recording' : ' recordings'),
+        '${ui(context, 'Use')} ${selected.length} '
+        '${ui(context, selected.length == 1 ? 'recording' : 'recordings')}',
       ),
     ),
     child: ListView(

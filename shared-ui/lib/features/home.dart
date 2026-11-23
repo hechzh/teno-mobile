@@ -297,8 +297,8 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () => showRecorder(context, model),
                 icon: const Icon(Icons.graphic_eq),
                 label: Text(
-                  'Return to recording · ' +
-                      duration(model.runtime!.capture.elapsedMs),
+                  '${ui(context, 'Return to recording')} · '
+                  '${duration(model.runtime!.capture.elapsedMs)}',
                 ),
               ),
             ),
