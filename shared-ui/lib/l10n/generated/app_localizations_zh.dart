@@ -3241,4 +3241,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get labelf4e871ec79db => '录音无法开始。';
+
+  @override
+  String get labelffb4b44abb4f => '全部模板';
+
+  @override
+  String get label830ec7f812f9 => '上次使用';
 }
