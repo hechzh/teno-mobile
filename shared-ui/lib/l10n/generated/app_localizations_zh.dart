@@ -9,6 +9,51 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get recorderSelectForOperation => '请在“我的录音卡”中选择本次操作已登记的录音卡。';
+
+  @override
+  String get recorderDeviceFound => '已找到录音卡';
+
+  @override
+  String get recorderDeviceDisconnected => '录音卡未连接';
+
+  @override
+  String get recorderIdentityTimeout => '蓝牙已连接，但录音卡未返回硬件标识。请核对手边的录音卡，再确认授权。';
+
+  @override
+  String get recorderIdentityAfterAuthTimeout =>
+      '已收到授权回执，但录音卡仍未返回硬件标识，无法完成设备核验。';
+
+  @override
+  String get recorderHardwareMismatch => '录音卡返回的硬件标识与已登记信息不符，已断开连接，未读取录音。';
+
+  @override
+  String get recorderPairingDenied => '录音卡拒绝了当前账号的密钥。请在原绑定账号中检查设备归属。';
+
+  @override
+  String get recorderPairingDisconnected => '硬件标识核验完成前录音卡已断开，请重新连接。';
+
+  @override
+  String get recorderPairingAuthFailed => '无法核验录音卡的授权信息。';
+
+  @override
+  String get recorderPairingOwnerUnknown => '无法核验录音卡的账号归属。';
+
+  @override
+  String get recorderAuthorizeDevice => '授权这张录音卡';
+
+  @override
+  String get recorderPhysicalConsent =>
+      '请确认这是你手边的录音卡。未绑定的卡会写入你的账号密钥。核验硬件标识和归属后，卡上的录音可同步到你的账号。';
+
+  @override
+  String get recorderOperationConsent =>
+      '请确认这是正在办理设备操作的那张录音卡。Teno 将核验授权和硬件标识，再继续该操作。';
+
+  @override
+  String get recorderConfirmAuthorization => '确认并授权';
+
+  @override
   String get home => '首页';
 
   @override

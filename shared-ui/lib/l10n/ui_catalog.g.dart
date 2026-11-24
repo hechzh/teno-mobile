@@ -2,6 +2,20 @@
 import 'generated/app_localizations.dart';
 
 String lookupUiMessage(AppLocalizations l, String source) => switch (source) {
+  "Select the registered recorder for this operation." => l.recorderSelectForOperation,
+  "Recorder found" => l.recorderDeviceFound,
+  "Recorder not connected" => l.recorderDeviceDisconnected,
+  "The recorder connected, but did not return its hardware ID. Check the physical recorder before authorizing it." => l.recorderIdentityTimeout,
+  "The recorder did not return its hardware ID after authorization." => l.recorderIdentityAfterAuthTimeout,
+  "The recorder returned a different hardware ID. No recordings were accessed." => l.recorderHardwareMismatch,
+  "The recorder rejected this account's key. Use the original account to check its ownership." => l.recorderPairingDenied,
+  "Recorder disconnected before its hardware ID was verified." => l.recorderPairingDisconnected,
+  "Recorder authorization could not be verified." => l.recorderPairingAuthFailed,
+  "The recorder's ownership could not be verified." => l.recorderPairingOwnerUnknown,
+  "Authorize this recorder" => l.recorderAuthorizeDevice,
+  "Confirm that this is the recorder in your hand. An unbound recorder will store your account key. After its hardware ID and ownership are verified, recordings on this card can sync to your account." => l.recorderPhysicalConsent,
+  "Confirm that this is the recorder for your pending operation. Teno will verify its authorization and hardware ID before continuing." => l.recorderOperationConsent,
+  "Confirm and authorize" => l.recorderConfirmAuthorization,
   "Home" => l.home,
   "Assistant" => l.assistant,
   "Settings" => l.settings,

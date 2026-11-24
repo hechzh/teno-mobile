@@ -53,6 +53,7 @@ final class JwdAutomaticChecks {
             test.check(store.deviceKey(weak).isEmpty()&&connections.equals(Arrays.asList(weak)),"verified_profile_connects_without_generating_a_new_code");
             String key=JwdProtocol.newKey();store.deviceKey(weak,key);store.recorderIdentity(weak,new JSONObject().put("hardware_id","A0B1C2D3E4F5").put("id","fixture-owned"));
             call.accept(service::ready);
+            test.until(()->commands.contains("APP&MAC"));
             test.check(commands.contains("APP&MAC")&&commands.stream().noneMatch(v->v.startsWith("APP&SK&")),"hardware_identity_precedes_key_authorization");
             call.accept(()->service.command("MCU&MAC&A0B1C2D3E4F5".getBytes(java.nio.charset.StandardCharsets.US_ASCII)));
             test.until(()->commands.contains("APP&SK&"+key));

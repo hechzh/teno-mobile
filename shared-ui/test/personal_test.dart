@@ -1176,7 +1176,11 @@ void main() {
       await tester.runAsync(() => screenshot('$mode/02-navigation'));
       for (final value in ['Work', 'Tasks', 'Skills', 'Connectors', 'PLAUD'])
         expect(find.text(value), findsNothing);
-      await tester.tap(find.widgetWithText(OutlinedButton, 'Import files'));
+      final importButton = find.widgetWithText(OutlinedButton, 'Import files');
+      await tester.scrollUntilVisible(importButton.hitTestable(), 160,
+          scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
+      await tester.tap(importButton.hitTestable());
       await tester.pumpAndSettle();
       expect(find.text('Import files'), findsOneWidget);
       await tester.runAsync(() => screenshot('$mode/03-create-menu'));

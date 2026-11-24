@@ -9,6 +9,58 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get recorderSelectForOperation =>
+      'Select the registered recorder for this operation.';
+
+  @override
+  String get recorderDeviceFound => 'Recorder found';
+
+  @override
+  String get recorderDeviceDisconnected => 'Recorder not connected';
+
+  @override
+  String get recorderIdentityTimeout =>
+      'The recorder connected, but did not return its hardware ID. Check the physical recorder before authorizing it.';
+
+  @override
+  String get recorderIdentityAfterAuthTimeout =>
+      'The recorder did not return its hardware ID after authorization.';
+
+  @override
+  String get recorderHardwareMismatch =>
+      'The recorder returned a different hardware ID. No recordings were accessed.';
+
+  @override
+  String get recorderPairingDenied =>
+      'The recorder rejected this account\'s key. Use the original account to check its ownership.';
+
+  @override
+  String get recorderPairingDisconnected =>
+      'Recorder disconnected before its hardware ID was verified.';
+
+  @override
+  String get recorderPairingAuthFailed =>
+      'Recorder authorization could not be verified.';
+
+  @override
+  String get recorderPairingOwnerUnknown =>
+      'The recorder\'s ownership could not be verified.';
+
+  @override
+  String get recorderAuthorizeDevice => 'Authorize this recorder';
+
+  @override
+  String get recorderPhysicalConsent =>
+      'Confirm that this is the recorder in your hand. An unbound recorder will store your account key. After its hardware ID and ownership are verified, recordings on this card can sync to your account.';
+
+  @override
+  String get recorderOperationConsent =>
+      'Confirm that this is the recorder for your pending operation. Teno will verify its authorization and hardware ID before continuing.';
+
+  @override
+  String get recorderConfirmAuthorization => 'Confirm and authorize';
+
+  @override
   String get home => 'Home';
 
   @override

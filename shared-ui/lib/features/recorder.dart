@@ -53,8 +53,9 @@ Future<void> showRecorder(BuildContext context, TenoModel model) =>
     );
 
 class DevicePage extends StatefulWidget {
-  const DevicePage(this.model, {super.key});
+  const DevicePage(this.model, {super.key, this.selectedHardwareId = ''});
   final TenoModel model;
+  final String selectedHardwareId;
   @override
   State<DevicePage> createState() => _DevicePageState();
 }
@@ -85,7 +86,7 @@ class _DevicePageState extends State<DevicePage> {
     final device = model.runtime?.device;
     if (device != null &&
         !device.authorized &&
-        (initiating || device.scanning || device.busy)) {
+        (initiating || device.scanning || device.busy || device.connected)) {
       unawaited(
         model.host
             .controlDevice(DeviceAction.disconnect, '', '')
@@ -181,6 +182,57 @@ class _DevicePageState extends State<DevicePage> {
     await perform(context, () => model.host.bindDevice(id, name, value, false));
   }
 
+  Future<void> confirmPhysicalRecorder(Json row) async {
+    final owner = model.runtime!.session.scope;
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: const UiText('Authorize this recorder'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              text(row['name']),
+              style: Theme.of(dialog).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            UiText(
+              row['operation_compat'] == true
+                  ? 'Confirm that this is the recorder for your pending operation. Teno will verify its authorization and hardware ID before continuing.'
+                  : 'Confirm that this is the recorder in your hand. An unbound recorder will store your account key. After its hardware ID and ownership are verified, recordings on this card can sync to your account.',
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialog, false),
+            child: const UiText('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialog, true),
+            child: const UiText('Confirm and authorize'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted ||
+        accepted != true ||
+        !model.signedIn ||
+        model.runtime!.session.scope != owner)
+      return;
+    await perform(
+      context,
+      () => model.command('recorder_identity_compat', {
+        'address': row['address'],
+        'compat_token': row['compat_token'],
+        'confirm': true,
+        if (widget.selectedHardwareId.isNotEmpty)
+          'selected_hardware_id': widget.selectedHardwareId,
+      }),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: model,
@@ -206,6 +258,17 @@ class _DevicePageState extends State<DevicePage> {
                 row['key_rejected'] == true && row['gatt_status'] == 'verified',
           )
           .firstOrNull;
+      final physical = device.connected && !device.authorized && !device.busy
+          ? nearby
+                .where(
+                  (row) =>
+                      row['address'] == device.identifier &&
+                      row['gatt_status'] == 'verified' &&
+                      row['identity_timeout'] == true &&
+                      text(row['compat_token']).isNotEmpty,
+                )
+                .firstOrNull
+          : null;
       if (device.receiving) {
         return PageFrame(
           title: 'Saving recording',
@@ -275,7 +338,14 @@ class _DevicePageState extends State<DevicePage> {
             Text(
               device.authorized
                   ? device.name
-                  : ui(context, 'Connecting your JWD recorder'),
+                  : ui(
+                      context,
+                      connecting
+                          ? 'Connecting your JWD recorder'
+                          : device.connected
+                          ? 'Recorder found'
+                          : 'Recorder not connected',
+                    ),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
             ),
@@ -289,6 +359,12 @@ class _DevicePageState extends State<DevicePage> {
               style: const TextStyle(color: muted),
             ),
             const SizedBox(height: 24),
+            if (physical != null)
+              FilledButton.icon(
+                onPressed: () => confirmPhysicalRecorder(physical),
+                icon: const Icon(Icons.bluetooth_connected),
+                label: const UiText('Authorize this recorder'),
+              ),
             RecorderRegistration(model),
             if (device.authorized) ...[
               MenuRow(

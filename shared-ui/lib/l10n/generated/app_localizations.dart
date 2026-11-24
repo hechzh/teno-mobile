@@ -98,6 +98,90 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @recorderSelectForOperation.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the registered recorder for this operation.'**
+  String get recorderSelectForOperation;
+
+  /// No description provided for @recorderDeviceFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder found'**
+  String get recorderDeviceFound;
+
+  /// No description provided for @recorderDeviceDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder not connected'**
+  String get recorderDeviceDisconnected;
+
+  /// No description provided for @recorderIdentityTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The recorder connected, but did not return its hardware ID. Check the physical recorder before authorizing it.'**
+  String get recorderIdentityTimeout;
+
+  /// No description provided for @recorderIdentityAfterAuthTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The recorder did not return its hardware ID after authorization.'**
+  String get recorderIdentityAfterAuthTimeout;
+
+  /// No description provided for @recorderHardwareMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The recorder returned a different hardware ID. No recordings were accessed.'**
+  String get recorderHardwareMismatch;
+
+  /// No description provided for @recorderPairingDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'The recorder rejected this account\'s key. Use the original account to check its ownership.'**
+  String get recorderPairingDenied;
+
+  /// No description provided for @recorderPairingDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder disconnected before its hardware ID was verified.'**
+  String get recorderPairingDisconnected;
+
+  /// No description provided for @recorderPairingAuthFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorder authorization could not be verified.'**
+  String get recorderPairingAuthFailed;
+
+  /// No description provided for @recorderPairingOwnerUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The recorder\'s ownership could not be verified.'**
+  String get recorderPairingOwnerUnknown;
+
+  /// No description provided for @recorderAuthorizeDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Authorize this recorder'**
+  String get recorderAuthorizeDevice;
+
+  /// No description provided for @recorderPhysicalConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm that this is the recorder in your hand. An unbound recorder will store your account key. After its hardware ID and ownership are verified, recordings on this card can sync to your account.'**
+  String get recorderPhysicalConsent;
+
+  /// No description provided for @recorderOperationConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm that this is the recorder for your pending operation. Teno will verify its authorization and hardware ID before continuing.'**
+  String get recorderOperationConsent;
+
+  /// No description provided for @recorderConfirmAuthorization.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and authorize'**
+  String get recorderConfirmAuthorization;
+
   /// No description provided for @home.
   ///
   /// In en, this message translates to:

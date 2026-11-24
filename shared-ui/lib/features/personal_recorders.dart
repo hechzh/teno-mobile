@@ -240,7 +240,15 @@ class MyRecordersPage extends StatelessWidget {
                                 'hardware_id': card['hardware_id'],
                               });
                               if (context.mounted)
-                                await push(context, DevicePage(model));
+                                await push(
+                                  context,
+                                  DevicePage(
+                                    model,
+                                    selectedHardwareId: text(
+                                      card['hardware_id'],
+                                    ),
+                                  ),
+                                );
                               reload();
                             }),
                             child: const UiText('Use this recorder'),

@@ -83,7 +83,8 @@ def android():
               'filename': f'Teno-{VERSION}-manifest.txt'},
              evidence(SCREEN, 'screenshot', '模板选择页（中文 360dp）', 'Template picker (Chinese, 360dp)'),
              evidence(SCREEN.parent / 'home.png', 'screenshot', '首页账号默认模板', 'Home default template'),
-             evidence(SCREEN.parent / 'recording-notes.png', 'screenshot', '录音标题下追加笔记', 'Add a note below the recording title')]
+             evidence(SCREEN.parent / 'recording-notes.png', 'screenshot', '录音标题下追加笔记', 'Add a note below the recording title'),
+             evidence(SCREEN.parent / 'recorder-confirm.png', 'screenshot', '身份读取超时后确认实物', 'Confirm physical recorder after identity timeout')]
     return {'report': report, 'files': files}
 
 

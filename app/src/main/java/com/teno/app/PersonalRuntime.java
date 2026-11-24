@@ -50,6 +50,14 @@ final class PersonalRuntime {
             if(command.startsWith("recorder_")){
                 runtime.signedIn();
                 if(command.equals("recorder_ownership")){JSONObject value=runtime.device().optJSONObject("ownership");result.success((value==null?new JSONObject():value).toString());return;}
+                if(command.equals("recorder_identity_compat")){
+                    if(JwdService.accountClosing)throw new IOException("Sign in to continue.");
+                    activity.startForegroundService(new Intent(activity,JwdService.class).setAction("ownership_identity_compat")
+                            .putExtra("address",args.getString("address")).putExtra("compat_token",args.getString("compat_token"))
+                            .putExtra("selected_hardware_id",args.optString("selected_hardware_id"))
+                            .putExtra("confirm",args.optBoolean("confirm")).putExtra("session_epoch",JwdService.sessionEpoch.get()));
+                    result.success("{}");return;
+                }
                 if(command.equals("recorder_select")){
                     if(runtime.device().optBoolean("busy")||runtime.device().optInt("record_state",-1)>0)throw new IOException("Finish recording and syncing before switching recorders.");
                     String hardware=RecorderOwnership.canonical(args.getString("hardware_id"));
