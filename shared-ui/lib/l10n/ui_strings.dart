@@ -19,6 +19,9 @@ String statusText(BuildContext context, String source) {
   final chinese =
       Localizations.maybeLocaleOf(context)?.languageCode == 'zh';
   String look(String text) => ui(context, text);
+  if (value == 'Recorder authorization timed out. Check the original key.') {
+    return look('No device-code response after 15 seconds. Retry the connection.');
+  }
 
   final uploading = RegExp(r'^Uploading (\d+)%$').firstMatch(value);
   if (uploading != null) {

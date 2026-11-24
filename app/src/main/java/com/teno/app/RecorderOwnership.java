@@ -8,7 +8,7 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
 
-/** Owns authorization transitions; no UI or ordinary connect path can send a new key. */
+/** Separates daily account-key authorization from operations that require protocol identity. */
 final class RecorderOwnership {
     interface Port {
         void sendKey(String key); void verifyIdentity(); void reconnect(); void inventory(); void unbind();
@@ -20,9 +20,8 @@ final class RecorderOwnership {
     private String owner="",address="",name="",hardware="",stage="",auth="",before="";
     private volatile long generation;
     private boolean running,requesting;
-    private String rejectedClaimHardware="";
-    private boolean compatibility;
-    private String pairingKey="",expectedIdentity="";
+    private String directState="", directKey="";
+    private boolean dailyOnline;
     private String operationDevice="",operationTicket="",operationOwner="";
     private boolean operationIdentityRead,operationProof;
     String state="disconnected",message="";
@@ -40,80 +39,117 @@ final class RecorderOwnership {
     }
     JSONObject view(){JSONObject value=new JSONObject();try{value.put("state",state).put("message",message).put("hardware_id",hardware).put("recorder",recorder)
         .put("operation_id",operation.optString("id")).put("stage",stage).put("busy",requesting||running).put("claim_required",state.equals("claim_required"));}catch(Exception ignored){}return value;}
-    boolean blocked(){return running||requesting||!state.equals("owned")&&!state.equals("offline_owned");}
-    boolean changing(){return running||compatibility;}
-    boolean pairing(){return compatibility;}
-    boolean pendingOperation(){return running&&!compatibility;}
+    boolean blocked(){return running||requesting||!state.equals("authorized")&&!state.equals("owned")&&!state.equals("offline_owned");}
+    boolean changing(){return running||!directState.isEmpty();}
+    boolean authorizingDaily(){return !directState.isEmpty();}
+    boolean pendingOperation(){return running;}
     String hardware(){return hardware;}
-    private void clearPairing(){compatibility=false;pairingKey="";expectedIdentity="";}
+    private void clearDaily(){directState="";directKey="";dailyOnline=false;}
+    String syncIdentity(){return !hardware.isEmpty()?hardware:recorder.optString("hardware_id");}
+    private String offlineGuard(String route){return "jwd.authorization_blocked."+owner+"."+route;}
     private void clearOperationDevice(){operationDevice="";operationTicket="";operationOwner="";operationProof=false;operationIdentityRead=false;}
-    void cancel(){clearOperationDevice();clearPairing();generation++;running=false;requesting=false;auth="";state="disconnected";}
-    void connectionAttempt(){clearPairing();generation++;requesting=false;auth="";if(!running){hardware="";state="disconnected";}}
+    void cancel(){clearOperationDevice();clearDaily();generation++;running=false;requesting=false;auth="";state="disconnected";}
+    void connectionAttempt(){clearDaily();generation++;requesting=false;auth="";if(!running){hardware="";recorder=new JSONObject();state="disconnected";}}
     void dispose(){cancel();network.shutdownNow();}
     private void update(String state,String message){this.state=state;this.message=message;port.changed();}
     private String journal(){return "jwd.operation."+owner;}
     private void persist()throws Exception{operation.put("local_stage",stage).put("files_before",before);store.secure(journal(),operation.toString());}
-    void fail(String text){boolean pairing=compatibility;clearOperationDevice();clearPairing();generation++;running=false;requesting=false;auth="";update(pairing?"pairing_failed":"recovery_required",text);port.close(text);}
+    void fail(String text){boolean daily=authorizingDaily();clearOperationDevice();clearDaily();generation++;running=false;requesting=false;auth="";update(daily?"authorization_failed":"recovery_required",text);port.close(text);}
     interface Done{void accept(JSONObject value)throws Exception;}
     private void api(String path,JSONObject body,Done done,Done offline){
-        long ticket=++generation;String scope=store.scope();requesting=true;port.changed();
+        long ticket=++generation;String scope=store.scope();boolean daily=authorizingDaily();requesting=true;port.changed();
         network.execute(()->{JSONObject value=null;Exception failure=null;
             if(ticket!=generation||!scope.equals(store.scope())||JwdService.accountClosing)return;
-            try{Api api=new Api(store);value=body==null?api.get(path):api.post(path,body);}catch(Exception e){failure=e;}
+            try{Api api=daily?new Api(store,4000,6500):new Api(store);value=body==null?api.get(path):api.post(path,body);}catch(Exception e){failure=e;}
             JSONObject result=value;Exception error=failure;handler.post(()->{
                 if(ticket!=generation||!scope.equals(store.scope())||store.token("access_token").isEmpty()||JwdService.accountClosing)return;
                 requesting=false;
-                try{if(error==null)done.accept(result);else if(offline!=null&&!(error instanceof Api.Failure))offline.accept(new JSONObject());else fail(error.getMessage());}
+                try{
+                    String gate="device."+address;
+                    if(error==null){
+                        done.accept(result);
+                    }else if(offline!=null&&error instanceof IOException&&!(error instanceof Api.Failure)
+                            &&store.secure(offlineGuard(gate)).isEmpty()&&store.secure(offlineGuard("account")).isEmpty()){
+                        offline.accept(new JSONObject());
+                    }else{
+                        if(daily&&error instanceof Api.Failure&&((Api.Failure)error).status<500){
+                            store.secure(offlineGuard(gate),"blocked");
+                            if(path.endsWith("/connection-key")&&"RECORDER_OPERATION_PENDING".equals(((Api.Failure)error).code))
+                                store.secure(offlineGuard("account"),"blocked");
+                        }
+                        fail(error.getMessage());
+                    }
+                }
                 catch(Exception e){fail(e.getMessage());}
             });
         });
     }
-    void compatibility(String address,String name,String selected)throws Exception{
-        if(requesting||compatibility)throw new IOException("Wait for the current recorder request.");
-        if(running){
-            String target=canonical(operation.getJSONObject("recorder").getString("hardware_id"));
-            String cached=store.recorderIdentity(address).optString("hardware_id");
-            if(!cached.isEmpty()&&!target.equals(canonical(cached)))throw new IOException("Recorder identity could not be verified.");
-            boolean chosen=selected!=null&&!selected.isEmpty()&&target.equals(canonical(selected))&&target.equals(store.selectedRecorder());
-            if(cached.isEmpty()&&!chosen&&!address.equals(operation.optString("verified_radio")))
-                throw new IOException("Select the registered recorder for this operation.");
-            operationDevice=address;operationTicket=operation.getString("id");operationOwner=store.scope();operationProof=false;
-            this.address=address;this.name=name;operationAuthorization();return;
-        }
-        if(!store.secure("jwd.operation."+store.scope()).isEmpty())
+    void authorizeDaily(String address,String name,String original)throws Exception{
+        if(running||requesting||!store.secure("jwd.operation."+store.scope()).isEmpty())
             throw new IOException("Continue the pending recorder operation.");
-        this.address=address;this.name=name;owner=store.scope();hardware="";recorder=new JSONObject();operation=new JSONObject();
-        String cached=store.recorderIdentity(address).optString("hardware_id");
-        expectedIdentity=cached.isEmpty()?"":canonical(cached);
-        if(selected!=null&&!selected.isEmpty()){
-            String requested=canonical(selected);
-            if(!requested.equals(store.selectedRecorder())||!expectedIdentity.isEmpty()&&!requested.equals(expectedIdentity))
-                throw new IOException("Recorder identity could not be verified.");
-            expectedIdentity=requested;
-        }
-        compatibility=true;update("checking","Checking recorder ownership");
-        if(expectedIdentity.isEmpty()){
-            api("/api/v1/recorders/pairing-key",new JSONObject().put("confirm",true),this::sendPairingKey,null);
+        this.address=address;this.name=name;owner=store.scope();hardware="";operation=new JSONObject();
+        recorder=store.recorderIdentity(address);
+        String cachedKey=store.deviceKey(address);
+        String known=recorder.optString("hardware_id");
+        dailyOnline=false;directState=known.isEmpty()?"authorized":"owned";
+        update("checking","Connected. Checking device key…");
+        Done offline=ignored->{
+            String receipt=store.secure("jwd.accepted."+owner+"."+address);
+            boolean previouslyAccepted=receipt.isEmpty()?address.equals(store.recorderAddress()):receipt.equals(inventoryHash(Collections.singletonList(cachedKey)));
+            if(!previouslyAccepted||cachedKey.isEmpty()||!original.isEmpty()&&!original.equals(cachedKey))
+                throw new IOException("Connect to the internet to restore recorder authorization.");
+            if(!known.isEmpty())directState="offline_owned";
+            sendDaily(cachedKey);
+        };
+        if(known.isEmpty()){
+            String candidate=original.isEmpty()?cachedKey:original;
+            JSONObject request=new JSONObject();
+            if(!candidate.isEmpty()){
+                if(!JwdProtocol.validKey(candidate))throw new IOException("Enter a 16-character key using letters and numbers");
+                request.put("original_key",candidate);
+            }
+            api("/api/v1/recorders/connection-key",request,value->{
+                dailyOnline=true;sendDaily(value.getString("device_key"));
+            },offline);
         }else{
-            api("/api/v1/recorders/resolve",new JSONObject().put("hardware_id",expectedIdentity),result->{
-                if(!"owned".equals(result.optString("state")))throw new IOException("The recorder's ownership could not be verified.");
-                restoreForPairing(result,expectedIdentity,this::sendPairingKey);
-            },null);
+            String expected=canonical(known);
+            api("/api/v1/recorders/resolve",new JSONObject().put("hardware_id",expected),result->{
+                if(!"owned".equals(result.optString("state"))){
+                    store.secure(offlineGuard("device."+address),"blocked");
+                    throw new IOException("Ask the owner to transfer this recorder.");
+                }
+                JSONObject item=result.getJSONObject("recorder");
+                if(!expected.equals(canonical(item.getString("hardware_id")))||!item.isNull("operation_id")&&!item.optString("operation_id").isEmpty()){
+                    store.secure(offlineGuard("device."+address),"blocked");
+                    throw new IOException("Continue the pending recorder operation.");
+                }
+                restoreDaily(item,expected,original,offline);
+            },offline);
         }
     }
-    private void restoreForPairing(JSONObject result,String actual,Done callback)throws Exception{
-        JSONObject item=result.getJSONObject("recorder");
-        if(!actual.equals(canonical(item.getString("hardware_id")))||!item.isNull("operation_id")&&!item.optString("operation_id").isEmpty())
-            throw new IOException("Continue the pending recorder operation.");
-        api("/api/v1/recorders/"+item.getString("id")+"/restore",new JSONObject(),restored->{
-            if(!actual.equals(canonical(restored.getString("hardware_id"))))throw new IOException("Recorder identity could not be verified.");
-            callback.accept(restored);
-        },null);
+    private void restoreDaily(JSONObject item,String expected,String original,Done offline)throws Exception{
+        api("/api/v1/recorders/"+item.getString("id")+"/restore",new JSONObject(),result->{
+            if(!expected.equals(canonical(result.getString("hardware_id"))))throw new IOException("Recorder identity could not be verified.");
+            String key=result.getString("device_key");
+            if(!original.isEmpty()&&!original.equals(key))throw new IOException("The original key does not match this account's recorder.");
+            recorder=new JSONObject(result.toString());recorder.remove("device_key");
+            dailyOnline=true;sendDaily(key);
+        },offline);
     }
-    private void sendPairingKey(JSONObject value)throws Exception{
-        pairingKey=value.getString("device_key");
-        if(!JwdProtocol.validKey(pairingKey))throw new IOException("Recorder authorization could not be verified.");
-        auth="pairing";port.sendKey(pairingKey);
+    private void sendDaily(String key)throws Exception{
+        if(!JwdProtocol.validKey(key))throw new IOException("Enter a 16-character key using letters and numbers");
+        directKey=key;auth="direct";port.sendKey(key);
+    }
+    void compatibility(String address,String name,String selected)throws Exception{
+        if(requesting||!running)throw new IOException("Continue the pending recorder operation.");
+        String target=canonical(operation.getJSONObject("recorder").getString("hardware_id"));
+        String cached=store.recorderIdentity(address).optString("hardware_id");
+        if(!cached.isEmpty()&&!target.equals(canonical(cached)))throw new IOException("Recorder identity could not be verified.");
+        boolean chosen=selected!=null&&!selected.isEmpty()&&target.equals(canonical(selected))&&target.equals(store.selectedRecorder());
+        if(cached.isEmpty()&&!chosen&&!address.equals(operation.optString("verified_radio")))
+            throw new IOException("Select the registered recorder for this operation.");
+        operationDevice=address;operationTicket=operation.getString("id");operationOwner=store.scope();operationProof=false;
+        this.address=address;this.name=name;operationAuthorization();
     }
     void confirmIdentity(String actual)throws Exception{
         if(operationIdentityRead){
@@ -126,34 +162,7 @@ final class RecorderOwnership {
             else operationAccepted();
             return;
         }
-        if(!compatibility||!"pairing_ack".equals(auth))throw new IOException("Confirm the connected recorder first.");
-        if(!expectedIdentity.isEmpty()&&!expectedIdentity.equals(actual)){
-            fail("The recorder returned a different hardware ID. No recordings were accessed.");return;
-        }
-        auth="pairing_verify";hardware=actual;
-        api("/api/v1/recorders/resolve",new JSONObject().put("hardware_id",actual),result->{
-            if("owned".equals(result.optString("state"))){
-                restoreForPairing(result,actual,restored->{
-                    if(!pairingKey.equals(restored.getString("device_key")))throw new IOException("Recorder authorization could not be verified.");
-                    recorder=new JSONObject(restored.toString());recorder.remove("device_key");
-                    store.deviceKey(address,pairingKey);store.recorderIdentity(address,recorder);
-                    clearPairing();auth="owned";accepted();
-                });
-                return;
-            }
-            if(!"claim_required".equals(result.optString("state"))||!expectedIdentity.isEmpty())
-                throw new IOException("Ask the owner to transfer this recorder.");
-            JSONObject claim=new JSONObject().put("client_id",UUID.randomUUID().toString()).put("hardware_id",actual).put("name",name)
-                    .put("confirm_card_recordings",true).put("account_key_only",true);
-            api("/api/v1/recorders/claim",claim,prepared->{
-                operation=prepared;stage="";before="";persist();
-                api("/api/v1/recorders/operations/"+prepared.getString("id")+"/start",new JSONObject(),started->{
-                    if(!pairingKey.equals(started.getString("device_key"))||!actual.equals(canonical(started.getJSONObject("recorder").getString("hardware_id"))))
-                        throw new IOException("Recorder authorization could not be verified.");
-                    operation=started;running=true;persist();clearPairing();auth="claim";complete("");
-                },null);
-            },null);
-        },null);
+        throw new IOException("Confirm the connected recorder first.");
     }
     boolean operationMatches(String address){
         return running&&!operationTicket.isEmpty()&&operationTicket.equals(operation.optString("id"))
@@ -176,15 +185,21 @@ final class RecorderOwnership {
             if(result.optString("state").equals("owned")){
                 recorder=result.getJSONObject("recorder");
                 if(!recorder.isNull("operation_id")&&!recorder.optString("operation_id").isEmpty()){
+                    store.recorderIdentity(address,recorder);store.secure(offlineGuard("device."+address),"blocked");
                     operation=new JSONObject().put("id",recorder.getString("operation_id"));update("recovery_required","Continue the pending recorder operation.");port.close(message);return;
                 }
                 api("/api/v1/recorders/"+recorder.getString("id")+"/restore",new JSONObject(),restored->{
                     recorder=new JSONObject(restored.toString());String key=recorder.getString("device_key");recorder.remove("device_key");
-                    store.deviceKey(address,key);store.recorderIdentity(address,recorder);auth="owned";port.sendKey(key);
+                    if(!actual.equals(canonical(recorder.getString("hardware_id"))))throw new IOException("Recorder identity could not be verified.");
+                    directState="owned";dailyOnline=true;sendDaily(key);
                 },null);
             }else if(result.optString("state").equals("claim_required")){
                 operation=new JSONObject();recorder=new JSONObject();update("claim_required","Confirm this recorder and its existing recordings.");
-            }else{store.forgetRecorder(address);update("transfer_required","Ask the owner to transfer this recorder.");port.close(message);}
+            }else{
+                store.recorderIdentity(address,new JSONObject().put("hardware_id",actual));
+                store.forgetRecorder(address);store.secure(offlineGuard("device."+address),"blocked");
+                update("transfer_required","Ask the owner to transfer this recorder.");port.close(message);
+            }
         },ignored->{
             JSONObject cached=store.recorderIdentity(address);
             if(!actual.equals(cached.optString("hardware_id"))||store.deviceKey(address).isEmpty())throw new IOException("Connect to the internet to restore recorder authorization.");
@@ -194,7 +209,7 @@ final class RecorderOwnership {
     }
     void claim(String original,boolean confirmed)throws Exception{
         if(!confirmed||!state.equals("claim_required")||requesting)throw new IOException("Confirm the connected recorder first.");
-        if(original.isEmpty()&&hardware.equals(rejectedClaimHardware))original=store.deviceKey(address);
+        if(original.isEmpty())original=store.deviceKey(address);
         if(!original.isEmpty()&&!JwdProtocol.validKey(original))throw new IOException("Enter a 16-character key using letters and numbers");
         JSONObject body=new JSONObject().put("client_id",UUID.randomUUID().toString()).put("hardware_id",hardware).put("name",name).put("confirm_card_recordings",true);
         if(!original.isEmpty())body.put("original_key",original);
@@ -225,12 +240,23 @@ final class RecorderOwnership {
         else{auth="new";port.sendKey(operation.getString("device_key"));}
     }
     void accepted()throws Exception{
-        if(compatibility&&auth.equals("pairing")){auth="pairing_ack";port.verifyIdentity();return;}
+        if(authorizingDaily()&&auth.equals("direct")){
+            if(!owner.equals(store.scope())||store.token("access_token").isEmpty()||JwdService.accountClosing)return;
+            store.deviceKey(address,directKey);
+            store.secure("jwd.accepted."+owner+"."+address,inventoryHash(Collections.singletonList(directKey)));
+            if(dailyOnline){
+                store.secure(offlineGuard("device."+address),"");
+                if(directState.equals("authorized"))store.secure(offlineGuard("account"),"");
+            }
+            if(!recorder.optString("hardware_id").isEmpty())store.recorderIdentity(address,recorder);
+            store.selectRecorder(recorder.optString("hardware_id"));store.rememberRecorder(address,name);
+            String completed=directState;clearDaily();auth="";update(completed,"Recorder connected");port.ready();return;
+        }
         if(operationMatches(address)){operationIdentityRead=true;port.verifyIdentity();return;}
         operationAccepted();
     }
     private void operationAccepted()throws Exception{
-        if(auth.equals("owned")||auth.equals("offline_owned")){update(auth,"Recorder connected");store.selectRecorder(hardware);store.rememberRecorder(address,name);port.ready();return;}
+        if(auth.equals("offline_owned")){update(auth,"Recorder connected");store.selectRecorder(hardware);store.rememberRecorder(address,name);port.ready();return;}
         if(auth.equals("claim")){complete("");return;}
         if(auth.equals("reject_old")){fail("The previous authorization is still accepted. Transfer was not completed.");return;}
         if(auth.equals("before")){port.inventory();return;}
@@ -240,10 +266,10 @@ final class RecorderOwnership {
         }
     }
     boolean rejected()throws Exception{
-        if(compatibility){fail("The recorder rejected this account's key. Use the original account to check its ownership.");return true;}
+        if(authorizingDaily()){fail("Device key was rejected. Use the original key; the recorder was not reset.");return true;}
         if(running&&auth.equals("claim")){
             api("/api/v1/recorders/operations/"+operation.getString("id")+"/claim-rejected",new JSONObject(),value->{
-                rejectedClaimHardware=hardware;store.secure(journal(),"");operation=new JSONObject();stage="";running=false;
+                store.secure(journal(),"");operation=new JSONObject();stage="";running=false;
                 update("claim_required","Device key was rejected. Use the original key; the recorder was not reset.");port.close(message);
             },null);return true;
         }
@@ -254,7 +280,7 @@ final class RecorderOwnership {
         }
         fail("Device key was rejected. Use the original key; the recorder was not reset.");return true;
     }
-    void disconnected(){if(compatibility)fail("Recorder disconnected before its hardware ID was verified.");else if(running||requesting)fail("Recorder disconnected. Continue the pending operation.");}
+    void disconnected(){if(authorizingDaily())fail("Recorder disconnected before authorization finished.");else if(running||requesting)fail("Recorder disconnected. Continue the pending operation.");}
     interface Next{void run()throws Exception;}
     private void checkpoint(String next,Next action)throws Exception{
         api("/api/v1/recorders/operations/"+operation.getString("id")+"/checkpoint",new JSONObject().put("stage",next).put("files_before",before),value->{stage=next;persist();action.run();},null);
@@ -274,7 +300,7 @@ final class RecorderOwnership {
         api("/api/v1/recorders/operations/"+operation.getString("id")+"/complete",proof,value->{
             boolean claim=operation.optString("kind").equals("claim");String key=operation.optString("device_key");
             running=false;clearOperationDevice();recorder=value.getJSONObject("recorder");store.secure(journal(),"");operation=new JSONObject();stage="";
-            if(claim){rejectedClaimHardware="";store.deviceKey(address,key);store.recorderIdentity(address,recorder);store.selectRecorder(hardware);store.rememberRecorder(address,name);update("owned","Recorder connected");port.ready();}
+            if(claim){store.deviceKey(address,key);store.recorderIdentity(address,recorder);store.selectRecorder(hardware);store.rememberRecorder(address,name);update("owned","Recorder connected");port.ready();}
             else{store.forgetRecorder(address);update("completed","Recorder operation completed");port.close(message);}
         },null);
     }

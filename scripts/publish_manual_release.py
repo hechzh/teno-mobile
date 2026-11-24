@@ -16,12 +16,12 @@ from report_development import ROOT, words, sha, configuration, send
 from showcase import prepare as prepare_showcase, publish as publish_showcase
 
 VERSION = '0.9.5'
-CODE = 26
+CODE = 27
 NOTES = ROOT / f'RELEASE-{VERSION}.txt'
 IOS_NOTES = ROOT / 'RELEASE-0.9.4.txt'
 MANIFEST = ROOT / f'dist/Teno-{VERSION}-manifest.json'
 APK = ROOT / f'dist/Teno-{VERSION}.apk'
-SCREEN = ROOT / f'verification/v{VERSION}/templates-zh-360.png'
+SCREEN = ROOT / f'verification/v{VERSION}/build{CODE}/device-code.png'
 IOS_DIST = ROOT.parent / 'android-ios1431/dist'
 IOS_IPA = IOS_DIST / 'Teno-iOS-1.0-build17-unsigned.ipa'
 IOS_SOURCE = IOS_DIST / 'Teno-iOS-1.0-build17-Xcode.zip'
@@ -54,17 +54,17 @@ def android():
         raise ValueError('Manifest does not match the selected Android package')
     report = {
         'platform': 'android', 'version': VERSION,
-        'build_number': f'manual-{VERSION}-' + sha(MANIFEST)[:12] + '-android',
+        'build_number': f'manual-{VERSION}-build{CODE}-' + sha(MANIFEST)[:12] + '-android',
         'commit': manifest['source_commit'], 'occurred_at': manifest['packaged_at'],
         'outcome': 'passed', 'implementation': 'implemented',
         'physical': 'pending', 'distribution': 'internal',
-        'title': words(f'Android {VERSION} / {CODE} 录音摘要模板与录音卡连接',
-                       f'Android {VERSION} / {CODE} recording templates and recorder discovery'),
+        'title': words(f'Android {VERSION} / {CODE} 录音卡自动验证设备码',
+                       f'Android {VERSION} / {CODE} automatic recorder code verification'),
         'changes': manifest['changes'],
         'modules': [
             {'key': 'summary', 'scope': words('首页默认模板与逐次选择摘要模板', 'Home default and explicit recording template choice'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机交互验收', 'Physical handset interaction')},
-            {'key': 'recording', 'scope': words('录音卡发现、服务校验与账号授权', 'Recorder discovery, service checks and account authorization'),
+            {'key': 'recording', 'scope': words('录音卡设备码自动验证、原码恢复与可选云登记', 'Automatic recorder code verification, original-code recovery and optional cloud registration'),
              'implementation': 'implemented', 'verification': 'partial', 'pending': words('真实录音卡首次连接与历史绑定重连', 'Physical first connection and reconnection of previously bound recorders')},
             {'key': 'distribution', 'scope': words('APK 包名、版本和原签名', 'APK identity, version and original signer'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机覆盖安装', 'Physical in-place upgrade')},
@@ -77,14 +77,14 @@ def android():
         'dependency': words('共享后端 1.8.0 的录音卡账号授权更新。', 'Recorder account authorization update on shared backend 1.8.0.'),
         'assets': [],
     }
-    files = [evidence(APK, 'apk', f'Android {VERSION} 原签名包', f'Android {VERSION} original-signer APK'),
+    files = [{**evidence(APK, 'apk', f'Android {VERSION} / {CODE} 原签名包', f'Android {VERSION} / {CODE} original-signer APK'),
+              'filename': f'Teno-{VERSION}-build{CODE}.apk'},
              evidence(NOTES, 'evidence', '发布说明', 'Release notes'),
              {**evidence(MANIFEST, 'evidence', '构建清单（JSON 文本）', 'Build manifest (JSON text)'),
-              'filename': f'Teno-{VERSION}-manifest.txt'},
-             evidence(SCREEN, 'screenshot', '模板选择页（中文 360dp）', 'Template picker (Chinese, 360dp)'),
-             evidence(SCREEN.parent / 'home.png', 'screenshot', '首页账号默认模板', 'Home default template'),
-             evidence(SCREEN.parent / 'recording-notes.png', 'screenshot', '录音标题下追加笔记', 'Add a note below the recording title'),
-             evidence(SCREEN.parent / 'recorder-confirm.png', 'screenshot', '身份读取超时后确认实物', 'Confirm physical recorder after identity timeout')]
+              'filename': f'Teno-{VERSION}-build{CODE}-manifest.txt'},
+             evidence(SCREEN, 'screenshot', '自动验证设备码', 'Automatic device-code verification'),
+             evidence(SCREEN.parent / 'verification-timeout.png', 'screenshot', '设备码验证超时重试', 'Retry after a device-code timeout'),
+             evidence(SCREEN.parent / 'current-recorder.png', 'screenshot', '本机已连接的录音卡', 'Recorder connected to this phone')]
     return {'report': report, 'files': files}
 
 
@@ -146,7 +146,7 @@ def main():
     parser.add_argument('--prepare-only', action='store_true')
     parser.add_argument('--skip-ios', action='store_true')
     parser.add_argument('--no-showcase', action='store_true')
-    parser.add_argument('--showcase-gallery', type=Path)
+    parser.add_argument('--showcase-gallery', type=Path, default=ROOT / f'design-baseline/v{VERSION}/build{CODE}')
     parser.add_argument('--showcase-only', action='store_true')
     parser.add_argument('--build-id')
     parser.add_argument('--output', type=Path, default=Path.home() / '.teno/development-releases/manual')

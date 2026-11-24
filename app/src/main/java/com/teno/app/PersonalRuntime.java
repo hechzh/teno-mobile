@@ -58,6 +58,12 @@ final class PersonalRuntime {
                             .putExtra("confirm",args.optBoolean("confirm")).putExtra("session_epoch",JwdService.sessionEpoch.get()));
                     result.success("{}");return;
                 }
+                if(command.equals("recorder_register_connected")){
+                    runtime.signedIn();
+                    activity.startForegroundService(new Intent(activity,JwdService.class).setAction("ownership_register")
+                            .putExtra("session_epoch",JwdService.sessionEpoch.get()));
+                    result.success("{}");return;
+                }
                 if(command.equals("recorder_select")){
                     if(runtime.device().optBoolean("busy")||runtime.device().optInt("record_state",-1)>0)throw new IOException("Finish recording and syncing before switching recorders.");
                     String hardware=RecorderOwnership.canonical(args.getString("hardware_id"));

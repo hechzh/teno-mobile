@@ -19,7 +19,7 @@ final class RecorderOwnershipChecks implements AutoCloseable {
     final String mac="A0B1C2D3E4F5",address="A0:B1:C2:D3:E4:F0",oldKey="OriginalCode1234",newKey="Transferred12345";
     final List<String> commands=new CopyOnWriteArrayList<>();final List<String> checkpoints=new CopyOnWriteArrayList<>();
     volatile String bound=oldKey,op="claim-fixture",state="prepared",stage="",before="",claimKey="";
-    volatile boolean owned,completeLoss;volatile int rejected,completes,downloads;
+    volatile boolean owned,completeLoss,reportIdentity;volatile int rejected,completes,downloads;
     byte[] audio;JwdService service;Handler handler;String snapshot;
     interface Work{void run()throws Exception;}
     RecorderOwnershipChecks(RuntimeInstrumentation test)throws Exception{
@@ -37,12 +37,11 @@ final class RecorderOwnershipChecks implements AutoCloseable {
     JSONObject recorder()throws Exception{return new JSONObject().put("id","recorder-fixture").put("hardware_id",mac).put("name","Synthetic recorder").put("epoch",owned?1:2);}
     JSONObject operation()throws Exception{return new JSONObject().put("id",op).put("kind",op.startsWith("claim")?"claim":"release").put("state",state).put("recorder",recorder()).put("checkpoint",new JSONObject().put("stage",stage).put("files_before",before));}
     JSONObject respond(String path,JSONObject body)throws Exception{
+        if(path.endsWith("/connection-key"))return new JSONObject().put("device_key",body.optString("original_key","AccountCode12345"));
         if(path.endsWith("/resolve"))return new JSONObject().put("state",owned?"owned":"claim_required").put("recorder",recorder());
         if(path.endsWith("/claim")){
-            boolean retry=state.equals("cancelled");
-            test.check(body.optBoolean("confirm_card_recordings")&&(retry?body.optString("original_key").equals(oldKey):!body.has("original_key")),
-                    retry?"confirmed_retry_uses_saved_original_key_after_rejection":"new_claim_requests_account_key_despite_cached_legacy_key");
-            claimKey=retry?oldKey:"AccountCode12345";op="claim-fixture";state="prepared";return operation();
+            test.check(body.optBoolean("confirm_card_recordings")&&body.optString("original_key").equals(oldKey),"optional_registration_preserves_key_accepted_by_card");
+            claimKey=oldKey;op="claim-fixture";state="prepared";return operation();
         }
         if(path.endsWith("/restore"))return recorder().put("device_key",oldKey);
         if(path.endsWith("/claim-rejected")){state="cancelled";return operation();}
@@ -58,7 +57,7 @@ final class RecorderOwnershipChecks implements AutoCloseable {
     void onService(Work work)throws Exception{CountDownLatch done=new CountDownLatch(1);AtomicReference<Throwable> error=new AtomicReference<>();handler.post(()->{try{work.run();}catch(Throwable e){error.set(e);}finally{done.countDown();}});if(!done.await(5,TimeUnit.SECONDS))throw new IOException("Handler timeout");if(error.get()!=null)throw new IOException(error.get());}
     void reply(String value){service.command(value.getBytes(StandardCharsets.US_ASCII));}
     void ble(String command){commands.add(command);handler.postDelayed(()->{try{
-        if(command.equals("APP&MAC"))reply("MCU&MAC&"+mac);
+        if(command.equals("APP&MAC")){if(reportIdentity)reply("MCU&MAC&"+mac);}
         else if(command.startsWith("APP&SK&")){String key=command.substring(7);if(bound.isEmpty())bound=key;if(bound.equals(key))reply("MCU&SK&OK");else{rejected++;reply("MCU&SK&ERR");}}
         else if(command.equals("APP&BLE&OFF")){bound="";service.closed("Synthetic unbind disconnect");}
         else if(command.equals("APP&RT"))reply("MCU&RT&0");
@@ -79,30 +78,27 @@ final class RecorderOwnershipChecks implements AutoCloseable {
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();bytes.write(JwdAudio.wavHeader(64000));bytes.write(new byte[64000]);audio=bytes.toByteArray();
             service=new JwdService();java.lang.reflect.Method attach=ContextWrapper.class.getDeclaredMethod("attachBaseContext",Context.class);attach.setAccessible(true);attach.invoke(service,context);test.runOnMainSync(service::onCreate);handler=(Handler)JwdAutomaticChecks.get(service,"handler");
             onService(()->{
-                JwdAutomaticChecks.set(service,"ble",new JwdTransport(){public void connect(BluetoothDevice device){handler.post(service::ready);}public void probe(BluetoothDevice device){}public void close(){}public void send(String value){ble(value);}});
-                JwdAutomaticChecks.set(service,"address",address);JwdAutomaticChecks.set(service,"deviceName","Synthetic recorder");JwdAutomaticChecks.set(service,"connectionOwner",store.scope());JwdAutomaticChecks.set(service,"connectionEpoch",JwdService.sessionEpoch.get());JwdService.accountClosing=false;service.ready();
+                JwdAutomaticChecks.set(service,"ble",new JwdTransport(){public void connect(BluetoothDevice device){handler.post(()->{service.stage("jwd_service_verified");service.ready();});}public void probe(BluetoothDevice device){}public void close(){}public void send(String value){ble(value);}});
+                JwdAutomaticChecks.set(service,"address",address);JwdAutomaticChecks.set(service,"deviceName","Synthetic recorder");JwdAutomaticChecks.set(service,"connectionOwner",store.scope());JwdAutomaticChecks.set(service,"connectionEpoch",JwdService.sessionEpoch.get());JwdService.accountClosing=false;service.stage("jwd_service_verified");service.ready();
             });
-            test.until(()->new JSONObject(JwdService.snapshot).getJSONObject("ownership").optBoolean("claim_required"));
-            test.check(commands.contains("APP&MAC")&&commands.stream().noneMatch(s->s.startsWith("APP&SK")),"identity_is_read_before_any_authorization_write");
-            bound="OtherOriginal123";
-            action("ownership_claim",new JSONObject().put("confirm",true));
-            test.until(()->state.equals("cancelled"));
-            test.until(()->new JSONObject(JwdService.snapshot).getJSONObject("ownership").optString("state").equals("claim_required"));
-            test.check(!owned&&bound.equals("OtherOriginal123"),"explicit_key_rejection_releases_initial_claim_without_changing_card");
-            bound=oldKey;onService(()->service.ready());
-            test.until(()->new JSONObject(JwdService.snapshot).getJSONObject("ownership").optString("state").equals("claim_required")&&new JSONObject(JwdService.snapshot).optBoolean("connected")&&new JSONObject(JwdService.snapshot).optString("pending").isEmpty());
-            action("ownership_claim",new JSONObject().put("confirm",true));
-            test.until(()->owned&&new JSONObject(JwdService.snapshot).optBoolean("authorized"));
-            test.until(()->store.drafts().length()>0&&!new JSONObject(JwdService.snapshot).optBoolean("busy"));
-            test.check(store.deviceKey(address).equals(oldKey)&&store.recorderIdentity(address).optString("hardware_id").equals(mac),"original_key_and_verified_identity_are_saved_together");
+            test.until(()->new JSONObject(JwdService.snapshot).optBoolean("authorized")&&store.drafts().length()>0&&!new JSONObject(JwdService.snapshot).optBoolean("busy"));
+            test.check(commands.get(0).equals("APP&SK&"+oldKey)&&!commands.contains("APP&MAC"),"daily_connection_saves_audio_without_a_hardware_id");
+            test.check(commands.contains("APP&LIST_DIRS")&&downloads==1&&store.recorderIdentity(address).optString("hardware_id").isEmpty(),"files_sync_after_key_ack_without_cloud_registration");
             JSONObject local=store.drafts().getJSONObject(0);
-            test.check(local.optString("upload_client_id").equals("jwd-"+JwdAudio.hash((mac+"\nfixture\nsample.wav\n"+JwdAudio.hash(audio)).getBytes(StandardCharsets.UTF_8))),"cross_phone_upload_identity_uses_protocol_identity_and_complete_file_hash");
+            action("ownership_register",new JSONObject());
+            test.until(()->new JSONObject(JwdService.snapshot).optString("message").equals(JwdService.REGISTRATION_UNAVAILABLE));
+            test.check(new JSONObject(JwdService.snapshot).optBoolean("authorized")&&new JSONObject(JwdService.snapshot).getJSONObject("ownership").optString("state").equals("authorized"),"optional_registration_timeout_keeps_normal_connection");
+            reportIdentity=true;action("ownership_register",new JSONObject());
+            test.until(()->new JSONObject(JwdService.snapshot).getJSONObject("ownership").optBoolean("claim_required"));
+            action("ownership_claim",new JSONObject().put("confirm",true));
+            test.until(()->owned&&new JSONObject(JwdService.snapshot).optBoolean("authorized")&&!new JSONObject(JwdService.snapshot).optBoolean("busy"));
+            test.check(store.deviceKey(address).equals(oldKey)&&store.recorderIdentity(address).optString("hardware_id").equals(mac),"only_explicit_registration_saves_verified_identity");
             test.check(!local.optBoolean("upload_requested"),"ownership_registration_keeps_explicit_cloud_off");
             op="release-fixture";state="ready";stage="";before="";completeLoss=true;
             action("ownership_operation",new JSONObject().put("operation_id",op));
             test.until(()->state.equals("completed")&&!owned&&completes==2);
             test.until(()->new JSONObject(JwdService.snapshot).getJSONObject("ownership").optString("state").equals("recovery_required"));
-            test.check(bound.equals(newKey)&&rejected==2&&checkpoints.contains("old_key_rejected"),"new_key_is_accepted_and_old_key_is_explicitly_rejected");
+            test.check(bound.equals(newKey)&&rejected==1&&checkpoints.contains("old_key_rejected"),"new_key_is_accepted_and_old_key_is_explicitly_rejected");
             test.check(commands.stream().noneMatch(s->s.contains("RESET")||s.equals("APP&STA")),"transfer_never_formats_or_starts_recording");
             action("ownership_operation",new JSONObject().put("operation_id",op));
             test.until(()->new JSONObject(JwdService.snapshot).getJSONObject("ownership").optString("state").equals("completed"));

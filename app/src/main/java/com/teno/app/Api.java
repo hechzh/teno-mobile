@@ -13,7 +13,9 @@ public final class Api {
     void cancel(){cancelled=true;HttpURLConnection c=activeConnection;if(c!=null)c.disconnect();}
     private static final Object REFRESH_LOCK=new Object();
     private static final Object PREFERENCES_LOCK=new Object();
-    public Api(Store s){store=s;}
+    private final int connectTimeout, readTimeout;
+    public Api(Store s){this(s,20000,90000);}
+    Api(Store s,int connectTimeout,int readTimeout){store=s;this.connectTimeout=connectTimeout;this.readTimeout=readTimeout;}
     public static class Failure extends IOException{
         public final int status;public final String code;
         Failure(int s,String code,String message){super(message);status=s;this.code=code;}
@@ -26,7 +28,7 @@ public final class Api {
     }
     private HttpURLConnection open(String path,String method,String token)throws Exception{
         if(cancelled)throw new IOException("Upload paused for account change.");
-        HttpURLConnection c=(HttpURLConnection)new URL(store.base()+path).openConnection();c.setRequestMethod(method);c.setConnectTimeout(20000);c.setReadTimeout(90000);c.setInstanceFollowRedirects(false);
+        HttpURLConnection c=(HttpURLConnection)new URL(store.base()+path).openConnection();c.setRequestMethod(method);c.setConnectTimeout(connectTimeout);c.setReadTimeout(readTimeout);c.setInstanceFollowRedirects(false);
         activeConnection=c;if(cancelled){c.disconnect();throw new IOException("Upload paused for account change.");}
         c.setRequestProperty("Accept","application/json");c.setRequestProperty("Origin",store.base());if(!token.isEmpty())c.setRequestProperty("Authorization","Bearer "+token);return c;
     }

@@ -54,9 +54,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', required=True)
     parser.add_argument('--template')
+    parser.add_argument('--output', type=Path, help='Build-specific gallery directory')
     args = parser.parse_args()
     version = args.version
-    root = BASE / f'v{version}'
+    root = args.output or BASE / f'v{version}'
     if not (root / 'screenshots' / 'android').is_dir():
         raise SystemExit(f'Run the Flutter screenshots first: {root}/screenshots/android')
     template = Path(args.template) if args.template else latest_template(version)

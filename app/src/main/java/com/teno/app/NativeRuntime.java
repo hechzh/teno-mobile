@@ -190,15 +190,12 @@ final class NativeRuntime implements RuntimeHost {
         });
     }
     @Override public void bindDevice(String id,String name,String key,Boolean createNew,VoidResult result){
-        work(new Result<Boolean>(){public void error(Throwable e){result.error(e);}public void success(Boolean value){ui(result,()->sendDevice(DeviceAction.CONNECT,id,name));}},()->{
+        ui(result,()->{
             signedIn();if(JwdService.accountClosing)throw new IOException("Sign in to continue.");
-            boolean verified=false;JSONArray candidates=device().optJSONArray("devices");
-            if(candidates!=null)for(int i=0;i<candidates.length();i++){JSONObject d=candidates.getJSONObject(i);if(id.equals(d.optString("address"))&&d.optString("gatt_status").equals("verified"))verified=true;}
-            if(!verified)throw new IOException("Check the recorder service before saving a device key.");
-            String value=key;if(createNew){
-                throw new IOException("Confirm the connected recorder first.");
-            }
-            store.deviceKey(id,value);return true;
+            if(createNew||!JwdProtocol.validKey(key))throw new IOException("Enter a 16-character key using letters and numbers");
+            activity.startForegroundService(new Intent(activity,JwdService.class).setAction("connect")
+                    .putExtra("address",id).putExtra("name",name).putExtra("original_key",key)
+                    .putExtra("session_epoch",JwdService.sessionEpoch.get()));
         });
     }
     @Override public void showDeviceKey(VoidResult result){media.showDeviceKey(result);}

@@ -71,7 +71,10 @@ public final class Store {
         if(!prefs.edit().putString("jwd.identity."+scope()+"."+address,value.toString()).commit())throw new IOException("Could not save recorder identity.");
     }
     public void forgetRecorder(String address)throws Exception{
-        secure("jwd.account_key."+scope()+"."+address,"");recorderIdentity(address,new JSONObject());
+        secure("jwd.account_key."+scope()+"."+address,"");
+        // Keep a previously attested hardware ID so an old owner must recheck the server.
+        String known=recorderIdentity(address).optString("hardware_id");
+        recorderIdentity(address,known.isEmpty()?new JSONObject():new JSONObject().put("hardware_id",known));
         prefs.edit().putBoolean("jwd.revoked."+scope()+"."+address,true).putString("jwd.last_address."+scope(),"").remove("jwd.selected."+scope()).commit();
     }
     public synchronized String secure(String name)throws Exception{

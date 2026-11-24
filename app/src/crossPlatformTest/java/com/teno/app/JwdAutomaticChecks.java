@@ -52,12 +52,11 @@ final class JwdAutomaticChecks {
             call.accept(()->service.serviceChecked(true,"Verified synthetic JWD"));
             test.check(store.deviceKey(weak).isEmpty()&&connections.equals(Arrays.asList(weak)),"verified_profile_connects_without_generating_a_new_code");
             String key=JwdProtocol.newKey();store.deviceKey(weak,key);store.recorderIdentity(weak,new JSONObject().put("hardware_id","A0B1C2D3E4F5").put("id","fixture-owned"));
-            call.accept(service::ready);
-            test.until(()->commands.contains("APP&MAC"));
-            test.check(commands.contains("APP&MAC")&&commands.stream().noneMatch(v->v.startsWith("APP&SK&")),"hardware_identity_precedes_key_authorization");
-            call.accept(()->service.command("MCU&MAC&A0B1C2D3E4F5".getBytes(java.nio.charset.StandardCharsets.US_ASCII)));
+            store.rememberRecorder(weak,"Synthetic JWD");
+            call.accept(()->{service.stage("jwd_service_verified");service.stage("gatt_ready");service.ready();});
             test.until(()->commands.contains("APP&SK&"+key));
-            test.check(commands.contains("APP&SK&"+key),"authorization_reads_the_saved_code");
+            test.check(commands.get(0).equals("APP&SK&"+key)&&!commands.contains("APP&MAC"),"verified_service_sends_saved_key_without_reading_identity");
+            test.check(commands.stream().noneMatch(v->v.contains("LIST")),"no_card_files_are_requested_before_authorization");
             call.accept(()->service.command("MCU&SK&ERR".getBytes(java.nio.charset.StandardCharsets.US_ASCII)));
             test.check(store.deviceKey(weak).equals(key)&&connections.size()==1,"rejected_code_is_preserved_without_reset_or_fallthrough");
             JSONObject state=new JSONObject(JwdService.snapshot);

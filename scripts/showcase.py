@@ -161,7 +161,7 @@ def public_web_release():
     return None
 
 
-def acceptance(report: dict, gallery_version: str, stale: bool, pages: list, web):
+def acceptance(report: dict, gallery_version: str, stale: bool, pages: list, web, root: Path):
     version = report['version']
     web = web or {}
     app_ui_base = version
@@ -179,8 +179,8 @@ def acceptance(report: dict, gallery_version: str, stale: bool, pages: list, web
         sources.append({'label': f'Teno {version} release notes', 'reference': notes.name, 'sha256': sha(notes)})
     sources.append({
         'label': f'UI gallery source v{gallery_version}',
-        'reference': f'design-baseline/v{gallery_version}/pages.json',
-        'sha256': sha(ROOT / 'design-baseline' / f'v{gallery_version}' / 'pages.json'),
+        'reference': (root / 'pages.json').relative_to(ROOT).as_posix(),
+        'sha256': sha(root / 'pages.json'),
     })
     checks = [
         {
@@ -227,7 +227,7 @@ def prepare(version: str, commit: str, gallery: str | None = None):
     pages = load_pages(root)
     web = public_web_release()
     report = {'version': version, 'commit': commit}
-    acceptance_value = acceptance(report, gallery_version, stale, pages, web)
+    acceptance_value = acceptance(report, gallery_version, stale, pages, web, root)
     return root, gallery_version, stale, pages, acceptance_value
 
 

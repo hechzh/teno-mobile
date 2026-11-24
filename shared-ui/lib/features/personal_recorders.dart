@@ -18,9 +18,16 @@ String recorderOperationState(String state) => switch (state) {
   _ => state,
 };
 
-class MyRecordersPage extends StatelessWidget {
+class MyRecordersPage extends StatefulWidget {
   const MyRecordersPage(this.model, {super.key});
   final TenoModel model;
+  @override
+  State<MyRecordersPage> createState() => _MyRecordersPageState();
+}
+
+class _MyRecordersPageState extends State<MyRecordersPage> {
+  TenoModel get model => widget.model;
+  int revision = 0;
   Future<Json> load() async {
     final values = await Future.wait([
       model.api('GET', '/api/v1/recorders'),
@@ -181,120 +188,215 @@ class MyRecordersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CoreFrame(
     title: 'My recorders',
-    child: CoreLoad(
-      load: load,
-      builder: (context, data, reload) => ListView(
-        padding: const EdgeInsets.all(coreInset),
-        children: [
-          const UiText(
-            'One account can own several recorders. Each recorder belongs to one account at a time.',
+    child: Column(
+      children: [
+        if (!model.webExperience)
+          AnimatedBuilder(
+            animation: model,
+            builder: (context, _) {
+              final device = model.runtime?.device;
+              if (!model.signedIn ||
+                  device == null ||
+                  !device.connected ||
+                  !device.authorized) {
+                return const SizedBox.shrink();
+              }
+              final idle =
+                  !device.busy && !device.receiving && !model.capturing;
+              return _CurrentRecorder(
+                key: ValueKey((
+                  model.runtime!.session.scope,
+                  device.identifier,
+                  idle,
+                  revision,
+                )),
+                model: model,
+                idle: idle,
+                reload: () {
+                  if (mounted) setState(() => revision++);
+                },
+              );
+            },
           ),
-          if (model.webExperience)
-            const Padding(
-              padding: EdgeInsets.only(top: 12),
-              child: UiText(
-                'Use the mobile app with your recorder nearby to register, restore or transfer it.',
-              ),
+        Expanded(child: cloudRecorders()),
+      ],
+    ),
+  );
+
+  Widget cloudRecorders() => CoreLoad(
+    key: ValueKey(revision),
+    load: load,
+    builder: (context, data, reload) => ListView(
+      padding: const EdgeInsets.all(coreInset),
+      children: [
+        const UiText(
+          'One account can own several recorders. Each recorder belongs to one account at a time.',
+        ),
+        if (model.webExperience)
+          const Padding(
+            padding: EdgeInsets.only(top: 12),
+            child: UiText(
+              'Use the mobile app with your recorder nearby to register, restore or transfer it.',
             ),
-          if (!model.webExperience) ...[
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () async {
-                await push(context, DevicePage(model));
-                reload();
-              },
-              icon: const Icon(Icons.bluetooth),
-              label: const UiText('Connect a recorder'),
-            ),
-            TextButton(
-              onPressed: () => accept(context, reload),
-              child: const UiText('Receive a recorder'),
-            ),
-          ],
-          for (final card in rows(data['items']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      text(card['name']),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(
-                      '${ui(context, 'Recorder identity')}: ${text(card['hardware_id'])}',
-                    ),
-                    Text(
-                      '${ui(context, 'Authorization generation')}: ${card['epoch']}',
-                    ),
-                    if (card['recoverable'] == true)
-                      const UiText('Authorization backed up for this account'),
-                    if (!model.webExperience)
-                      Wrap(
-                        spacing: 10,
-                        children: [
+          ),
+        if (!model.webExperience) ...[
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: () async {
+              await push(context, DevicePage(model));
+              reload();
+            },
+            icon: const Icon(Icons.bluetooth),
+            label: const UiText('Connect a recorder'),
+          ),
+          TextButton(
+            onPressed: () => accept(context, reload),
+            child: const UiText('Receive a recorder'),
+          ),
+        ],
+        for (final card in rows(data['items']))
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    text(card['name']),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    '${ui(context, 'Recorder identity')}: ${text(card['hardware_id'])}',
+                  ),
+                  Text(
+                    '${ui(context, 'Authorization generation')}: ${card['epoch']}',
+                  ),
+                  if (card['recoverable'] == true)
+                    const UiText('Authorization backed up for this account'),
+                  if (!model.webExperience)
+                    Wrap(
+                      spacing: 10,
+                      children: [
+                        TextButton(
+                          onPressed: () => perform(context, () async {
+                            await model.command('recorder_select', {
+                              'hardware_id': card['hardware_id'],
+                            });
+                            if (context.mounted)
+                              await push(
+                                context,
+                                DevicePage(
+                                  model,
+                                  selectedHardwareId: text(card['hardware_id']),
+                                ),
+                              );
+                            reload();
+                          }),
+                          child: const UiText('Use this recorder'),
+                        ),
+                        if (text(card['operation_id']).isEmpty) ...[
                           TextButton(
-                            onPressed: () => perform(context, () async {
-                              await model.command('recorder_select', {
-                                'hardware_id': card['hardware_id'],
-                              });
-                              if (context.mounted)
-                                await push(
-                                  context,
-                                  DevicePage(
-                                    model,
-                                    selectedHardwareId: text(
-                                      card['hardware_id'],
-                                    ),
-                                  ),
-                                );
-                              reload();
-                            }),
-                            child: const UiText('Use this recorder'),
+                            onPressed: () =>
+                                change(context, card, 'transfer', reload),
+                            child: const UiText('Transfer recorder'),
                           ),
-                          if (text(card['operation_id']).isEmpty) ...[
-                            TextButton(
-                              onPressed: () =>
-                                  change(context, card, 'transfer', reload),
-                              child: const UiText('Transfer recorder'),
-                            ),
-                            TextButton(
-                              onPressed: () =>
-                                  change(context, card, 'release', reload),
-                              child: const UiText('Release recorder ownership'),
-                            ),
-                          ],
+                          TextButton(
+                            onPressed: () =>
+                                change(context, card, 'release', reload),
+                            child: const UiText('Release recorder ownership'),
+                          ),
                         ],
-                      ),
-                  ],
-                ),
+                      ],
+                    ),
+                ],
               ),
             ),
-          if (rows(data['operations']).isNotEmpty)
-            heading('Recorder operations'),
-          for (final operation in rows(data['operations']))
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(text(object(operation['recorder'])['name'])),
-              subtitle: UiText(
-                recorderOperationState(text(operation['state'])),
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () async {
-                await push(
-                  context,
-                  RecorderOperationPage(model, text(operation['id'])),
-                );
-                reload();
-              },
+          ),
+        if (rows(data['operations']).isNotEmpty) heading('Recorder operations'),
+        for (final operation in rows(data['operations']))
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(text(object(operation['recorder'])['name'])),
+            subtitle: UiText(recorderOperationState(text(operation['state']))),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () async {
+              await push(
+                context,
+                RecorderOperationPage(model, text(operation['id'])),
+              );
+              reload();
+            },
+          ),
+        if (rows(data['items']).isEmpty && rows(data['operations']).isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: UiText('No recorders registered to this account yet.'),
+          ),
+        TextButton(onPressed: reload, child: const UiText('Refresh')),
+      ],
+    ),
+  );
+}
+
+class _CurrentRecorder extends StatefulWidget {
+  const _CurrentRecorder({
+    super.key,
+    required this.model,
+    required this.idle,
+    required this.reload,
+  });
+  final TenoModel model;
+  final bool idle;
+  final VoidCallback reload;
+  @override
+  State<_CurrentRecorder> createState() => _CurrentRecorderState();
+}
+
+class _CurrentRecorderState extends State<_CurrentRecorder> {
+  late final ownership = widget.model.command('recorder_ownership');
+  bool registering = false;
+  Future<void> register() async {
+    if (registering) return;
+    final model = widget.model, scope = model.runtime!.session.scope;
+    final navigator = Navigator.of(context);
+    final route = ModalRoute.of(context);
+    final reload = widget.reload;
+    setState(() => registering = true);
+    try {
+      await model.command('recorder_register_connected', {});
+      if (!navigator.mounted ||
+          route?.isCurrent != true ||
+          !model.signedIn ||
+          model.runtime!.session.scope != scope)
+        return;
+      await navigator.push(
+        MaterialPageRoute<void>(builder: (_) => DevicePage(model)),
+      );
+    } finally {
+      if (mounted) setState(() => registering = false);
+      reload();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<Json>(
+    future: ownership,
+    builder: (context, snap) => Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.bluetooth_connected),
+            title: Text(widget.model.runtime!.device.name),
+            subtitle: const UiText(
+              'Connected to this phone · Device code verified',
             ),
-          if (rows(data['items']).isEmpty && rows(data['operations']).isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: UiText('No recorders registered to this account yet.'),
+          ),
+          if (widget.idle && snap.data?['state'] == 'authorized')
+            TextButton(
+              onPressed: registering ? null : () => perform(context, register),
+              child: const UiText('Register in My recorders'),
             ),
-          TextButton(onPressed: reload, child: const UiText('Refresh')),
         ],
       ),
     ),
