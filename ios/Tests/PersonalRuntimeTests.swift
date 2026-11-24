@@ -117,9 +117,11 @@ final class PersonalRuntimeTests: XCTestCase {
         store.identity("other","two"); XCTAssertEqual(try store.deviceKey(identifier),"")
         store.identity("owner","one"); XCTAssertEqual(try store.deviceKey(identifier),code)
         try store.vault.set("device." + scope + "." + identifier,nil)
-        let devices: [JSONObject] = [["address":"weak","rssi":-80],["address":"strong","rssi":-30],["address":"fake","rssi":-10,"gatt_status":"unsupported"]]
+        let devices: [JSONObject] = [["address":"weak","rssi":-80,"name_match":true],["address":"strong","rssi":-30,"jwd":true],["address":"fake","rssi":-10,"name_match":true,"gatt_status":"unsupported"],["address":"speaker","rssi":-8]]
         XCTAssertEqual(JwdRecorder.connectionOrder(devices,previous:""),["strong","weak"])
-        XCTAssertEqual(JwdRecorder.connectionOrder(devices,previous:"weak"),["weak"])
+        XCTAssertEqual(JwdRecorder.connectionOrder(devices,previous:"weak"),["weak","strong"])
+        XCTAssertEqual(JwdRecorder.connectionOrder(devices,previous:"missing"),["strong","weak"])
+        for prefix in ["PKT","N10","HV0","HQ24"] { XCTAssertTrue(JwdRecorder.candidateName(prefix + "_1234")) }
         XCTAssertTrue(JwdRecorder.candidateName("HQ-10_P_909DBB57")); XCTAssertFalse(JwdRecorder.candidateName("AirPods"))
     }
     @MainActor func testDocumentsRemainFilesAndLocalDraftsStayAccountScoped() throws {

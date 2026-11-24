@@ -7,6 +7,7 @@ import '../ui/personal_widgets.dart';
 import 'routes/recorder.dart';
 import 'personal_actions.dart';
 import 'interface_language.dart';
+import 'note_templates.dart';
 import 'routes/personal_library.dart';
 import 'routes/personal_import.dart';
 import 'routes/personal_notes.dart';
@@ -440,6 +441,7 @@ class _PersonalHomeState extends State<PersonalHome> {
             alignment: Alignment.centerRight,
             child: InterfaceLanguageButton(widget.model),
           ),
+          NoteTemplateChoice.accountDefault(widget.model),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(

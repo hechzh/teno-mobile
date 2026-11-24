@@ -60,6 +60,7 @@ jobs:
           print('Xcode 27 read targets:', ', '.join(sorted(targets)))
           PY
       - name: Compile unsigned iPhone build with Xcode 27
+        id: device
         run: |
           xcodebuild -version | tee ios/build/ci-xcode-version.txt
           python3 scripts/run_ios_xcode_checks.py device
@@ -68,6 +69,7 @@ jobs:
           cd ios/build
           zip -qr "${{ steps.identity.outputs.ipa_name }}" Payload
       - name: Run native regressions and simulator login
+        id: simulator
         timeout-minutes: 45
         run: python3 scripts/run_ios_xcode_checks.py simulator
       - name: Scan delivered files
@@ -91,3 +93,16 @@ jobs:
             ios/build/ci-xcode-version.txt
             ios/build/simulator-*.json
             ios-*.log
+      - name: Report verified iOS delivery to Team
+        if: always() && github.repository == 'hechzh/teno-mobile'
+        env:
+          TENO_DEVELOPMENT_TOKEN: ${{ secrets.TENO_DEVELOPMENT_TOKEN }}
+          TENO_DEVELOPMENT_STEPS: '{"simulator":"${{ steps.simulator.outcome }}","device":"${{ steps.device.outcome }}"}'
+          TENO_JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/report_development.py --ci ios --status "$TENO_JOB_STATUS" --outbox development-outbox
+      - name: Preserve Team reporting receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Teno-iOS-reporting-receipt
+          path: development-outbox

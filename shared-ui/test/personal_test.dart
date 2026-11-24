@@ -376,6 +376,9 @@ void main() {
       'Inter',
     )..addFont(rootBundle.load('assets/fonts/InterVariable.ttf'))).load();
     await (FontLoader(
+      'NotoSansSC',
+    )..addFont(rootBundle.load('assets/fonts/NotoSansSC-Regular.ttf'))).load();
+    await (FontLoader(
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
@@ -640,6 +643,7 @@ void main() {
       case '53-template-picker':
         await detail();
         await label('New note');
+        await label('Summary template');
     }
   }
 

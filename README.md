@@ -1,6 +1,6 @@
-# Teno iOS 1.0 / Build 17 — Xcode 27 signing handoff
+# Teno iOS 1.0 / Build 18 — Xcode 27 signing handoff
 
-iOS CI now runs on the Xcode 27 runner and refuses to build below Xcode 26 + iOS 26 SDK (the App Store requirement since 2026-04-28). The portable handoff `Teno-iOS-1.0-build17-Xcode.zip` uses the Xcode 16 project format (objectVersion 77) and keeps Google's signature on every inner Flutter slice; a wrapper is re-signed ad hoc only when the simulator slice is merged, so no unsigned XCFramework ships. Android, Web, backend and the formal baselines are unchanged.
+Build 18 updates the template picker and JWD recorder discovery. The Xcode 27 workflow publishes the verified portable project, simulator screenshot and installation guide to the Team development page. The unsigned IPA is available in the workflow artifact. Open `Teno-iOS-1.0-build18-Xcode.zip` with Xcode 26 or later and sign with the original Apple Team to update an existing installation.
 
 # Teno Android 0.8.1 and iOS 1.1.1 / Build 17
 

@@ -591,6 +591,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
       context,
       widget.model,
       allowTranscript: true,
+      requireTemplateChoice: true,
     );
     if (!mounted || template == null) return;
     if (template['template_id'] == '__transcript__') {
@@ -887,6 +888,15 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           ),
         ),
         const SizedBox(height: 10),
+        if (notes.isNotEmpty || rows(transcript['segments']).isNotEmpty)
+          TextButton.icon(
+            onPressed: generate,
+            icon: Icon(
+              notes.isEmpty ? Icons.auto_awesome_outlined : Icons.add,
+              size: 18,
+            ),
+            label: UiText(notes.isEmpty ? 'Generate' : 'New note'),
+          ),
         Wrap(
           spacing: 8,
           runSpacing: 6,
@@ -963,11 +973,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  TextButton.icon(
-                    onPressed: generate,
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const UiText('New note'),
                   ),
                   TextButton(
                     onPressed: _versions,
@@ -1087,14 +1092,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                   : 'Preparing your summary',
               'Your audio remains available.',
             ),
-            if (rows(transcript['segments']).isNotEmpty)
-              Center(
-                child: TextButton.icon(
-                  onPressed: generate,
-                  icon: const Icon(Icons.add),
-                  label: const UiText('New note'),
-                ),
-              ),
           ],
           if (rows(metadata['photos']).isNotEmpty) ...[
             heading('Photos'),

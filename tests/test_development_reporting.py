@@ -68,12 +68,21 @@ class ReportingTests(unittest.TestCase):
     def test_ios_identity_is_independent_and_exact_in_evidence(self):
         env={'GITHUB_RUN_ID':'123457','GITHUB_SHA':'b'*40,'TENO_DEVELOPMENT_STEPS':'{"device":"success"}'}
         with tempfile.TemporaryDirectory() as tmp,patch.dict(os.environ,env,clear=True):
-            envelope=report.ci_envelope('ios','success',tmp)
+            root = Path(tmp)
+            source = root/'ios/build/handoff/Teno-iOS-1.0-build18-Xcode.zip'
+            guide = root/'ios/INSTALL.txt'
+            screen = root/'ios/build/screenshots/01-login.png'
+            for item in (source, guide, screen):
+                item.parent.mkdir(parents=True, exist_ok=True)
+                item.write_bytes(item.name.encode())
+            with patch.object(report, 'ROOT', root):
+                envelope=report.ci_envelope('ios','success',root/'outbox')
             self.assertEqual(envelope['report']['version'],'1.0.0')
-            self.assertIn('1.0 / Build 17',envelope['report']['title']['en'])
+            self.assertIn('1.0 / Build 18',envelope['report']['title']['en'])
             self.assertIn('com.jwd.ZhiYan',envelope['report']['changes'][0]['en'])
             self.assertEqual(envelope['report']['distribution'],'evidence')
-            self.assertEqual(envelope['files'],[])
+            self.assertEqual([v['kind'] for v in envelope['files']], ['source','evidence','screenshot'])
+            self.assertEqual([v['sha256'] for v in envelope['files']], [report.sha(p) for p in (source,guide,screen)])
             android=report.ci_envelope('android','success',tmp)
             self.assertEqual(android['report']['version'],'0.9.0')
 

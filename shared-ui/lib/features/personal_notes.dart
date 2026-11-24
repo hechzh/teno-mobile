@@ -454,8 +454,7 @@ class PersonalTemplatePicker extends StatefulWidget {
   final bool allowTranscript;
   final String? initial;
   @override
-  State<PersonalTemplatePicker> createState() =>
-      _PersonalTemplatePickerState();
+  State<PersonalTemplatePicker> createState() => _PersonalTemplatePickerState();
 }
 
 class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
@@ -482,15 +481,16 @@ class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
       if (!mounted) return;
       setState(() {
         templates = data;
+        error = '';
         if (selected == null || selected == '@default') {
           final fallback = text(
             widget.model.personalSettings['default_template_id'],
           );
           selected = fallback.isEmpty ? null : fallback;
         }
-        if (selected == null) {
-          final recent = recentIds;
-          if (recent.isNotEmpty) selected = recent.first;
+        final available = data.map((item) => text(item['id'])).toSet();
+        if (!available.contains(selected)) {
+          selected = recentIds.where(available.contains).firstOrNull;
         }
       });
     } catch (e) {
@@ -611,7 +611,11 @@ class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
               templateDisplayText(context, item, 'description'),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 12, height: 1.3, color: subtle(context)),
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.3,
+                color: subtle(context),
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -644,7 +648,10 @@ class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
                     padding: const EdgeInsets.only(right: 12),
                     child: SizedBox(
                       width: 232,
-                      child: card(items[index], lastUsed: lastUsed && index == 0),
+                      child: card(
+                        items[index],
+                        lastUsed: lastUsed && index == 0,
+                      ),
                     ),
                   ),
               ],
@@ -693,7 +700,9 @@ class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           child: FilledButton(
-            onPressed: selected == null ? null : apply,
+            onPressed: loading || error.isNotEmpty || selected == null
+                ? null
+                : apply,
             child: const UiText('Use this template'),
           ),
         ),

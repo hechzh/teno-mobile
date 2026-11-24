@@ -121,7 +121,7 @@ if [ "$project_status" -eq 0 ]; then
   fi
 fi
 {
-  printf 'Teno iOS 1.0 / Build17 — Xcode 26+ 实际编译检查\n\n'
+  printf 'Teno iOS 1.0 / Build18 — Xcode 26+ 实际编译检查\n\n'
   cat "$result_dir/xcode-version.txt" "$result_dir/swift-version.txt" "$result_dir/macos-version.txt"
   printf '\n本机架构：%s\niPhone SDK：%s\n' "$host_arch" "$(printf '%s' "$sdk_line" | /usr/bin/sed -E 's/^[[:space:]]*//')"
   printf '工程读取退出码：%s\niPhone 编译退出码：%s\nApple Silicon 模拟器编译退出码：%s%s\n' \

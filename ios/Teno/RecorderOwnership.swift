@@ -19,6 +19,7 @@ import CryptoKit
     private var operation: JSONObject = [:], recorder: JSONObject = [:]
     private var owner = "", identifier = "", name = "", auth = "", before = ""
     private var generation = 0
+    private var rejectedClaimHardware = "", rejectedClaimOwner = ""
     private(set) var hardware = "", stage = "", state = "disconnected", message = ""
     private(set) var running = false, requesting = false
     init(store: NativeStore, api: SessionTransport) { self.store = store; self.api = api; owner = store.scope
@@ -90,7 +91,10 @@ import CryptoKit
     func claim(_ original: String, confirmed: Bool) throws {
         guard confirmed, state == "claim_required", !requesting else { throw RuntimeFailure("RECORDER_CONFIRM","Confirm the connected recorder first.") }
         var body: JSONObject = ["client_id":UUID().uuidString,"hardware_id":hardware,"name":name,"confirm_card_recordings":true]
-        let key = try original.isEmpty ? store.deviceKey(identifier) : original
+        var key = original
+        if key.isEmpty && rejectedClaimHardware == hardware && rejectedClaimOwner == store.scope {
+            key = try store.deviceKey(identifier)
+        }
         if !key.isEmpty { body["original_key"] = key }
         request("/api/v1/recorders/claim",body,done:{ [self] value in operation = value; try start(string(value["id"])) })
     }
@@ -128,6 +132,7 @@ import CryptoKit
         if running, auth == "claim" {
             request("/api/v1/recorders/operations/" + string(operation["id"]) + "/claim-rejected",[:],done:{ [self] _ in
                 try store.vault.set(journal,nil); operation = [:]; stage = ""; running = false
+                rejectedClaimHardware = hardware; rejectedClaimOwner = store.scope
                 update("claim_required","Device key was rejected. Use the original key; the recorder was not reset."); port?.ownershipClose(message)
             }); return
         }
@@ -154,7 +159,7 @@ import CryptoKit
         request("/api/v1/recorders/operations/" + string(operation["id"]) + "/complete",proof,done:{ [self] value in
             let claim = string(operation["kind"]) == "claim", key = string(operation["device_key"])
             running = false; recorder = value["recorder"] as? JSONObject ?? [:]; try store.vault.set(journal,nil); operation = [:]; stage = ""
-            if claim { try store.saveDeviceKey(identifier,key); try store.recorderIdentity(identifier,recorder); store.rememberRecorder(identifier,name); update("owned","Recorder connected"); port?.ownershipReady() }
+            if claim { rejectedClaimHardware = ""; rejectedClaimOwner = ""; try store.saveDeviceKey(identifier,key); try store.recorderIdentity(identifier,recorder); store.rememberRecorder(identifier,name); update("owned","Recorder connected"); port?.ownershipReady() }
             else { try store.forgetRecorder(identifier); update("completed","Recorder operation completed"); port?.ownershipClose(message) }
         })
     }

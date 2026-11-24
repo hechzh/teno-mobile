@@ -825,6 +825,7 @@
   "autoJwdAuth": "正在验证录音卡授权",
   "autoJwdChannels": "设备通道不符合 JWD 协议。",
   "noteTemplate": "笔记模板",
+  "defaultNoteTemplate": "默认笔记模板",
   "templateAccountDefault": "账号默认模板",
   "templateGeneral": "通用笔记",
   "templateInterview": "访谈",
@@ -1112,5 +1113,10 @@
   "label8a122ea399dd": "来源转写",
   "labelf4e871ec79db": "录音无法开始。",
   "labelffb4b44abb4f": "全部模板",
-  "label830ec7f812f9": "上次使用"
+  "label830ec7f812f9": "上次使用",
+  "recorderNearbyPermission": "请在 Android 设置中允许 Teno 访问附近设备。",
+  "recorderLocationPermission": "请在 Android 设置中授予 Teno 位置权限，以扫描附近设备。",
+  "recorderLocationOff": "请在 Android 设置中打开系统定位，以扫描附近设备。",
+  "recorderNearbyFound": "已发现附近设备，可点选录音卡检查服务。",
+  "recorderServiceReadFailed": "未能读取录音卡服务，请重试。"
 }

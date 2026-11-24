@@ -89,15 +89,7 @@ class PersonalSettings extends StatelessWidget {
           CoreFrame(title: 'Templates', child: PersonalTemplates(model)),
         ),
       ),
-      NoteTemplateChoice(
-        model,
-        title: 'Note template',
-        value: text(model.personalSettings['default_template_id']).isEmpty
-            ? 'teno:general'
-            : text(model.personalSettings['default_template_id']),
-        onChanged: (value) =>
-            model.updatePersonal({'default_template_id': value}),
-      ),
+      NoteTemplateChoice.accountDefault(model, title: 'Note template'),
       settingsEntry(
         context,
         'Preferences',

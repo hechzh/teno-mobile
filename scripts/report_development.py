@@ -136,16 +136,23 @@ def ci_envelope(platform, status, outbox):
     if identity:
         report['title'] = words(f"iOS {identity['version']} / Build {identity['build']}：CI 验证", f"iOS {identity['version']} / Build {identity['build']}: CI verification")
         report['changes'] = [words(f"Bundle ID：{identity['bundle_id']}；App 内版本：{identity['version']}；Build：{identity['build']}。", f"Bundle ID: {identity['bundle_id']}; Apple marketing version: {identity['version']}; build: {identity['build']}.")]
-    # CI debug APKs are not promoted into the installation area. The run link is
-    # retained as build evidence. Only successful, audited unsigned IPA is sent.
+    if identity and status == 'success':
+        report['implementation'] = 'implemented'
+        report['installation'] = words('解压 Xcode 工程，按 INSTALL.txt 用原 Apple Team 签名并覆盖安装。',
+            'Extract the Xcode project and follow INSTALL.txt to sign with the original Apple Team and update the app.')
+        for path, kind, label in [
+            (ROOT / 'ios/build/handoff' / (identity['source_name'] + '.zip'), 'source', words('可签名 Xcode 工程', 'Xcode signing project')),
+            (ROOT / 'ios/INSTALL.txt', 'evidence', words('iPhone 安装说明', 'iPhone installation guide')),
+            (ROOT / 'ios/build/screenshots/01-login.png', 'screenshot', words('iOS 模拟器登录页', 'iOS simulator login screen')),
+        ]:
+            files.append({'path': str(path), 'sha256': sha(path), 'kind': kind, 'label': label})
+    # The server checks the IPA marketing version against its three-component
+    # report version. Keep incompatible unsigned IPAs in the workflow artifact.
     ipa = ROOT / 'ios/build' / identity['ipa_name'] if identity else ROOT / f'ios/build/Teno-{version}-unsigned.ipa'
     if platform == 'ios' and identity['bundle_id'] == 'com.teno.app' and identity['version'] == version and status == 'success' and ipa.exists():
         report['distribution'] = 'unsigned'
         report['installation'] = words('未签名 IPA，需使用自己的 Apple 账号通过 AltStore 等工具重签；不能直接点开安装。实际 iPhone 安装尚待验收。保持原账号与安装标识，覆盖更新，不要先卸载。', 'Unsigned IPA: sign locally with your own Apple account using AltStore or equivalent. It cannot be installed directly. Physical iPhone installation is still pending. Preserve the same account and app identity; update without uninstalling.')
         files.append({'path': str(ipa), 'sha256': sha(ipa), 'kind': 'ipa', 'label': words('iOS 未签名设备构建', 'Unsigned iOS device build')})
-    screenshot = ROOT / 'ios/build/screenshots/01-login.png'
-    if platform == 'ios' and states.get('simulator') == 'success' and screenshot.exists():
-        files.append({'path': str(screenshot), 'sha256': sha(screenshot), 'kind': 'screenshot', 'label': words('iOS 模拟器登录页', 'iOS simulator login screen')})
     result = {'report': report, 'files': files}; cached.parent.mkdir(parents=True, exist_ok=True)
     cached.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
     return result

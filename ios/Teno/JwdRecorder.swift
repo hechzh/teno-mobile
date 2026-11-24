@@ -22,7 +22,8 @@ import JwdVtrSDK
     private var automatic = false, autoProbing = false
     private var autoQueue: [String] = [], autoTried = Set<String>()
     private var preferred = ""
-    private var scanTimer: Task<Void,Never>?, earlySelection: Task<Void,Never>?
+    private var disconnectReason = ""
+    private var scanTimer: Task<Void,Never>?
     private var requestGeneration = 0
     private var deadline: Task<Void,Never>?
     private var commands: [() -> Void] = []
@@ -69,6 +70,7 @@ import JwdVtrSDK
             guard !Task.isCancelled else { return }
             if ownership.running { ownershipReconnectPending = false; ownership.fail(message); return }
             waiting = ""; busy = false; status = message
+            if disconnect { disconnectReason = message }
             if phase == "starting" || phase == "stopping" { phase = "interrupted" }
             if receiving || phase == "saving" { discardTransfer(); phase = "idle" }
             if disconnect, let peripheral { central.cancelPeripheralConnection(peripheral) }
@@ -112,11 +114,11 @@ import JwdVtrSDK
         if action == .scan || action == .compatibilityScan {
             guard central.state == .poweredOn else { throw RuntimeFailure("BLUETOOTH", "Turn on Bluetooth and allow Teno access in iOS Settings.") }
             guard !connected && !busy else { throw RuntimeFailure("DEVICE_BUSY", "Finish the current device operation first.") }
-            cancelAutomatic(); automatic = true; candidates.removeAll(); autoTried.removeAll()
+            cancelAutomatic(); automatic = true; candidates.removeAll(); discovered.removeAll(); autoTried.removeAll()
+            disconnectReason = ""
             preferred = store.recorderId
-            central.scanForPeripherals(withServices: nil, options: nil)
+            central.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey:true])
             status = "Searching for your JWD recorder"
-            earlySelection = Task { try? await Task.sleep(nanoseconds: 4_000_000_000); if !Task.isCancelled && !candidates.isEmpty { selectAutomatic() } }
             scanTimer = Task { try? await Task.sleep(nanoseconds: 15_000_000_000); if !Task.isCancelled { selectAutomatic() } }
             return
         }
@@ -127,6 +129,9 @@ import JwdVtrSDK
             var found = discovered[selected]
             if found == nil, let uuid = UUID(uuidString: selected) { found = central.retrievePeripherals(withIdentifiers: [uuid]).first }
             guard let device = found else { throw RuntimeFailure("DEVICE_NOT_FOUND", "Scan for your recorder again.") }
+            if action == .connect, !id.isEmpty, candidates[id]?["gatt_status"] as? String == "verified", !ownership.running,
+               !store.selectedRecorder.isEmpty { store.selectRecorder("") }
+            disconnectReason = ""
             ownership.connectionAttempt(); central.stopScan(); peripheral = device; identifier = selected; self.name = name.isEmpty ? device.name ?? "Recorder" : name
             probeOnly = action == .probe; busy = true; authorized = false; status = "Checking recorder service"
             central.connect(device); timeout("Connection timed out. Check your recorder and try again.", disconnect: true); return
@@ -162,7 +167,7 @@ import JwdVtrSDK
     }
     private func cancelAutomatic() {
         automatic = false; autoProbing = false
-        autoQueue.removeAll(); scanTimer?.cancel(); earlySelection?.cancel()
+        autoQueue.removeAll(); scanTimer?.cancel()
     }
     func cancelAccountConnection() {
         ownership.cancel(); ownershipReconnectPending = false; ownershipSeeking = false
@@ -171,18 +176,16 @@ import JwdVtrSDK
         commands.removeAll(); commandTask?.cancel(); commandTask = nil
         if let device = peripheral { central?.cancelPeripheralConnection(device) }
         peripheral = nil; authorized = false; busy = false; waiting = ""
+        discovered.removeAll(); candidates.removeAll(); disconnectReason = ""
         status = "Sign in to connect your recorder."
     }
     private func selectAutomatic() {
         guard store.state().signedIn, automatic, !autoProbing, !busy else { return }
-        central.stopScan(); scanTimer?.cancel(); earlySelection?.cancel()
-        if !preferred.isEmpty {
-            if discovered[preferred] == nil, let id = UUID(uuidString: preferred) {
-                discovered[preferred] = central.retrievePeripherals(withIdentifiers: [id]).first
-            }
-            autoQueue = [preferred]
-        } else {
-            autoQueue = Self.connectionOrder(Array(candidates.values), previous:"")
+        central.stopScan(); scanTimer?.cancel()
+        autoQueue = Self.connectionOrder(Array(candidates.values), previous:preferred)
+        if autoQueue.isEmpty, !preferred.isEmpty, let id = UUID(uuidString: preferred),
+           let device = central.retrievePeripherals(withIdentifiers: [id]).first {
+            discovered[preferred] = device; autoQueue = [preferred]
         }
         nextAutomaticProbe()
     }
@@ -191,24 +194,34 @@ import JwdVtrSDK
         while !autoQueue.isEmpty {
             let id = autoQueue.removeFirst()
             guard autoTried.insert(id).inserted, let device = discovered[id] else { continue }
+            disconnectReason = ""
             ownership.connectionAttempt(); autoProbing = true; probeOnly = true; busy = true; authorized = false
-            peripheral = device; identifier = id; name = device.name ?? "JWD recorder"
+            peripheral = device; identifier = id
+            let advertisedName = string(candidates[id]?["name"])
+            name = advertisedName.isEmpty ? device.name ?? "JWD recorder" : advertisedName
             status = "Verifying recorder protocol"
             central.connect(device)
             timeout("Connection timed out. Wake your recorder and try again.", disconnect: true)
             return
         }
         automatic = false; busy = false
-        status = preferred.isEmpty ? "No JWD recorder found. Wake your recorder and try again." : "Your last recorder is unavailable. Wake it up and try again."
+        if !disconnectReason.isEmpty { status = disconnectReason }
+        else if candidates.isEmpty { status = "No JWD recorder found. Wake your recorder and try again." }
+        else { status = "Nearby devices found. Check the recorder service." }
     }
     static func candidateName(_ value: String) -> Bool {
         let name = value.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        return ["VTR","H10","H11","HQ10","HQ11","HQ-10_P","HQ-11_P","HQ-10_HW","KIOLO","DEX_"].contains { name.hasPrefix($0) }
+        return ["VTR","PKT","N10","HV0","HQ","H10","H11","KIOLO","DEX_"].contains { name.hasPrefix($0) }
     }
     static func connectionOrder(_ values: [JSONObject], previous: String) -> [String] {
-        if !previous.isEmpty { return [previous] }
-        return values.filter { string($0["gatt_status"]) != "unsupported" }.sorted {
-            ($0["rssi"] as? Int ?? -200) > ($1["rssi"] as? Int ?? -200)
+        let eligible = values.filter { row in
+            string(row["gatt_status"]) != "unsupported" &&
+                (string(row["address"]) == previous || row["jwd"] as? Bool == true || row["name_match"] as? Bool == true)
+        }
+        return eligible.sorted {
+            if string($0["address"]) == previous { return string($1["address"]) != previous }
+            if string($1["address"]) == previous { return false }
+            return ($0["rssi"] as? Int ?? -200) > ($1["rssi"] as? Int ?? -200)
         }.map { string($0["address"]) }
     }
     static func newDeviceCode() throws -> String {
@@ -242,16 +255,23 @@ import JwdVtrSDK
         if restored.state == .connected { verify(restored) }
     }
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
+        guard central.isScanning, store.state().signedIn else { return }
         let id = peripheral.identifier.uuidString
-        guard let name = advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? peripheral.name, !name.isEmpty else { return }
-        let services = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []
-        guard id == preferred || services.contains(Self.service) || Self.candidateName(name) else { return }
-        guard candidates.count < 40 || candidates[id] != nil else { return }
+        let name = advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? peripheral.name ?? ""
+        let services = (advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []) +
+            (advertisementData[CBAdvertisementDataOverflowServiceUUIDsKey] as? [CBUUID] ?? [])
+        let serviceMatch = services.contains(Self.service)
+        let nameMatch = Self.candidateName(name) || Self.candidateName(peripheral.name ?? "")
+        guard (advertisementData[CBAdvertisementDataIsConnectable] as? NSNumber)?.boolValue != false else { return }
+        guard candidates.count < 40 || candidates[id] != nil || serviceMatch || nameMatch || id == preferred else { return }
         discovered[id] = peripheral
         var candidate = candidates[id] ?? ["gatt_status": "unknown"]
-        candidate["address"] = id; candidate["name"] = name; candidate["rssi"] = RSSI.intValue == 127 ? -200 : RSSI.intValue
+        candidate["jwd"] = serviceMatch || candidate["jwd"] as? Bool == true
+        candidate["name_match"] = nameMatch || candidate["name_match"] as? Bool == true
+        candidate["address"] = id
+        if !name.isEmpty || candidate["name"] == nil { candidate["name"] = name }
+        candidate["rssi"] = RSSI.intValue == 127 ? -200 : RSSI.intValue
         candidate["has_key"] = !((try? store.deviceKey(id)) ?? "").isEmpty; candidates[id] = candidate
-        if automatic && id == preferred && !busy { selectAutomatic() }
     }
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         guard store.state().signedIn, self.peripheral === peripheral, busy else { central.cancelPeripheralConnection(peripheral); return }; verify(peripheral)
@@ -262,17 +282,21 @@ import JwdVtrSDK
     }
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard self.peripheral === peripheral, busy else { return }
-        guard error == nil, let service = peripheral.services?.first(where: { $0.uuid == Self.service }) else { unsupported(peripheral); return }
+        if error != nil { probeFailed(peripheral); return }
+        guard let service = peripheral.services?.first(where: { $0.uuid == Self.service }) else { unsupported(peripheral); return }
         peripheral.discoverCharacteristics(Self.characteristics, for: service)
     }
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard store.state().signedIn else { cancelAccountConnection(); return }
         guard self.peripheral === peripheral, busy else { return }
-        guard error == nil, let chars = service.characteristics, Self.characteristics.allSatisfy({ id in chars.contains { $0.uuid == id } }) else { unsupported(peripheral); return }
+        if error != nil { probeFailed(peripheral); return }
+        guard let chars = service.characteristics, Self.characteristics.allSatisfy({ id in chars.contains { $0.uuid == id } }) else { unsupported(peripheral); return }
         guard chars.contains(where: { $0.uuid == Self.characteristics[1] && (!$0.properties.intersection([.write,.writeWithoutResponse]).isEmpty) }),
               Self.characteristics.filter({ $0 != Self.characteristics[1] }).allSatisfy({ id in chars.contains { $0.uuid == id && $0.properties.contains(.notify) } }) else { unsupported(peripheral); return }
         let id = peripheral.identifier.uuidString
-        candidates[id] = ["address":id,"name":peripheral.name ?? "Recorder","gatt_status":"verified","has_key": !((try? store.deviceKey(id)) ?? "").isEmpty]
+        var verified = candidates[id] ?? ["address":id]
+        verified["name"] = name; verified["gatt_status"] = "verified"; verified.removeValue(forKey:"probe_error")
+        verified["has_key"] = !((try? store.deviceKey(id)) ?? "").isEmpty; candidates[id] = verified
         if automatic && autoProbing {
             autoProbing = false; probeOnly = false
             status = "Connecting automatically"; sdk.onPeripheralConnected(peripheral)
@@ -284,17 +308,32 @@ import JwdVtrSDK
     private func unsupported(_ device: CBPeripheral) {
         candidates[device.identifier.uuidString]?["gatt_status"] = "unsupported"
         deadline?.cancel(); busy = false; status = "This device does not expose the required recording service."
+        disconnectReason = status
         central.cancelPeripheralConnection(device)
     }
-    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) { disconnected(peripheral,error:error) }
+    private func probeFailed(_ device: CBPeripheral) {
+        deadline?.cancel(); busy = false
+        disconnectReason = "Could not read recorder services. Try again."
+        status = disconnectReason
+        candidates[device.identifier.uuidString]?["gatt_status"] = "failed"
+        candidates[device.identifier.uuidString]?["probe_error"] = status
+        central.cancelPeripheralConnection(device)
+    }
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        guard self.peripheral === peripheral else { return }
+        disconnectReason = "Connection timed out. Wake your recorder and try again."
+        candidates[peripheral.identifier.uuidString]?["gatt_status"] = "failed"
+        disconnected(peripheral,error:error)
+    }
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) { disconnected(peripheral,error:error) }
     private func disconnected(_ device: CBPeripheral,error: Error?) {
         guard peripheral?.identifier == device.identifier else { return }
         let continueSelection = automatic && autoProbing
-        autoProbing = false
+        autoProbing = false; waiting = ""
         sdk.onPeripheralDisconnected(device,error:error); connectionGeneration += 1; commands.removeAll(); commandTask?.cancel(); commandTask = nil
         deadline?.cancel(); authorized = false; busy = false; recordStateKnown = false; peripheral = nil
         if active { accumulated = elapsed; recordStarted = nil; phase = "interrupted"; status = "Connection interrupted. The recorder may still be recording." }
+        else if !disconnectReason.isEmpty { status = disconnectReason }
         else if !probeOnly { status = "Recorder disconnected" }
         discardTransfer()
         ownershipListing = false; ownershipReading = false
@@ -321,7 +360,7 @@ import JwdVtrSDK
                 }
                 try? await Task.sleep(nanoseconds: 100_000_000)
             }
-            status = "Recorder notifications are unavailable."; central.cancelPeripheralConnection(peripheral)
+            status = "Recorder notifications are unavailable."; disconnectReason = status; central.cancelPeripheralConnection(peripheral)
         }
     }
     func onBleDisConnected(_ peripheral: CBPeripheral) {}
@@ -354,7 +393,7 @@ import JwdVtrSDK
     func ownershipKey(_ key: String) { waiting = "auth"; busy = true; send { self.sdk.bindDevice(key) }; timeout("Recorder authorization timed out. Check the original key.",disconnect:true) }
     func ownershipChanged() { status = ownership.message; busy = ownership.requesting || ownership.running }
     func ownershipClose(_ message: String) {
-        ownershipReconnectPending = false; ownershipSeeking = false; status = message; authorized = false; waiting = ""; busy = false
+        ownershipReconnectPending = false; ownershipSeeking = false; status = message; disconnectReason = message; authorized = false; waiting = ""; busy = false
         if let peripheral { central?.cancelPeripheralConnection(peripheral) }
     }
     func ownershipReconnect() {
@@ -373,7 +412,10 @@ import JwdVtrSDK
         }
     }
     func ownershipSeek() {
-        if automatic, !autoQueue.isEmpty, let device = peripheral { autoProbing = true; central.cancelPeripheralConnection(device); return }
+        if automatic, let device = peripheral {
+            autoProbing = true; disconnectReason = "Your last recorder is unavailable. Wake it up and try again."
+            central.cancelPeripheralConnection(device); return
+        }
         if let device = peripheral { ownershipSeeking = true; central.cancelPeripheralConnection(device); return }
         startOwnershipScan()
     }
@@ -573,6 +615,6 @@ import JwdVtrSDK
     func state() -> DeviceState {
         DeviceState(connected:connected,authorized:authorized,scanning:central?.isScanning ?? false,busy:busy,receiving:receiving,
             receivedBytes:received,expectedBytes:expected,identifier:identifier,name:name,battery:battery,status:status,
-            candidatesJson:jsonString(Array(candidates.values.filter { string($0["gatt_status"]) == "verified" }).sorted { string($0["name"]) < string($1["name"]) }),filesJson:jsonString(files))
+            candidatesJson:jsonString(Array(candidates.values).sorted { ($0["rssi"] as? Int ?? -200) > ($1["rssi"] as? Int ?? -200) }),filesJson:jsonString(files))
     }
 }
