@@ -1,6 +1,6 @@
-Teno iOS 1.0 / Build19 · Xcode 27 构建（最低 Xcode 26 / iOS 26 SDK）· Bundle ID com.jwd.ZhiYan
+Teno iOS 1.0 / Build20 · Xcode 27 构建（最低 Xcode 26 / iOS 26 SDK）· Bundle ID com.jwd.ZhiYan
 
-交付文件：Teno-iOS-1.0-build19-Xcode.zip。
+交付文件：Teno-iOS-1.0-build20-Xcode.zip。
 完整解压，打开 ios/Teno.xcodeproj，选择 Teno scheme。工程使用 Xcode 16 项目格式（objectVersion77），Xcode 26 与 Xcode 27 均可直接打开；最低 iOS15。
 自 2026-04-28 起，App Store Connect 要求使用 Xcode 26 或更新版本与 iOS 26 SDK 或更新版本构建。云端已改用 Xcode 27（GitHub Actions xcode-27）完成未签名 iPhone 编译、Apple Silicon 模拟器回归和原生测试；接收方需使用 Xcode 26+（推荐 27）。旧 Xcode 14.3.1 不再受支持。
 
@@ -18,9 +18,9 @@ Xcode 26/27 对真机系统版本有各自的支持范围；本次所述 iOS27 �
 包内包含 0.9.0 共用界面、原生源码和配套 App/Flutter XCFramework（设备 Release、模拟器 Debug）。直接编译与签名无需 Flutter、CocoaPods 或 XcodeGen。修改 Dart 时使用 Flutter3.47.9 重建两套框架。
 Flutter.xcframework 的内层切片保留 Google 发布者签名（FLUTTER.IO LLC / S8QB4VV633）；为加入可运行的模拟器切片而改写外层清单时，外层容器使用本机临时签名，交付包中不再有未签名的 XCFramework。Verify-Xcode.command 会一并核对。
 
-本版依赖共享后端 1.8.0 及其账号录音卡密钥更新。在“我的录音卡”中扫描并选择设备，首次登记新的空白卡时，同一账号复用自己的授权码。旧卡继续按原有授权恢复。一个账号可持有多张卡，每张卡只有一个当前归属。转交需双方确认，保留卡内录音；原账号云端资料、本机文件和上传队列保留在原账号。
+本版依赖共享后端 1.8.0 的账号录音卡授权接口。在“我的录音卡”中扫描 JWD 服务，连接后使用 SK 指令验证密钥，普通连接无需读取或填写 MAC。新空白卡可记住本账号的固定密钥；本账号的旧卡按保存的原授权连接。
 
-如果已连接的录音卡在重试后仍未返回身份，App 提供兼容配对。先确认手中的实体卡，再授权 App 尝试本账号的密钥。空白卡可能在这一步记住密钥。App 随后重新读取设备实际返回的身份，核验归属后才能完成登记。取消或断连后可对同一张卡重试。
+设备接受密钥后即可使用录音与同步。连接结果保存在本机。云端已登记设备的恢复、转交和解除归属沿用原授权流程。若有未完成的归属操作，先按设备页提示续办。转交保留卡内录音，原账号云端资料、本机文件和上传队列保留在原账号。
 
 新增个人 Codex MCP：选择已处理个人录音或笔记，预览资料清单后创建连接。内容固定在创建时的实际版本，只有手动更新后才改变。OAuth/PKCE 授权只开放该连接的文字快照；可暂停或撤销，不包含 Team、音频或未选附件。撤销不会收回外部 AI 已读取的内容。
 

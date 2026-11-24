@@ -4820,6 +4820,36 @@ abstract class AppLocalizations {
   /// **'Note template'**
   String get noteTemplate;
 
+  /// No description provided for @recorderVerifyingCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected. Checking device key…'**
+  String get recorderVerifyingCode;
+
+  /// No description provided for @recorderCodeTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'No device-code response after 15 seconds. Retry the connection.'**
+  String get recorderCodeTimeout;
+
+  /// No description provided for @localRecorderVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to this phone · Device code verified'**
+  String get localRecorderVerified;
+
+  /// No description provided for @registerCurrentRecorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Register in My recorders'**
+  String get registerCurrentRecorder;
+
+  /// No description provided for @optionalIdentityTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'This recorder did not return a hardware ID. Recording and syncing are still available.'**
+  String get optionalIdentityTimeout;
+
   /// No description provided for @defaultNoteTemplate.
   ///
   /// In en, this message translates to:

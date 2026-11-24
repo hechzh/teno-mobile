@@ -146,6 +146,7 @@ class _DevicePageState extends State<DevicePage> {
 
   Future<void> restoreDeviceCode(String id, String name) async {
     if (!model.signedIn) return;
+    final scope = model.runtime!.session.scope;
     final key = TextEditingController();
     final accepted = await showDialog<bool>(
       context: context,
@@ -178,7 +179,11 @@ class _DevicePageState extends State<DevicePage> {
     key.clear();
     await Future<void>.delayed(const Duration(milliseconds: 300));
     key.dispose();
-    if (accepted != true || !mounted) return;
+    if (accepted != true ||
+        !mounted ||
+        !model.signedIn ||
+        scope != model.runtime!.session.scope)
+      return;
     await perform(context, () => model.host.bindDevice(id, name, value, false));
   }
 
@@ -197,10 +202,8 @@ class _DevicePageState extends State<DevicePage> {
               style: Theme.of(dialog).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
-            UiText(
-              row['operation_compat'] == true
-                  ? 'Confirm that this is the recorder for your pending operation. Teno will verify its authorization and hardware ID before continuing.'
-                  : 'Confirm that this is the recorder in your hand. An unbound recorder will store your account key. After its hardware ID and ownership are verified, recordings on this card can sync to your account.',
+            const UiText(
+              'Confirm that this is the recorder for your pending operation. Teno will verify its authorization and hardware ID before continuing.',
             ),
           ],
         ),
@@ -255,7 +258,10 @@ class _DevicePageState extends State<DevicePage> {
       final rejected = nearby
           .where(
             (row) =>
-                row['key_rejected'] == true && row['gatt_status'] == 'verified',
+                row['key_rejected'] == true &&
+                row['gatt_status'] == 'verified' &&
+                (device.identifier.isEmpty ||
+                    row['address'] == device.identifier),
           )
           .firstOrNull;
       final physical = device.connected && !device.authorized && !device.busy
@@ -264,6 +270,7 @@ class _DevicePageState extends State<DevicePage> {
                   (row) =>
                       row['address'] == device.identifier &&
                       row['gatt_status'] == 'verified' &&
+                      row['operation_compat'] == true &&
                       row['identity_timeout'] == true &&
                       text(row['compat_token']).isNotEmpty,
                 )
@@ -416,10 +423,11 @@ class _DevicePageState extends State<DevicePage> {
               if (connecting) ...[
                 const Center(child: CircularProgressIndicator()),
                 const SizedBox(height: 20),
-                const UiText(
-                  'Searching, verifying and connecting automatically.',
-                  textAlign: TextAlign.center,
-                ),
+                if (!device.connected)
+                  const UiText(
+                    'Searching, verifying and connecting automatically.',
+                    textAlign: TextAlign.center,
+                  ),
                 TextButton(
                   onPressed: () => command(DeviceAction.disconnect),
                   child: const UiText('Cancel connection'),
@@ -435,18 +443,18 @@ class _DevicePageState extends State<DevicePage> {
                         connectAutomatically(DeviceAction.compatibilityScan),
                     child: const UiText('Compatibility scan'),
                   ),
-                if (rejected != null)
-                  TextButton(
-                    onPressed: () => restoreDeviceCode(
-                      text(rejected['address']),
-                      text(rejected['name']),
-                    ),
-                    child: const UiText('Restore original device code'),
-                  ),
               ] else
                 TextButton(
                   onPressed: () => command(DeviceAction.disconnect),
                   child: const UiText('Disconnect'),
+                ),
+              if (!connecting && rejected != null)
+                TextButton(
+                  onPressed: () => restoreDeviceCode(
+                    text(rejected['address']),
+                    text(rejected['name']),
+                  ),
+                  child: const UiText('Restore original device code'),
                 ),
               if (!device.connected && nearby.isNotEmpty) ...[
                 TextButton(

@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/features/recorder.dart';
+import '../lib/features/personal_recorders.dart';
 import '../lib/l10n/generated/app_localizations.dart';
 import '../lib/main.dart';
 import '../lib/platform/runtime.g.dart';
@@ -112,7 +113,83 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 
 void main() {
   testWidgets(
-    'authorization-first pairing requires the current verified card and physical confirmation',
+    'current authorized recorder works independently of cloud registration',
+    (tester) async {
+      final host = JwdHost()..state = reviewState(connected: true);
+      host.commandOverrides['recorder_ownership'] = {'state': 'authorized'};
+      host.overrides['/api/v1/recorders'] = {'items': []};
+      host.overrides['/api/v1/recorders/operations/pending'] = {'items': []};
+      final model = personal.coreModel(host)..changed(host.state);
+      await mountRecorder(tester, MyRecordersPage(model));
+      expect(
+        find.text('Connected to this phone · Device code verified'),
+        findsOneWidget,
+      );
+      expect(find.text('Transfer recorder'), findsNothing);
+      expect(host.calls, isNot(contains('native:recorder_register_connected')));
+      await tester.tap(find.text('Register in My recorders'));
+      await tester.pumpAndSettle();
+      expect(
+        host.calls.where((c) => c == 'native:recorder_register_connected'),
+        hasLength(1),
+      );
+      expect(find.byType(DevicePage), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      host.state.device.connected = false;
+      host.state.device.authorized = false;
+      model.changed(host.state);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Connected to this phone · Device code verified'),
+        findsNothing,
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+      model.dispose();
+    },
+  );
+  testWidgets(
+    'ordinary code check and timeout have no identity confirmation or code recovery',
+    (tester) async {
+      final host = JwdHost();
+      await openDevice(tester, host);
+      final model = tester.widget<DevicePage>(find.byType(DevicePage)).model;
+      final state = reviewState(sequence: 2);
+      state.device.identifier = 'radio-id';
+      state.device.connected = true;
+      state.device.busy = true;
+      state.device.status = 'Connected. Checking device key…';
+      state.device.candidatesJson = jsonEncode([
+        {
+          'address': 'radio-id',
+          'gatt_status': 'verified',
+          'identity_timeout': true,
+          'compat_token': 'stale-compat',
+        },
+      ]);
+      model.changed(state);
+      await tester.pump();
+      expect(find.text('Connected. Checking device key…'), findsOneWidget);
+      expect(find.text('Authorize this recorder'), findsNothing);
+      state.device.connected = false;
+      state.device.busy = false;
+      state.device.status =
+          'Recorder authorization timed out. Check the original key.';
+      model.changed(state);
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'No device-code response after 15 seconds. Retry the connection.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Retry connection'), findsOneWidget);
+      expect(find.text('Restore original device code'), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+  testWidgets(
+    'pending ownership operation requires the current verified card and physical confirmation',
     (tester) async {
       final host = JwdHost();
       await openDevice(tester, host);
@@ -126,6 +203,7 @@ void main() {
           'address': 'radio-id',
           'gatt_status': 'verified',
           'identity_timeout': true,
+          'operation_compat': true,
           'compat_token': 'this-link',
         },
       ]);
@@ -458,8 +536,19 @@ void main() {
       model.changed(scanning);
       await capture('92-jwd-binding');
       scanning.device.connected = true;
+      scanning.device.busy = true;
+      scanning.device.status = 'Connected. Checking device key…';
+      scanning.device.candidatesJson = '[]';
+      model.changed(scanning);
+      await capture('97-jwd-verifying-device-code');
+      scanning.device.busy = false;
+      scanning.device.connected = false;
       scanning.device.status =
-          'The recorder connected, but did not return its hardware ID. Check the physical recorder before authorizing it.';
+          'Recorder authorization timed out. Check the original key.';
+      model.changed(scanning);
+      await capture('98-jwd-device-code-timeout');
+      scanning.device.connected = true;
+      scanning.device.status = 'Reading recorder identity';
       scanning.device.candidatesJson = jsonEncode([
         {
           'address': 'hq',
@@ -467,12 +556,13 @@ void main() {
           'gatt_status': 'verified',
           'compat_token': 'fixture',
           'identity_timeout': true,
+          'operation_compat': true,
         },
       ]);
       model.changed(scanning);
-      await capture('97-jwd-hardware-identity');
+      await capture('99-jwd-operation-identity');
       await tapVisible(tester, find.text('Authorize this recorder'));
-      await capture('98-jwd-confirm-physical-recorder');
+      await capture('100-jwd-confirm-pending-operation');
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       final recording = reviewState(

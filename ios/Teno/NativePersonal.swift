@@ -43,6 +43,9 @@ import QuickLook
         try signedIn()
         switch command {
         case "recorder_ownership": return runtime.recorder.ownership.view
+        case "recorder_register_connected":
+            guard !runtime.phone.active else { throw RuntimeFailure("RECORDER_BUSY","Finish recording and syncing before registering this recorder.") }
+            try runtime.recorder.registerConnected(); return [:]
         case "recorder_identity_compat":
             try runtime.recorder.confirmPairing(args); return [:]
         case "recorder_select":

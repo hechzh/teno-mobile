@@ -179,33 +179,54 @@ final class PersonalRuntimeTests: XCTestCase {
         XCTAssertFalse(port.ready); try controller.accepted(); XCTAssertTrue(port.ready)
         store.identity("other","two"); XCTAssertEqual(try store.deviceKey("new-phone-peripheral"),"")
     }
-    @MainActor func testConfirmedPairingReadsProtocolIdentityBeforeClaiming() async throws {
+    @MainActor func testVerifiedServiceConnectsWithAccountKeyWithoutRequestingIdentity() async throws {
         let (store,api) = try fixture(); store.identity("owner","one"); try store.saveTokens(["access_token":"fixture"])
-        let hardware = "A0B1C2D3E4F5", key = "TestAccountKey12"
-        let card: JSONObject = ["id":"card","hardware_id":hardware]
+        let key = "TestAccountKey12"
         var calls: [String] = []
         FixtureProtocol.respond = { request in
-            let path = request.url!.lastPathComponent
-            calls.append(path)
-            switch path {
-            case "pairing-key": return (200,["device_key":key])
-            case "resolve": return (200,["state":"claim_required"])
-            case "claim": return (200,["id":"op"])
-            case "start": return (200,["id":"op","kind":"claim","state":"hardware_pending","device_key":key,"recorder":card])
-            case "complete": return (200,["recorder":card])
-            default: return (500,[:])
-            }
+            calls.append(request.url!.lastPathComponent)
+            return (200,["device_key":key])
         }
         let controller = RecorderOwnership(store:store,api:api), port = OwnershipFixturePort()
         controller.port = port
-        try controller.pairBeforeIdentity(id:"nearby",name:"HQ")
+        try controller.connectWithKey(id:"peripheral",name:"HQ")
         for _ in 0..<200 { if !port.keys.isEmpty { break }; try await Task.sleep(nanoseconds:10_000_000) }
-        XCTAssertEqual(port.keys,[key]); try controller.accepted()
-        XCTAssertTrue(port.readIdentity); XCTAssertFalse(port.ready); XCTAssertEqual(calls,["pairing-key"])
-        try controller.identity(hardware,id:"nearby",name:"HQ")
-        for _ in 0..<200 { if port.ready { break }; try await Task.sleep(nanoseconds:10_000_000) }
-        XCTAssertTrue(port.ready); XCTAssertEqual(calls,["pairing-key","resolve","claim","start","complete"])
-        XCTAssertEqual(try store.deviceKey("nearby"),key)
+        XCTAssertEqual(port.keys,[key]); XCTAssertFalse(port.ready); XCTAssertEqual(try store.deviceKey("peripheral"),"")
+        try controller.accepted()
+        XCTAssertTrue(port.ready); XCTAssertFalse(port.readIdentity); XCTAssertFalse(controller.blocked)
+        XCTAssertEqual(controller.state,"authorized"); XCTAssertEqual(controller.hardware,"")
+        XCTAssertTrue(store.recorderIdentity("peripheral").isEmpty)
+        XCTAssertEqual(calls,["connection-key"]); XCTAssertEqual(try store.deviceKey("peripheral"),key)
+    }
+    @MainActor func testRejectedKeyOrAccountChangeCannotConnectOrReplaceSavedCode() async throws {
+        let (store,api) = try fixture(); store.identity("owner","one"); try store.saveTokens(["access_token":"fixture"])
+        let saved = "OriginalCode1234", attempted = "TestAccountKey12"
+        try store.saveDeviceKey("radio",saved)
+        FixtureProtocol.respond = { _ in (200,["device_key":attempted]) }
+        let controller = RecorderOwnership(store:store,api:api), port = OwnershipFixturePort(); controller.port = port
+        try controller.connectWithKey(id:"radio",name:"HQ",original:attempted)
+        for _ in 0..<200 { if !port.keys.isEmpty { break }; try await Task.sleep(nanoseconds:10_000_000) }
+        XCTAssertEqual(port.keys,[attempted]); try controller.rejected()
+        XCTAssertFalse(port.ready); XCTAssertEqual(try store.deviceKey("radio"),saved)
+        try controller.connectWithKey(id:"radio",name:"HQ")
+        for _ in 0..<200 { if port.keys.count == 2 { break }; try await Task.sleep(nanoseconds:10_000_000) }
+        store.identity("other","two")
+        XCTAssertThrowsError(try controller.accepted()); XCTAssertFalse(port.ready)
+        XCTAssertEqual(try store.deviceKey("radio"),"")
+    }
+    @MainActor func testPendingOperationPreventsDirectConnectionWithSavedKey() async throws {
+        let (store,api) = try fixture(); store.identity("owner","one"); try store.saveTokens(["access_token":"fixture"])
+        try store.saveDeviceKey("radio","OriginalCode1234",verifiedDirect:true)
+        FixtureProtocol.respond = { _ in (409,["code":"RECORDER_OPERATION_PENDING","message":"Continue the pending recorder operation."]) }
+        let controller = RecorderOwnership(store:store,api:api), port = OwnershipFixturePort(); controller.port = port
+        try controller.connectWithKey(id:"radio",name:"HQ")
+        for _ in 0..<200 { if controller.state == "recovery_required" { break }; try await Task.sleep(nanoseconds:10_000_000) }
+        XCTAssertEqual(controller.state,"recovery_required"); XCTAssertTrue(port.keys.isEmpty); XCTAssertFalse(port.ready)
+        XCTAssertFalse(store.permitsOfflineRecorder("radio"))
+        FixtureProtocol.respond = { _ in throw URLError(.notConnectedToInternet) }
+        try controller.connectWithKey(id:"radio",name:"HQ")
+        for _ in 0..<200 { if !controller.requesting { break }; try await Task.sleep(nanoseconds:10_000_000) }
+        XCTAssertTrue(port.keys.isEmpty); XCTAssertFalse(port.ready)
     }
     @MainActor func testUnownedAndForeignCardsNeverReceiveAnAutomaticNewCode() async throws {
         let (store,api) = try fixture(); store.identity("owner","one"); try store.saveTokens(["access_token":"fixture"])
@@ -217,7 +238,7 @@ final class PersonalRuntimeTests: XCTestCase {
             XCTAssertEqual(controller.state,result);XCTAssertTrue(port.keys.isEmpty);XCTAssertFalse(port.ready)
         }
     }
-    @MainActor func testKnownCardMustMatchProtocolIdentityAfterPairingAck() async throws {
+    @MainActor func testKnownCardRestoresItsOwnKeyAndConnectsWithoutMacReadback() async throws {
         let (store,api) = try fixture(); store.identity("owner","one"); try store.saveTokens(["access_token":"fixture"])
         let card: JSONObject = ["id":"owned","hardware_id":"AABBCCDDEE01"]
         try store.recorderIdentity("peripheral",card)
@@ -232,11 +253,11 @@ final class PersonalRuntimeTests: XCTestCase {
         }
         let controller = RecorderOwnership(store:store,api:api), port = OwnershipFixturePort()
         controller.port = port
-        try controller.pairBeforeIdentity(id:"peripheral",name:"HQ")
+        try controller.connectWithKey(id:"peripheral",name:"HQ")
         for _ in 0..<200 { if !port.keys.isEmpty { break }; try await Task.sleep(nanoseconds:10_000_000) }
         XCTAssertEqual(port.keys,["OriginalCode1234"]); try controller.accepted()
-        XCTAssertThrowsError(try controller.identity("AABBCCDDEE02",id:"peripheral",name:"HQ"))
-        XCTAssertFalse(port.ready); XCTAssertEqual(calls,["resolve","restore"])
+        XCTAssertFalse(port.readIdentity); XCTAssertEqual(controller.hardware,""); XCTAssertEqual(controller.state,"owned")
+        XCTAssertTrue(port.ready); XCTAssertEqual(calls,["restore"])
     }
 }
 

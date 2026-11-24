@@ -2565,6 +2565,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteTemplate => 'Note template';
 
   @override
+  String get recorderVerifyingCode => 'Connected. Checking device key…';
+
+  @override
+  String get recorderCodeTimeout =>
+      'No device-code response after 15 seconds. Retry the connection.';
+
+  @override
+  String get localRecorderVerified =>
+      'Connected to this phone · Device code verified';
+
+  @override
+  String get registerCurrentRecorder => 'Register in My recorders';
+
+  @override
+  String get optionalIdentityTimeout =>
+      'This recorder did not return a hardware ID. Recording and syncing are still available.';
+
+  @override
   String get defaultNoteTemplate => 'Default note template';
 
   @override

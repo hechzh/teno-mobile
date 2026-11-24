@@ -133,12 +133,27 @@ final class KeyVault {
         guard let value = try scoped ?? (legacy ? vault.data("device." + identifier) : nil) else { return "" }
         return String(data: value, encoding: .utf8) ?? ""
     }
-    func saveDeviceKey(_ identifier: String, _ key: String) throws {
+    func denyOfflineRecorder(_ identifier: String) {
+        preferences.set(true,forKey:"recorder.deny_offline." + scope + "." + identifier)
+    }
+    func permitsOfflineRecorder(_ identifier: String) -> Bool {
+        !preferences.bool(forKey:"recorder.deny_offline." + scope + "." + identifier)
+    }
+    func directKeyVerified(_ identifier: String) -> Bool {
+        preferences.bool(forKey:"recorder.direct_verified." + scope + "." + identifier)
+    }
+    func saveDeviceKey(_ identifier: String, _ key: String, verifiedDirect: Bool = false) throws {
         guard key.range(of: "^[A-Za-z0-9]{16}$", options: .regularExpression) != nil else {
             throw RuntimeFailure("DEVICE_KEY", "Enter a 16-character key using letters and numbers.")
         }
         guard !scope.isEmpty else { throw RuntimeFailure("SIGN_IN","Sign in to connect your recorder.") }
+        let flag = "recorder.direct_verified." + scope + "." + identifier
+        preferences.removeObject(forKey:flag)
         try vault.set("device." + scope + "." + identifier, Data(key.utf8))
+        if verifiedDirect {
+            preferences.set(true,forKey:flag)
+            preferences.removeObject(forKey:"recorder.deny_offline." + scope + "." + identifier)
+        }
     }
     var recorderId: String { preferences.string(forKey:"recorder.id." + scope) ?? (scope == preferences.string(forKey:"recorder.legacy_owner") ? preferences.string(forKey:"recorder.id") ?? "" : "") }
     var recorderName: String { preferences.string(forKey:"recorder.name." + scope) ?? "Recorder" }
@@ -148,6 +163,7 @@ final class KeyVault {
     func recorderIdentity(_ id: String) -> JSONObject { preferences.data(forKey:"recorder.identity." + scope + "." + id).flatMap { try? jsonObject($0) } ?? [:] }
     func recorderIdentity(_ id: String, _ value: JSONObject) throws { preferences.set(try jsonData(value),forKey:"recorder.identity." + scope + "." + id) }
     func forgetRecorder(_ id: String) throws {
+        preferences.removeObject(forKey:"recorder.direct_verified." + scope + "." + id)
         try vault.set("device." + scope + "." + id,nil); try recorderIdentity(id,[:])
         preferences.set(true,forKey:"recorder.revoked." + scope + "." + id)
         preferences.set("",forKey:"recorder.id." + scope); preferences.removeObject(forKey:"recorder.selected." + scope)

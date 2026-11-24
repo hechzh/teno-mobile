@@ -1,6 +1,6 @@
-# Teno iOS 1.0 / Build 19 — Xcode 27 signing handoff
+# Teno iOS 1.0 / Build 20 — Xcode 27 signing handoff
 
-Build 19 retries the identity request after connecting to a JWD recorder. Some firmware requires authorization first. After you confirm the physical recorder, Teno can try your account key and read the identity again before registering the card. The Xcode 27 workflow publishes the portable project, simulator screenshot and installation guide to the Team development page. The unsigned IPA is available in the workflow artifact. Open `Teno-iOS-1.0-build19-Xcode.zip` with Xcode 26 or later and sign with the original Apple Team to update an existing installation.
+Build 20 connects to a discovered JWD recorder using the SK command. A successful reply enables recording and synchronization without a MAC read. Each account uses one stable key for new cards. Existing recorders can use their saved authorization. The Xcode 27 workflow publishes the portable project, simulator screenshot and installation guide to the Team development page. The unsigned IPA is available in the workflow artifact. Open `Teno-iOS-1.0-build20-Xcode.zip` with Xcode 26 or later and sign with the original Apple Team to update an existing installation.
 
 # Teno Android 0.8.1 and iOS 1.1.1 / Build 17
 

@@ -2402,6 +2402,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noteTemplate => '笔记模板';
 
   @override
+  String get recorderVerifyingCode => '已连接，正在验证设备码…';
+
+  @override
+  String get recorderCodeTimeout => '15 秒内未收到设备码验证回复，请重试连接。';
+
+  @override
+  String get localRecorderVerified => '已连接到本机 · 设备码验证成功';
+
+  @override
+  String get registerCurrentRecorder => '登记到我的录音卡';
+
+  @override
+  String get optionalIdentityTimeout => '录音卡未返回硬件标识，仍可正常录音和同步。';
+
+  @override
   String get defaultNoteTemplate => '默认笔记模板';
 
   @override

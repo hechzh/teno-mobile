@@ -88,37 +88,51 @@ def simulator():
 
 
 def capture_login_screen(selected):
-    """Capture the simulator and require the rendered Teno sign-in text.
-
-    A successful ``simctl launch`` is not proof that Flutter painted its first
-    frame. Vision OCR crashes on the Xcode 27 host, so the screenshot is read
-    with the tesseract CLI instead of a compiled helper.
-    """
-    png = BUILD/'screenshots/01-login.png'; log = ROOT/'ios-capture.log'
-    deadline = time.time() + 60; verified = False
-    # Some Xcode 27 runners expose an extra virtual display, and simctl then
-    # refuses a screenshot without an explicit display selector.
-    displays = ([], ['--display=internal'], ['--display=1'], ['--display=3'])
+    """Sample the main display until the actual app sign-in screen is visible."""
+    png = BUILD / 'screenshots/01-login.png'
+    log = ROOT / 'ios-capture.log'
+    capture_start = time.monotonic()
+    deadline = capture_start + 150
+    relaunched = False
     with log.open('w') as stream:
-        while time.time() < deadline:
-            for extra in displays:
-                shot = subprocess.run(['xcrun','simctl','io',selected,'screenshot',*extra,str(png)],
-                    capture_output=True, text=True)
+        while time.monotonic() < deadline:
+            # A valid main-screen image may show the splash for a few seconds.
+            # Sample it again; virtual accessory displays may block indefinitely.
+            for display in (['--display=internal'], ['--display=1'], []):
+                try:
+                    shot = subprocess.run(
+                        ['xcrun', 'simctl', 'io', selected, 'screenshot', *display, str(png)],
+                        capture_output=True, text=True, timeout=7)
+                except subprocess.TimeoutExpired:
+                    stream.write(f'Screenshot timed out for {display}\n')
+                    continue
                 stream.write(shot.stdout + shot.stderr)
                 if shot.returncode != 0 or not png.is_file():
                     continue
-                ocr = subprocess.run(['tesseract',str(png),'stdout'],capture_output=True,text=True)
+                try:
+                    ocr = subprocess.run(['tesseract', str(png), 'stdout'],
+                        capture_output=True, text=True, timeout=8)
+                except subprocess.TimeoutExpired:
+                    stream.write('OCR timed out\n')
+                    break
                 stream.write(ocr.stdout + ocr.stderr)
                 words = (ocr.stdout or '').lower()
-                if 'teno' in words and ('sign in' in words or 'signin' in words):
-                    verified = True; break
-            if verified:
+                if ocr.returncode == 0 and 'teno' in words and ('sign in' in words or 'signin' in words):
+                    print('Teno sign-in screen verified from the native simulator screenshot.')
+                    return
                 break
+            if not relaunched and time.monotonic() - capture_start >= 90:
+                relaunched = True
+                try:
+                    launch = subprocess.run(['xcrun','simctl','launch','--terminate-running-process',
+                        selected,IDENTITY['bundle_id']],capture_output=True,text=True,timeout=15)
+                    stream.write(launch.stdout + launch.stderr)
+                except subprocess.TimeoutExpired:
+                    stream.write('Simulator relaunch timed out\n')
+            stream.flush()
             time.sleep(2)
-    if not verified:
-        print(log.read_text(errors='replace')[-2000:])
-        raise SystemExit('Teno sign-in screen did not render within 60 seconds; inspect '+str(png))
-    print('Teno sign-in screen verified from the native simulator screenshot.')
+    print(log.read_text(errors='replace')[-2000:])
+    raise SystemExit('Teno sign-in screen did not render; inspect ' + str(png))
 
 
 if __name__ == '__main__':
