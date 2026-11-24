@@ -15,6 +15,14 @@ import 'personal_test.dart' as personal;
 
 class JwdHost extends personal.CoreHost {
   bool denyProbe = false;
+  Map<String, dynamic>? physicalConsent;
+  @override
+  Future<String> platformCommand(String command, String? body) async {
+    if (command == 'recorder_identity_compat')
+      physicalConsent = jsonDecode(body!);
+    return super.platformCommand(command, body);
+  }
+
   Completer<String>? preparation;
   @override
   Future<String> request(String method, String path, String? body) {
@@ -103,6 +111,45 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  testWidgets(
+    'authorization-first pairing requires the current verified card and physical confirmation',
+    (tester) async {
+      final host = JwdHost();
+      await openDevice(tester, host);
+      final model = tester.widget<DevicePage>(find.byType(DevicePage)).model;
+      final state = reviewState(sequence: 2);
+      state.device.connected = true;
+      state.device.identifier = 'radio-id';
+      state.device.candidatesJson = jsonEncode([
+        {
+          'name': 'Fixture card',
+          'address': 'radio-id',
+          'gatt_status': 'verified',
+          'identity_timeout': true,
+          'compat_token': 'this-link',
+        },
+      ]);
+      model.changed(state);
+      await tester.pumpAndSettle();
+      expect(find.text('Connecting your JWD recorder'), findsNothing);
+      expect(host.physicalConsent, isNull);
+      await tapVisible(tester, find.text('Authorize this recorder'));
+      expect(find.byType(TextField), findsNothing);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(host.physicalConsent, isNull);
+      await tapVisible(tester, find.text('Authorize this recorder'));
+      await tester.tap(find.text('Confirm and authorize'));
+      await tester.pumpAndSettle();
+      expect(host.physicalConsent, {
+        'address': 'radio-id',
+        'compat_token': 'this-link',
+        'confirm': true,
+      });
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(host.calls, contains('device:disconnect'));
+    },
+  );
   setUpAll(() async {
     await (FontLoader(
       'Inter',
@@ -410,6 +457,24 @@ void main() {
       ]);
       model.changed(scanning);
       await capture('92-jwd-binding');
+      scanning.device.connected = true;
+      scanning.device.status =
+          'The recorder connected, but did not return its hardware ID. Check the physical recorder before authorizing it.';
+      scanning.device.candidatesJson = jsonEncode([
+        {
+          'address': 'hq',
+          'name': 'HQ-10_P_TEST',
+          'gatt_status': 'verified',
+          'compat_token': 'fixture',
+          'identity_timeout': true,
+        },
+      ]);
+      model.changed(scanning);
+      await capture('97-jwd-hardware-identity');
+      await tapVisible(tester, find.text('Authorize this recorder'));
+      await capture('98-jwd-confirm-physical-recorder');
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
       final recording = reviewState(
         sequence: 3,
         phase: 'recording',

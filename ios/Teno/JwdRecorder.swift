@@ -22,9 +22,11 @@ import JwdVtrSDK
     private var automatic = false, autoProbing = false
     private var autoQueue: [String] = [], autoTried = Set<String>()
     private var preferred = ""
+    private var explicitlySelectedHardware = ""
     private var disconnectReason = ""
     private var scanTimer: Task<Void,Never>?
     private var requestGeneration = 0
+    private var identityRead: Task<Void,Never>?
     private var deadline: Task<Void,Never>?
     private var commands: [() -> Void] = []
     private var commandTask: Task<Void,Never>?
@@ -130,7 +132,7 @@ import JwdVtrSDK
             if found == nil, let uuid = UUID(uuidString: selected) { found = central.retrievePeripherals(withIdentifiers: [uuid]).first }
             guard let device = found else { throw RuntimeFailure("DEVICE_NOT_FOUND", "Scan for your recorder again.") }
             if action == .connect, !id.isEmpty, candidates[id]?["gatt_status"] as? String == "verified", !ownership.running,
-               !store.selectedRecorder.isEmpty { store.selectRecorder("") }
+               !store.selectedRecorder.isEmpty && explicitlySelectedHardware.isEmpty { store.selectRecorder("") }
             disconnectReason = ""
             ownership.connectionAttempt(); central.stopScan(); peripheral = device; identifier = selected; self.name = name.isEmpty ? device.name ?? "Recorder" : name
             probeOnly = action == .probe; busy = true; authorized = false; status = "Checking recorder service"
@@ -172,11 +174,11 @@ import JwdVtrSDK
     func cancelAccountConnection() {
         ownership.cancel(); ownershipReconnectPending = false; ownershipSeeking = false
         requestGeneration += 1; connectionGeneration += 1
-        cancelAutomatic(); central?.stopScan(); deadline?.cancel()
+        cancelAutomatic(); central?.stopScan(); deadline?.cancel(); identityRead?.cancel()
         commands.removeAll(); commandTask?.cancel(); commandTask = nil
         if let device = peripheral { central?.cancelPeripheralConnection(device) }
         peripheral = nil; authorized = false; busy = false; waiting = ""
-        discovered.removeAll(); candidates.removeAll(); disconnectReason = ""
+        discovered.removeAll(); candidates.removeAll(); disconnectReason = ""; explicitlySelectedHardware = ""
         status = "Sign in to connect your recorder."
     }
     private func selectAutomatic() {
@@ -329,7 +331,16 @@ import JwdVtrSDK
     private func disconnected(_ device: CBPeripheral,error: Error?) {
         guard peripheral?.identifier == device.identifier else { return }
         let continueSelection = automatic && autoProbing
+        identityRead?.cancel()
+        if (waiting == "pairing" || waiting == "identity_consent" || waiting == "confirm_identity" || ownership.pairing) && disconnectReason.isEmpty {
+            disconnectReason = "Recorder disconnected before its hardware ID was verified."
+        }
+        candidates[identifier]?.removeValue(forKey:"compat_token")
+        candidates[identifier]?.removeValue(forKey:"identity_timeout")
+        candidates[identifier]?.removeValue(forKey:"operation_compat")
+        if ownership.pairing { ownership.connectionAttempt() }
         autoProbing = false; waiting = ""
+        device.delegate = nil
         sdk.onPeripheralDisconnected(device,error:error); connectionGeneration += 1; commands.removeAll(); commandTask?.cancel(); commandTask = nil
         deadline?.cancel(); authorized = false; busy = false; recordStateKnown = false; peripheral = nil
         if active { accumulated = elapsed; recordStarted = nil; phase = "interrupted"; status = "Connection interrupted. The recorder may still be recording." }
@@ -343,7 +354,7 @@ import JwdVtrSDK
             ownershipReconnectPending = false; reconnectOwnership(device)
         } else if continueSelection { nextAutomaticProbe() }
         else if (ownership.running || ownership.requesting) && !ownershipAuthRejected { ownership.fail("Recorder disconnected. Continue the pending operation.") }
-        else if candidates[identifier]?["key_rejected"] as? Bool == true { status = "Device key was rejected. Use the original key; the recorder was not reset." }
+        else if disconnectReason.isEmpty, candidates[identifier]?["key_rejected"] as? Bool == true { status = "Device key was rejected. Use the original key; the recorder was not reset." }
         ownershipAuthRejected = false
     }
     func onBleConnected(_ peripheral: CBPeripheral) {
@@ -353,9 +364,8 @@ import JwdVtrSDK
                 guard store.state().signedIn, self.peripheral === peripheral, connected else { return }
                 let notifications = peripheral.services?.flatMap { $0.characteristics ?? [] }.filter { $0.uuid == Self.characteristics[0] || $0.uuid == Self.characteristics[2] } ?? []
                 if notifications.count == 2 && notifications.allSatisfy({ $0.isNotifying }) {
-                    if waiting == "auth" || waiting == "identity" || authorized { return }
-                    waiting = "identity"; status = "Reading recorder identity"; send { self.sdk.getDeviceMac() }
-                    timeout("Recorder identity could not be verified.", disconnect:true)
+                    if !waiting.isEmpty || authorized { return }
+                    readIdentity(afterAuth:false)
                     return
                 }
                 try? await Task.sleep(nanoseconds: 100_000_000)
@@ -364,6 +374,53 @@ import JwdVtrSDK
         }
     }
     func onBleDisConnected(_ peripheral: CBPeripheral) {}
+    private func readIdentity(afterAuth: Bool) {
+        identityRead?.cancel(); deadline?.cancel()
+        let phase = afterAuth ? "confirm_identity" : "identity"
+        let generation = connectionGeneration, scope = store.scope
+        waiting = phase; busy = true; status = "Reading recorder identity"
+        identityRead = Task {
+            // The vendor sample settles for one second after notification setup before its first write.
+            for delay: UInt64 in [1,3,4] {
+                try? await Task.sleep(nanoseconds:delay * 1_000_000_000)
+                guard !Task.isCancelled, generation == connectionGeneration, scope == store.scope,
+                      connected, store.state().signedIn, waiting == phase else { return }
+                send { if self.waiting == phase { self.sdk.getDeviceMac() } }
+            }
+            try? await Task.sleep(nanoseconds:4_000_000_000)
+            guard !Task.isCancelled, generation == connectionGeneration, scope == store.scope,
+                  connected, waiting == phase else { return }
+            if afterAuth {
+                ownership.fail("The recorder did not return its hardware ID after authorization."); return
+            }
+            waiting = "identity_consent"; busy = false; cancelAutomatic()
+            status = "The recorder connected, but did not return its hardware ID. Check the physical recorder before authorizing it."
+            candidates[identifier]?["identity_timeout"] = true
+            candidates[identifier]?["operation_compat"] = ownership.running
+            candidates[identifier]?["compat_token"] = UUID().uuidString
+        }
+    }
+    func selectOwnedRecorder(_ hardware: String) {
+        explicitlySelectedHardware = hardware; store.selectRecorder(hardware)
+    }
+    func confirmPairing(_ args: JSONObject) throws {
+        guard store.state().signedIn, connected, !authorized, !busy, waiting == "identity_consent",
+              args["confirm"] as? Bool == true, string(args["address"]) == identifier,
+              let token = candidates[identifier]?["compat_token"] as? String, token == string(args["compat_token"]),
+              candidates[identifier]?["gatt_status"] as? String == "verified" else {
+            throw RuntimeFailure("RECORDER_CONFIRM","Confirm the connected recorder first.")
+        }
+        let selectedHardware = string(args["selected_hardware_id"])
+        guard selectedHardware.isEmpty || selectedHardware == explicitlySelectedHardware else {
+            throw RuntimeFailure("RECORDER_IDENTITY","Recorder identity could not be verified.")
+        }
+        candidates[identifier]?.removeValue(forKey:"compat_token")
+        candidates[identifier]?.removeValue(forKey:"identity_timeout")
+        waiting = "pairing"; busy = true
+        do { try ownership.pairBeforeIdentity(id:identifier,name:name,selectedHardware:selectedHardware) }
+        catch { ownership.fail(error.localizedDescription); throw error }
+    }
+    func ownershipReadIdentity() { readIdentity(afterAuth:true) }
     func onBleError(_ errorCode: Int32) { status = "Recorder connection error (\(errorCode))."; busy = false }
     func onAuthSuccess() {
         guard store.state().signedIn, waiting == "auth", connected else { return }
@@ -373,6 +430,7 @@ import JwdVtrSDK
     func ownershipReady() {
         deadline?.cancel(); waiting = "state"; authorized = true; busy = true; recordStateKnown = false; status = "Checking recorder status"
         automatic = false
+        explicitlySelectedHardware = ""
         candidates[identifier]?["key_rejected"] = false
         store.rememberRecorder(identifier,name)
         send { self.sdk.getRecordStatus() }; send { self.sdk.getBattery() }; send { self.sdk.syncTime() }
@@ -386,8 +444,10 @@ import JwdVtrSDK
         do { try ownership.rejected() } catch { ownership.fail(error.localizedDescription) }
     }
     func onDeviceMac(_ mac: String) {
-        guard store.state().signedIn, waiting == "identity", connected else { return }
-        deadline?.cancel(); waiting = ""; busy = false
+        guard store.state().signedIn, ["identity","confirm_identity","identity_consent"].contains(waiting), connected else { return }
+        identityRead?.cancel(); deadline?.cancel(); waiting = ""; busy = false
+        candidates[identifier]?.removeValue(forKey:"compat_token")
+        candidates[identifier]?.removeValue(forKey:"identity_timeout")
         do { try ownership.identity(mac,id:identifier,name:name) } catch { ownership.fail(error.localizedDescription) }
     }
     func ownershipKey(_ key: String) { waiting = "auth"; busy = true; send { self.sdk.bindDevice(key) }; timeout("Recorder authorization timed out. Check the original key.",disconnect:true) }

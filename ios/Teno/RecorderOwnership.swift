@@ -10,6 +10,7 @@ import CryptoKit
     func ownershipChanged()
     func ownershipClose(_ message: String)
     func ownershipSeek()
+    func ownershipReadIdentity()
 }
 
 /// The journal contains authorization secrets and lives only in this account's Keychain item.
@@ -20,6 +21,7 @@ import CryptoKit
     private var owner = "", identifier = "", name = "", auth = "", before = ""
     private var generation = 0
     private var rejectedClaimHardware = "", rejectedClaimOwner = ""
+    private var pairingKey = "", pairingExpected = "", operationIdentityToVerify = ""
     private(set) var hardware = "", stage = "", state = "disconnected", message = ""
     private(set) var running = false, requesting = false
     init(store: NativeStore, api: SessionTransport) { self.store = store; self.api = api; owner = store.scope
@@ -39,10 +41,11 @@ import CryptoKit
     static func inventoryHash(_ entries: [String]) -> String { SHA256.hash(data:Data(entries.sorted().joined(separator:"\n").utf8)).map { String(format:"%02x",$0) }.joined() }
     private var journal: String { "recorder.operation." + owner }
     private func persist() throws { operation["local_stage"] = stage; operation["files_before"] = before; try store.vault.set(journal,jsonData(operation)) }
-    func cancel() { generation += 1; running = false; requesting = false; auth = ""; state = "disconnected" }
-    func connectionAttempt() { generation += 1; requesting = false; auth = "" }
+    func cancel() { connectionAttempt(); running = false; state = "disconnected" }
+    func connectionAttempt() { generation += 1; requesting = false; auth = ""; pairingKey = ""; pairingExpected = ""; operationIdentityToVerify = "" }
+    var pairing: Bool { !pairingKey.isEmpty || auth == "pairing" }
     private func update(_ state: String, _ message: String) { self.state = state; self.message = message; port?.ownershipChanged() }
-    func fail(_ text: String) { generation += 1; running = false; requesting = false; auth = ""; update("recovery_required",text); port?.ownershipClose(text) }
+    func fail(_ text: String) { connectionAttempt(); running = false; update("recovery_required",text); port?.ownershipClose(text) }
     private func request(_ path: String, _ body: JSONObject, done: @escaping (JSONObject) throws -> Void, offline: (() throws -> Void)? = nil) {
         generation += 1; let ticket = generation, scope = store.scope
         requesting = true; port?.ownershipChanged()
@@ -59,11 +62,61 @@ import CryptoKit
             }
         }
     }
+    /// The caller binds consent to the live, GATT-verified peripheral. Never use its BLE address as its protocol identity.
+    func pairBeforeIdentity(id: String, name: String, selectedHardware: String = "") throws {
+        guard !requesting else { throw RuntimeFailure("RECORDER_BUSY","Finish the current device operation first.") }
+        identifier = id; self.name = name; owner = store.scope
+        let cached = string(store.recorderIdentity(id)["hardware_id"])
+        guard selectedHardware.isEmpty || cached.isEmpty || selectedHardware == cached else {
+            throw RuntimeFailure("RECORDER_IDENTITY","Recorder identity could not be verified.")
+        }
+        let expected = cached.isEmpty ? selectedHardware : cached
+        if running {
+            let target = string(recorder["hardware_id"])
+            guard !target.isEmpty, expected == target || string(operation["verified_peripheral"]) == id else {
+                throw RuntimeFailure("RECORDER_IDENTITY","Recorder identity could not be verified.")
+            }
+            operationIdentityToVerify = target; try authenticate(); return
+        }
+        guard try store.vault.data(journal) == nil else {
+            throw RuntimeFailure("RECORDER_BUSY","Continue the pending recorder operation.")
+        }
+        hardware = ""; auth = "pairing"; pairingKey = ""; pairingExpected = expected
+        update("checking","Checking recorder ownership")
+        if pairingExpected.isEmpty {
+            request("/api/v1/recorders/pairing-key",["confirm":true],done:{ [self] in try sendPairingKey($0) })
+        } else {
+            request("/api/v1/recorders/resolve",["hardware_id":pairingExpected],done:{ [self] result in
+                let known = result["recorder"] as? JSONObject ?? [:]
+                guard string(result["state"]) == "owned", string(known["hardware_id"]) == pairingExpected else {
+                    throw RuntimeFailure("RECORDER_OWNER","Ask the owner to transfer this recorder.")
+                }
+                request("/api/v1/recorders/" + string(known["id"]) + "/restore",[:],done:{ [self] in try sendPairingKey($0) })
+            })
+        }
+    }
+    private func sendPairingKey(_ result: JSONObject) throws {
+        let key = string(result["device_key"])
+        guard key.range(of:"^[A-Za-z0-9]{16}$",options:.regularExpression) != nil else {
+            throw RuntimeFailure("RECORDER_KEY","Recorder authorization is unavailable.")
+        }
+        pairingKey = key; port?.ownershipKey(key)
+    }
     func identity(_ value: String, id: String, name: String) throws {
+        if (pairing || !operationIdentityToVerify.isEmpty) && (owner != store.scope || identifier != id) {
+            throw RuntimeFailure("RECORDER_IDENTITY","Recorder identity could not be verified.")
+        }
         hardware = try Self.canonical(value); identifier = id; self.name = name; owner = store.scope
-        let target = running ? string((operation["recorder"] as? JSONObject)?["hardware_id"]) : store.selectedRecorder
+        if !operationIdentityToVerify.isEmpty {
+            guard hardware == operationIdentityToVerify else { throw RuntimeFailure("RECORDER_IDENTITY","The recorder returned a different hardware ID. No recordings were accessed.") }
+            operationIdentityToVerify = ""; try accepted(); return
+        }
+        if pairing && !pairingExpected.isEmpty && hardware != pairingExpected {
+            throw RuntimeFailure("RECORDER_IDENTITY","The recorder returned a different hardware ID. No recordings were accessed.")
+        }
+        let target = running ? string((operation["recorder"] as? JSONObject)?["hardware_id"]) : (pairing ? "" : store.selectedRecorder)
         if !target.isEmpty, target != hardware { port?.ownershipSeek(); return }
-        if running { try authenticate(); return }
+        if running { operation["verified_peripheral"] = id; try persist(); try authenticate(); return }
         update("checking","Checking recorder ownership")
         request("/api/v1/recorders/resolve",["hardware_id":hardware],done:{ [self] result in
             switch string(result["state"]) {
@@ -74,15 +127,19 @@ import CryptoKit
                 }
                 request("/api/v1/recorders/" + string(recorder["id"]) + "/restore",[:],done:{ [self] restored in
                     recorder = restored; let key = string(recorder.removeValue(forKey:"device_key"))
+                    if pairing && key != pairingKey { throw RuntimeFailure("RECORDER_KEY","Recorder authorization could not be verified.") }
                     try store.saveDeviceKey(identifier,key); try store.recorderIdentity(identifier,recorder)
-                    auth = "owned"; port?.ownershipKey(key)
+                    if pairing { pairingKey = ""; pairingExpected = ""; auth = "owned"; try accepted() }
+                    else { auth = "owned"; port?.ownershipKey(key) }
                 })
-            case "claim_required": operation = [:]; recorder = [:]; update("claim_required","Confirm this recorder and its existing recordings.")
+            case "claim_required":
+                operation = [:]; recorder = [:]; update("claim_required","Confirm this recorder and its existing recordings.")
+                if pairing { try claim("",confirmed:true) }
             default: try store.forgetRecorder(identifier); update("transfer_required","Ask the owner to transfer this recorder."); port?.ownershipClose(message)
             }
         },offline:{ [self] in
             let cached = store.recorderIdentity(identifier), key = try store.deviceKey(identifier)
-            guard string(cached["hardware_id"]) == hardware, !key.isEmpty, try store.vault.data(journal) == nil else {
+            guard !pairing, string(cached["hardware_id"]) == hardware, !key.isEmpty, try store.vault.data(journal) == nil else {
                 throw RuntimeFailure("RECORDER_ONLINE","Connect to the internet to restore recorder authorization.")
             }
             recorder = cached; auth = "offline_owned"; port?.ownershipKey(key)
@@ -95,7 +152,8 @@ import CryptoKit
         if key.isEmpty && rejectedClaimHardware == hardware && rejectedClaimOwner == store.scope {
             key = try store.deviceKey(identifier)
         }
-        if !key.isEmpty { body["original_key"] = key }
+        if pairing { body["account_key_only"] = true }
+        else if !key.isEmpty { body["original_key"] = key }
         request("/api/v1/recorders/claim",body,done:{ [self] value in operation = value; try start(string(value["id"])) })
     }
     func start(_ id: String) throws {
@@ -104,8 +162,14 @@ import CryptoKit
         request("/api/v1/recorders/operations/" + id + "/start",[:],done:{ [self] value in
             operation = value; recorder = value["recorder"] as? JSONObject ?? [:]
             if string(value["state"]) == "completed" { try store.vault.set(journal,nil); if string(value["kind"]) != "claim", !identifier.isEmpty { try store.forgetRecorder(identifier) }; running = false; update("completed","Recorder operation completed"); return }
+            if !identifier.isEmpty && hardware == string(recorder["hardware_id"]) { operation["verified_peripheral"] = identifier }
             let point = value["checkpoint"] as? JSONObject ?? [:]
             before = string(point["files_before"]); stage = string(point["stage"]); running = true; try persist()
+            if pairing {
+                guard string(value["kind"]) == "claim", string(recorder["hardware_id"]) == hardware,
+                      string(value["device_key"]) == pairingKey else { throw RuntimeFailure("RECORDER_IDENTITY","Recorder identity could not be verified.") }
+                pairingKey = ""; pairingExpected = ""; auth = "claim"; try complete(""); return
+            }
             update("changing","Verifying recorder authorization"); store.selectRecorder(string(recorder["hardware_id"]))
             if hardware == string(recorder["hardware_id"]) { port?.ownershipReconnect() } else { port?.ownershipSeek() }
         })
@@ -117,7 +181,9 @@ import CryptoKit
         else { auth = "new"; port?.ownershipKey(string(operation["device_key"])) }
     }
     func accepted() throws {
+        if !operationIdentityToVerify.isEmpty && auth != "reject_old" { port?.ownershipReadIdentity(); return }
         switch auth {
+        case "pairing": port?.ownershipReadIdentity()
         case "owned","offline_owned": update(auth,"Recorder connected"); store.rememberRecorder(identifier,name); port?.ownershipReady()
         case "claim": try complete("")
         case "reject_old": fail("The previous authorization is still accepted. Transfer was not completed.")
@@ -129,6 +195,10 @@ import CryptoKit
         }
     }
     func rejected() throws {
+        operationIdentityToVerify = ""
+        if pairing {
+            fail("The recorder rejected this account's key. Use the original account to check its ownership."); return
+        }
         if running, auth == "claim" {
             request("/api/v1/recorders/operations/" + string(operation["id"]) + "/claim-rejected",[:],done:{ [self] _ in
                 try store.vault.set(journal,nil); operation = [:]; stage = ""; running = false
