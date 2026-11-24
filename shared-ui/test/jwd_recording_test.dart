@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -14,6 +15,16 @@ import 'personal_test.dart' as personal;
 
 class JwdHost extends personal.CoreHost {
   bool denyProbe = false;
+  Completer<String>? preparation;
+  @override
+  Future<String> request(String method, String path, String? body) {
+    if (method == 'POST' && path == '/api/v1/recorders/prepare') {
+      calls.add('prepare');
+      return preparation?.future ?? Future.value('{"ready":true}');
+    }
+    return super.request(method, path, body);
+  }
+
   @override
   Future<void> controlDevice(
     DeviceAction action,
@@ -142,21 +153,72 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     model.dispose();
   });
-  testWidgets('entry starts automatic connection with no device choices', (
+  testWidgets(
+    'automatic discovery keeps nearby results collapsed until requested',
+    (tester) async {
+      final host = JwdHost();
+      await openDevice(tester, host);
+      expect(host.calls.where((call) => call == 'device:scan').length, 1);
+      expect(host.calls.where((c) => c == 'prepare' || c == 'device:scan'), [
+        'prepare',
+        'device:scan',
+      ]);
+      for (final row in candidates) {
+        expect(find.text(row['name'] as String), findsNothing);
+      }
+      expect(find.text('Other Bluetooth devices (5)'), findsOneWidget);
+      expect(find.text('Compatibility scan'), findsOneWidget);
+      expect(find.text('Retry connection'), findsOneWidget);
+      expect(host.calls, isNot(contains('device:start')));
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+  testWidgets('slow preparation falls back to offline scan only once', (
     tester,
   ) async {
-    final host = JwdHost();
+    final host = JwdHost()..preparation = Completer<String>();
     await openDevice(tester, host);
-    expect(host.calls.where((call) => call == 'device:scan').length, 1);
-    for (final row in candidates) {
-      expect(find.text(row['name'] as String), findsNothing);
-    }
-    expect(find.textContaining('Other Bluetooth'), findsNothing);
-    expect(find.text('Compatibility scan'), findsNothing);
-    expect(find.text('Retry connection'), findsOneWidget);
-    expect(host.calls, isNot(contains('device:start')));
+    expect(host.calls, contains('prepare'));
+    expect(host.calls, isNot(contains('device:scan')));
+    await tester.pump(const Duration(seconds: 2));
+    host.preparation!.complete('{"ready":true}');
+    await tester.pump();
+    expect(host.calls.where((c) => c == 'device:scan'), hasLength(1));
     await tester.pumpWidget(const SizedBox.shrink());
   });
+  testWidgets('leaving while preparing prevents a late scan', (tester) async {
+    final host = JwdHost()..preparation = Completer<String>();
+    await openDevice(tester, host);
+    await tester.pumpWidget(const SizedBox.shrink());
+    host.preparation!.complete('{"ready":true}');
+    await tester.pump(const Duration(seconds: 3));
+    expect(host.calls, isNot(contains('device:scan')));
+  });
+  testWidgets(
+    'manual discovery checks unknown services before allowing connection',
+    (tester) async {
+      final host = JwdHost();
+      await openDevice(tester, host);
+      await tapVisible(tester, find.text('Other Bluetooth devices (5)'));
+      await tapVisible(tester, find.text('Unrelated headphones'));
+      expect(host.calls, contains('device:probe'));
+      expect(host.calls, isNot(contains('device:connect')));
+      final model = tester.widget<DevicePage>(find.byType(DevicePage)).model;
+      final state = reviewState(sequence: 2);
+      state.device.candidatesJson = jsonEncode([
+        {
+          'address': 'other',
+          'name': 'Verified card',
+          'gatt_status': 'verified',
+        },
+      ]);
+      model.changed(state);
+      await tester.pumpAndSettle();
+      await tapVisible(tester, find.text('Verified card'));
+      expect(host.calls, contains('device:connect'));
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
   testWidgets('retry restarts automatic discovery without a selection page', (
     tester,
   ) async {

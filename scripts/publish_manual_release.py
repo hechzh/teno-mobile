@@ -15,12 +15,13 @@ from pathlib import Path
 from report_development import ROOT, words, sha, configuration, send
 from showcase import prepare as prepare_showcase, publish as publish_showcase
 
-VERSION = '0.9.4'
-CODE = 25
-NOTES = ROOT / 'RELEASE-0.9.4.txt'
-MANIFEST = ROOT / 'dist/Teno-0.9.4-manifest.json'
-APK = ROOT / 'dist/Teno-0.9.4.apk'
-SCREEN = ROOT / 'verification/v0.9.4/templates-zh-360.png'
+VERSION = '0.9.5'
+CODE = 26
+NOTES = ROOT / f'RELEASE-{VERSION}.txt'
+IOS_NOTES = ROOT / 'RELEASE-0.9.4.txt'
+MANIFEST = ROOT / f'dist/Teno-{VERSION}-manifest.json'
+APK = ROOT / f'dist/Teno-{VERSION}.apk'
+SCREEN = ROOT / f'verification/v{VERSION}/templates-zh-360.png'
 IOS_DIST = ROOT.parent / 'android-ios1431/dist'
 IOS_IPA = IOS_DIST / 'Teno-iOS-1.0-build17-unsigned.ipa'
 IOS_SOURCE = IOS_DIST / 'Teno-iOS-1.0-build17-Xcode.zip'
@@ -40,60 +41,49 @@ def evidence(path, kind, zh, en):
 
 def sources():
     return [
-        {'label': 'Android 0.9.4 manifest', 'reference': rel(MANIFEST), 'sha256': sha(MANIFEST)},
-        {'label': 'Android 0.9.4 / iOS 1.0 release notes', 'reference': rel(NOTES), 'sha256': sha(NOTES)},
+        {'label': f'Android {VERSION} manifest', 'reference': rel(MANIFEST), 'sha256': sha(MANIFEST)},
+        {'label': f'Android {VERSION} release notes', 'reference': rel(NOTES), 'sha256': sha(NOTES)},
     ]
 
 
 def android():
     manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
-    now = manifest.get('packaged_at')
-    if not now:
-        now = datetime.now(timezone(timedelta(hours=8))).isoformat()
+    expected = (VERSION, CODE, APK.name, sha(APK), APK.stat().st_size)
+    actual = tuple(manifest.get(field) for field in ('version', 'version_code', 'apk', 'sha256', 'bytes'))
+    if expected != actual:
+        raise ValueError('Manifest does not match the selected Android package')
     report = {
         'platform': 'android', 'version': VERSION,
-        'build_number': 'manual-0.9.4-' + sha(MANIFEST)[:12] + '-android',
-        'commit': manifest.get('source_commit') or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
-        'occurred_at': now, 'outcome': 'passed', 'implementation': 'implemented',
+        'build_number': f'manual-{VERSION}-' + sha(MANIFEST)[:12] + '-android',
+        'commit': manifest['source_commit'], 'occurred_at': manifest['packaged_at'],
+        'outcome': 'passed', 'implementation': 'implemented',
         'physical': 'pending', 'distribution': 'internal',
-        'title': words('Android 0.9.4：模板选择对齐 PLAUD', 'Android 0.9.4: PLAUD-aligned template picker'),
-        'changes': [
-            words('模板选择改为全屏：搜索、最近使用/收藏横排、全部模板；卡片含来源徽标与“上次使用”，页内选中后底部固定应用。',
-                  'Full-screen template picker with search, Recently used and Favorites shelves, source badges, Last used, in-page selection and a fixed apply button.'),
-            words('永久删除同时清理手机本地副本；回收站支持恢复/永久删除操作表、左滑删除与一键清空。',
-                  'Permanent delete removes local copies; trash supports restore/delete, swipe and empty-all.'),
-            words('中文页面剩余英文清理：上传/解码百分比、组合设备状态、来源/使用/返回按钮和登录标语。',
-                  'Remaining English removed from Chinese pages: upload/decode percentages, compound device status, citation/use/return buttons and the login tagline.'),
-            words('模板名称、分类与章节按中英文显示；内置模板指令按输出语言选择。',
-                  'Template names, categories and sections are bilingual; built-in instructions follow the output language.'),
-        ],
+        'title': words(f'Android {VERSION} / {CODE} 录音摘要模板与录音卡连接',
+                       f'Android {VERSION} / {CODE} recording templates and recorder discovery'),
+        'changes': manifest['changes'],
         'modules': [
-            {'key': 'summary', 'scope': words('模板选择页、最近/收藏、来源徽标与输出语言', 'Template picker, recent/favorites, source badges and output language'),
-             'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机逐页视觉验收', 'Physical page-by-page visual acceptance')},
-            {'key': 'library', 'scope': words('回收站恢复/永久删除、本地副本清理、一键清空', 'Trash restore/permanent delete, local copy cleanup and empty-all'),
-             'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机删除与空间释放验收', 'Physical delete and storage-release acceptance')},
-            {'key': 'distribution', 'scope': words('原签名 0.9.4 包，正式基线不变', 'Original-signer 0.9.4 package; formal baseline unchanged'),
-             'implementation': 'implemented', 'verification': 'passed', 'pending': words('Magic4 Pro / JWD 实机验收', 'Magic4 Pro / JWD physical acceptance')},
+            {'key': 'summary', 'scope': words('首页默认模板与逐次选择摘要模板', 'Home default and explicit recording template choice'),
+             'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机交互验收', 'Physical handset interaction')},
+            {'key': 'recording', 'scope': words('录音卡发现、服务校验与账号授权', 'Recorder discovery, service checks and account authorization'),
+             'implementation': 'implemented', 'verification': 'partial', 'pending': words('真实录音卡首次连接与历史绑定重连', 'Physical first connection and reconnection of previously bound recorders')},
+            {'key': 'distribution', 'scope': words('APK 包名、版本和原签名', 'APK identity, version and original signer'),
+             'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机覆盖安装', 'Physical in-place upgrade')},
         ],
-        'tests': [
-            {'name': words('Flutter 全量自动测试', 'Complete Flutter tests'), 'status': 'passed',
-             'count': 458, 'environment': 'unit', 'source': rel(NOTES)},
-            {'name': words('模板选择矩阵（中英 × 360/1100）', 'Template picker matrix (en/zh x 360/1100)'),
-             'status': 'passed', 'count': 4, 'environment': 'unit', 'source': rel(NOTES)},
-        ],
+        'tests': manifest['tests'],
         'sources': sources(),
-        'pending': [words('Magic4 Pro、真实 JWD、iPhone 原 Team 签名安装、Safari 仍待实机。',
-                          'Magic4 Pro, real JWD, signed iPhone installation and Safari remain pending.')],
-        'installation': words('用此原签名 APK 覆盖安装 0.9.3 或更早版本；不要先卸载。保留账号、本机录音、设备码与上传队列。',
-                              'Install this original-signer APK over 0.9.3 or earlier without uninstalling. Accounts, local recordings, device codes and upload queues are preserved.'),
-        'dependency': words('共享后端 1.8.0；无迁移、无生成 Prompt 变更，本轮未调用模型。',
-                            'Shared backend 1.8.0; no migration or prompt change and no model calls in this round.'),
+        'pending': [words('Magic4 Pro 和实体 JWD 录音卡连接、录音与同步待实机复核。',
+                          'Physical Magic4 Pro and JWD connection, recording and sync are pending.')],
+        'installation': words('直接覆盖安装当前 Teno；保留本机录音和账号。', 'Install over the existing Teno app to keep local recordings and the account.'),
+        'dependency': words('共享后端 1.8.0 的录音卡账号授权更新。', 'Recorder account authorization update on shared backend 1.8.0.'),
         'assets': [],
     }
-    files = [evidence(APK, 'apk', 'Android 0.9.4 原签名包', 'Android 0.9.4 original-signer APK'),
-             evidence(NOTES, 'evidence', '0.9.4 发布说明', '0.9.4 release notes')]
-    if SCREEN.exists():
-        files.append(evidence(SCREEN, 'screenshot', '模板选择页（中文 360dp）', 'Template picker (Chinese, 360dp)'))
+    files = [evidence(APK, 'apk', f'Android {VERSION} 原签名包', f'Android {VERSION} original-signer APK'),
+             evidence(NOTES, 'evidence', '发布说明', 'Release notes'),
+             {**evidence(MANIFEST, 'evidence', '构建清单（JSON 文本）', 'Build manifest (JSON text)'),
+              'filename': f'Teno-{VERSION}-manifest.txt'},
+             evidence(SCREEN, 'screenshot', '模板选择页（中文 360dp）', 'Template picker (Chinese, 360dp)'),
+             evidence(SCREEN.parent / 'home.png', 'screenshot', '首页账号默认模板', 'Home default template'),
+             evidence(SCREEN.parent / 'recording-notes.png', 'screenshot', '录音标题下追加笔记', 'Add a note below the recording title')]
     return {'report': report, 'files': files}
 
 
@@ -128,7 +118,7 @@ def ios(include_ipa=False):
         ],
         'sources': [
             {'label': 'iOS GitHub Actions run', 'reference': CI_RUN},
-            {'label': 'Release notes', 'reference': rel(NOTES), 'sha256': sha(NOTES)},
+            {'label': 'Release notes', 'reference': rel(IOS_NOTES), 'sha256': sha(IOS_NOTES)},
             {'label': 'Xcode signing handoff', 'reference': 'ios/INSTALL.txt', 'sha256': sha(IOS_INSTALL)},
         ],
         'pending': [words('真实 iPhone 的原 Team 签名安装、覆盖升级、麦克风/蓝牙后台与 JWD 联调仍待实机。',

@@ -11,6 +11,7 @@ import '../lib/features/login.dart';
 import '../lib/features/recorder.dart';
 import '../lib/features/personal_notes.dart';
 import '../lib/features/personal_settings.dart';
+import '../lib/ui/personal_widgets.dart';
 import '../lib/l10n/ui_strings.dart';
 import '../lib/main.dart';
 import 'fixtures.dart';
@@ -129,6 +130,74 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     }
+  }
+  for (final hasNote in [false, true]) {
+    testWidgets(
+      'home default and explicit recording template, existing note $hasNote',
+      (tester) async {
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = const Size(360, 800);
+        addTearDown(tester.view.reset);
+        final host = fixtures.CoreHost(), model = fixtures.coreModel(host);
+        const recordingNotes = '/api/v1/recordings/record-1/notes';
+        if (!hasNote) host.overrides[recordingNotes] = {'items': <Json>[]};
+        await tester.pumpWidget(TenoApp(model: model, initialize: false));
+        await tester.pumpAndSettle();
+        final defaultControl = find.text('Default note template');
+        expect(defaultControl.hitTestable(), findsOneWidget);
+        await tester.tap(defaultControl);
+        await tester.pumpAndSettle();
+        final defaultCard = find.text('Meeting notes').first;
+        await tester.ensureVisible(defaultCard);
+        await tester.tap(defaultCard);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Use this template'));
+        await tester.pumpAndSettle();
+        expect(host.prefs['default_template_id'], 'teno:meeting');
+        final recording = find.byWidgetPredicate(
+          (w) => w is CoreTile && w.item['id'] == 'record-1',
+        );
+        await tester.scrollUntilVisible(
+          recording.hitTestable(),
+          220,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(recording.hitTestable());
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(hasNote ? 'New note' : 'Generate'));
+        await tester.pumpAndSettle();
+        final submit = find.widgetWithText(FilledButton, 'Generate');
+        expect(tester.widget<FilledButton>(submit).onPressed, isNull);
+        final panel = find.text('Summary template');
+        await tester.tap(panel);
+        await tester.pumpAndSettle();
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(tester.widget<FilledButton>(submit).onPressed, isNull);
+        await tester.tap(panel);
+        await tester.pumpAndSettle();
+        final custom = find.text('Interview insights').last;
+        await tester.ensureVisible(custom);
+        await tester.tap(custom);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Use this template'));
+        await tester.pumpAndSettle();
+        expect(find.text('Interview insights'), findsOneWidget);
+        expect(
+          host.requests.where((r) => r == 'POST $recordingNotes'),
+          isEmpty,
+        );
+        host.overrides.remove(recordingNotes);
+        await tester.tap(submit);
+        await tester.pumpAndSettle();
+        final body = host.bodies['POST $recordingNotes']!;
+        expect(body['template_id'], 'template-1');
+        expect(body.containsKey('note_id'), isFalse);
+        expect(host.prefs['default_template_id'], 'teno:meeting');
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
   }
   testWidgets('signed out UI has no device bypass or automatic scan', (
     tester,

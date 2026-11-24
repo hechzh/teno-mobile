@@ -2357,6 +2357,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noteTemplate => '笔记模板';
 
   @override
+  String get defaultNoteTemplate => '默认笔记模板';
+
+  @override
   String get templateAccountDefault => '账号默认模板';
 
   @override
@@ -3247,4 +3250,20 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get label830ec7f812f9 => '上次使用';
+
+  @override
+  String get recorderNearbyPermission => '请在 Android 设置中允许 Teno 访问附近设备。';
+
+  @override
+  String get recorderLocationPermission =>
+      '请在 Android 设置中授予 Teno 位置权限，以扫描附近设备。';
+
+  @override
+  String get recorderLocationOff => '请在 Android 设置中打开系统定位，以扫描附近设备。';
+
+  @override
+  String get recorderNearbyFound => '已发现附近设备，可点选录音卡检查服务。';
+
+  @override
+  String get recorderServiceReadFailed => '未能读取录音卡服务，请重试。';
 }

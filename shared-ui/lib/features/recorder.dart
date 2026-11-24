@@ -1,5 +1,6 @@
 import '../l10n/ui_strings.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../core/model.dart';
 import '../platform/runtime.g.dart';
@@ -61,6 +62,9 @@ class DevicePage extends StatefulWidget {
 class _DevicePageState extends State<DevicePage> {
   TenoModel get model => widget.model;
   bool initiating = false;
+  int scanAttempt = 0;
+  bool showNearby = false;
+  String deviceError = '';
   @override
   void initState() {
     super.initState();
@@ -68,6 +72,7 @@ class _DevicePageState extends State<DevicePage> {
       if (mounted &&
           model.signedIn &&
           !model.runtime!.device.authorized &&
+          !model.runtime!.device.connected &&
           !model.runtime!.device.busy &&
           !model.runtime!.device.scanning) {
         connectAutomatically();
@@ -94,18 +99,51 @@ class _DevicePageState extends State<DevicePage> {
     DeviceAction action, {
     String id = '',
     String name = '',
-  }) => perform(context, () => model.host.controlDevice(action, id, name));
-  Future<void> connectAutomatically() async {
-    if (initiating || !model.signedIn) return;
-    setState(() => initiating = true);
+  }) async {
+    if (action == DeviceAction.disconnect) {
+      scanAttempt++;
+      if (initiating) setState(() => initiating = false);
+    }
+    if (deviceError.isNotEmpty) setState(() => deviceError = '');
     try {
-      await command(DeviceAction.scan);
-    } finally {
-      if (mounted) setState(() => initiating = false);
+      await model.host.controlDevice(action, id, name);
+    } catch (e) {
+      if (mounted) setState(() => deviceError = TenoModel.friendly(e));
     }
   }
 
-  Future<void> restoreDeviceCode() async {
+  Future<void> connectAutomatically([
+    DeviceAction action = DeviceAction.scan,
+  ]) async {
+    if (initiating || !model.signedIn) return;
+    final scope = model.runtime!.session.scope;
+    final attempt = ++scanAttempt;
+    setState(() {
+      initiating = true;
+      deviceError = '';
+    });
+    try {
+      // Claim also provisions the key. Offline owners can still scan and reconnect.
+      try {
+        await model
+            .api('POST', '/api/v1/recorders/prepare', {})
+            .timeout(const Duration(seconds: 2));
+      } catch (_) {}
+      if (!mounted ||
+          attempt != scanAttempt ||
+          !model.signedIn ||
+          model.runtime!.session.scope != scope ||
+          ModalRoute.of(context)?.isCurrent == false)
+        return;
+      final device = model.runtime!.device;
+      if (!device.connected && !device.busy && !device.scanning)
+        await command(action);
+    } finally {
+      if (mounted && attempt == scanAttempt) setState(() => initiating = false);
+    }
+  }
+
+  Future<void> restoreDeviceCode(String id, String name) async {
     if (!model.signedIn) return;
     final key = TextEditingController();
     final accepted = await showDialog<bool>(
@@ -140,11 +178,7 @@ class _DevicePageState extends State<DevicePage> {
     await Future<void>.delayed(const Duration(milliseconds: 300));
     key.dispose();
     if (accepted != true || !mounted) return;
-    final device = model.runtime!.device;
-    await perform(
-      context,
-      () => model.host.bindDevice(device.identifier, device.name, value, false),
-    );
+    await perform(context, () => model.host.bindDevice(id, name, value, false));
   }
 
   @override
@@ -158,9 +192,20 @@ class _DevicePageState extends State<DevicePage> {
           child: Center(child: UiText('Sign in to continue.')),
         );
       final connecting = initiating || device.busy || device.scanning;
-      final needsCode = jsonRows(
-        device.candidatesJson,
-      ).any((row) => row['key_rejected'] == true);
+      final nearby = jsonRows(device.candidatesJson)
+          .where(
+            (row) =>
+                text(row['address']).isNotEmpty &&
+                (row['scan_source'] != 'remembered' ||
+                    row['gatt_status'] == 'verified'),
+          )
+          .toList();
+      final rejected = nearby
+          .where(
+            (row) =>
+                row['key_rejected'] == true && row['gatt_status'] == 'verified',
+          )
+          .firstOrNull;
       if (device.receiving) {
         return PageFrame(
           title: 'Saving recording',
@@ -236,7 +281,10 @@ class _DevicePageState extends State<DevicePage> {
             ),
             const SizedBox(height: 12),
             Text(
-              statusText(context, device.status),
+              statusText(
+                context,
+                deviceError.isEmpty ? device.status : deviceError,
+              ),
               textAlign: TextAlign.center,
               style: const TextStyle(color: muted),
             ),
@@ -300,16 +348,78 @@ class _DevicePageState extends State<DevicePage> {
                   onPressed: () => command(DeviceAction.disconnect),
                   child: const UiText('Cancel connection'),
                 ),
-              ] else ...[
+              ] else if (!device.connected) ...[
                 FilledButton(
                   onPressed: connectAutomatically,
                   child: const UiText('Retry connection'),
                 ),
-                if (needsCode)
+                if (defaultTargetPlatform == TargetPlatform.android)
                   TextButton(
-                    onPressed: restoreDeviceCode,
+                    onPressed: () =>
+                        connectAutomatically(DeviceAction.compatibilityScan),
+                    child: const UiText('Compatibility scan'),
+                  ),
+                if (rejected != null)
+                  TextButton(
+                    onPressed: () => restoreDeviceCode(
+                      text(rejected['address']),
+                      text(rejected['name']),
+                    ),
                     child: const UiText('Restore original device code'),
                   ),
+              ] else
+                TextButton(
+                  onPressed: () => command(DeviceAction.disconnect),
+                  child: const UiText('Disconnect'),
+                ),
+              if (!device.connected && nearby.isNotEmpty) ...[
+                TextButton(
+                  onPressed: () => setState(() => showNearby = !showNearby),
+                  child: Text(
+                    showNearby
+                        ? ui(context, 'Hide other devices')
+                        : context.strings.otherDeviceCount(nearby.length),
+                  ),
+                ),
+                if (showNearby)
+                  for (final row in nearby)
+                    ListTile(
+                      title: Text(
+                        text(row['name']).isEmpty ||
+                                row['name'] == 'Unnamed Bluetooth device'
+                            ? text(row['address'])
+                            : text(row['name']),
+                      ),
+                      subtitle: Text(
+                        statusText(
+                          context,
+                          text(row['probe_error']).isNotEmpty
+                              ? text(row['probe_error'])
+                              : switch (row['gatt_status']) {
+                                  'verified' =>
+                                    'Recording service verified · Connect',
+                                  'unsupported' =>
+                                    'Recording service unavailable',
+                                  _ =>
+                                    row['jwd'] == true ||
+                                            row['name_match'] == true
+                                        ? 'Ready for device verification'
+                                        : 'Unrecognized device · Check recording service',
+                                },
+                        ),
+                      ),
+                      enabled:
+                          !initiating &&
+                          !device.busy &&
+                          row['gatt_status'] != 'unsupported',
+                      onTap: () => command(
+                        row['gatt_status'] == 'verified'
+                            ? DeviceAction.connect
+                            : DeviceAction.probe,
+                        id: text(row['address']),
+                        name: text(row['name']),
+                      ),
+                    ),
               ],
             ],
             if (device.receiving) ...[

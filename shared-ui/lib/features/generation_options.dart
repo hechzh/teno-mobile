@@ -13,11 +13,15 @@ class GenerationOptions extends StatelessWidget {
     required this.onLanguage,
     this.language,
     this.enabled = true,
+    this.templateTitle = 'This template',
+    this.promptForSelection = false,
   });
   final TenoModel model;
   final String template;
   final String? language;
   final bool enabled;
+  final String templateTitle;
+  final bool promptForSelection;
   final Future<void> Function(String) onTemplate;
   final Future<void> Function(String?) onLanguage;
   @override
@@ -27,6 +31,8 @@ class GenerationOptions extends StatelessWidget {
       NoteTemplateChoice(
         model,
         value: template,
+        title: templateTitle,
+        promptForSelection: promptForSelection,
         enabled: enabled,
         onChanged: onTemplate,
       ),
@@ -71,8 +77,10 @@ Future<Json?> chooseGenerationOptions(
   TenoModel model, {
   String template = '@default',
   bool allowTranscript = false,
+  bool requireTemplateChoice = false,
 }) async {
   String? language;
+  var templateConfirmed = !requireTemplateChoice;
   return showModalBottomSheet<Json>(
     context: context,
     isScrollControlled: true,
@@ -97,16 +105,27 @@ Future<Json?> chooseGenerationOptions(
                 model,
                 template: template,
                 language: language,
-                onTemplate: (v) async => update(() => template = v),
+                templateTitle: requireTemplateChoice
+                    ? 'Summary template'
+                    : 'This template',
+                promptForSelection: !templateConfirmed,
+                onTemplate: (v) async => update(() {
+                  template = v;
+                  templateConfirmed = true;
+                }),
                 onLanguage: (v) async => update(() => language = v),
               ),
               const SizedBox(height: 18),
               FilledButton(
-                onPressed: () => Navigator.pop(sheet, {
-                  'template_id': template,
-                  ...model.generationLanguage(language),
-                }),
-                child: const UiText('Generate note'),
+                onPressed: !templateConfirmed
+                    ? null
+                    : () => Navigator.pop(sheet, {
+                        'template_id': template,
+                        ...model.generationLanguage(language),
+                      }),
+                child: UiText(
+                  requireTemplateChoice ? 'Generate' : 'Generate note',
+                ),
               ),
               if (allowTranscript)
                 TextButton(

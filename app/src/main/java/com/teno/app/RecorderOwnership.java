@@ -20,6 +20,7 @@ final class RecorderOwnership {
     private String owner="",address="",name="",hardware="",stage="",auth="",before="";
     private long generation;
     private boolean running,requesting;
+    private String rejectedClaimHardware="";
     String state="disconnected",message="";
     RecorderOwnership(Store store,Handler handler,Port port){this.store=store;this.handler=handler;this.port=port;owner=store.scope();
         try{String saved=store.secure(journal());if(!saved.isEmpty()){operation=new JSONObject(saved);recorder=operation.optJSONObject("recorder");if(recorder==null)recorder=new JSONObject();state="recovery_required";message="Continue the pending recorder operation.";}}catch(Exception ignored){}
@@ -58,10 +59,10 @@ final class RecorderOwnership {
             });
         });
     }
-    void identity(String value,String address,String name)throws Exception{
+    void identity(String value,String address,String name,boolean selectedByUser)throws Exception{
         String actual=canonical(value);this.address=address;this.name=name;this.hardware=actual;owner=store.scope();
         String target=running?operation.getJSONObject("recorder").getString("hardware_id"):store.selectedRecorder();
-        if(!target.isEmpty()&&!target.equals(actual)){port.seek();return;}
+        if(!target.isEmpty()&&!target.equals(actual)&&(running||!selectedByUser)){port.seek();return;}
         if(running){authenticate();return;}
         update("checking","Checking recorder ownership");
         api("/api/v1/recorders/resolve",new JSONObject().put("hardware_id",actual),result->{
@@ -86,7 +87,8 @@ final class RecorderOwnership {
     }
     void claim(String original,boolean confirmed)throws Exception{
         if(!confirmed||!state.equals("claim_required")||requesting)throw new IOException("Confirm the connected recorder first.");
-        if(original.isEmpty())original=store.deviceKey(address);
+        if(original.isEmpty()&&hardware.equals(rejectedClaimHardware))original=store.deviceKey(address);
+        if(!original.isEmpty()&&!JwdProtocol.validKey(original))throw new IOException("Enter a 16-character key using letters and numbers");
         JSONObject body=new JSONObject().put("client_id",UUID.randomUUID().toString()).put("hardware_id",hardware).put("name",name).put("confirm_card_recordings",true);
         if(!original.isEmpty())body.put("original_key",original);
         api("/api/v1/recorders/claim",body,value->{operation=value;start(value.getString("id"));},null);
@@ -109,7 +111,7 @@ final class RecorderOwnership {
         else{auth="new";port.sendKey(operation.getString("device_key"));}
     }
     void accepted()throws Exception{
-        if(auth.equals("owned")||auth.equals("offline_owned")){update(auth,"Recorder connected");store.rememberRecorder(address,name);port.ready();return;}
+        if(auth.equals("owned")||auth.equals("offline_owned")){update(auth,"Recorder connected");store.selectRecorder(hardware);store.rememberRecorder(address,name);port.ready();return;}
         if(auth.equals("claim")){complete("");return;}
         if(auth.equals("reject_old")){fail("The previous authorization is still accepted. Transfer was not completed.");return;}
         if(auth.equals("before")){port.inventory();return;}
@@ -121,7 +123,7 @@ final class RecorderOwnership {
     boolean rejected()throws Exception{
         if(running&&auth.equals("claim")){
             api("/api/v1/recorders/operations/"+operation.getString("id")+"/claim-rejected",new JSONObject(),value->{
-                store.secure(journal(),"");operation=new JSONObject();stage="";running=false;
+                rejectedClaimHardware=hardware;store.secure(journal(),"");operation=new JSONObject();stage="";running=false;
                 update("claim_required","Device key was rejected. Use the original key; the recorder was not reset.");port.close(message);
             },null);return true;
         }
@@ -152,7 +154,7 @@ final class RecorderOwnership {
         api("/api/v1/recorders/operations/"+operation.getString("id")+"/complete",proof,value->{
             boolean claim=operation.optString("kind").equals("claim");String key=operation.optString("device_key");
             running=false;recorder=value.getJSONObject("recorder");store.secure(journal(),"");operation=new JSONObject();stage="";
-            if(claim){store.deviceKey(address,key);store.recorderIdentity(address,recorder);store.rememberRecorder(address,name);update("owned","Recorder connected");port.ready();}
+            if(claim){rejectedClaimHardware="";store.deviceKey(address,key);store.recorderIdentity(address,recorder);store.rememberRecorder(address,name);update("owned","Recorder connected");port.ready();}
             else{store.forgetRecorder(address);update("completed","Recorder operation completed");port.close(message);}
         },null);
     }

@@ -846,6 +846,7 @@
   "autoJwdAuth": "Authorizing recorder",
   "autoJwdChannels": "The recorder channels do not match the JWD protocol.",
   "noteTemplate": "Note template",
+  "defaultNoteTemplate": "Default note template",
   "templateAccountDefault": "Account default",
   "templateGeneral": "General notes",
   "templateInterview": "Interview insights",
@@ -1213,5 +1214,10 @@
   "label8a122ea399dd": "Source transcript",
   "labelf4e871ec79db": "Recording could not start.",
   "labelffb4b44abb4f": "All templates",
-  "label830ec7f812f9": "Last used"
+  "label830ec7f812f9": "Last used",
+  "recorderNearbyPermission": "Allow Nearby devices permission in Android settings.",
+  "recorderLocationPermission": "Allow Location permission in Android settings to scan for nearby devices.",
+  "recorderLocationOff": "Turn on Location in Android settings to scan for nearby devices.",
+  "recorderNearbyFound": "Nearby devices found. Check the recorder service.",
+  "recorderServiceReadFailed": "Could not read recorder services. Try again."
 }

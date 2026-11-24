@@ -45,11 +45,15 @@ Widget PersonalTemplatePicker(
   TenoModel model, {
   Key? key,
   bool allowTranscript = false,
+  String? initial,
 }) => DeferredContent(
   key: key,
   load: page.loadLibrary,
-  builder: (_) =>
-      page.PersonalTemplatePicker(model, allowTranscript: allowTranscript),
+  builder: (_) => page.PersonalTemplatePicker(
+    model,
+    initial: initial,
+    allowTranscript: allowTranscript,
+  ),
 );
 
 Widget PersonalTemplates(

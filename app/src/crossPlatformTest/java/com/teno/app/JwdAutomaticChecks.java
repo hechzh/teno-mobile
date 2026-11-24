@@ -42,6 +42,7 @@ final class JwdAutomaticChecks {
                 @SuppressWarnings("unchecked") Map<String,JSONObject> found=(Map<String,JSONObject>)get(service,"found");
                 found.put(strong,new JSONObject().put("address",strong).put("name","HQ-10_P_STRONG").put("rssi",-30));
                 found.put(weak,new JSONObject().put("address",weak).put("name","HQ-10_P_WEAK").put("rssi",-80));
+                found.put("00:00:00:00:07:13",new JSONObject().put("address","00:00:00:00:07:13").put("name","Unrecognized").put("rssi",-19));
                 set(service,"autoDiscovery",true);set(service,"scanning",true);set(service,"preferredRecorder","");invoke(service,"selectAutomaticRecorder");
             });
             test.check(probes.equals(Arrays.asList(strong)),"first_connection_probes_strongest_candidate");
@@ -59,7 +60,8 @@ final class JwdAutomaticChecks {
             call.accept(()->service.command("MCU&SK&ERR".getBytes(java.nio.charset.StandardCharsets.US_ASCII)));
             test.check(store.deviceKey(weak).equals(key)&&connections.size()==1,"rejected_code_is_preserved_without_reset_or_fallthrough");
             JSONObject state=new JSONObject(JwdService.snapshot);
-            test.check(state.getJSONArray("devices").length()==1&&state.getJSONArray("devices").getJSONObject(0).optBoolean("key_rejected"),"only_verified_device_state_reaches_shared_ui");
+            JSONArray rows=state.getJSONArray("devices");
+            test.check(rows.length()==3&&rows.getJSONObject(1).optBoolean("key_rejected")&&"unsupported".equals(rows.getJSONObject(0).optString("gatt_status")),"shared_ui_distinguishes_unrecognized_unsupported_and_verified");
             call.accept(()->{set(service,"autoDiscovery",true);set(service,"autoProbing",false);set(service,"scanning",true);set(service,"preferredRecorder",weak);((Set<?>)get(service,"autoTried")).clear();invoke(service,"selectAutomaticRecorder");});
             test.check(probes.get(probes.size()-1).equals(weak),"last_successful_device_has_priority_over_stronger_rssi");
             call.accept(()->service.serviceChecked(true,"Verified again"));

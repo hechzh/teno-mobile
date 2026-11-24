@@ -4736,6 +4736,12 @@ abstract class AppLocalizations {
   /// **'Note template'**
   String get noteTemplate;
 
+  /// No description provided for @defaultNoteTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Default note template'**
+  String get defaultNoteTemplate;
+
   /// No description provided for @templateAccountDefault.
   ///
   /// In en, this message translates to:
@@ -6463,6 +6469,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last used'**
   String get label830ec7f812f9;
+
+  /// No description provided for @recorderNearbyPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Nearby devices permission in Android settings.'**
+  String get recorderNearbyPermission;
+
+  /// No description provided for @recorderLocationPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Location permission in Android settings to scan for nearby devices.'**
+  String get recorderLocationPermission;
+
+  /// No description provided for @recorderLocationOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Location in Android settings to scan for nearby devices.'**
+  String get recorderLocationOff;
+
+  /// No description provided for @recorderNearbyFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby devices found. Check the recorder service.'**
+  String get recorderNearbyFound;
+
+  /// No description provided for @recorderServiceReadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read recorder services. Try again.'**
+  String get recorderServiceReadFailed;
 }
 
 class _AppLocalizationsDelegate

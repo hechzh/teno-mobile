@@ -18,7 +18,7 @@ final class RecorderOwnershipChecks implements AutoCloseable {
     final ServerSocket server;final ExecutorService http=Executors.newSingleThreadExecutor();
     final String mac="A0B1C2D3E4F5",address="A0:B1:C2:D3:E4:F0",oldKey="OriginalCode1234",newKey="Transferred12345";
     final List<String> commands=new CopyOnWriteArrayList<>();final List<String> checkpoints=new CopyOnWriteArrayList<>();
-    volatile String bound=oldKey,op="claim-fixture",state="prepared",stage="",before="";
+    volatile String bound=oldKey,op="claim-fixture",state="prepared",stage="",before="",claimKey="";
     volatile boolean owned,completeLoss;volatile int rejected,completes,downloads;
     byte[] audio;JwdService service;Handler handler;String snapshot;
     interface Work{void run()throws Exception;}
@@ -38,10 +38,15 @@ final class RecorderOwnershipChecks implements AutoCloseable {
     JSONObject operation()throws Exception{return new JSONObject().put("id",op).put("kind",op.startsWith("claim")?"claim":"release").put("state",state).put("recorder",recorder()).put("checkpoint",new JSONObject().put("stage",stage).put("files_before",before));}
     JSONObject respond(String path,JSONObject body)throws Exception{
         if(path.endsWith("/resolve"))return new JSONObject().put("state",owned?"owned":"claim_required").put("recorder",recorder());
-        if(path.endsWith("/claim")){op="claim-fixture";state="prepared";test.check(body.optBoolean("confirm_card_recordings")&&body.optString("original_key").equals(oldKey),"claim_preserves_original_key_and_explicit_consent");return operation();}
+        if(path.endsWith("/claim")){
+            boolean retry=state.equals("cancelled");
+            test.check(body.optBoolean("confirm_card_recordings")&&(retry?body.optString("original_key").equals(oldKey):!body.has("original_key")),
+                    retry?"confirmed_retry_uses_saved_original_key_after_rejection":"new_claim_requests_account_key_despite_cached_legacy_key");
+            claimKey=retry?oldKey:"AccountCode12345";op="claim-fixture";state="prepared";return operation();
+        }
         if(path.endsWith("/restore"))return recorder().put("device_key",oldKey);
         if(path.endsWith("/claim-rejected")){state="cancelled";return operation();}
-        if(path.endsWith("/start")){if(!state.equals("completed"))state="hardware_pending";return operation().put("device_key",op.startsWith("claim")?oldKey:newKey).put("previous_key",oldKey);}
+        if(path.endsWith("/start")){if(!state.equals("completed"))state="hardware_pending";return operation().put("device_key",op.startsWith("claim")?claimKey:newKey).put("previous_key",oldKey);}
         if(path.endsWith("/checkpoint")){stage=body.getString("stage");before=body.getString("files_before");checkpoints.add(stage);return operation();}
         if(path.endsWith("/complete")){
             completes++;state="completed";owned=op.startsWith("claim");

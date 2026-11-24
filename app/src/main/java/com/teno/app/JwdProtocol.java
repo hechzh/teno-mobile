@@ -17,7 +17,7 @@ public final class JwdProtocol {
     /** Name is a hint from the supplied SDK, never proof of the GATT service. */
     public static boolean candidateName(String name){
         if(name==null)return false;String n=name.trim().toUpperCase(Locale.ROOT);
-        for(String prefix:new String[]{"VTR","H10","H11","HQ10","HQ11","HQ-10_P","HQ-11_P","HQ-10_HW","KIOLO","DEX_"})if(n.startsWith(prefix))return true;
+        for(String prefix:new String[]{"VTR","PKT","N10","HV0","HQ","H10","H11","KIOLO","DEX_"})if(n.startsWith(prefix))return true;
         return false;
     }
     public static String newKey(){

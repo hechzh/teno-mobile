@@ -16,6 +16,8 @@ public final class JwdProtocolTest {
             check(JwdProtocol.candidateName("VTR7900_P_123"),"vendor_vtr_name_candidate");
             check(JwdProtocol.candidateName("HQ-10_HW_123"),"vendor_mp3_name_candidate");
             check(JwdProtocol.candidateName("Dex_123"),"vendor_odm_name_candidate");
+            for(String name:Arrays.asList("PKT_TEST","N10_TEST","HV0_TEST","hq-12_test"))
+                check(JwdProtocol.candidateName(name),"vendor_model_hint_"+name);
             check(!JwdProtocol.candidateName("SGMf91a73"),"reported_sgm_name_not_in_vendor_name_list");
             check(!JwdProtocol.candidateName(null),"unnamed_device_not_name_matched");
             Set<String> keys=new HashSet<>();for(int i=0;i<1000;i++){String key=JwdProtocol.newKey();if(!JwdProtocol.validKey(key))throw new AssertionError("invalid key");keys.add(key);}check(keys.size()==1000,"unique_device_keys");

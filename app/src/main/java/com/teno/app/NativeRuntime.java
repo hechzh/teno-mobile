@@ -90,7 +90,7 @@ final class NativeRuntime implements RuntimeHost {
     }
     RuntimeState state()throws Exception{
         JSONObject d=device();JSONArray candidates=d.optJSONArray("devices");if(candidates==null)candidates=new JSONArray();
-        for(int i=0;i<candidates.length();i++){JSONObject item=candidates.getJSONObject(i);item.put("has_key",!store.deviceKey(item.optString("address")).isEmpty());}
+        for(int i=0;i<candidates.length();i++){JSONObject item=candidates.getJSONObject(i);if("verified".equals(item.optString("gatt_status")))item.put("has_key",!store.deviceKey(item.optString("address")).isEmpty());}
         String phase="idle",source="phone",id=phoneStarting?pendingPhoneId:RecorderService.draftId,status=RecorderService.error,notes="",partial="",segments="[]";
         long elapsed=RecorderService.elapsed();
         if(RecorderService.active){phoneStarting=false;phase=RecorderService.paused?"paused":"recording";}
@@ -183,7 +183,11 @@ final class NativeRuntime implements RuntimeHost {
         if(action!=DeviceAction.DISCONNECT&&action!=DeviceAction.STOP&&action!=DeviceAction.CANCEL_TRANSFER)try{signedIn();if(JwdService.accountClosing)throw new IOException("Sign in to continue.");}catch(Exception e){result.error(failure(e));return;}
         long generation=++deviceRequestGeneration;
         if(action==DeviceAction.DISCONNECT){ui(result,()->sendDevice(action,id,name));return;}
-        activity.permissions(bluetoothPermissions(),()->ui(result,()->{if(generation==deviceRequestGeneration)sendDevice(action,id,name);}),e->result.error(failure(e)));
+        activity.permissions(bluetoothPermissions(),()->ui(result,()->{if(generation==deviceRequestGeneration)sendDevice(action,id,name);}),e->{
+            if(e instanceof SecurityException)e=new SecurityException(Build.VERSION.SDK_INT>=31
+                    ?"Allow Nearby devices permission in Android settings.":"Allow Location permission in Android settings to scan for nearby devices.");
+            result.error(failure(e));
+        });
     }
     @Override public void bindDevice(String id,String name,String key,Boolean createNew,VoidResult result){
         work(new Result<Boolean>(){public void error(Throwable e){result.error(e);}public void success(Boolean value){ui(result,()->sendDevice(DeviceAction.CONNECT,id,name));}},()->{

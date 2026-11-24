@@ -39,8 +39,23 @@ class NoteTemplateChoice extends StatelessWidget {
     required this.onChanged,
     this.enabled = true,
     this.title = 'This template',
+    this.promptForSelection = false,
   });
+  factory NoteTemplateChoice.accountDefault(
+    TenoModel model, {
+    String title = 'Default note template',
+  }) {
+    final saved = text(model.personalSettings['default_template_id']);
+    return NoteTemplateChoice(
+      model,
+      value: saved.isEmpty ? 'teno:general' : saved,
+      title: title,
+      onChanged: (value) =>
+          model.updatePersonal({'default_template_id': value}),
+    );
+  }
   final TenoModel model;
+  final bool promptForSelection;
   final String value;
   final bool enabled;
   final String title;
@@ -50,7 +65,11 @@ class NoteTemplateChoice extends StatelessWidget {
     contentPadding: EdgeInsets.zero,
     leading: const Icon(Icons.article_outlined),
     title: UiText(title),
-    subtitle: Text(templateLabel(context, value)),
+    subtitle: promptForSelection
+        ? const UiText('Select a template')
+        : value == '@default' || value.startsWith('teno:')
+        ? Text(templateLabel(context, value))
+        : _CustomTemplateTitle(model, value, key: ValueKey(value)),
     trailing: const Icon(Icons.chevron_right, size: 18),
     enabled: enabled,
     onTap: !enabled
@@ -63,6 +82,29 @@ class NoteTemplateChoice extends StatelessWidget {
             if (chosen != null && context.mounted)
               await onChanged(chosen.isEmpty ? 'teno:general' : chosen);
           }),
+  );
+}
+
+class _CustomTemplateTitle extends StatefulWidget {
+  const _CustomTemplateTitle(this.model, this.id, {super.key});
+  final TenoModel model;
+  final String id;
+  @override
+  State<_CustomTemplateTitle> createState() => _CustomTemplateTitleState();
+}
+
+class _CustomTemplateTitleState extends State<_CustomTemplateTitle> {
+  late final templates = widget.model.list('/api/v1/personal/templates');
+  @override
+  Widget build(BuildContext context) => FutureBuilder<List<Json>>(
+    future: templates,
+    builder: (context, snapshot) {
+      final item = snapshot.data
+          ?.where((row) => row['id'] == widget.id)
+          .firstOrNull;
+      final name = text(item?['title']);
+      return Text(name.isEmpty ? ui(context, 'Custom template') : name);
+    },
   );
 }
 

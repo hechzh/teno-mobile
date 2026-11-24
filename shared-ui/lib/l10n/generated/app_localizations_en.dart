@@ -2513,6 +2513,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteTemplate => 'Note template';
 
   @override
+  String get defaultNoteTemplate => 'Default note template';
+
+  @override
   String get templateAccountDefault => 'Account default';
 
   @override
@@ -3504,4 +3507,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get label830ec7f812f9 => 'Last used';
+
+  @override
+  String get recorderNearbyPermission =>
+      'Allow Nearby devices permission in Android settings.';
+
+  @override
+  String get recorderLocationPermission =>
+      'Allow Location permission in Android settings to scan for nearby devices.';
+
+  @override
+  String get recorderLocationOff =>
+      'Turn on Location in Android settings to scan for nearby devices.';
+
+  @override
+  String get recorderNearbyFound =>
+      'Nearby devices found. Check the recorder service.';
+
+  @override
+  String get recorderServiceReadFailed =>
+      'Could not read recorder services. Try again.';
 }
