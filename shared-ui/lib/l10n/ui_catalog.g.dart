@@ -2,6 +2,10 @@
 import 'generated/app_localizations.dart';
 
 String lookupUiMessage(AppLocalizations l, String source) => switch (source) {
+  "Change template" => l.changeCurrentNoteTemplate,
+  "Delete note" => l.deleteCurrentNote,
+  "Delete this note?" => l.confirmDeleteCurrentNote,
+  "Move this note to Trash? You can restore it later." => l.trashSingleNoteDetail,
   "Select the registered recorder for this operation." => l.recorderSelectForOperation,
   "Recorder found" => l.recorderDeviceFound,
   "Recorder not connected" => l.recorderDeviceDisconnected,

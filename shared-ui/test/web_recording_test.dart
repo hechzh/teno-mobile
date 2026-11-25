@@ -406,10 +406,7 @@ void main() {
     };
     host.overrides['/api/v1/notes/note-2'] = selected;
     await openNotes(tester, host);
-    await tester.ensureVisible(find.text('Launch meeting notes'));
-    await tester.tap(find.text('Launch meeting notes'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ListTile, 'Action items'));
+    await tester.tap(find.byKey(const ValueKey('note-tab-note-2')));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Edit'));
     await tester.tap(find.text('Edit'));

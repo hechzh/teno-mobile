@@ -15,13 +15,13 @@ from pathlib import Path
 from report_development import ROOT, words, sha, configuration, send
 from showcase import prepare as prepare_showcase, publish as publish_showcase
 
-VERSION = '0.9.5'
-CODE = 27
+VERSION = '0.9.6'
+CODE = 28
 NOTES = ROOT / f'RELEASE-{VERSION}.txt'
 IOS_NOTES = ROOT / 'RELEASE-0.9.4.txt'
 MANIFEST = ROOT / f'dist/Teno-{VERSION}-manifest.json'
 APK = ROOT / f'dist/Teno-{VERSION}.apk'
-SCREEN = ROOT / f'verification/v{VERSION}/build{CODE}/device-code.png'
+SCREEN = ROOT / f'verification/v{VERSION}/build{CODE}/note-tabs-zh.png'
 IOS_DIST = ROOT.parent / 'android-ios1431/dist'
 IOS_IPA = IOS_DIST / 'Teno-iOS-1.0-build17-unsigned.ipa'
 IOS_SOURCE = IOS_DIST / 'Teno-iOS-1.0-build17-Xcode.zip'
@@ -58,23 +58,23 @@ def android():
         'commit': manifest['source_commit'], 'occurred_at': manifest['packaged_at'],
         'outcome': 'passed', 'implementation': 'implemented',
         'physical': 'pending', 'distribution': 'internal',
-        'title': words(f'Android {VERSION} / {CODE} 录音卡自动验证设备码',
-                       f'Android {VERSION} / {CODE} automatic recorder code verification'),
+        'title': words(f'Android {VERSION} / {CODE} 录音标题与笔记管理',
+                       f'Android {VERSION} / {CODE} recording titles and note management'),
         'changes': manifest['changes'],
         'modules': [
-            {'key': 'summary', 'scope': words('首页默认模板与逐次选择摘要模板', 'Home default and explicit recording template choice'),
+            {'key': 'summary', 'scope': words('逐篇切换笔记、替换模板与移到回收站', 'Switch notes, replace the selected note template and move a note to Trash'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机交互验收', 'Physical handset interaction')},
-            {'key': 'recording', 'scope': words('录音卡设备码自动验证、原码恢复与可选云登记', 'Automatic recorder code verification, original-code recovery and optional cloud registration'),
-             'implementation': 'implemented', 'verification': 'partial', 'pending': words('真实录音卡首次连接与历史绑定重连', 'Physical first connection and reconnection of previously bound recorders')},
+            {'key': 'library', 'scope': words('录音详情与资料库显示共享后端提供的录音标题', 'Recording details and library show the title supplied by the shared backend'),
+             'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机录后验收', 'Post-recording acceptance on a physical phone')},
             {'key': 'distribution', 'scope': words('APK 包名、版本和原签名', 'APK identity, version and original signer'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机覆盖安装', 'Physical in-place upgrade')},
         ],
         'tests': manifest['tests'],
         'sources': sources(),
-        'pending': [words('Magic4 Pro 和实体 JWD 录音卡连接、录音与同步待实机复核。',
-                          'Physical Magic4 Pro and JWD connection, recording and sync are pending.')],
+        'pending': [words('真机上的录后自动命名、所选笔记换模板与删除、原签名覆盖安装待复核。',
+                          'Post-recording naming, template replacement, note deletion and in-place installation await physical verification.')],
         'installation': words('直接覆盖安装当前 Teno；保留本机录音和账号。', 'Install over the existing Teno app to keep local recordings and the account.'),
-        'dependency': words('共享后端 1.8.0 的录音卡账号授权更新。', 'Recorder account authorization update on shared backend 1.8.0.'),
+        'dependency': words('共享后端 1.8.0 的录音自动标题与笔记替换更新。', 'Recording title and note replacement updates on shared backend 1.8.0.'),
         'assets': [],
     }
     files = [{**evidence(APK, 'apk', f'Android {VERSION} / {CODE} 原签名包', f'Android {VERSION} / {CODE} original-signer APK'),
@@ -82,9 +82,10 @@ def android():
              evidence(NOTES, 'evidence', '发布说明', 'Release notes'),
              {**evidence(MANIFEST, 'evidence', '构建清单（JSON 文本）', 'Build manifest (JSON text)'),
               'filename': f'Teno-{VERSION}-build{CODE}-manifest.txt'},
-             evidence(SCREEN, 'screenshot', '自动验证设备码', 'Automatic device-code verification'),
-             evidence(SCREEN.parent / 'verification-timeout.png', 'screenshot', '设备码验证超时重试', 'Retry after a device-code timeout'),
-             evidence(SCREEN.parent / 'current-recorder.png', 'screenshot', '本机已连接的录音卡', 'Recorder connected to this phone')]
+             evidence(SCREEN, 'screenshot', '录音笔记标签页', 'Notes for a recording'),
+             evidence(SCREEN.parent / 'note-actions-zh.png', 'screenshot', '所选笔记的操作菜单', 'Selected note actions'),
+             evidence(SCREEN.parent / 'delete-note-zh.png', 'screenshot', '将所选笔记移到回收站', 'Move selected note to Trash'),
+             evidence(SCREEN.parent / 'change-template-zh.png', 'screenshot', '替换所选笔记的摘要模板', 'Change the selected note template')]
     return {'report': report, 'files': files}
 
 

@@ -112,7 +112,7 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
             if (options == null || !context.mounted) return;
             final rec = text(note['recording_id']);
             List<Json> sources = [];
-            if (rec.isEmpty) {
+            if (value == 'another' && rec.isEmpty) {
               for (final source in rows(object(note['data'])['sources'])) {
                 final type = text(source['type']);
                 final id = text(
@@ -136,14 +136,19 @@ class _PersonalNotePageState extends State<PersonalNotePage> {
             }
             final job = await widget.model.api(
               'POST',
-              rec.isEmpty
+              value == 'regenerate'
+                  ? '/api/v1/notes/${widget.id}/regenerate'
+                  : rec.isEmpty
                   ? '/api/v1/notes/generate'
                   : '/api/v1/recordings/$rec/notes',
               {
                 'client_id': requestId(),
-                if (value == 'regenerate') 'note_id': widget.id,
+                if (value == 'regenerate')
+                  'template_origin': options['template_id'] == '@default'
+                      ? 'account'
+                      : 'selection',
                 if (value == 'regenerate') 'base_revision': note['revision'],
-                if (rec.isEmpty) 'contexts': sources,
+                if (value == 'another' && rec.isEmpty) 'contexts': sources,
                 ...options,
               },
             );

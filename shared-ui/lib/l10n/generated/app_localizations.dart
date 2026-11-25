@@ -98,6 +98,30 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
+  /// No description provided for @changeCurrentNoteTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Change template'**
+  String get changeCurrentNoteTemplate;
+
+  /// No description provided for @deleteCurrentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get deleteCurrentNote;
+
+  /// No description provided for @confirmDeleteCurrentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this note?'**
+  String get confirmDeleteCurrentNote;
+
+  /// No description provided for @trashSingleNoteDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Move this note to Trash? You can restore it later.'**
+  String get trashSingleNoteDetail;
+
   /// No description provided for @recorderSelectForOperation.
   ///
   /// In en, this message translates to:
