@@ -165,7 +165,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(recording.hitTestable());
         await tester.pumpAndSettle();
-        await tester.tap(find.text(hasNote ? 'New note' : 'Generate'));
+        await tester.tap(hasNote ? find.byTooltip('New note') : find.text('Generate'));
         await tester.pumpAndSettle();
         final submit = find.widgetWithText(FilledButton, 'Generate');
         expect(tester.widget<FilledButton>(submit).onPressed, isNull);

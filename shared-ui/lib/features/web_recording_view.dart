@@ -9,6 +9,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   bool _transcriptTab = false, _playPending = false;
   int _loadStamp = 0;
   String _selectedNote = '', _folderTitle = '';
+  bool _noteActionPending = false, _noteMenuOpen = false;
   List<Json>? _shares;
   Json _sourceTranscript = {};
   String _cacheStatus = '', _visibleVariant = '', _accountScope = '';
@@ -321,48 +322,218 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         edgeToEdge: true,
       );
 
-  Future<void> _chooseNote() async {
-    final chosen = await _panel<String>(
-      'Your notes',
-      (sheet) => SingleChildScrollView(
-        child: Column(
-          children: [
-            for (final note in notes)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(text(note['title'])),
-                subtitle: Text(
-                  context.strings.versionLabel(text(note['revision'] ?? 1)),
-                ),
-                trailing: note['id'] == _note['id']
-                    ? Icon(Icons.check, color: _green, size: 18)
-                    : null,
-                onTap: () => Navigator.pop(sheet, text(note['id'])),
-              ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.add),
-              title: const UiText('New note'),
-              onTap: () => Navigator.pop(sheet, '__new'),
+  void _selectNote(int index) {
+    setState(() {
+      noteIndex = index;
+      _selectedNote = text(notes[index]['id']);
+      _topicKeys.clear();
+    });
+  }
+
+  bool get _sameAccount =>
+      mounted && _accountScope == widget.model.runtime?.session.scope;
+
+  Future<void> _noteAction(String action, Json note) async {
+    if (_noteActionPending || !_sameAccount) return;
+    final id = text(note['id']);
+    setState(() => _noteActionPending = true);
+    try {
+      await perform(context, () async {
+        if (action == 'template') {
+          final template = await push<String>(
+            context,
+            PersonalTemplatePicker(
+              widget.model,
+              initial: note['template_id'] as String?,
             ),
-          ],
+          );
+          if (!_sameAccount || template == null) return;
+          final data = object(note['data']);
+          final language = text(data['output_language']);
+          final job = await widget.model.api(
+            'POST',
+            '/api/v1/notes/$id/regenerate',
+            {
+              'client_id': requestId(),
+              'base_revision': note['revision'],
+              'template_id': template.isEmpty ? 'teno:general' : template,
+              'template_origin': 'selection',
+              ...widget.model.generationLanguage(),
+              if (['zh-CN', 'en-US'].contains(language)) ...{
+                'output_language': language,
+                'output_language_origin':
+                    data['output_language_origin'] == 'override'
+                    ? 'override'
+                    : 'interface',
+              },
+            },
+          );
+          if (mounted && _sameAccount)
+            await push(context, PersonalJobPage(widget.model, job));
+        } else {
+          final yes = await confirm(
+            context,
+            'Delete this note?',
+            'Move this note to Trash? You can restore it later.',
+          );
+          if (!_sameAccount || !yes) return;
+          await widget.model.api('POST', '/api/v1/library/batch', {
+            'action': 'trash',
+            'items': [
+              {'type': 'note', 'id': id},
+            ],
+          });
+          if (!mounted || !_sameAccount) return;
+          setState(() {
+            notes = notes.where((n) => n['id'] != id).toList();
+            noteIndex = notes.isEmpty
+                ? 0
+                : noteIndex.clamp(0, notes.length - 1);
+            _selectedNote = text(_note['id']);
+            _topicKeys.clear();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const UiText('Moved to trash'),
+              action: SnackBarAction(
+                label: ui(context, 'Undo'),
+                onPressed: () {
+                  if (!_sameAccount) return;
+                  perform(context, () async {
+                    await widget.model.api('POST', '/api/v1/library/batch', {
+                      'action': 'restore',
+                      'items': [
+                        {'type': 'note', 'id': id},
+                      ],
+                    });
+                    if (_sameAccount) {
+                      _selectedNote = id;
+                      await load();
+                    }
+                  });
+                },
+              ),
+            ),
+          );
+        }
+        if (_sameAccount) await load();
+      });
+    } finally {
+      if (mounted) setState(() => _noteActionPending = false);
+    }
+  }
+
+  Widget _noteTab(int index) {
+    final note = notes[index], selected = index == noteIndex;
+    final title = text(note['title']);
+    final label = title.isEmpty ? ui(context, 'Note') : title;
+    final caption = ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 170),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+          color: selected ? _ink : _muted,
         ),
       ),
     );
-    if (!mounted || chosen == null) return;
-    if (chosen == '__new') {
-      await generate();
-      return;
+    if (!selected) {
+      return TextButton(
+        key: ValueKey('note-tab-${note['id']}'),
+        onPressed: () => _selectNote(index),
+        child: caption,
+      );
     }
-    final index = notes.indexWhere((n) => n['id'] == chosen);
-    if (index < 0) return;
-    setState(() {
-      noteIndex = index;
-      _selectedNote = chosen;
-      _topicKeys.clear();
-    });
-    if (_noteScroll.hasClients) _noteScroll.jumpTo(0);
+    return Semantics(
+      selected: true,
+      child: PopupMenuButton<String>(
+        key: ValueKey('note-tab-${note['id']}'),
+        enabled: !_noteActionPending,
+        tooltip: ui(context, 'Note options'),
+        position: PopupMenuPosition.under,
+        color: _paper,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        onOpened: () => setState(() => _noteMenuOpen = true),
+        onCanceled: () {
+          if (mounted) setState(() => _noteMenuOpen = false);
+        },
+        onSelected: (action) {
+          setState(() => _noteMenuOpen = false);
+          _noteAction(action, note);
+        },
+        itemBuilder: (_) => [
+          PopupMenuItem(
+            value: 'template',
+            child: Row(
+              children: [
+                const Icon(Icons.extension_outlined, size: 19),
+                const SizedBox(width: 12),
+                const UiText('Change template'),
+              ],
+            ),
+          ),
+          const PopupMenuDivider(height: 1),
+          PopupMenuItem(
+            value: 'delete',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.delete_outline,
+                  size: 20,
+                  color: _theme.colorScheme.error,
+                ),
+                const SizedBox(width: 12),
+                UiText(
+                  'Delete note',
+                  style: TextStyle(color: _theme.colorScheme.error),
+                ),
+              ],
+            ),
+          ),
+        ],
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 42),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: _sage,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              caption,
+              const SizedBox(width: 3),
+              Icon(
+                _noteMenuOpen ? Icons.expand_less : Icons.expand_more,
+                size: 17,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
+
+  Widget _noteTabs() => Row(
+    children: [
+      Flexible(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [for (var i = 0; i < notes.length; i++) _noteTab(i)],
+          ),
+        ),
+      ),
+      IconButton(
+        tooltip: ui(context, 'New note'),
+        onPressed: generate,
+        icon: const Icon(Icons.add, size: 21),
+      ),
+    ],
+  );
 
   Future<void> _topics() async {
     final chapters = _chapters(_note);
@@ -821,7 +992,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         Padding(
           padding: const EdgeInsets.only(top: 22, bottom: 12),
           child: Text(
-            section.$2,
+            ui(context, section.$2),
             style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
           ),
         ),
@@ -888,7 +1059,9 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           ),
         ),
         const SizedBox(height: 10),
-        if (notes.isNotEmpty || rows(transcript['segments']).isNotEmpty)
+        if (notes.isNotEmpty && !audio)
+          _noteTabs()
+        else if (notes.isNotEmpty || rows(transcript['segments']).isNotEmpty)
           TextButton.icon(
             onPressed: generate,
             icon: Icon(
@@ -910,6 +1083,8 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
               '· ${duration(_duration)}',
               style: TextStyle(fontSize: 12, color: _muted),
             ),
+            if (!audio && notes.isNotEmpty)
+              TextButton(onPressed: _versions, child: const UiText('Version')),
             if (_shares != null)
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -944,7 +1119,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     final overview = _hasOverview(_note),
         data = object(_note['data']),
         chapters = _chapters(_note);
-    final selectedTitle = text(_note['title']);
     return SingleChildScrollView(
       key: const ValueKey('web-notes-scroll'),
       controller: _noteScroll,
@@ -954,33 +1128,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         children: [
           ..._notices(),
           if (record.isNotEmpty) _header(),
-          if (notes.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Wrap(
-                spacing: 16,
-                runSpacing: 4,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  TextButton.icon(
-                    onPressed: _chooseNote,
-                    icon: const Icon(Icons.keyboard_arrow_down, size: 18),
-                    label: Text(
-                      selectedTitle.isEmpty ||
-                              selectedTitle == text(record['title'])
-                          ? ui(context, 'Meeting notes')
-                          : selectedTitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: _versions,
-                    child: const UiText('Version'),
-                  ),
-                ],
-              ),
-            ),
           if (overview)
             Row(
               children: [
@@ -1448,115 +1595,128 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   @override
   Widget build(BuildContext context) => Theme(
     data: _theme,
-    child: Scaffold(
-      backgroundColor: _paper,
-      appBar: AppBar(
+    child: DecoratedBox(
+      position: DecorationPosition.foreground,
+      decoration: BoxDecoration(color: _noteMenuOpen ? Colors.black26 : null),
+      child: Scaffold(
         backgroundColor: _paper,
-        foregroundColor: _ink,
-        surfaceTintColor: Colors.transparent,
-        toolbarHeight: MediaQuery.textScalerOf(context).scale(1) > 1.2
-            ? 72
-            : 60,
-        leadingWidth: 48,
-        titleSpacing: 0,
-        leading: IconButton(
-          tooltip: ui(context, 'Back to library'),
-          icon: const Icon(Icons.chevron_left, size: 25),
-          onPressed: () => Navigator.maybePop(context),
-        ),
-        title: SizedBox(width: 280, child: _tabs()),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            tooltip: ui(context, 'Share recording'),
-            icon: const Icon(Icons.ios_share_outlined, size: 21),
-            onPressed: loading ? null : _share,
+        appBar: AppBar(
+          backgroundColor: _paper,
+          foregroundColor: _ink,
+          surfaceTintColor: Colors.transparent,
+          toolbarHeight: MediaQuery.textScalerOf(context).scale(1) > 1.2
+              ? 72
+              : 60,
+          leadingWidth: 48,
+          titleSpacing: 0,
+          leading: IconButton(
+            tooltip: ui(context, 'Back to library'),
+            icon: const Icon(Icons.chevron_left, size: 25),
+            onPressed: () => Navigator.maybePop(context),
           ),
-          PopupMenuButton<String>(
-            tooltip: ui(context, 'Recording options'),
-            icon: const Icon(Icons.more_horiz, size: 23),
-            onSelected: menu,
-            itemBuilder: (_) => [
-              for (final item in [
-                ('rename', 'Rename'),
-                ('move', 'Move to folder'),
-                ('generate', 'New note'),
-                if (notes.isNotEmpty) ('versions', 'Version history'),
-                ('speakers', 'Name speakers'),
-                ('transcribe', 'Transcribe again'),
-                ('replace', 'Find & replace'),
-                ('trim', 'Trim audio'),
-                if (audio)
-                  ('follow', follow ? 'Stop following audio' : 'Follow audio'),
-                ('copy', 'Copy to clipboard'),
-                ('export', 'Export as'),
-                ('trash', 'Move to trash'),
-              ])
-                PopupMenuItem(value: item.$1, child: UiText(item.$2)),
-            ],
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SafeArea(
-        top: false,
-        bottom: false,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.sizeOf(context).width >= 1100 ? 980 : 760,
+          title: SizedBox(width: 280, child: _tabs()),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              tooltip: ui(context, 'Share recording'),
+              icon: const Icon(Icons.ios_share_outlined, size: 21),
+              onPressed: loading ? null : _share,
             ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(child: audio ? _transcriptView() : _notesView()),
-                      if (!audio &&
-                          MediaQuery.sizeOf(context).width >= 1100 &&
-                          _chapters(_note).isNotEmpty)
-                        Container(
-                          width: 230,
-                          padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                          decoration: BoxDecoration(
-                            border: Border(left: BorderSide(color: _line)),
-                          ),
-                          child: ListView(
-                            children: [
-                              const UiText(
-                                'Topics',
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 12),
-                              for (var i = 0; i < _chapters(_note).length; i++)
-                                ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  title: Text(
-                                    text(_chapters(_note)[i]['title']),
-                                    style: const TextStyle(fontSize: 13),
-                                  ),
-                                  onTap: () {
-                                    final anchor =
-                                        _topicKeys[i]?.currentContext;
-                                    if (anchor != null)
-                                      Scrollable.ensureVisible(
-                                        anchor,
-                                        alignment: .04,
-                                        duration: const Duration(
-                                          milliseconds: 250,
-                                        ),
-                                      );
-                                  },
-                                ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                _dock(),
+            PopupMenuButton<String>(
+              tooltip: ui(context, 'Recording options'),
+              icon: const Icon(Icons.more_horiz, size: 23),
+              onSelected: menu,
+              itemBuilder: (_) => [
+                for (final item in [
+                  ('rename', 'Rename'),
+                  ('move', 'Move to folder'),
+                  ('generate', 'New note'),
+                  if (notes.isNotEmpty) ('versions', 'Version history'),
+                  ('speakers', 'Name speakers'),
+                  ('transcribe', 'Transcribe again'),
+                  ('replace', 'Find & replace'),
+                  ('trim', 'Trim audio'),
+                  if (audio)
+                    (
+                      'follow',
+                      follow ? 'Stop following audio' : 'Follow audio',
+                    ),
+                  ('copy', 'Copy to clipboard'),
+                  ('export', 'Export as'),
+                  ('trash', 'Move to trash'),
+                ])
+                  PopupMenuItem(value: item.$1, child: UiText(item.$2)),
               ],
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        body: SafeArea(
+          top: false,
+          bottom: false,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width >= 1100 ? 980 : 760,
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: audio ? _transcriptView() : _notesView(),
+                        ),
+                        if (!audio &&
+                            MediaQuery.sizeOf(context).width >= 1100 &&
+                            _chapters(_note).isNotEmpty)
+                          Container(
+                            width: 230,
+                            padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                            decoration: BoxDecoration(
+                              border: Border(left: BorderSide(color: _line)),
+                            ),
+                            child: ListView(
+                              children: [
+                                const UiText(
+                                  'Topics',
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 12),
+                                for (
+                                  var i = 0;
+                                  i < _chapters(_note).length;
+                                  i++
+                                )
+                                  ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: Text(
+                                      text(_chapters(_note)[i]['title']),
+                                      style: const TextStyle(fontSize: 13),
+                                    ),
+                                    onTap: () {
+                                      final anchor =
+                                          _topicKeys[i]?.currentContext;
+                                      if (anchor != null)
+                                        Scrollable.ensureVisible(
+                                          anchor,
+                                          alignment: .04,
+                                          duration: const Duration(
+                                            milliseconds: 250,
+                                          ),
+                                        );
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  _dock(),
+                ],
+              ),
             ),
           ),
         ),

@@ -187,7 +187,7 @@ void main() {
             await click(find.text(label('Share link')));
             await snap('share-link');
             await click(find.text(label('Done')));
-            await click(find.text(label('New note')));
+            await click(find.byTooltip(label('New note')));
             await click(find.text(label('Summary template')));
             await snap('templates');
             await click(find.byTooltip(label('Back')));

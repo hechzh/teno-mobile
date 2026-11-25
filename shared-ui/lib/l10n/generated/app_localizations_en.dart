@@ -9,6 +9,19 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get changeCurrentNoteTemplate => 'Change template';
+
+  @override
+  String get deleteCurrentNote => 'Delete note';
+
+  @override
+  String get confirmDeleteCurrentNote => 'Delete this note?';
+
+  @override
+  String get trashSingleNoteDetail =>
+      'Move this note to Trash? You can restore it later.';
+
+  @override
   String get recorderSelectForOperation =>
       'Select the registered recorder for this operation.';
 

@@ -9,6 +9,18 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get changeCurrentNoteTemplate => '更换模板';
+
+  @override
+  String get deleteCurrentNote => '删除笔记';
+
+  @override
+  String get confirmDeleteCurrentNote => '删除这篇笔记？';
+
+  @override
+  String get trashSingleNoteDetail => '这篇笔记将移入回收站，可以恢复。';
+
+  @override
   String get recorderSelectForOperation => '请在“我的录音卡”中选择本次操作已登记的录音卡。';
 
   @override

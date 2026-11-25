@@ -69,7 +69,7 @@ class ReportingTests(unittest.TestCase):
         env={'GITHUB_RUN_ID':'123457','GITHUB_SHA':'b'*40,'TENO_DEVELOPMENT_STEPS':'{"device":"success"}'}
         with tempfile.TemporaryDirectory() as tmp,patch.dict(os.environ,env,clear=True):
             root = Path(tmp)
-            source = root/'ios/build/handoff/Teno-iOS-1.0-build20-Xcode.zip'
+            source = root/'ios/build/handoff/Teno-iOS-1.0-build21-Xcode.zip'
             guide = root/'ios/INSTALL.txt'
             screen = root/'ios/build/screenshots/01-login.png'
             for item in (source, guide, screen):
@@ -78,7 +78,7 @@ class ReportingTests(unittest.TestCase):
             with patch.object(report, 'ROOT', root):
                 envelope=report.ci_envelope('ios','success',root/'outbox')
             self.assertEqual(envelope['report']['version'],'1.0.0')
-            self.assertIn('1.0 / Build 20',envelope['report']['title']['en'])
+            self.assertIn('1.0 / Build 21',envelope['report']['title']['en'])
             self.assertIn('com.jwd.ZhiYan',envelope['report']['changes'][0]['en'])
             self.assertEqual(envelope['report']['distribution'],'evidence')
             self.assertEqual([v['kind'] for v in envelope['files']], ['source','evidence','screenshot'])

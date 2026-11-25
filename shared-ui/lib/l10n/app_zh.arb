@@ -1,4 +1,8 @@
 {
+  "changeCurrentNoteTemplate": "更换模板",
+  "deleteCurrentNote": "删除笔记",
+  "confirmDeleteCurrentNote": "删除这篇笔记？",
+  "trashSingleNoteDetail": "这篇笔记将移入回收站，可以恢复。",
   "recorderSelectForOperation": "请在“我的录音卡”中选择本次操作已登记的录音卡。",
   "recorderDeviceFound": "已找到录音卡",
   "recorderDeviceDisconnected": "录音卡未连接",

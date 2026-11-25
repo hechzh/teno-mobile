@@ -1,6 +1,6 @@
-Teno iOS 1.0 / Build20 · Xcode 27 构建（最低 Xcode 26 / iOS 26 SDK）· Bundle ID com.jwd.ZhiYan
+Teno iOS 1.0 / Build21 · Xcode 27 构建（最低 Xcode 26 / iOS 26 SDK）· Bundle ID com.jwd.ZhiYan
 
-交付文件：Teno-iOS-1.0-build20-Xcode.zip。
+交付文件：Teno-iOS-1.0-build21-Xcode.zip。
 完整解压，打开 ios/Teno.xcodeproj，选择 Teno scheme。工程使用 Xcode 16 项目格式（objectVersion77），Xcode 26 与 Xcode 27 均可直接打开；最低 iOS15。
 自 2026-04-28 起，App Store Connect 要求使用 Xcode 26 或更新版本与 iOS 26 SDK 或更新版本构建。云端已改用 Xcode 27（GitHub Actions xcode-27）完成未签名 iPhone 编译、Apple Silicon 模拟器回归和原生测试；接收方需使用 Xcode 26+（推荐 27）。旧 Xcode 14.3.1 不再受支持。
 
@@ -15,10 +15,12 @@ Teno iOS 1.0 / Build20 · Xcode 27 构建（最低 Xcode 26 / iOS 26 SDK）· Bu
 若只有 Personal Team，且该账号无权使用 com.jwd.ZhiYan，可仅在本机将 Teno target 的 Bundle Identifier 改成自己的唯一测试标识；这会成为独立测试 App，不用于覆盖原 App。交付源码仍保留正式标识。
 Xcode 26/27 对真机系统版本有各自的支持范围；本次所述 iOS27 设备应使用支持它的 Xcode 版本连接。工程能编译不代表真机安装已通过。
 
-包内包含 0.9.0 共用界面、原生源码和配套 App/Flutter XCFramework（设备 Release、模拟器 Debug）。直接编译与签名无需 Flutter、CocoaPods 或 XcodeGen。修改 Dart 时使用 Flutter3.47.9 重建两套框架。
+包内包含 0.9.6 共用界面、原生源码和配套 App/Flutter XCFramework（设备 Release、模拟器 Debug）。直接编译与签名无需 Flutter、CocoaPods 或 XcodeGen。修改 Dart 时使用 Flutter3.47.9 重建两套框架。
 Flutter.xcframework 的内层切片保留 Google 发布者签名（FLUTTER.IO LLC / S8QB4VV633）；为加入可运行的模拟器切片而改写外层清单时，外层容器使用本机临时签名，交付包中不再有未签名的 XCFramework。Verify-Xcode.command 会一并核对。
 
-本版依赖共享后端 1.8.0 的账号录音卡授权接口。在“我的录音卡”中扫描 JWD 服务，连接后使用 SK 指令验证密钥，普通连接无需读取或填写 MAC。新空白卡可记住本账号的固定密钥；本账号的旧卡按保存的原授权连接。
+录音详情页在标题下横向显示每篇笔记。点其他笔记名切换，点已选笔记名可更换模板或删除这一篇。更换模板成功后在当前笔记内保存新版本，历史版本仍可查看。移入回收站后可以撤销，点「＋」可以另建一篇。共享后端会在生成首个有效摘要时，为录音填写内容标题。手动改过的标题会保留。
+
+本版依赖共享后端 1.8.0 的录音标题、笔记重新生成和账号录音卡授权接口。在“我的录音卡”中扫描 JWD 服务，连接后使用 SK 指令验证密钥，普通连接无需读取或填写 MAC。新空白卡可记住本账号的固定密钥；本账号的旧卡按保存的原授权连接。
 
 设备接受密钥后即可使用录音与同步。连接结果保存在本机。云端已登记设备的恢复、转交和解除归属沿用原授权流程。若有未完成的归属操作，先按设备页提示续办。转交保留卡内录音，原账号云端资料、本机文件和上传队列保留在原账号。
 

@@ -1,4 +1,8 @@
 {
+  "changeCurrentNoteTemplate": "Change template",
+  "deleteCurrentNote": "Delete note",
+  "confirmDeleteCurrentNote": "Delete this note?",
+  "trashSingleNoteDetail": "Move this note to Trash? You can restore it later.",
   "recorderSelectForOperation": "Select the registered recorder for this operation.",
   "recorderDeviceFound": "Recorder found",
   "recorderDeviceDisconnected": "Recorder not connected",

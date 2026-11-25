@@ -642,7 +642,7 @@ void main() {
         await label('Shared links');
       case '53-template-picker':
         await detail();
-        await label('New note');
+        await tap(find.byTooltip('New note'));
         await label('Summary template');
     }
   }
