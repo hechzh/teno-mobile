@@ -623,7 +623,7 @@ class _PersonalHomeState extends State<PersonalHome> {
             CoreTile(item, () async {
               await openPersonalItem(context, model, item);
               if (mounted) await load();
-            }, showFolder: true),
+            }, showFolder: text(item['folder_title']).isNotEmpty),
           if (!loading && recent.isEmpty && local.isEmpty && error.isEmpty)
             EmptyState(
               'No files in this workspace',

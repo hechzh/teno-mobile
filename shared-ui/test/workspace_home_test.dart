@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/core/model.dart';
 import '../lib/features/personal_home.dart';
+import '../lib/features/personal_library.dart';
 import '../lib/l10n/generated/app_localizations.dart';
 import '../lib/ui/personal_widgets.dart';
 import 'fixtures.dart';
@@ -81,7 +82,17 @@ class WorkspaceHost extends CoreHost {
                       'kind': 'document',
                     },
                   ])
-          : space == 'studio' && byType == 'recent_files'
+          : space == 'studio' && byType != 'recent_files'
+          ? [
+              {
+                'id': 'hardware-folder',
+                'type': 'folder',
+                'title': '硬件验证',
+                'folder_id': 'studio',
+                'child_count': 1,
+              },
+            ]
+          : space == 'studio'
           ? [
               {
                 ...reviewRecordings.first,
@@ -134,6 +145,16 @@ void main() {
     tester.view.padding = const FakeViewPadding(top: 24, bottom: 24);
     addTearDown(tester.view.reset);
     final host = WorkspaceHost()..state = reviewState();
+    host.state.draftsJson = jsonEncode([
+      ...rows(jsonDecode(host.state.draftsJson)),
+      {
+        'id': 'local-studio',
+        'title': '本机样机试用',
+        'status': 'local',
+        'folder_id': 'studio',
+        'duration_ms': 11000,
+      },
+    ]);
     final model = TenoModel(host: host)
       ..changed(host.state)
       ..personalCore = true
@@ -180,10 +201,25 @@ void main() {
     await screenshot('workspace-home');
     await tap(find.text('个人空间'));
     await screenshot('workspace-switch');
-    await tap(find.text('产品设计'));
+    await tap(find.widgetWithText(CheckedPopupMenuItem<String>, '产品设计'));
     expect(host.selected, 'studio');
     expect(find.text('样机交互讨论'), findsOneWidget);
     expect(find.text('录音卡试用与产品定价讨论'), findsNothing);
+    await tap(find.text('查看全部'));
+    expect(
+      find.descendant(
+        of: find.byType(PersonalListBody),
+        matching: find.text('硬件验证'),
+      ),
+      findsOneWidget,
+    );
+    await screenshot('workspace-library');
+    await tap(find.byTooltip('我的文件分类'));
+    await tap(find.text('本机文件'));
+    expect(find.text('本机样机试用'), findsOneWidget);
+    expect(find.text('Design review'), findsNothing);
+    await tap(find.byTooltip('返回'));
+    await tap(find.widgetWithText(NavigationDestination, '首页'));
     await tap(find.byTooltip('搜索'));
     await tester.enterText(find.byType(TextField), '样机');
     await tester.pump(const Duration(milliseconds: 400));

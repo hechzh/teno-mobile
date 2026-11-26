@@ -726,7 +726,9 @@ class _PersonalListBodyState extends State<PersonalListBody> {
   Widget build(BuildContext context) {
     final visible = widget.root && view == 'all'
         ? items
-              .where((i) => i['type'] == 'folder' && i['folder_id'] == null)
+              .where(
+                (i) => i['type'] == 'folder' && i['folder_id'] == parentFolder,
+              )
               .toList()
         : items;
     final all = <String, Json>{
@@ -753,7 +755,13 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                         onSelected: (value) {
                           if (value == 'phone') {
                             unawaited(
-                              push(context, PersonalLocalList(widget.model)),
+                              push(
+                                context,
+                                PersonalLocalList(
+                                  widget.model,
+                                  workspaceId: widget.workspaceId,
+                                ),
+                              ),
                             );
                             return;
                           }

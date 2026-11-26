@@ -222,47 +222,61 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
 }
 
 class PersonalLocalList extends StatelessWidget {
-  const PersonalLocalList(this.model, {super.key});
+  const PersonalLocalList(this.model, {super.key, this.workspaceId});
   final TenoModel model;
+  final String? workspaceId;
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: model,
-    builder: (context, _) => CoreFrame(
-      title: model.webExperience ? 'Browser imports' : 'On this phone',
-      actions: [
-        PopupMenuButton<String>(
-          onSelected: (_) => perform(context, () async {
-            for (final d in model.drafts.where(
-              (d) =>
-                  text(d['recording_id']).isEmpty &&
-                  text(d['file_id']).isEmpty &&
-                  !['recording', 'invalid'].contains(d['status']),
-            ))
-              await model.host.retryUpload(text(d['id']));
-          }),
-          itemBuilder: (_) => const [
-            PopupMenuItem(value: 'upload', child: UiText('Upload saved files')),
+    builder: (context, _) {
+      final drafts = model.drafts
+          .where(
+            (d) =>
+                workspaceId == null ||
+                text(d['folder_id']) ==
+                    (workspaceId == 'personal' ? '' : workspaceId),
+          )
+          .toList();
+      return CoreFrame(
+        title: model.webExperience ? 'Browser imports' : 'On this phone',
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (_) => perform(context, () async {
+              for (final d in drafts.where(
+                (d) =>
+                    text(d['recording_id']).isEmpty &&
+                    text(d['file_id']).isEmpty &&
+                    !['recording', 'invalid'].contains(d['status']),
+              ))
+                await model.host.retryUpload(text(d['id']));
+            }),
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'upload',
+                child: UiText('Upload saved files'),
+              ),
+            ],
+          ),
+        ],
+        child: ListView(
+          padding: const EdgeInsets.all(21),
+          children: [
+            if (drafts.isEmpty)
+              EmptyState(
+                'No local files',
+                model.webExperience
+                    ? 'Files selected for import appear here.'
+                    : 'Recordings and imports are automatically kept on this phone.',
+              ),
+            for (final d in drafts)
+              CoreTile({
+                ...d,
+                'type': d['kind'] == 'file' ? 'file' : 'recording',
+              }, () => push(context, PersonalLocalPage(model, text(d['id'])))),
           ],
         ),
-      ],
-      child: ListView(
-        padding: const EdgeInsets.all(21),
-        children: [
-          if (model.drafts.isEmpty)
-            EmptyState(
-              'No local files',
-              model.webExperience
-                  ? 'Files selected for import appear here.'
-                  : 'Recordings and imports are automatically kept on this phone.',
-            ),
-          for (final d in model.drafts)
-            CoreTile({
-              ...d,
-              'type': d['kind'] == 'file' ? 'file' : 'recording',
-            }, () => push(context, PersonalLocalPage(model, text(d['id'])))),
-        ],
-      ),
-    ),
+      );
+    },
   );
 }
 

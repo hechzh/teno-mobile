@@ -160,6 +160,7 @@ def ci_envelope(platform, status, outbox):
                           'label': words('构建清单', 'Build manifest')})
             for name, label in [
                 ('workspace-home-zh.png', words('工作空间首页', 'Workspace home')),
+                ('workspace-library-zh.png', words('工作空间内的资料库', 'Library inside a workspace')),
                 ('note-tabs-zh.png', words('录音笔记页', 'Recording notes')),
                 ('primary-template-picker-zh.png', words('首篇笔记模板选择', 'Primary note template picker')),
             ]:
