@@ -87,8 +87,7 @@ def android():
              evidence(SCREEN, 'screenshot', '录音笔记标签页', 'Notes for a recording'),
              evidence(SCREEN.parent / 'primary-template-picker-zh.png', 'screenshot', '首篇笔记模板选择', 'Primary note template picker'),
              evidence(SCREEN.parent / 'note-actions-zh.png', 'screenshot', '所选笔记的操作菜单', 'Selected note actions'),
-             evidence(SCREEN.parent / 'delete-note-zh.png', 'screenshot', '将所选笔记移到回收站', 'Move selected note to Trash'),
-             evidence(SCREEN.parent / 'change-template-zh.png', 'screenshot', '替换所选笔记的摘要模板', 'Change the selected note template')]
+             evidence(SCREEN.parent / 'delete-note-zh.png', 'screenshot', '将所选笔记移到回收站', 'Move selected note to Trash')]
     return {'report': report, 'files': files}
 
 
