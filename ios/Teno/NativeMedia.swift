@@ -9,7 +9,7 @@ import LocalAuthentication
     private let saved: (String) -> Void
     weak var presenter: UIViewController?
     private var pickerResult: CheckedContinuation<String?, Error>?
-    private var pickerScope = ""
+    private var pickerScope = "", pickerFolder = ""
     private var player: AVAudioPlayer?
     private var generation = 0
     private var mediaId = "", error = "", speed = 1.0
@@ -23,7 +23,7 @@ import LocalAuthentication
     }
     func importAudio() async throws -> String? {
         guard pickerResult == nil else { throw RuntimeFailure("IMPORT_BUSY","An import is already open.") }
-        let view = try front(); pickerScope = store.scope
+        let view = try front(); pickerScope = store.scope; pickerFolder = store.workspaceFolder
         guard !pickerScope.isEmpty else { throw RuntimeFailure("SIGN_IN","Sign in before importing audio.") }
         let picker = UIDocumentPickerViewController(forOpeningContentTypes:[.audio],asCopy:false)
         picker.delegate = self; picker.allowsMultipleSelection = false
@@ -32,7 +32,7 @@ import LocalAuthentication
     func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) { pickerResult?.resume(returning:nil); pickerResult = nil }
     func documentPicker(_ controller: UIDocumentPickerViewController,didPickDocumentsAt urls: [URL]) {
         guard let selected = urls.first, let result = pickerResult else { return }
-        pickerResult = nil; let owner = pickerScope
+        pickerResult = nil; let owner = pickerScope, folder = pickerFolder
         Task {
             let access = selected.startAccessingSecurityScopedResource()
             defer { if access { selected.stopAccessingSecurityScopedResource() } }
@@ -42,6 +42,8 @@ import LocalAuthentication
                 let coordinator = NSFileCoordinator(), allowed = Set(["wav","m4a","mp3","aac","ogg","flac","mp4"])
                 let ext = allowed.contains(selected.pathExtension.lowercased()) ? selected.pathExtension.lowercased() : "audio"
                 var draft = try store.newDraft(selected.deletingPathExtension().lastPathComponent,ext:ext)
+                draft["folder_id"] = folder
+                draft["source"] = "import"
                 let target = URL(fileURLWithPath:string(draft["path"])); destination = target
                 var coordinationError: NSError?, copyError: Error?
                 coordinator.coordinate(readingItemAt:selected,options:.withoutChanges,error:&coordinationError) { source in

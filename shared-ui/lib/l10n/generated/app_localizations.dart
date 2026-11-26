@@ -6637,6 +6637,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not read recorder services. Try again.'**
   String get recorderServiceReadFailed;
+
+  /// No description provided for @label58ea5a145c6a.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal workspace'**
+  String get label58ea5a145c6a;
+
+  /// No description provided for @labelec70b4a614bf.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch workspace'**
+  String get labelec70b4a614bf;
+
+  /// No description provided for @labeldf0caf1b27bd.
+  ///
+  /// In en, this message translates to:
+  /// **'New workspace'**
+  String get labeldf0caf1b27bd;
+
+  /// No description provided for @labele29c9398edb6.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent files'**
+  String get labele29c9398edb6;
+
+  /// No description provided for @label455e7ef23538.
+  ///
+  /// In en, this message translates to:
+  /// **'No files in this workspace'**
+  String get label455e7ef23538;
+
+  /// No description provided for @labela0859ef85c0a.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply template'**
+  String get labela0859ef85c0a;
+
+  /// No description provided for @labeldb07192b3f0d.
+  ///
+  /// In en, this message translates to:
+  /// **'Add location'**
+  String get labeldb07192b3f0d;
+
+  /// No description provided for @labelc243c93b3462.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting location'**
+  String get labelc243c93b3462;
+
+  /// No description provided for @label39914936b18f.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording time'**
+  String get label39914936b18f;
+
+  /// No description provided for @labelbf2d27f6f568.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload time'**
+  String get labelbf2d27f6f568;
+
+  /// No description provided for @labelf55902b27a26.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about this note'**
+  String get labelf55902b27a26;
 }
 
 class _AppLocalizationsDelegate

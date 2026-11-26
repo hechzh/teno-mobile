@@ -79,7 +79,12 @@ class PersonalSettings extends StatelessWidget {
           () => push(context, PersonalCalendarPage(model)),
         ),
       ],
-      settingsEntry(context,'My recorders',Icons.devices_other,()=>push(context,MyRecordersPage(model))),
+      settingsEntry(
+        context,
+        'My recorders',
+        Icons.devices_other,
+        () => push(context, MyRecordersPage(model)),
+      ),
       settingsEntry(
         context,
         'Templates',
@@ -89,7 +94,7 @@ class PersonalSettings extends StatelessWidget {
           CoreFrame(title: 'Templates', child: PersonalTemplates(model)),
         ),
       ),
-      NoteTemplateChoice.accountDefault(model, title: 'Note template'),
+      NoteTemplateChoice.accountDefault(model),
       settingsEntry(
         context,
         'Preferences',

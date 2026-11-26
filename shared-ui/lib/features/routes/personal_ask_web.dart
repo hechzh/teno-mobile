@@ -11,6 +11,7 @@ Widget PersonalChatPage(
   String? chatId,
   bool embedded = false,
   List<Json> initial = const [],
+  String? initialQuestion,
 }) => DeferredContent(
   key: key,
   load: page.loadLibrary,
@@ -19,6 +20,7 @@ Widget PersonalChatPage(
     chatId: chatId,
     embedded: embedded,
     initial: initial,
+    initialQuestion: initialQuestion,
   ),
 );
 

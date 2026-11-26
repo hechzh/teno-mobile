@@ -6,8 +6,9 @@ import '../ui/widgets.dart';
 
 /// A shared shortcut to the app-wide, device-persisted interface preference.
 class InterfaceLanguageButton extends StatefulWidget {
-  const InterfaceLanguageButton(this.model, {super.key});
+  const InterfaceLanguageButton(this.model, {super.key, this.compact = false});
   final TenoModel model;
+  final bool compact;
   @override
   State<InterfaceLanguageButton> createState() =>
       _InterfaceLanguageButtonState();
@@ -41,18 +42,24 @@ class _InterfaceLanguageButtonState extends State<InterfaceLanguageButton> {
           child: Text(item.$2),
         ),
     ],
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.language, size: 19),
-          const SizedBox(width: 7),
-          const Text('中文 / EN', style: TextStyle(fontSize: 13)),
-          const Icon(Icons.arrow_drop_down, size: 18),
-        ],
-      ),
-    ),
+    child: widget.compact
+        ? const SizedBox(
+            width: 44,
+            height: 44,
+            child: Icon(Icons.language, size: 20),
+          )
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.language, size: 19),
+                const SizedBox(width: 7),
+                const Text('中文 / EN', style: TextStyle(fontSize: 13)),
+                const Icon(Icons.arrow_drop_down, size: 18),
+              ],
+            ),
+          ),
   );
 }
 

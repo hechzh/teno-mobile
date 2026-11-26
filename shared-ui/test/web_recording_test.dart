@@ -36,6 +36,13 @@ class NotesHost extends CoreHost {
 
 Json copyNote() => jsonDecode(jsonEncode(note)) as Json;
 
+Future<void> recordingOption(WidgetTester tester, String label) async {
+  await tester.tap(find.byTooltip('Recording options'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(label));
+  await tester.pumpAndSettle();
+}
+
 // Synthetic narrative contract; never use a production transcript as a fixture.
 Json narrativeNote() {
   final value = copyNote();
@@ -135,6 +142,7 @@ void main() {
       expect(find.text('Transcript excerpt'), findsNothing);
       expect(find.text('Private source snapshot'), findsNothing);
       expect(find.text('[Proposed] Draft a test plan.'), findsOneWidget);
+      await tester.ensureVisible(find.text('Topics'));
       await tester.tap(find.text('Topics'));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(ListTile, 'Funding questions'));
@@ -174,9 +182,7 @@ void main() {
       };
       host.overrides['/api/v1/notes/note-1'] = generated;
       await openNotes(tester, host);
-      await tester.ensureVisible(find.text('Copy / Export'));
-      await tester.tap(find.text('Copy / Export'));
-      await tester.pumpAndSettle();
+      await recordingOption(tester, 'Export as');
       await tester.tap(find.text('Copy note'));
       await tester.pumpAndSettle();
       expect(copied, startsWith(data['summary']));
@@ -185,9 +191,7 @@ void main() {
       expect(copied, contains('[Proposed] Draft a test plan.'));
       expect(copied!.split('Draft a test plan.').length, 2);
       expect(copied, isNot(contains('Private source snapshot')));
-      await tester.ensureVisible(find.text('Edit'));
-      await tester.tap(find.text('Edit'));
-      await tester.pumpAndSettle();
+      await recordingOption(tester, 'Edit note');
       final fields = tester.widgetList<TextField>(find.byType(TextField));
       expect(fields.last.controller!.text, copied);
       expect(host.requests.where((r) => r.startsWith('PATCH ')), isEmpty);
@@ -212,9 +216,7 @@ void main() {
         'items': [older],
       };
       await openNotes(tester, host);
-      await tester.ensureVisible(find.text('Version'));
-      await tester.tap(find.text('Version'));
-      await tester.pumpAndSettle();
+      await recordingOption(tester, 'Version history');
       await tester.tap(find.text('Version 1'));
       await tester.pumpAndSettle();
       expect(find.text(object(older['data'])['summary']), findsOneWidget);
@@ -293,9 +295,8 @@ void main() {
     (tester) async {
       final host = NotesHost();
       await openNotes(tester, host);
-      expect(find.text('Overview'), findsOneWidget);
+      expect(find.text('Overview'), findsNothing);
       expect(find.text(object(note['data'])['summary']), findsOneWidget);
-      expect(find.text('1 topic'), findsOneWidget);
       expect(
         find.text('Keep the recorder as the primary capture source.'),
         findsOneWidget,
@@ -306,12 +307,13 @@ void main() {
       );
       expect(find.text('Review the onboarding copy.'), findsOneWidget);
       expect(find.text('Transcript excerpt'), findsOneWidget);
+      await tester.ensureVisible(find.text('Topics'));
       await tester.tap(find.text('Topics'));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(ListTile, 'Launch timeline'));
       await tester.pumpAndSettle();
       expect(find.text('Launch timeline').hitTestable(), findsOneWidget);
-      expect(find.byTooltip('Play recording').hitTestable(), findsOneWidget);
+      expect(find.byTooltip('Play recording'), findsNothing);
       expect(host.requests.where((r) => !r.startsWith('GET ')), isEmpty);
       expect(tester.takeException(), isNull);
     },
@@ -321,8 +323,11 @@ void main() {
     'native shares complete Notes presentation without browser-only controls',
     (tester) async {
       await openNotes(tester, NotesHost(), web: false);
-      expect(find.text('Overview'), findsOneWidget);
+      expect(find.text('Overview'), findsNothing);
       expect(find.text('Source'), findsOneWidget);
+      expect(find.byTooltip('Play recording'), findsNothing);
+      await tester.tap(find.text('Source'));
+      await tester.pumpAndSettle();
       expect(find.byTooltip('Play recording'), findsOneWidget);
     },
   );
@@ -383,6 +388,8 @@ void main() {
         ],
       };
       await openNotes(tester, host);
+      await tester.tap(find.byTooltip('Share recording'));
+      await tester.pumpAndSettle();
       expect(
         find.text('Shared'),
         state == 'active' ? findsOneWidget : findsNothing,
@@ -393,6 +400,26 @@ void main() {
       );
     });
   }
+
+  testWidgets('time falls back to upload time and location is a partial edit', (
+    tester,
+  ) async {
+    final host = NotesHost();
+    await openNotes(tester, host);
+    expect(find.textContaining('Upload time'), findsOneWidget);
+    await tester.tap(find.text('Add location'));
+    await tester.pumpAndSettle();
+    final dialog = find.byType(AlertDialog);
+    await tester.enterText(
+      find.descendant(of: dialog, matching: find.byType(TextField)),
+      'North meeting room',
+    );
+    await tester.tap(find.descendant(of: dialog, matching: find.text('Save')));
+    await tester.pumpAndSettle();
+    expect(host.bodies['PATCH /api/v1/recordings/record-1/metadata'], {
+      'location': 'North meeting room',
+    });
+  });
 
   testWidgets('note selection edits latest selected note, not previous note', (
     tester,
@@ -408,9 +435,7 @@ void main() {
     await openNotes(tester, host);
     await tester.tap(find.byKey(const ValueKey('note-tab-note-2')));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Edit'));
-    await tester.tap(find.text('Edit'));
-    await tester.pumpAndSettle();
+    await recordingOption(tester, 'Edit note');
     expect(host.requests, contains('GET /api/v1/notes/note-2'));
     final editor = tester.widget<PersonalNoteEditor>(
       find.byType(PersonalNoteEditor),
@@ -434,15 +459,14 @@ void main() {
       ],
     };
     await openNotes(tester, host);
-    await tester.ensureVisible(find.text('Version'));
-    await tester.tap(find.text('Version'));
-    await tester.pumpAndSettle();
+    await recordingOption(tester, 'Version history');
     await tester.tap(find.text('Version 2'));
     await tester.pumpAndSettle();
     expect(find.text('Earlier saved wording.'), findsOneWidget);
     await tester.tap(find.byTooltip('Close'));
     await tester.pumpAndSettle();
-    expect(find.text('Full note · v1'), findsOneWidget);
+    expect(find.text('Earlier saved wording.'), findsNothing);
+    expect(find.text(object(note['data'])['summary']), findsOneWidget);
     expect(host.requests.where((r) => !r.startsWith('GET ')), isEmpty);
   });
 
@@ -475,7 +499,10 @@ void main() {
         'record-1',
         12000,
       ));
-      await tester.tap(find.text('Ask Teno'));
+      await tester.tap(find.text('Notes'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'What was decided?');
+      await tester.testTextInput.receiveAction(TextInputAction.send);
       await tester.pumpAndSettle();
       expect(
         tester.widget<PersonalChatPage>(find.byType(PersonalChatPage)).initial,
@@ -488,6 +515,9 @@ void main() {
           },
         ],
       );
+      final question =
+          host.bodies['POST /api/v1/personal/chats/chat-1/messages'];
+      expect(question?['question'], 'What was decided?');
       expect(tester.takeException(), isNull);
     },
   );

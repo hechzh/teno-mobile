@@ -66,23 +66,27 @@ class ReportingTests(unittest.TestCase):
             self.assertEqual(report.ci_envelope('android','failure',tmp),envelope)
 
     def test_ios_identity_is_independent_and_exact_in_evidence(self):
-        env={'GITHUB_RUN_ID':'123457','GITHUB_SHA':'b'*40,'TENO_DEVELOPMENT_STEPS':'{"device":"success"}'}
+        env={'GITHUB_RUN_ID':'123457','GITHUB_SHA':'b'*40,'TENO_DEVELOPMENT_STEPS':'{"device":"success","workspace-notes":"success"}'}
         with tempfile.TemporaryDirectory() as tmp,patch.dict(os.environ,env,clear=True):
             root = Path(tmp)
-            source = root/'ios/build/handoff/Teno-iOS-1.0-build21-Xcode.zip'
+            source = root/'ios/build/handoff/Teno-iOS-1.0-build22-Xcode.zip'
             guide = root/'ios/INSTALL.txt'
             screen = root/'ios/build/screenshots/01-login.png'
-            for item in (source, guide, screen):
+            manifest = root/'ios/build/handoff/Teno-iOS-1.0-build22-Xcode/manifest.json'
+            screenshots = [screen.parent/'flutter'/name for name in (
+                'workspace-home-zh.png', 'note-tabs-zh.png', 'primary-template-picker-zh.png')]
+            files = [source, guide, screen, manifest, *screenshots]
+            for item in files:
                 item.parent.mkdir(parents=True, exist_ok=True)
                 item.write_bytes(item.name.encode())
             with patch.object(report, 'ROOT', root):
                 envelope=report.ci_envelope('ios','success',root/'outbox')
             self.assertEqual(envelope['report']['version'],'1.0.0')
-            self.assertIn('1.0 / Build 21',envelope['report']['title']['en'])
+            self.assertIn('1.0 / Build 22',envelope['report']['title']['en'])
             self.assertIn('com.jwd.ZhiYan',envelope['report']['changes'][0]['en'])
             self.assertEqual(envelope['report']['distribution'],'evidence')
-            self.assertEqual([v['kind'] for v in envelope['files']], ['source','evidence','screenshot'])
-            self.assertEqual([v['sha256'] for v in envelope['files']], [report.sha(p) for p in (source,guide,screen)])
+            self.assertEqual([v['kind'] for v in envelope['files']], ['source','evidence','screenshot','evidence',*['screenshot']*3])
+            self.assertEqual([v['sha256'] for v in envelope['files']], [report.sha(p) for p in files])
             android=report.ci_envelope('android','success',tmp)
             self.assertEqual(android['report']['version'],'0.9.0')
 

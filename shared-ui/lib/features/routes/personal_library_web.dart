@@ -10,6 +10,7 @@ Widget PersonalListPage(
   Key? key,
   required String title,
   String? folderId,
+  String? workspaceId,
   String? type,
   bool trash = false,
 }) => DeferredContent(
@@ -19,6 +20,7 @@ Widget PersonalListPage(
     model,
     title: title,
     folderId: folderId,
+    workspaceId: workspaceId,
     type: type,
     trash: trash,
   ),
@@ -28,6 +30,7 @@ Widget PersonalListBody(
   TenoModel model, {
   Key? key,
   String? folderId,
+  String? workspaceId,
   String? type,
   bool trash = false,
   bool root = false,
@@ -39,6 +42,7 @@ Widget PersonalListBody(
   builder: (_) => feature.PersonalListBody(
     model,
     folderId: folderId,
+    workspaceId: workspaceId,
     type: type,
     trash: trash,
     root: root,

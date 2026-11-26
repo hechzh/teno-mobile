@@ -13,6 +13,7 @@ Future<void> openPersonalItem(
   TenoModel model,
   Json item, [
   Json? match,
+  String? workspaceId,
 ]) async {
   if (item['type'] == 'recording' && match?['revision'] != null) {
     final pinned = await model.api(
@@ -50,6 +51,7 @@ Future<void> openPersonalItem(
       model,
       title: text(item['title']),
       folderId: text(item['id']),
+      workspaceId: workspaceId,
     ),
     'note' => PersonalNotePage(
       model,
@@ -90,7 +92,11 @@ Future<String?> choosePersonalFolder(
           ),
           for (final folder in folders)
             ListTile(
-              leading: const Icon(Icons.folder_outlined),
+              leading: Icon(
+                object(folder['data'])['workspace_root'] == true
+                    ? Icons.layers_outlined
+                    : Icons.folder_outlined,
+              ),
               title: Text(text(object(folder['data'])['title'])),
               onTap: () => Navigator.pop(sheet, text(folder['id'])),
             ),

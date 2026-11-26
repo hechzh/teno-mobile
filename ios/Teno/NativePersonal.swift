@@ -66,6 +66,11 @@ import QuickLook
             guard draft["template_frozen"] as? Bool != true, string(draft["recording_id"]).isEmpty else { throw RuntimeFailure("PROCESSING", "Processing has started. Generate a new note from recording details.") }
             draft["template_id"] = template; try store.generationOptions(&draft,from:args); try store.save(draft); return [:]
         case "cache_preferences": store.preferences.set(try jsonData(args), forKey:key("settings")); return [:]
+        case "workspace_destination":
+            if let folder = args["folder_id"] as? String {
+                try store.selectWorkspace(owner:string(args["scope"]), folder:folder)
+            }
+            return ["folder_id":store.workspaceFolder]
         case "history":
             var values = store.preferences.stringArray(forKey:key("history")) ?? []
             if args["clear"] as? Bool == true { values = [] }
@@ -94,7 +99,7 @@ import QuickLook
         case "calendar": return try await readCalendar()
         case "import", "photo":
             return try await importer.open(source:command == "photo" ? "camera" : string(args["source"]), parent:command == "photo" ? string(args["local_id"] ?? args["id"]) : "", atMs:(args["at_ms"] as? NSNumber)?.int64Value ?? 0, template:string(args["template_id"]).isEmpty ? "@default" : string(args["template_id"]), generationOptions:args)
-        case "accept_imports": return try await importer.acceptPending()
+        case "accept_imports": return try await importer.acceptPending(options:args)
         case "dictate":
             guard !runtime.phone.active else { throw RuntimeFailure("CAPTURE_ACTIVE", "Finish the recording before using voice input.") }
             return try await voice.start()

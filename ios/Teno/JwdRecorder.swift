@@ -41,6 +41,7 @@ import JwdVtrSDK
     private(set) var identifier = "", name = "", battery = "Not received"
     private(set) var status = "Connect your recorder to get started.", phase = "idle", recordName = "", lastDraft = ""
     private var recordStarted: TimeInterval?, accumulated: Int64 = 0
+    private var startFolder = "", syncFolder = ""
     private var waiting = ""
     private var recordStateKnown = false
     private var directories: [String] = [], files: [JSONObject] = [], transferQueue: [JSONObject] = []
@@ -151,6 +152,7 @@ import JwdVtrSDK
             guard recordStateKnown else { throw RuntimeFailure("DEVICE_STATE", "Reconnect and wait for the recorder status before starting.") }
             guard !active else { throw RuntimeFailure("RECORDING_ACTIVE", "Check the existing recording before starting another.") }
             waiting = "start"; busy = true; phase = "starting"; lastDraft = ""; recordName = ""
+            startFolder = store.workspaceFolder
             status = "Waiting for the recorder to start"; send { self.sdk.startRecord() }
             timeout("Start was not confirmed. Check the recorder before trying again.")
         case .pause:
@@ -165,7 +167,7 @@ import JwdVtrSDK
             send { self.sdk.stopRecord() }; timeout("Stop was not confirmed. The recorder may still be recording.")
         case .sync:
             guard recordStateKnown, !active else { throw RuntimeFailure("SYNC", "Wait for the recorder to stop before syncing.") }
-            beginSync()
+            beginSync(folder:store.workspaceFolder)
         default: break
         }
     }
@@ -551,6 +553,11 @@ import JwdVtrSDK
             if shouldSync, store.state().signedIn { scheduleSync() } else { recordName = "" }
         } else {
             if ownership.running { ownership.fail("Stop recording before changing recorder ownership."); return }
+            if waiting == "start", let fileName, !fileName.isEmpty {
+                let elapsed = Double(currentTime)
+                let timestamp = (0...15).contains(elapsed) ? Date().addingTimeInterval(-elapsed) : nil
+                store.rememberRecorderStart(identifier,fileName,folder:startFolder,recordedAt:timestamp)
+            }
             deadline?.cancel(); waiting = ""; busy = false
             if let fileName, !fileName.isEmpty { recordName = fileName }
             if phase != "paused" { accumulated = Int64(max(0,currentTime)) * 1000; recordStarted = ProcessInfo.processInfo.systemUptime; phase = "recording" }
@@ -597,8 +604,9 @@ import JwdVtrSDK
             beginSync()
         }
     }
-    private func beginSync() {
+    private func beginSync(folder: String = "") {
         guard !ownership.blocked else { return }
+        syncFolder = folder
         phase = "saving"; busy = true; directories = []; files = []; transferQueue = []
         status = "Reading recorder files"; send { self.sdk.getFileDirs() }; timeout("The recorder file list did not arrive.")
     }
@@ -655,6 +663,7 @@ import JwdVtrSDK
         do { try transferHandle?.synchronize(); try transferHandle?.close(); transferHandle = nil }
         catch { transferError(error.localizedDescription); return }
         let owner = transferOwner, deviceId = identifier, note = store.notes("jwd:" + identifier + "|" + string(entry["name"]))
+        let destination = syncFolder
         let generation = transferGeneration
         status = "Verifying complete recording"
         Task {
@@ -675,6 +684,9 @@ import JwdVtrSDK
                     let header = try FileHandle(forReadingFrom:input); let first = try header.read(upToCount:12) ?? Data(); try header.close()
                     let isWave = first.starts(with:Data("RIFF".utf8)), isMp3 = first.starts(with:Data("ID3".utf8)) || (first.count > 1 && first[0] == 0xFF && first[1] & 0xE0 == 0xE0)
                     var draft = try store.newDraft(string(entry["name"]),ext:isMp3 ? "mp3" : "wav",id:stableId)
+                    let capture = store.recorderStart(deviceId,string(entry["name"]))
+                    draft["folder_id"] = capture["folder_id"] ?? destination
+                    if let started = capture["recorded_at"] { draft["recorded_at"] = started }
                     let output = URL(fileURLWithPath:string(draft["path"]))
                     if isWave || isMp3 { try FileManager.default.copyItem(at:input,to:output) }
                     else { try await Task.detached(priority:.userInitiated) { try StrictAudio.decodeOpus(input,output:output) }.value }
@@ -694,6 +706,7 @@ import JwdVtrSDK
                     draft["validation"] = (crc32 ?? "").isEmpty ? "length + end marker (firmware supplied no CRC)" : "length + end marker + CRC32"
                     try store.save(draft); saved(stableId)
                 }
+                store.clearRecorderStart(deviceId,string(entry["name"]))
                 lastDraft = stableId; discardTransfer(); nextTransfer()
             } catch { if generation == transferGeneration { transferError(error.localizedDescription) } }
         }

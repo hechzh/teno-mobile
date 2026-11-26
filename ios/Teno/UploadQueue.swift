@@ -147,12 +147,14 @@ import UserNotifications
         var values = [("client_id",string(draft["upload_client_id"]).isEmpty ? string(draft["id"]) : string(draft["upload_client_id"]))]
         values.append(("template_origin",string(draft["template_origin"]).isEmpty ? "selection" : string(draft["template_origin"])))
         if !string(draft["output_language"]).isEmpty { values += [("output_language",string(draft["output_language"])),("output_language_origin",string(draft["output_language_origin"]))] }
+        if !string(draft["folder_id"]).isEmpty { values.append(("folder_id",string(draft["folder_id"]))) }
         if string(draft["kind"]) == "file" {
-            values.append(("template_id",string(draft["template_id"]).isEmpty ? "teno:general" : string(draft["template_id"])))
+            values.append(("template_id",string(draft["template_id"]).isEmpty ? "teno:brief" : string(draft["template_id"])))
             let parent = parentRecording(draft)
             if !parent.isEmpty { values.append(("recording_id",parent)) }
             if let position = draft["at_ms"] as? NSNumber { values.append(("at_ms",position.stringValue)) }
         } else {
+            if !string(draft["recorded_at"]).isEmpty { values.append(("recorded_at",string(draft["recorded_at"]))) }
             values += [("title",string(draft["title"])),("language","auto"),("personal_mode","true"),("template_id",string(draft["template_id"]).isEmpty ? "@default" : string(draft["template_id"])),("source",string(draft["source"]) == "import" ? "import" : string(draft["source"]) == "jwd_ble" ? "device" : "phone")]
         }
         return values

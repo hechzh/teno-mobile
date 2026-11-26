@@ -6,8 +6,6 @@ import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'routes/recorder.dart';
 import 'personal_actions.dart';
-import 'interface_language.dart';
-import 'note_templates.dart';
 import 'routes/personal_library.dart';
 import 'routes/personal_import.dart';
 import 'routes/personal_notes.dart';
@@ -15,6 +13,7 @@ import 'routes/personal_ask.dart';
 import 'routes/personal_settings.dart';
 import 'routes/personal_recording.dart';
 import 'routes/personal_mcp.dart';
+import 'interface_language.dart';
 
 class PersonalHome extends StatefulWidget {
   const PersonalHome(this.model, {super.key, this.initialSection = 'Home'});
@@ -27,8 +26,12 @@ class PersonalHome extends StatefulWidget {
 class _PersonalHomeState extends State<PersonalHome> {
   String section = 'Home', error = '', sort = 'created', lastRoute = '';
   List<Json> items = [];
-  Json brief = {}, briefItem = {};
-  String briefStamp = '';
+  List<Json> workspaceFolders = [];
+  List<Json> spaces = [];
+  bool get workspacesSupported =>
+      spaces.any((entry) => entry['id'] == 'personal');
+  String? get workspaceFilter =>
+      workspacesSupported ? widget.model.workspaceId : null;
   bool loading = true;
   int? selectedCount;
   int commandSequence = 0, loadSequence = 0;
@@ -91,61 +94,145 @@ class _PersonalHomeState extends State<PersonalHome> {
   }
 
   Future<void> load({bool silent = false}) async {
-    final stamp = ++loadSequence, scope = widget.model.runtime?.session.scope;
+    final model = widget.model;
+    final stamp = ++loadSequence, scope = model.runtime?.session.scope;
+    bool current() =>
+        mounted &&
+        stamp == loadSequence &&
+        scope == model.runtime?.session.scope;
     if (!silent && mounted) setState(() => loading = true);
     try {
+      await model.restoreWorkspace();
+      List<Json> available;
+      try {
+        available = await model.list('/api/v1/personal/workspaces');
+      } on Exception catch (e) {
+        if (!e.toString().contains('NOT_FOUND') &&
+            !e.toString().contains('404'))
+          rethrow;
+        available = [];
+      }
+      if (!current()) return;
+      final supported = available.any((entry) => entry['id'] == 'personal');
+      if (supported &&
+          !available.any((entry) => entry['id'] == model.workspaceId)) {
+        await model.selectWorkspace('personal');
+        if (!current()) return;
+      }
+      final id = model.workspaceId;
+      final scoped = supported
+          ? '&workspace_id=' + Uri.encodeQueryComponent(id)
+          : '';
       final values = await Future.wait([
-        widget.model.list(
-          '/api/v1/library/items?sort=$sort&limit=100&include_stats=${widget.model.capabilities['library_stats'] == 1}',
+        model.list(
+          '/api/v1/library/items?sort=' +
+              sort +
+              '&limit=100&include_stats=' +
+              (model.capabilities['library_stats'] == 1).toString() +
+              (supported ? '&type=recent_files' : '') +
+              scoped,
         ),
-        widget.model.list(
-          '/api/v1/library/items?type=note&sort=modified&limit=20',
+        model.list(
+          '/api/v1/library/items?type=folder&sort=name&ascending=true'
+                  '&limit=100&include_stats=true&folder_id=' +
+              Uri.encodeQueryComponent(model.workspaceFolder ?? '') +
+              scoped,
         ),
       ]);
-      if (!mounted ||
-          stamp != loadSequence ||
-          scope != widget.model.runtime?.session.scope)
-        return;
+      if (!current() || id != model.workspaceId) return;
       setState(() {
+        spaces = available;
         items = values[0];
+        workspaceFolders = values[1];
         error = '';
         loading = false;
       });
-      final candidates = values[1]
-          .where((v) => text(v['recording_id']).isNotEmpty)
-          .toList();
-      if (candidates.isEmpty) {
-        setState(() {
-          brief = {};
-          briefItem = {};
-          briefStamp = '';
-        });
-      } else {
-        final item = candidates.first,
-            key = '${candidates.first['id']}:${candidates.first['updated_at']}';
-        if (key != briefStamp) {
-          final note = await widget.model.api(
-            'GET',
-            '/api/v1/notes/${item['id']}',
-          );
-          if (!mounted ||
-              stamp != loadSequence ||
-              scope != widget.model.runtime?.session.scope)
-            return;
-          setState(() {
-            brief = note;
-            briefItem = item;
-            briefStamp = key;
-          });
-        }
-      }
     } catch (e) {
-      if (mounted && stamp == loadSequence)
+      if (current()) {
         setState(() {
           error = TenoModel.friendly(e);
           loading = false;
         });
+      }
     }
+  }
+
+  Future<void> chooseWorkspace(String id) async {
+    if (id == '__add__') {
+      final name = await inputDialog(context, 'New workspace');
+      if (!mounted || name == null || name.trim().isEmpty) return;
+      final scope = widget.model.runtime?.session.scope;
+      final item = await widget.model.api(
+        'POST',
+        '/api/v1/personal/workspaces',
+        {'title': name.trim(), 'client_id': requestId()},
+      );
+      if (!mounted || scope != widget.model.runtime?.session.scope) return;
+      id = text(item['id']);
+      if (id.isEmpty) return;
+      spaces = [...spaces, item];
+    }
+    if (!await widget.model.selectWorkspace(id) || !mounted) return;
+    setState(() {
+      items = [];
+      workspaceFolders = [];
+      selectedCount = null;
+    });
+    await load();
+  }
+
+  Widget workspacePicker() {
+    final id = widget.model.workspaceId;
+    final title = spaces
+        .where((entry) => entry['id'] == id)
+        .map((entry) => text(entry['title']))
+        .firstOrNull;
+    final label = id == 'personal' || title == null
+        ? ui(context, 'Personal workspace')
+        : title;
+    return PopupMenuButton<String>(
+      enabled: workspacesSupported,
+      tooltip: ui(context, 'Switch workspace'),
+      onSelected: (value) => perform(context, () => chooseWorkspace(value)),
+      itemBuilder: (_) => [
+        for (final space in spaces)
+          CheckedPopupMenuItem(
+            value: text(space['id']),
+            checked: space['id'] == id,
+            child: space['id'] == 'personal'
+                ? const UiText('Personal workspace')
+                : Text(text(space['title'])),
+          ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(value: '__add__', child: UiText('New workspace')),
+      ],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+            ),
+          ),
+          if (workspacesSupported)
+            const Icon(Icons.keyboard_arrow_down, size: 18),
+        ],
+      ),
+    );
+  }
+
+  Future<void> newFolder() async {
+    final title = await inputDialog(context, 'New folder');
+    if (!mounted || title == null || title.trim().isEmpty) return;
+    final folder = widget.model.workspaceFolder;
+    await widget.model.api('POST', '/api/v1/folders', {
+      'title': title.trim(),
+      if (folder != null) 'parent_id': folder,
+    });
+    await load();
   }
 
   void navigate(String value) => setState(() {
@@ -153,7 +240,10 @@ class _PersonalHomeState extends State<PersonalHome> {
     visited.add(value);
     selectedCount = null;
   });
-  Future<void> search() => push(context, PersonalSearchPage(widget.model));
+  Future<void> search() => push(
+    context,
+    PersonalSearchPage(widget.model, workspaceId: workspaceFilter),
+  );
   Future<void> importFiles() async {
     await showPersonalImport(context, widget.model);
     if (mounted) await load();
@@ -273,15 +363,9 @@ class _PersonalHomeState extends State<PersonalHome> {
           : AppBar(
               automaticallyImplyLeading: false,
               centerTitle: false,
-              toolbarHeight: section == 'Home' ? 88 : 60,
+              toolbarHeight: section == 'Home' ? 74 : 60,
               title: section == 'Home'
-                  ? const UiText(
-                      'Home',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
+                  ? workspacePicker()
                   : selectedCount == null
                   ? UiText(section)
                   : Text(context.strings.selectedCount(selectedCount!)),
@@ -346,7 +430,9 @@ class _PersonalHomeState extends State<PersonalHome> {
                 if (visited.contains('Library'))
                   PersonalListBody(
                     widget.model,
+                    key: ValueKey(workspaceFilter),
                     root: true,
+                    workspaceId: workspaceFilter,
                     commands: libraryCommands,
                     onSelectionChanged: (count) {
                       if (mounted) setState(() => selectedCount = count);
@@ -417,230 +503,130 @@ class _PersonalHomeState extends State<PersonalHome> {
   }
 
   Widget home() {
-    final visible = items
-        .where((i) => i['type'] == 'recording')
+    final model = widget.model;
+    final recent = items
+        .where(
+          (item) =>
+              item['type'] != 'folder' && text(item['recording_id']).isEmpty,
+        )
         .take(10)
         .toList();
-    final local = widget.model.drafts
+    final local = model.drafts
         .where(
-          (d) => text(d['recording_id']).isEmpty && text(d['file_id']).isEmpty,
+          (draft) =>
+              text(draft['recording_id']).isEmpty &&
+              text(draft['file_id']).isEmpty &&
+              text(draft['folder_id']) == (model.workspaceFolder ?? ''),
         )
         .toList();
-    final data = object(brief['data']);
-    final summary = text(data['summary']).trim().isNotEmpty
-        ? text(data['summary'])
-        : text(data['body']);
-    final colors = Theme.of(context).colorScheme;
     return RefreshIndicator(
       onRefresh: load,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(coreInset, 0, coreInset, 28),
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: InterfaceLanguageButton(widget.model),
-          ),
-          NoteTemplateChoice.accountDefault(widget.model),
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: colors.secondaryContainer,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.auto_awesome_outlined,
-                      color: colors.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    const UiText(
-                      'Your brief',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                if (summary.isEmpty)
-                  const UiText(
-                    'Your brief will appear here when a note is ready.',
-                  )
-                else
-                  Text(
-                    summary,
-                    maxLines: 6,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 15, height: 1.8),
-                  ),
-                if (summary.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    context.strings.briefVersion(
-                      text(brief['title']).isEmpty
-                          ? text(briefItem['title'])
-                          : text(brief['title']),
-                      text(brief['revision']),
-                    ),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton.icon(
-                      onPressed: () => push(
-                        context,
-                        PersonalRecordingPage(
-                          widget.model,
-                          text(briefItem['recording_id']),
-                        ),
-                      ),
-                      icon: const Icon(Icons.arrow_forward, size: 16),
-                      label: const UiText('View source'),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final actions = <Widget>[
-                OutlinedButton.icon(
-                  onPressed: () => navigate('Library'),
-                  icon: const Icon(Icons.folder_outlined, size: 19),
-                  label: const UiText('Library'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 12,
-                    ),
-                    textStyle: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontFamilyFallback: tenoFontFallbacks,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                OutlinedButton.icon(
-                  onPressed: importFiles,
-                  icon: const Icon(Icons.file_upload_outlined, size: 19),
-                  label: const UiText('Import files'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 12,
-                    ),
-                    textStyle: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontFamilyFallback: tenoFontFallbacks,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-                if (!widget.model.webExperience)
-                  OutlinedButton.icon(
-                    onPressed: () =>
-                        push(context, PersonalCalendarPage(widget.model)),
-                    icon: const Icon(Icons.calendar_month_outlined, size: 19),
-                    label: const UiText('Calendar'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 12,
-                      ),
-                      textStyle: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontFamilyFallback: tenoFontFallbacks,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-              ];
-              return Wrap(
-                spacing: 8,
-                runSpacing: 10,
-                children: [
-                  for (final action in actions)
-                    SizedBox(
-                      width:
-                          (constraints.maxWidth - 8 * (actions.length - 1)) /
-                          actions.length,
-                      child: action,
-                    ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 24),
+          if (loading) const LinearProgressIndicator(minHeight: 2),
+          if (error.isNotEmpty) ErrorNotice(error, retry: load),
           Row(
             children: [
-              const Expanded(
-                child: UiText(
-                  'Recent recordings',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
+              Expanded(child: heading('Folders')),
+              CoreAction(
+                Icons.create_new_folder_outlined,
+                'New folder',
+                () => perform(context, newFolder),
               ),
+              if (!model.webExperience)
+                CoreAction(
+                  Icons.file_upload_outlined,
+                  'Import files',
+                  importFiles,
+                ),
+              if (!model.webExperience)
+                CoreAction(
+                  Icons.calendar_month_outlined,
+                  'Calendar',
+                  () => push(context, PersonalCalendarPage(model)),
+                ),
+              InterfaceLanguageButton(model, compact: true),
+            ],
+          ),
+          if (workspaceFolders.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final folder in workspaceFolders.take(6))
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      await openPersonalItem(
+                        context,
+                        model,
+                        folder,
+                        null,
+                        workspaceFilter,
+                      );
+                      if (mounted) await load();
+                    },
+                    icon: const Icon(Icons.folder_outlined, size: 18),
+                    label: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          text(folder['title']),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          context.strings.itemCount(
+                            (folder['child_count'] as num? ?? 0).toInt(),
+                          ),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: subtle(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(child: heading('Recent files')),
               TextButton(
                 onPressed: () => navigate('Library'),
                 child: const UiText('View all'),
               ),
             ],
           ),
-          if (loading) const LinearProgressIndicator(minHeight: 2),
-          if (error.isNotEmpty) ErrorNotice(error, retry: load),
-          if (!widget.model.webExperience && widget.model.capturing)
+          if (!model.webExperience && model.capturing)
             TextButton.icon(
               onPressed: record,
               icon: const Icon(Icons.graphic_eq),
               label: Text(
-                '${ui(context, 'Recording')} · ${duration(widget.model.runtime!.capture.elapsedMs)}',
+                ui(context, 'Recording') +
+                    ' · ' +
+                    duration(model.runtime!.capture.elapsedMs),
               ),
             ),
-          for (final d in local)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: CoreSurface(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 4,
-                ),
-                child: CoreTile(
-                  {...d, 'type': d['kind'] == 'file' ? 'file' : 'recording'},
-                  () => push(
-                    context,
-                    PersonalLocalPage(widget.model, text(d['id'])),
-                  ),
-                ),
-              ),
+          for (final draft in local)
+            CoreTile(
+              {
+                ...draft,
+                'type': draft['kind'] == 'file' ? 'file' : 'recording',
+              },
+              () => push(context, PersonalLocalPage(model, text(draft['id']))),
             ),
-          for (final item in visible)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: CoreSurface(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 4,
-                ),
-                child: CoreTile(item, () async {
-                  await openPersonalItem(context, widget.model, item);
-                  if (mounted) await load();
-                }, showFolder: true),
-              ),
-            ),
-          if (!loading && visible.isEmpty && local.isEmpty && error.isEmpty)
+          for (final item in recent)
+            CoreTile(item, () async {
+              await openPersonalItem(context, model, item);
+              if (mounted) await load();
+            }, showFolder: true),
+          if (!loading && recent.isEmpty && local.isEmpty && error.isEmpty)
             EmptyState(
-              'Your recordings start here',
+              'No files in this workspace',
               'Import a file to create your first note.',
               action: FilledButton.icon(
                 onPressed: importFiles,

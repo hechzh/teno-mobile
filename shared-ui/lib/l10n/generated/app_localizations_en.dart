@@ -3610,4 +3610,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recorderServiceReadFailed =>
       'Could not read recorder services. Try again.';
+
+  @override
+  String get label58ea5a145c6a => 'Personal workspace';
+
+  @override
+  String get labelec70b4a614bf => 'Switch workspace';
+
+  @override
+  String get labeldf0caf1b27bd => 'New workspace';
+
+  @override
+  String get labele29c9398edb6 => 'Recent files';
+
+  @override
+  String get label455e7ef23538 => 'No files in this workspace';
+
+  @override
+  String get labela0859ef85c0a => 'Apply template';
+
+  @override
+  String get labeldb07192b3f0d => 'Add location';
+
+  @override
+  String get labelc243c93b3462 => 'Meeting location';
+
+  @override
+  String get label39914936b18f => 'Recording time';
+
+  @override
+  String get labelbf2d27f6f568 => 'Upload time';
+
+  @override
+  String get labelf55902b27a26 => 'Ask about this note';
 }

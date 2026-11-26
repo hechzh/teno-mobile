@@ -70,7 +70,7 @@ void main() {
       expect(find.text('Upcoming'), findsNothing);
       await tester.tap(find.byTooltip('Import files'));
       await tester.pumpAndSettle();
-      expect(find.text('Import files'), findsOneWidget);
+      expect(find.byType(PersonalImportPage), findsOneWidget);
       expect(find.text('Start recording'), findsNothing);
       expect(find.text('Record with phone'), findsNothing);
       debugDefaultTargetPlatformOverride = null;

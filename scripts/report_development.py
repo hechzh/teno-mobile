@@ -120,6 +120,7 @@ def ci_envelope(platform, status, outbox):
     definitions = {'shared': ('Flutter 分析与自动测试', 'Flutter analysis and tests', 'unit'),
                    'android': ('Android 构建与 Lint', 'Android build and lint', 'static'),
                    'simulator': ('iOS 模拟器 XCTest', 'iOS simulator XCTest', 'simulator'),
+                   'workspace-notes': ('工作空间与笔记 Flutter 回归', 'Flutter workspace and note regressions', 'unit'),
                    'device': ('iOS 未签名设备编译', 'iOS unsigned device compilation', 'static')}
     tests = []
     for key, value in states.items():
@@ -146,6 +147,24 @@ def ci_envelope(platform, status, outbox):
             (ROOT / 'ios/build/screenshots/01-login.png', 'screenshot', words('iOS 模拟器登录页', 'iOS simulator login screen')),
         ]:
             files.append({'path': str(path), 'sha256': sha(path), 'kind': kind, 'label': label})
+        if states.get('workspace-notes') == 'success':
+            report['changes'].extend([
+                words('在首页新建或切换个人工作空间。录音与导入使用发起时的目标空间。',
+                      'Create or switch personal workspaces on Home. Recordings and imports keep their starting workspace.'),
+                words('首篇直达模板选择。其他笔记可换模板或删除后撤销，笔记显示时间和可编辑地点。',
+                      'The first note opens the template picker. Other notes can change templates or be restored after deletion. Notes show time and an editable location.'),
+            ])
+            manifest = ROOT / 'ios/build/handoff' / identity['source_name'] / 'manifest.json'
+            files.append({'path': str(manifest), 'sha256': sha(manifest), 'kind': 'evidence',
+                          'filename': identity['source_name'] + '-manifest.txt',
+                          'label': words('构建清单', 'Build manifest')})
+            for name, label in [
+                ('workspace-home-zh.png', words('工作空间首页', 'Workspace home')),
+                ('note-tabs-zh.png', words('录音笔记页', 'Recording notes')),
+                ('primary-template-picker-zh.png', words('首篇笔记模板选择', 'Primary note template picker')),
+            ]:
+                path = ROOT / 'ios/build/screenshots/flutter' / name
+                files.append({'path': str(path), 'sha256': sha(path), 'kind': 'screenshot', 'label': label})
     # The server checks the IPA marketing version against its three-component
     # report version. Keep incompatible unsigned IPAs in the workflow artifact.
     ipa = ROOT / 'ios/build' / identity['ipa_name'] if identity else ROOT / f'ios/build/Teno-{version}-unsigned.ipa'

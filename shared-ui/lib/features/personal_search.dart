@@ -8,9 +8,15 @@ import 'personal_actions.dart';
 import 'routes/personal_ask.dart';
 
 class PersonalSearchPage extends StatefulWidget {
-  const PersonalSearchPage(this.model, {super.key, this.onNavigation});
+  const PersonalSearchPage(
+    this.model, {
+    super.key,
+    this.onNavigation,
+    this.workspaceId,
+  });
   final TenoModel model;
   final VoidCallback? onNavigation;
+  final String? workspaceId;
   @override
   State<PersonalSearchPage> createState() => _PersonalSearchPageState();
 }
@@ -54,7 +60,10 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
     try {
       final value = await widget.model.api(
         'GET',
-        '/api/v1/library/search/options',
+        '/api/v1/library/search/options' +
+            (widget.workspaceId == null
+                ? ''
+                : '?workspace_id=${Uri.encodeQueryComponent(widget.workspaceId!)}'),
       );
       if (mounted)
         setState(() {
@@ -95,6 +104,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
       'sort': sort,
       'limit': '50',
       'offset': append ? '${found.length}' : '0',
+      if (widget.workspaceId != null) 'workspace_id': widget.workspaceId!,
       if (supported) 'ascending': '$ascending',
       if (supported && folder != null) 'folder_id': folder!,
       if (supported && kind != null) 'type': kind!,
@@ -506,6 +516,7 @@ class _PersonalSearchPageState extends State<PersonalSearchPage> {
                             widget.model,
                             item,
                             matches.isEmpty ? null : matches.first,
+                            widget.workspaceId,
                           ),
                           highlight: query.text,
                           showFolder: true,

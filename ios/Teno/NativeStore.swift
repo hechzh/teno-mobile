@@ -83,7 +83,7 @@ final class KeyVault {
         if draft["generation_frozen"] as? Bool != true || string(draft["output_language"]).isEmpty {
             if string(draft["template_id"]).isEmpty || string(draft["template_id"]) == "@default" {
                 let settings = preferences.data(forKey:"personal." + scope + ".settings").flatMap { try? jsonObject($0) } ?? [:]
-                draft["template_id"] = settings["default_template_id"] as? String ?? "teno:general"; draft["template_origin"] = "account"
+                draft["template_id"] = settings["default_template_id"] as? String ?? "teno:brief"; draft["template_origin"] = "account"
             } else if draft["template_origin"] == nil { draft["template_origin"] = "selection" }
             if string(draft["output_language"]).isEmpty {
                 draft["output_language"] = outputLanguage; draft["output_language_origin"] = "interface"
@@ -206,6 +206,33 @@ final class KeyVault {
             "language": "auto", "scope": scope, "created_at": ISO8601DateFormatter().string(from: Date()), "status": "local"]
     }
     func notes(_ key: String) -> String { preferences.string(forKey: "notes." + scope + "." + key) ?? "" }
+    var workspaceFolder: String { preferences.string(forKey: "workspace.folder." + scope) ?? "" }
+    func checkedWorkspaceFolder(_ folder: String) throws -> String {
+        guard folder.isEmpty || UUID(uuidString: folder) != nil else {
+            throw RuntimeFailure("WORKSPACE", "Invalid workspace.")
+        }
+        return folder
+    }
+    func selectWorkspace(owner: String, folder: String) throws {
+        guard !owner.isEmpty, owner == scope else {
+            throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.")
+        }
+        preferences.set(try checkedWorkspaceFolder(folder), forKey: "workspace.folder." + owner)
+    }
+    private func recorderStartKey(_ device: String, _ name: String) -> String {
+        "workspace.recorder." + scope + "." + device + "|" + (name as NSString).deletingPathExtension
+    }
+    func rememberRecorderStart(_ device: String, _ name: String, folder: String, recordedAt: Date?) {
+        var capture = ["folder_id": folder]
+        if let recordedAt { capture["recorded_at"] = ISO8601DateFormatter().string(from: recordedAt) }
+        preferences.set(capture, forKey: recorderStartKey(device,name))
+    }
+    func recorderStart(_ device: String, _ name: String) -> [String:String] {
+        (preferences.dictionary(forKey: recorderStartKey(device,name)) as? [String:String]) ?? [:]
+    }
+    func clearRecorderStart(_ device: String, _ name: String) {
+        preferences.removeObject(forKey: recorderStartKey(device,name))
+    }
     func saveNotes(_ key: String, _ text: String) { preferences.set(text, forKey: "notes." + scope + "." + key) }
     func state() -> SessionState {
         SessionState(signedIn: !scope.isEmpty && !((try? token("access_token")) ?? "").isEmpty,

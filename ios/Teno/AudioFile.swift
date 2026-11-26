@@ -85,10 +85,13 @@ final class PCMFile: @unchecked Sendable {
     }
     func start(_ title: String) async throws -> String {
         guard !active else { throw RuntimeFailure("CAPTURE_BUSY", "Finish the current recording first.") }
+        let owner = store.scope, folder = store.workspaceFolder
         let session = AVAudioSession.sharedInstance()
         let granted = await withCheckedContinuation { continuation in session.requestRecordPermission { continuation.resume(returning: $0) } }
         guard granted else { throw RuntimeFailure("MICROPHONE_PERMISSION", "Allow microphone access in iOS Settings to record on this phone.") }
+        guard !owner.isEmpty, owner == store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.") }
         var draft = try store.newDraft(title.isEmpty ? "New recording" : title, ext: "wav")
+        draft["folder_id"] = folder
         id = string(draft["id"]); elapsed = 0; phase = "starting"; status = "Starting microphone"
         do {
             try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
@@ -123,6 +126,7 @@ final class PCMFile: @unchecked Sendable {
                 }
             }
             audioEngine.prepare(); try audioEngine.start()
+            draft["recorded_at"] = ISO8601DateFormatter().string(from: Date()); try store.save(draft)
             phase = "recording"; status = "Recording · Audio saved locally"; return id
         } catch {
             engine?.stop(); engine?.inputNode.removeTap(onBus: 0); engine = nil

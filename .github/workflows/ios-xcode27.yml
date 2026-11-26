@@ -31,6 +31,15 @@ jobs:
       - name: Read iOS identity
         id: identity
         run: python3 scripts/ios_metadata.py >> "$GITHUB_OUTPUT"
+      - name: Test workspaces and notes with rendered screenshots
+        id: workspace-notes
+        working-directory: shared-ui
+        env:
+          TENO_NOTE_TABS_SCREENSHOTS: ${{ github.workspace }}/ios/build/screenshots/flutter
+        run: |
+          flutter pub get --enforce-lockfile
+          set -o pipefail
+          flutter test --no-pub --reporter expanded test/workspace_home_test.dart test/recording_note_actions_test.dart test/web_recording_test.dart | tee ../ios-flutter-workspace-notes.log
       - name: Build Flutter frameworks with Xcode 27
         run: |
           brew install xcodegen tesseract
@@ -97,7 +106,7 @@ jobs:
         if: always() && github.repository == 'hechzh/teno-mobile'
         env:
           TENO_DEVELOPMENT_TOKEN: ${{ secrets.TENO_DEVELOPMENT_TOKEN }}
-          TENO_DEVELOPMENT_STEPS: '{"simulator":"${{ steps.simulator.outcome }}","device":"${{ steps.device.outcome }}"}'
+          TENO_DEVELOPMENT_STEPS: '{"simulator":"${{ steps.simulator.outcome }}","device":"${{ steps.device.outcome }}","workspace-notes":"${{ steps.workspace-notes.outcome }}"}'
           TENO_JOB_STATUS: ${{ job.status }}
         run: python3 scripts/report_development.py --ci ios --status "$TENO_JOB_STATUS" --outbox development-outbox
       - name: Preserve Team reporting receipt

@@ -524,7 +524,7 @@ void main() {
         await tap(find.widgetWithText(NavigationDestination, 'Settings'));
         await label('Templates');
       } else if (value == 'Library') {
-        await tap(find.widgetWithText(OutlinedButton, 'Library'));
+        await label('View all');
       } else {
         await tap(
           find.widgetWithText(
@@ -595,13 +595,13 @@ void main() {
         await tip('Library options');
         await label('Trash');
       case '26-import':
-        await label('Import files');
+        await tip('Import files');
       case '27-share':
         await detail();
         await tip('Share recording');
         await label('Share link');
       case '28-calendar':
-        await label('Calendar');
+        await tip('Calendar');
       case '29-photos':
       case '30-notes':
       case '35-local-files':
@@ -643,7 +643,6 @@ void main() {
       case '53-template-picker':
         await detail();
         await tap(find.byTooltip('New note'));
-        await label('Summary template');
     }
   }
 
@@ -1150,9 +1149,9 @@ void main() {
       await tester.pump();
       expect(model.personalCore, isTrue);
       expect(find.byType(PersonalHome), findsOneWidget);
-      await tester.tap(find.widgetWithText(OutlinedButton, 'Import files'));
+      await tester.tap(find.byTooltip('Import files').first);
       await tester.pumpAndSettle();
-      expect(find.text('Import files'), findsOneWidget);
+      expect(find.byType(PersonalImportPage), findsOneWidget);
       expect(host.calls.where((v) => v.startsWith('configure')), isEmpty);
       debugDisableShadows = true;
       await tester.pumpWidget(const SizedBox.shrink());
@@ -1176,13 +1175,9 @@ void main() {
       await tester.runAsync(() => screenshot('$mode/02-navigation'));
       for (final value in ['Work', 'Tasks', 'Skills', 'Connectors', 'PLAUD'])
         expect(find.text(value), findsNothing);
-      final importButton = find.widgetWithText(OutlinedButton, 'Import files');
-      await tester.scrollUntilVisible(importButton.hitTestable(), 160,
-          scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.byTooltip('Import files').first);
       await tester.pumpAndSettle();
-      await tester.tap(importButton.hitTestable());
-      await tester.pumpAndSettle();
-      expect(find.text('Import files'), findsOneWidget);
+      expect(find.byType(PersonalImportPage), findsOneWidget);
       await tester.runAsync(() => screenshot('$mode/03-create-menu'));
       debugDisableShadows = true;
       await tester.pumpWidget(const SizedBox.shrink());

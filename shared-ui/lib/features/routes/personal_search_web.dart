@@ -9,8 +9,13 @@ Widget PersonalSearchPage(
   TenoModel model, {
   Key? key,
   VoidCallback? onNavigation,
+  String? workspaceId,
 }) => DeferredContent(
   key: key,
   load: page.loadLibrary,
-  builder: (_) => page.PersonalSearchPage(model, onNavigation: onNavigation),
+  builder: (_) => page.PersonalSearchPage(
+    model,
+    onNavigation: onNavigation,
+    workspaceId: workspaceId,
+  ),
 );

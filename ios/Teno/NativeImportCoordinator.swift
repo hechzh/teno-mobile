@@ -20,13 +20,17 @@ import Vision
         guard continuation == nil, !store.scope.isEmpty, var view = presenter() else { throw RuntimeFailure("IMPORT_BUSY", "Sign in and close the current import before trying again.") }
         while let shown = view.presentedViewController { view = shown }
         let requestedOwner = store.scope
+        let folder = try store.checkedWorkspaceFolder(generationOptions["folder_id"] as? String ??
+            (source == "camera" ? "" : store.workspaceFolder))
         if source == "camera" {
             guard UIImagePickerController.isSourceTypeAvailable(.camera) else { throw RuntimeFailure("CAMERA", "A camera is not available on this device.") }
             let granted = await AVCaptureDevice.requestAccess(for:.video)
             guard granted else { throw RuntimeFailure("CAMERA_PERMISSION", "Allow camera access in Settings.") }
         }
         guard requestedOwner == store.scope else { throw RuntimeFailure("ACCOUNT_CHANGED", "The account changed.") }
-        owner = requestedOwner; self.parent = parent; self.atMs = max(0,atMs); self.template = template; self.generationOptions = generationOptions
+        owner = requestedOwner; self.parent = parent; self.atMs = max(0,atMs); self.template = template
+        self.generationOptions = generationOptions
+        self.generationOptions["folder_id"] = folder
         return try await withCheckedThrowingContinuation { result in
             continuation = result
             if source == "camera" {
@@ -73,10 +77,11 @@ import Vision
     }
     private func finish(_ urls: [URL], removeCopies: Bool = false) {
         guard let result = continuation else { return }; continuation = nil
-        let scope = owner, parent = self.parent, position = atMs, chosenTemplate = template
+        let scope = owner, parent = self.parent, position = atMs, chosenTemplate = template, options = generationOptions
         Task {
             defer { if removeCopies { urls.forEach { try? FileManager.default.removeItem(at:$0) } } }
-            do { result.resume(returning:try await stage(urls, owner:scope, parent:parent, atMs:position, template:chosenTemplate)) }
+            do { result.resume(returning:try await stage(urls, owner:scope, parent:parent, atMs:position,
+                template:chosenTemplate, options:options)) }
             catch { result.resume(throwing:error) }
         }
     }
@@ -96,9 +101,11 @@ import Vision
         if ext == "ics" { return "calendar" }
         return nil
     }
-    func stage(_ urls: [URL], owner: String, parent: String = "", atMs: Int64 = 0, incoming: [String:JSONObject] = [:], template: String = "@default") async throws -> JSONObject {
+    func stage(_ urls: [URL], owner: String, parent: String = "", atMs: Int64 = 0,
+               incoming: [String:JSONObject] = [:], template: String = "@default", options: JSONObject = [:]) async throws -> JSONObject {
         guard owner == store.scope, !owner.isEmpty else { throw RuntimeFailure("ACCOUNT_CHANGED", "Sign in to the original account before importing.") }
         guard urls.count <= 20 else { throw RuntimeFailure("IMPORT_LIMIT", "Choose up to 20 files at a time.") }
+        let folder = try store.checkedWorkspaceFolder(options["folder_id"] as? String ?? store.workspaceFolder)
         var created: [JSONObject] = [], results: [JSONObject] = []
         do {
             for source in urls {
@@ -120,7 +127,8 @@ import Vision
                 }
                 var draft = try store.newDraft(title,ext:ext,id:id)
                 draft["template_id"] = template
-                try store.generationOptions(&draft,from:generationOptions)
+                draft["folder_id"] = folder
+                try store.generationOptions(&draft,from:options)
                 let target = URL(fileURLWithPath:string(draft["path"]))
                 created.append(draft)
                 if kind == "image" {
@@ -196,11 +204,13 @@ import Vision
         for item in pending { try? FileManager.default.removeItem(at:pendingURL(item)) }
         store.preferences.removeObject(forKey:"incoming")
     }
-    func acceptPending() async throws -> JSONObject {
+    func acceptPending(options: JSONObject = [:]) async throws -> JSONObject {
         let items = pending, owner = store.scope
         let urls = try items.map { try pendingURL($0) }
         let entries = Dictionary(uniqueKeysWithValues:zip(urls.map(\.path),items))
-        let result = try await stage(urls,owner:owner,incoming:entries)
+        let selected = string(options["template_id"])
+        let result = try await stage(urls,owner:owner,incoming:entries,
+            template:selected.isEmpty ? "@default" : selected, options:options)
         try discardPending(); return result
     }
 }

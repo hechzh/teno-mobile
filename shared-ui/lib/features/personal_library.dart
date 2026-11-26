@@ -20,12 +20,13 @@ class PersonalListPage extends StatelessWidget {
     super.key,
     required this.title,
     this.folderId,
+    this.workspaceId,
     this.type,
     this.trash = false,
   });
   final TenoModel model;
   final String title;
-  final String? folderId, type;
+  final String? folderId, type, workspaceId;
   final bool trash;
   @override
   Widget build(BuildContext context) => CoreFrame(
@@ -35,12 +36,14 @@ class PersonalListPage extends StatelessWidget {
       CoreAction(
         Icons.search,
         'Search',
-        () => push(context, PersonalSearchPage(model)),
+        () =>
+            push(context, PersonalSearchPage(model, workspaceId: workspaceId)),
       ),
     ],
     child: PersonalListBody(
       model,
       folderId: folderId,
+      workspaceId: workspaceId,
       type: type,
       trash: trash,
     ),
@@ -52,6 +55,7 @@ class PersonalListBody extends StatefulWidget {
     this.model, {
     super.key,
     this.folderId,
+    this.workspaceId,
     this.type,
     this.trash = false,
     this.root = false,
@@ -59,7 +63,7 @@ class PersonalListBody extends StatefulWidget {
     this.onSelectionChanged,
   });
   final TenoModel model;
-  final String? folderId, type;
+  final String? folderId, type, workspaceId;
   final bool trash, root;
   final ValueNotifier<String>? commands;
   final ValueChanged<int?>? onSelectionChanged;
@@ -80,6 +84,12 @@ class _PersonalListBodyState extends State<PersonalListBody> {
   final Map<String, String> branchErrors = {};
   final Set<String> expanded = {}, branchLoading = {};
   bool get stats => widget.model.capabilities['library_stats'] == 1;
+  String get workspaceQuery => widget.workspaceId == null
+      ? ''
+      : '&workspace_id=' + Uri.encodeQueryComponent(widget.workspaceId!);
+  String? get parentFolder =>
+      widget.folderId ??
+      (widget.workspaceId == 'personal' ? null : widget.workspaceId);
   @override
   void initState() {
     super.initState();
@@ -131,7 +141,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
       final data = await widget.model.api(
         'GET',
         '/api/v1/library/items?include_processing=true&limit=100&offset=${old.length}&sort=$sort&ascending=$ascending'
-            '&include_stats=$stats&${system ? 'type' : 'folder_id'}=${Uri.encodeQueryComponent(system ? key.substring(7) : key)}',
+            '&include_stats=$stats&${system ? 'type' : 'folder_id'}=${Uri.encodeQueryComponent(system ? key.substring(7) : key)}$workspaceQuery',
       );
       if (mounted)
         setState(() {
@@ -155,10 +165,12 @@ class _PersonalListBodyState extends State<PersonalListBody> {
       final result = await widget.model.api(
         'GET',
         '/api/v1/library/items?include_processing=true&limit=100&offset=${append ? items.length : 0}&sort=$sort&ascending=$ascending&trash=${widget.trash}' +
-            '&include_stats=$stats' +
+            '&include_stats=$stats$workspaceQuery' +
             (widget.root && view == 'all' ? '&root=true' : '') +
             (widget.folderId == null
-                ? (widget.root && view == 'all' ? '&folder_id=' : '')
+                ? (widget.root && view == 'all'
+                      ? '&folder_id=${Uri.encodeQueryComponent(parentFolder ?? '')}'
+                      : '')
                 : '&folder_id=${Uri.encodeQueryComponent(widget.folderId!)}') +
             (widget.root && view != 'all'
                 ? '&type=$view'
@@ -305,8 +317,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
         final pageItems = rows(page['items']);
         all.addAll(pageItems);
         offset += pageItems.length;
-        if (pageItems.isEmpty ||
-            offset >= (page['total'] as num? ?? offset))
+        if (pageItems.isEmpty || offset >= (page['total'] as num? ?? offset))
           break;
       }
       for (var start = 0; start < all.length; start += 100) {
@@ -431,7 +442,8 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                 if (['recording', 'note'].contains(item['type']))
                   ('mcp', 'Connect Codex', Icons.hub_outlined),
                 ('move', 'Move to folder', Icons.drive_file_move_outline),
-                ('trash', 'Move to trash', Icons.delete_outline),
+                if (item['is_primary'] != true)
+                  ('trash', 'Move to trash', Icons.delete_outline),
               ],
             ])
               ListTile(
@@ -508,7 +520,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
     if (action == 'note')
       await push(
         context,
-        PersonalNoteEditor(widget.model, folderId: widget.folderId),
+        PersonalNoteEditor(widget.model, folderId: parentFolder),
       );
     if (!mounted) return;
     if (action == 'folder')
@@ -517,7 +529,7 @@ class _PersonalListBodyState extends State<PersonalListBody> {
         if (title == null || title.isEmpty) return;
         await widget.model.api('POST', '/api/v1/folders', {
           'title': title,
-          if (widget.folderId?.isNotEmpty == true) 'parent_id': widget.folderId,
+          if (parentFolder?.isNotEmpty == true) 'parent_id': parentFolder,
         });
       });
     await load();
@@ -975,11 +987,12 @@ class _PersonalListBodyState extends State<PersonalListBody> {
                                     ['recording', 'note'].contains(v['type']),
                               ))
                             ('mcp', 'Codex', Icons.hub_outlined),
-                          (
-                            widget.trash ? 'delete' : 'trash',
-                            widget.trash ? 'Delete' : 'Trash',
-                            Icons.delete_outline,
-                          ),
+                          if (!chosen.any((item) => item['is_primary'] == true))
+                            (
+                              widget.trash ? 'delete' : 'trash',
+                              widget.trash ? 'Delete' : 'Trash',
+                              Icons.delete_outline,
+                            ),
                         ],
                       ])
                         Expanded(

@@ -454,10 +454,14 @@ class PersonalTemplatePicker extends StatefulWidget {
     super.key,
     this.allowTranscript = false,
     this.initial,
+    this.actionLabel = 'Use this template',
+    this.onOutputLanguage,
   });
   final TenoModel model;
   final bool allowTranscript;
   final String? initial;
+  final String actionLabel;
+  final ValueChanged<String?>? onOutputLanguage;
   @override
   State<PersonalTemplatePicker> createState() => _PersonalTemplatePickerState();
 }
@@ -466,7 +470,7 @@ class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
   List<Json> templates = [];
   String error = '', query = '';
   bool loading = true, searching = false;
-  String? selected;
+  String? selected, outputLanguage;
 
   @override
   void initState() {
@@ -488,14 +492,13 @@ class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
         templates = data;
         error = '';
         if (selected == null || selected == '@default') {
-          final fallback = text(
-            widget.model.personalSettings['default_template_id'],
-          );
-          selected = fallback.isEmpty ? null : fallback;
+          selected = widget.model.defaultNoteTemplate;
         }
         final available = data.map((item) => text(item['id'])).toSet();
         if (!available.contains(selected)) {
-          selected = recentIds.where(available.contains).firstOrNull;
+          selected = available.contains(widget.model.defaultNoteTemplate)
+              ? widget.model.defaultNoteTemplate
+              : recentIds.where(available.contains).firstOrNull;
         }
       });
     } catch (e) {
@@ -708,7 +711,7 @@ class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
             onPressed: loading || error.isNotEmpty || selected == null
                 ? null
                 : apply,
-            child: const UiText('Use this template'),
+            child: UiText(widget.actionLabel),
           ),
         ),
       ),
@@ -717,6 +720,15 @@ class _PersonalTemplatePickerState extends State<PersonalTemplatePicker> {
         children: [
           if (loading) const LinearProgressIndicator(minHeight: 2),
           if (error.isNotEmpty) ErrorNotice(error, retry: load),
+          if (widget.onOutputLanguage != null)
+            GenerationLanguageChoice(
+              widget.model,
+              value: outputLanguage,
+              onChanged: (value) {
+                setState(() => outputLanguage = value);
+                widget.onOutputLanguage!(value);
+              },
+            ),
           if (searching)
             Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 8),

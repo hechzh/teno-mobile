@@ -50,6 +50,7 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
       final value = await widget.model.command('import', {
         'source': source,
         'template_id': template,
+        'folder_id': widget.model.workspaceFolder ?? '',
         ...widget.model.generationLanguage(outputLanguage),
       });
       if (!mounted) return;
@@ -160,7 +161,11 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
                   ),
                 FilledButton(
                   onPressed: () => perform(context, () async {
-                    final value = await widget.model.command('accept_imports');
+                    final value = await widget.model.command('accept_imports', {
+                      'folder_id': widget.model.workspaceFolder ?? '',
+                      'template_id': template,
+                      ...widget.model.generationLanguage(outputLanguage),
+                    });
                     widget.model.changed(await widget.model.host.snapshot());
                     if (mounted)
                       setState(() => imported = rows(value['items']));

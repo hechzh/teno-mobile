@@ -36,30 +36,12 @@ class GenerationOptions extends StatelessWidget {
         enabled: enabled,
         onChanged: onTemplate,
       ),
-      DropdownButtonFormField<String>(
-        key: ValueKey(
-          'output-language-${language ?? 'interface'}-${model.outputLanguage}',
-        ),
-        initialValue: language ?? 'interface',
-        isExpanded: true,
-        decoration: InputDecoration(labelText: ui(context, 'Output language')),
-        items: [
-          DropdownMenuItem(
-            value: 'interface',
-            child: Text(
-              '${ui(context, 'Follow interface')} · ${ui(context, model.outputLanguage == 'zh-CN' ? 'Chinese' : 'English')}',
-            ),
-          ),
-          DropdownMenuItem(value: 'zh-CN', child: Text(ui(context, 'Chinese'))),
-          DropdownMenuItem(value: 'en-US', child: Text(ui(context, 'English'))),
-        ],
+      GenerationLanguageChoice(
+        model,
+        value: language,
         onChanged: enabled
             ? (value) {
-                if (value != null)
-                  perform(
-                    context,
-                    () => onLanguage(value == 'interface' ? null : value),
-                  );
+                perform(context, () => onLanguage(value));
               }
             : null,
       ),
@@ -69,6 +51,47 @@ class GenerationOptions extends StatelessWidget {
         style: TextStyle(fontSize: 11),
       ),
     ],
+  );
+}
+
+class GenerationLanguageChoice extends StatelessWidget {
+  const GenerationLanguageChoice(
+    this.model, {
+    super.key,
+    this.value,
+    this.onChanged,
+  });
+
+  final TenoModel model;
+  final String? value;
+  final ValueChanged<String?>? onChanged;
+
+  @override
+  Widget build(BuildContext context) => DropdownButtonFormField<String>(
+    key: ValueKey<String>(
+      'output-language-' + (value ?? 'interface') + '-' + model.outputLanguage,
+    ),
+    initialValue: value ?? 'interface',
+    isExpanded: true,
+    decoration: InputDecoration(labelText: ui(context, 'Output language')),
+    items: [
+      DropdownMenuItem(
+        value: 'interface',
+        child: Text(
+          ui(context, 'Follow interface') +
+              ' · ' +
+              ui(
+                context,
+                model.outputLanguage == 'zh-CN' ? 'Chinese' : 'English',
+              ),
+        ),
+      ),
+      DropdownMenuItem(value: 'zh-CN', child: Text(ui(context, 'Chinese'))),
+      DropdownMenuItem(value: 'en-US', child: Text(ui(context, 'English'))),
+    ],
+    onChanged: onChanged == null
+        ? null
+        : (next) => onChanged!(next == 'interface' ? null : next),
   );
 }
 
