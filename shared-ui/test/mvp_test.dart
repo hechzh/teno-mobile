@@ -167,7 +167,7 @@ void main() {
             }
 
             await snap('home');
-            await click(find.widgetWithText(OutlinedButton, label('Library')));
+            await click(find.text(label('View all')));
             await snap('library');
             await click(find.byTooltip(label('Search')));
             await snap('search');
@@ -188,13 +188,8 @@ void main() {
             await snap('share-link');
             await click(find.text(label('Done')));
             await click(find.byTooltip(label('New note')));
-            await click(find.text(label('Summary template')));
             await snap('templates');
             await click(find.byTooltip(label('Back')));
-            Navigator.of(
-              tester.element(find.text(label('Generation options'))),
-            ).pop();
-            await tester.pumpAndSettle();
             await click(find.byTooltip(label('Back to library')));
             await click(navigation('Assistant'));
             await snap('assistant');

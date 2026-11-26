@@ -59,6 +59,49 @@ class TenoModel extends ChangeNotifier implements RuntimeEvents {
   List<Json> recordings = [], folders = [];
   Json capabilities = {}, personalSettings = {};
   bool personalCore = false;
+  String _workspace = 'personal', _workspaceOwner = '';
+  String get workspaceId =>
+      _workspaceOwner == runtime?.session.scope ? _workspace : 'personal';
+  String? get workspaceFolder => workspaceId == 'personal' ? null : workspaceId;
+  String get defaultNoteTemplate =>
+      text(personalSettings['default_template_id']).isEmpty
+      ? 'teno:brief'
+      : text(personalSettings['default_template_id']);
+
+  Future<void> restoreWorkspace() async {
+    final owner = runtime?.session.scope ?? '';
+    if (owner.isEmpty || _workspaceOwner == owner) return;
+    var folder = '';
+    if (!webExperience) {
+      try {
+        folder = text((await command('workspace_destination'))['folder_id']);
+      } catch (_) {
+        // Older native hosts use their built-in personal workspace.
+      }
+    }
+    if (_disposed ||
+        runtime?.session.scope != owner ||
+        _workspaceOwner == owner)
+      return;
+    _workspace = folder.isEmpty ? 'personal' : folder;
+    _workspaceOwner = owner;
+  }
+
+  Future<bool> selectWorkspace(String id) async {
+    final owner = runtime?.session.scope ?? '';
+    if (owner.isEmpty) return false;
+    if (!webExperience) {
+      await command('workspace_destination', {
+        'scope': owner,
+        'folder_id': id == 'personal' ? '' : id,
+      });
+    }
+    if (_disposed || runtime?.session.scope != owner) return false;
+    _workspaceOwner = owner;
+    _workspace = id;
+    return true;
+  }
+
   // Device/browser UI preference, independent of account and audio language.
   String interfaceLanguage = 'system';
   String get outputLanguage =>

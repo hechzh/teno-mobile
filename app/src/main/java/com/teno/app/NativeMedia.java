@@ -24,6 +24,7 @@ final class NativeMedia {
     private double speed=1;
     private long generation;
     private NullableResult<String> pickerResult;
+    private String pickerScope="",pickerFolder="";
     NativeMedia(NativeRuntime runtime){this.runtime=runtime;activity=runtime.activity;store=runtime.store;api=runtime.api;}
     PlaybackState state(){
         return new PlaybackState.Builder().setReady(ready).setPlaying(ready&&player!=null&&player.isPlaying())
@@ -42,7 +43,8 @@ final class NativeMedia {
     });}
     void importAudio(NullableResult<String> result){
         if(pickerResult!=null){result.error(runtime.failure(new IOException("Finish the current import first.")));return;}
-        try{runtime.signedIn();pickerResult=result;Intent pick=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
+        try{runtime.signedIn();pickerResult=result;pickerScope=store.scope();pickerFolder=store.workspaceFolder();
+            Intent pick=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
             pick.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"audio/*","video/mp4","application/ogg"});activity.startActivityForResult(pick,511);
         }catch(Exception e){pickerResult=null;result.error(runtime.failure(e));}
     }
@@ -58,13 +60,14 @@ final class NativeMedia {
         if(request!=511||pickerResult==null)return;
         NullableResult<String> callback=pickerResult;pickerResult=null;
         if(result!=Activity.RESULT_OK||data==null||data.getData()==null){callback.success(null);return;}
-        Uri uri=data.getData();String owner=store.scope();
+        Uri uri=data.getData();String owner=pickerScope,folder=pickerFolder;
         runtime.work(new Result<String>(){public void success(String id){callback.success(id);}public void error(Throwable e){callback.error(e);}},()->{
+            if(!owner.equals(store.scope()))throw new IOException("Account changed. Import the file again.");
             String name="Imported audio.wav";
             try(android.database.Cursor cursor=activity.getContentResolver().query(uri,new String[]{OpenableColumns.DISPLAY_NAME},null,null,null)){if(cursor!=null&&cursor.moveToFirst())name=cursor.getString(0);}
             String ext=name.contains(".")?name.substring(name.lastIndexOf('.')).toLowerCase(Locale.ROOT):".wav";
             if(!Arrays.asList(".wav",".mp3",".m4a",".ogg",".mp4").contains(ext))throw new IOException("Supported formats: WAV, MP3, M4A, MP4 and OGG.");
-            JSONObject draft=store.newDraft(name,ext);File file=new File(draft.getString("path"));boolean kept=false;
+            JSONObject draft=store.newDraft(name,ext).put("folder_id",folder).put("source","import");File file=new File(draft.getString("path"));boolean kept=false;
             try{
                 try(InputStream in=activity.getContentResolver().openInputStream(uri);FileOutputStream out=new FileOutputStream(file)){
                     if(in==null)throw new IOException("The selected file is unavailable.");byte[] buffer=new byte[65536];long total=0;int n;

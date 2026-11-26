@@ -124,7 +124,9 @@ final class UploadQueue {
             File audio=new File(draft.getString("path"));if(!audio.isFile()||audio.length()==0)throw new IOException("No valid audio file found");
             boolean document=draft.optString("kind").equals("file");
             JSONObject fields=new JSONObject().put("client_id",draft.optString("upload_client_id",id));
-            fields.put("template_id",draft.optString("template_id","teno:general"));
+            fields.put("template_id",draft.optString("template_id","teno:brief"));
+            if (!draft.optString("folder_id").isEmpty()) fields.put("folder_id",draft.getString("folder_id"));
+            if (!document && !draft.optString("recorded_at").isEmpty()) fields.put("recorded_at",draft.getString("recorded_at"));
             fields.put("template_origin",draft.optString("template_origin","selection"));
             fields.put("output_language",draft.getString("output_language")).put("output_language_origin",draft.optString("output_language_origin","interface"));
             if(document){String parent=parentRecording(store,draft);if(!parent.isEmpty())fields.put("recording_id",parent);if(draft.has("at_ms"))fields.put("at_ms",String.valueOf(draft.getLong("at_ms")));}

@@ -3338,4 +3338,37 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get recorderServiceReadFailed => '未能读取录音卡服务，请重试。';
+
+  @override
+  String get label58ea5a145c6a => '个人空间';
+
+  @override
+  String get labelec70b4a614bf => '切换工作空间';
+
+  @override
+  String get labeldf0caf1b27bd => '新建工作空间';
+
+  @override
+  String get labele29c9398edb6 => '最近文件';
+
+  @override
+  String get label455e7ef23538 => '这个工作空间还没有文件';
+
+  @override
+  String get labela0859ef85c0a => '应用模板';
+
+  @override
+  String get labeldb07192b3f0d => '添加地点';
+
+  @override
+  String get labelc243c93b3462 => '会议地点';
+
+  @override
+  String get label39914936b18f => '录音时间';
+
+  @override
+  String get labelbf2d27f6f568 => '上传时间';
+
+  @override
+  String get labelf55902b27a26 => '对此笔记提问';
 }

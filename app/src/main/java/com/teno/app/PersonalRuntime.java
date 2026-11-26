@@ -91,6 +91,14 @@ final class PersonalRuntime {
                     d.put("template_id",template);store.generationOptions(d,args);store.save(d);}return "{}";});return;}
             if(command.equals("preferences")){result.success(new JSONObject().put("personal_core",true).put("settings",new JSONObject(prefs.getString(key("settings"),"{}"))).put("app_lock",prefs.getBoolean(key("lock"),false)).put("pending_imports",pending().length()).toString());return;}
             if(command.equals("cache_preferences")){runtime.signedIn();prefs.edit().putString(key("settings"),args.toString()).putBoolean(key("notifications"),args.optBoolean("notifications",true)).commit();result.success("{}");return;}
+            if (command.equals("workspace_destination")) {
+                runtime.work(result, () -> {
+                    runtime.signedIn();
+                    if (args.has("folder_id")) store.workspaceFolder(args.getString("scope"), args.getString("folder_id"));
+                    return new JSONObject().put("folder_id", store.workspaceFolder()).toString();
+                });
+                return;
+            }
             if(command.equals("app_lock")){setLock(args.optBoolean("enabled"),result);return;}
             if(command.equals("dictate")){runtime.signedIn();activity.permissions(new String[]{Manifest.permission.RECORD_AUDIO},()->startDictation(result),e->result.error(runtime.failure(e)));return;}
             if(command.equals("notifications")){
@@ -98,9 +106,17 @@ final class PersonalRuntime {
                 if(args.optBoolean("enabled")&&android.os.Build.VERSION.SDK_INT>=33)activity.permissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},save,e->result.error(runtime.failure(e)));else save.run();return;
             }
             if(command.equals("storage")){runtime.work(result,()->{long bytes=0;JSONArray drafts=store.drafts();for(int i=0;i<drafts.length();i++)bytes+=new File(drafts.getJSONObject(i).getString("path")).length();return new JSONObject().put("local_bytes",bytes).put("cache_bytes",cacheSize(new File(activity.getCacheDir(),"exports"))).toString();});return;}
-            if(command.equals("import")||command.equals("photo")){runtime.signedIn();pick(command,args,result);return;}
+            if(command.equals("import")||command.equals("photo")){
+                runtime.signedIn();args.put("folder_id",store.checkedWorkspaceFolder(
+                    args.optString("folder_id",command.equals("photo") ? "" : store.workspaceFolder())));
+                pick(command,args,result);return;
+            }
             if(command.equals("pending_imports")){JSONArray list=pending(),safe=new JSONArray();for(int i=0;i<list.length();i++){JSONObject v=list.getJSONObject(i);safe.put(new JSONObject().put("id",v.getString("id")).put("title",v.getString("title")).put("size",v.getLong("size")));}result.success(new JSONObject().put("items",safe).put("error",prefs.getString("incoming_error","")).toString());return;}
-            if(command.equals("accept_imports")){runtime.signedIn();String owner=store.scope();runtime.work(result,()->acceptPending(owner));return;}
+            if(command.equals("accept_imports")){
+                runtime.signedIn();String owner=store.scope();
+                args.put("folder_id",store.checkedWorkspaceFolder(args.optString("folder_id",store.workspaceFolder())));
+                runtime.work(result,()->acceptPending(owner,args));return;
+            }
             if(command.equals("discard_imports")){runtime.work(result,()->{JSONArray p=pending();for(int i=0;i<p.length();i++)pendingFile(p.getJSONObject(i)).delete();prefs.edit().remove("incoming").remove("incoming_error").commit();return "{}";});return;}
             if(command.equals("calendar")){runtime.signedIn();activity.permissions(new String[]{Manifest.permission.READ_CALENDAR},()->runtime.work(result,this::calendar),e->result.error(runtime.failure(e)));return;}
             if(command.equals("history")){runtime.work(result,()->history(args));return;}
@@ -159,11 +175,11 @@ final class PersonalRuntime {
             return new JSONObject().put("id",id).put("title",name).put("size",size).put("fingerprint",hex(digest.digest())+":"+name);
         }finally{if(!done)file.delete();}
     }
-    private String acceptPending(String owner)throws Exception{
+    private String acceptPending(String owner,JSONObject args)throws Exception{
         JSONArray values=pending(),saved=new JSONArray(),remaining=new JSONArray();
         for(int i=0;i<values.length();i++){
             JSONObject item=values.getJSONObject(i);
-            try{saved.put(saveStaged(item,owner,new JSONObject()));pendingFile(item).delete();}
+            try{saved.put(saveStaged(item,owner,args));pendingFile(item).delete();}
             catch(Exception e){remaining.put(item);for(int j=i+1;j<values.length();j++)remaining.put(values.get(j));prefs.edit().putString("incoming",remaining.toString()).commit();throw e;}
             for(int j=i+1;j<values.length();j++)remaining.put(values.get(j));prefs.edit().putString("incoming",remaining.toString()).commit();remaining=new JSONArray();
         }
@@ -213,6 +229,7 @@ final class PersonalRuntime {
                 if(args.has("at_ms"))draft.put("at_ms",args.getLong("at_ms"));
             }
             draft.put("template_id",args.optString("template_id","@default"));
+            draft.put("folder_id",args.optString("folder_id"));
             store.generationOptions(draft,args);
             if(!owner.equals(store.scope()))throw new IOException("Account changed during import.");store.save(draft);done=true;applyImportQueue(id);
             return new JSONObject().put("id",draft.getString("id")).put("type","local").put("title",title);

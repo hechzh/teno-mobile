@@ -145,11 +145,13 @@ class PersonalChatPage extends StatefulWidget {
     this.chatId,
     this.embedded = false,
     this.initial = const [],
+    this.initialQuestion,
   });
   final TenoModel model;
   final String? chatId;
   final bool embedded;
   final List<Json> initial;
+  final String? initialQuestion;
   @override
   State<PersonalChatPage> createState() => _PersonalChatPageState();
 }
@@ -181,6 +183,15 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     super.initState();
     input.addListener(inputChanged);
     if (chatId.isNotEmpty) unawaited(load());
+    if (widget.initialQuestion?.trim().isNotEmpty == true) {
+      final scope = widget.model.runtime?.session.scope;
+      input.text = widget.initialQuestion!.trim();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && scope == widget.model.runtime?.session.scope) {
+          unawaited(send());
+        }
+      });
+    }
   }
 
   void inputChanged() {
@@ -435,7 +446,9 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
             children: [
               IconButton(
                 tooltip: ui(context, 'Add context'),
-                onPressed: sending ? null : choose,
+                onPressed: sending || widget.initialQuestion != null
+                    ? null
+                    : choose,
                 icon: const Icon(Icons.add, size: 22),
               ),
               Expanded(
@@ -493,7 +506,9 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
               label: Text(
                 '${ui(context, scopeLabel)}${scopeMode == 'folder' && folderTitle.isNotEmpty ? ' · $folderTitle' : ''}',
               ),
-              onPressed: sending ? null : () => perform(context, chooseScope),
+              onPressed: sending || widget.initialQuestion != null
+                  ? null
+                  : () => perform(context, chooseScope),
             ),
           ),
         ),

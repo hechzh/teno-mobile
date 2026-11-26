@@ -147,7 +147,7 @@
       }
     }
     freezeGeneration(d) {
-      if (!d.generation_frozen && (!d.template_id || d.template_id === '@default')) { d.template_id = this.settings.default_template_id || 'teno:general'; d.template_origin = 'account'; }
+      if (!d.generation_frozen && (!d.template_id || d.template_id === '@default')) { d.template_id = this.settings.default_template_id || 'teno:brief'; d.template_origin = 'account'; }
       else if (!d.template_origin) d.template_origin = 'selection';
       if (!d.output_language) { d.output_language = this.outputLanguage(); d.output_language_origin = 'interface'; }
       d.generation_frozen = true; d.template_frozen = true;
@@ -372,6 +372,7 @@
           const d = {id: crypto.randomUUID(), scope: this.session.id, title: file.name, kind, status: 'local',
             created_at: new Date().toISOString(), size: file.size, blob: file, error: '', recording_id: '', file_id: '', template_id};
           this.generationOptions(d, choices);
+          if (choices.folder_id) d.folder_id = choices.folder_id;
           await this.store.put(d); this.check(epoch); items.push({id: d.id, type: 'local', title: d.title});
         }
       } finally { await this.loadDrafts(); this.emit(); }
@@ -398,6 +399,7 @@
           form.append('output_language', d.output_language); form.append('output_language_origin', d.output_language_origin);
           form.append('template_id', d.template_id || '@default');
           form.append('template_origin', d.template_origin || 'selection');
+          if (d.folder_id) form.append('folder_id', d.folder_id);
           if (d.kind === 'recording') {
             form.append('title', d.title); form.append('language', 'auto');
             form.append('personal_mode', 'true'); form.append('source', 'import');

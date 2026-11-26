@@ -1242,5 +1242,16 @@
   "recorderLocationPermission": "Allow Location permission in Android settings to scan for nearby devices.",
   "recorderLocationOff": "Turn on Location in Android settings to scan for nearby devices.",
   "recorderNearbyFound": "Nearby devices found. Check the recorder service.",
-  "recorderServiceReadFailed": "Could not read recorder services. Try again."
+  "recorderServiceReadFailed": "Could not read recorder services. Try again.",
+  "label58ea5a145c6a": "Personal workspace",
+  "labelec70b4a614bf": "Switch workspace",
+  "labeldf0caf1b27bd": "New workspace",
+  "labele29c9398edb6": "Recent files",
+  "label455e7ef23538": "No files in this workspace",
+  "labela0859ef85c0a": "Apply template",
+  "labeldb07192b3f0d": "Add location",
+  "labelc243c93b3462": "Meeting location",
+  "label39914936b18f": "Recording time",
+  "labelbf2d27f6f568": "Upload time",
+  "labelf55902b27a26": "Ask about this note"
 }

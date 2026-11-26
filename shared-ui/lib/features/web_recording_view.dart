@@ -8,9 +8,9 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   final _topicKeys = <int, GlobalKey>{};
   bool _transcriptTab = false, _playPending = false;
   int _loadStamp = 0;
-  String _selectedNote = '', _folderTitle = '';
+  String _selectedNote = '', _primaryId = '';
+  final _question = TextEditingController();
   bool _noteActionPending = false, _noteMenuOpen = false;
-  List<Json>? _shares;
   Json _sourceTranscript = {};
   String _cacheStatus = '', _visibleVariant = '', _accountScope = '';
 
@@ -77,7 +77,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         notes = [];
         peaks = [];
         _sourceTranscript = {};
-        _shares = null;
         loading = false;
         _cacheStatus = '';
         error = 'Account changed. Open this recording again.';
@@ -91,6 +90,15 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     record = object(value['record']);
     transcript = object(value['transcript']);
     notes = rows(value['notes']);
+    _primaryId = text(value['primary_note_id']);
+    if (_primaryId.isEmpty) {
+      final marked = notes
+          .where((note) => note['is_primary'] == true)
+          .firstOrNull;
+      _primaryId = text((marked ?? notes.firstOrNull)?['id']);
+    }
+    final primaryIndex = notes.indexWhere((note) => note['id'] == _primaryId);
+    if (primaryIndex > 0) notes.insert(0, notes.removeAt(primaryIndex));
     metadata = object(value['metadata']);
     processing = object(value['processing']);
     _visibleVariant = requestedVariant;
@@ -133,6 +141,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           'record': record,
           'transcript': transcript,
           'notes': notes,
+          'primary_note_id': _primaryId,
           'metadata': metadata,
           'processing': processing,
           'peaks': peaks,
@@ -173,6 +182,13 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
       }),
     );
     try {
+      // A completed job must be observed before reading the title and notes
+      // it saved, so the last poll cannot leave an older version on screen.
+      final progress = await widget.model.api(
+        'GET',
+        '/api/v1/personal/recordings/${widget.id}/processing',
+      );
+      if (!mounted || stamp != _loadStamp) return;
       final values = await Future.wait([
         widget.model.api('GET', path),
         widget.model.api(
@@ -181,10 +197,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         ),
         widget.model.api('GET', '$path/notes'),
         widget.model.api('GET', '$path/metadata'),
-        widget.model.api(
-          'GET',
-          '/api/v1/personal/recordings/${widget.id}/processing',
-        ),
       ]);
       networkDone = true;
       if (!mounted || stamp != _loadStamp) return;
@@ -196,8 +208,9 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           'record': values[0],
           'transcript': values[1],
           'notes': values[2]['items'],
+          'primary_note_id': values[2]['primary_note_id'],
           'metadata': values[3],
-          'processing': values[4],
+          'processing': progress,
         }, requestedVariant);
         _cacheStatus = '';
       });
@@ -229,7 +242,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             processing = {};
             peaks = [];
             _sourceTranscript = {};
-            _shares = null;
             _cacheStatus = '';
             error = 'This recording is no longer available.';
           } else {
@@ -245,49 +257,19 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   }
 
   Future<void> _loadRelated(int stamp) async {
-    Future<Json?> optional(String route) async {
-      try {
-        return await widget.model.api('GET', route);
-      } catch (_) {
-        return null;
-      }
-    }
-
-    final folder = text(record['folder_id']);
-    final values = await Future.wait([
-      optional('/api/v1/shares'),
-      folder.isEmpty
-          ? Future<Json?>.value(null)
-          : optional('/api/v1/folders/${Uri.encodeComponent(folder)}'),
-      peaks.isNotEmpty || _duration <= 0
-          ? Future<Json?>.value(null)
-          : optional('$path/waveform'),
-    ]);
-    if (!mounted || stamp != _loadStamp) return;
-    setState(() {
-      _shares = values[0] == null ? null : rows(values[0]!['items']);
-      _folderTitle = folder.isEmpty
-          ? ui(context, 'Recordings')
-          : text(object(values[1]?['data'])['title']);
-      if (values[2] != null)
-        peaks = (values[2]!['peaks'] as List? ?? [])
+    if (peaks.isNotEmpty || _duration <= 0) return;
+    try {
+      final waveform = await widget.model.api('GET', '$path/waveform');
+      if (!mounted || stamp != _loadStamp || !_sameAccount) return;
+      setState(() {
+        peaks = (waveform['peaks'] as List? ?? [])
             .whereType<num>()
-            .map((v) => v.toDouble())
+            .map((value) => value.toDouble())
             .toList();
-    });
-  }
-
-  bool get _shared {
-    final noteIds = notes.map((n) => text(n['id'])).toSet();
-    return (_shares ?? []).any((s) {
-      final expires = DateTime.tryParse(text(s['expires_at']));
-      return s['revoked'] != true &&
-          expires != null &&
-          expires.isAfter(DateTime.now()) &&
-          (s['source_type'] == 'recording' && s['source_id'] == widget.id ||
-              s['source_type'] == 'note' &&
-                  noteIds.contains(text(s['source_id'])));
-    });
+      });
+    } catch (_) {
+      // Source playback remains available if the waveform could not load.
+    }
   }
 
   void _tab(bool transcript) {
@@ -344,10 +326,14 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             context,
             PersonalTemplatePicker(
               widget.model,
-              initial: note['template_id'] as String?,
+              initial: _templateId(note),
+              actionLabel: 'Apply template',
             ),
           );
-          if (!_sameAccount || template == null) return;
+          if (!_sameAccount ||
+              template == null ||
+              template == _templateId(note))
+            return;
           final data = object(note['data']);
           final language = text(data['output_language']);
           final job = await widget.model.api(
@@ -356,7 +342,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
             {
               'client_id': requestId(),
               'base_revision': note['revision'],
-              'template_id': template.isEmpty ? 'teno:general' : template,
+              'template_id': template,
               'template_origin': 'selection',
               ...widget.model.generationLanguage(),
               if (['zh-CN', 'en-US'].contains(language)) ...{
@@ -371,6 +357,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           if (mounted && _sameAccount)
             await push(context, PersonalJobPage(widget.model, job));
         } else {
+          if (id == _primaryId) return;
           final yes = await confirm(
             context,
             'Delete this note?',
@@ -423,10 +410,35 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     }
   }
 
+  String? _templateId(Json note) {
+    final data = object(note['data']);
+    final id = text(
+      note['template_id'] ??
+          object(data['template_snapshot'])['id'] ??
+          data['template_id'],
+    );
+    return id.isEmpty ? null : id;
+  }
+
+  String _templateName(Json note) {
+    final data = object(note['data']);
+    final snapshot = object(data['template_snapshot']);
+    final name = Localizations.localeOf(context).languageCode == 'zh'
+        ? text(
+            snapshot['title_zh'] ?? snapshot['title'] ?? data['template_title'],
+          )
+        : text(snapshot['title'] ?? data['template_title']);
+    if (name.isNotEmpty) return name;
+    final id = _templateId(note);
+    return id != null && id.startsWith('teno:')
+        ? templateLabel(context, id)
+        : ui(context, 'Note');
+  }
+
   Widget _noteTab(int index) {
     final note = notes[index], selected = index == noteIndex;
-    final title = text(note['title']);
-    final label = title.isEmpty ? ui(context, 'Note') : title;
+    final label = _templateName(note);
+    final primary = note['id'] == _primaryId;
     final caption = ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 170),
       child: Text(
@@ -439,6 +451,29 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         ),
       ),
     );
+    if (primary) {
+      return Semantics(
+        selected: selected,
+        child: TextButton(
+          key: ValueKey('note-tab-' + text(note['id'])),
+          onPressed: _noteActionPending
+              ? null
+              : () {
+                  _selectNote(index);
+                  unawaited(_noteAction('template', note));
+                },
+          style: TextButton.styleFrom(backgroundColor: selected ? _sage : null),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              caption,
+              const SizedBox(width: 4),
+              const Icon(Icons.keyboard_arrow_down, size: 17),
+            ],
+          ),
+        ),
+      );
+    }
     if (!selected) {
       return TextButton(
         key: ValueKey('note-tab-${note['id']}'),
@@ -529,7 +564,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
       ),
       IconButton(
         tooltip: ui(context, 'New note'),
-        onPressed: generate,
+        onPressed: _noteActionPending ? null : generate,
         icon: const Icon(Icons.add, size: 21),
       ),
     ],
@@ -641,7 +676,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
               style: TextStyle(fontSize: 12, color: _muted),
             ),
             const SizedBox(height: 20),
-            ..._document(selected, overviewShown: false, anchors: false),
+            ..._document(selected, anchors: false),
           ],
         ),
       ),
@@ -652,16 +687,42 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   Future<void> _copyExport() => _shareCenter(includeLink: false);
 
   Future<void> _shareCenter({required bool includeLink}) async {
+    final links = includeLink
+        ? widget.model
+              .list('/api/v1/shares')
+              .then<List<Json>?>((items) => items, onError: (Object _) => null)
+        : null;
+    final noteIds = notes.map((note) => note['id']).toSet();
     final choice = await _panel<String>(
       includeLink ? 'Share' : 'Copy / Export',
       (sheet) => ListView(
         shrinkWrap: true,
         children: [
-          if (includeLink) ...[
+          if (links != null) ...[
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.link),
               title: const UiText('Share link'),
+              subtitle: FutureBuilder<List<Json>?>(
+                future: links,
+                builder: (_, snapshot) {
+                  final items = snapshot.data;
+                  if (items == null || !_sameAccount) {
+                    return const SizedBox.shrink();
+                  }
+                  final shared = items.any((link) {
+                    final expires = DateTime.tryParse(text(link['expires_at']));
+                    return link['revoked'] != true &&
+                        expires != null &&
+                        expires.isAfter(DateTime.now()) &&
+                        (link['source_type'] == 'recording' &&
+                                link['source_id'] == widget.id ||
+                            link['source_type'] == 'note' &&
+                                noteIds.contains(link['source_id']));
+                  });
+                  return UiText(shared ? 'Shared' : 'Private');
+                },
+              ),
               trailing: const Icon(Icons.chevron_right, size: 18),
               onTap: () => Navigator.pop(sheet, 'link'),
             ),
@@ -713,7 +774,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         'id': widget.id,
         'note_revision': _note['selected_revision'] ?? _note['revision'],
       }, noteId: notes.isEmpty ? null : text(_note['id']));
-      if (mounted) unawaited(_loadRelated(_loadStamp));
       return;
     }
     if (choice == 'copy' || choice == 'copy-transcript') {
@@ -758,31 +818,57 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
 
   @override
   Future<void> generate() async {
-    final template = await chooseGenerationOptions(
-      context,
-      widget.model,
-      allowTranscript: true,
-      requireTemplateChoice: true,
-    );
-    if (!mounted || template == null) return;
-    if (template['template_id'] == '__transcript__') {
-      _tab(true);
-      return;
-    }
-    await perform(context, () async {
-      final job = await widget.model.api('POST', '$path/notes', {
-        'client_id': requestId(),
-        ...template,
+    if (_noteActionPending || !_sameAccount) return;
+    setState(() => _noteActionPending = true);
+    try {
+      String? language;
+      final template = await push<String>(
+        context,
+        PersonalTemplatePicker(
+          widget.model,
+          initial: widget.model.defaultNoteTemplate,
+          actionLabel: 'Generate note',
+          allowTranscript: notes.isEmpty,
+          onOutputLanguage: (value) => language = value,
+        ),
+      );
+      if (!mounted || !_sameAccount || template == null) return;
+      if (template == '__transcript__') {
+        _tab(true);
+        return;
+      }
+      await perform(context, () async {
+        final job = await widget.model.api('POST', '$path/notes', {
+          'client_id': requestId(),
+          'template_id': template,
+          'template_origin': 'selection',
+          ...widget.model.generationLanguage(language),
+        });
+        if (!mounted || !_sameAccount) return;
+        await push(context, PersonalJobPage(widget.model, job));
+        if (!_sameAccount) return;
+        final finished = await widget.model.api(
+          'GET',
+          '/api/v1/jobs/' + text(job['id']),
+        );
+        if (!_sameAccount) return;
+        final added = text(object(finished['result'])['note_id']);
+        if (added.isNotEmpty) _selectedNote = added;
+        await load();
       });
-      if (mounted) await push(context, PersonalJobPage(widget.model, job));
-      await load();
-    });
+    } finally {
+      if (mounted) setState(() => _noteActionPending = false);
+    }
   }
 
   @override
   Future<void> menu(String action) async {
     if (action == 'export') {
       await _copyExport();
+      return;
+    }
+    if (action == 'edit-note') {
+      await _editNote();
       return;
     }
     if (action == 'versions') {
@@ -826,24 +912,9 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     }
   }
 
-  bool _hasOverview(Json note) {
-    final data = object(note['data']),
-        summary = text(data['summary']).trim(),
-        body = text(data['body']).trim();
-    if (summary.isEmpty) return false;
-    return body.isNotEmpty && body != summary ||
-        body.isEmpty &&
-            ((data['key_points'] as List? ?? []).isNotEmpty ||
-                (data['action_items'] as List? ?? []).isNotEmpty ||
-                _chapters(note).isNotEmpty);
-  }
-
-  List<Widget> _document(
-    Json note, {
-    required bool overviewShown,
-    required bool anchors,
-  }) {
+  List<Widget> _document(Json note, {required bool anchors}) {
     final data = object(note['data']), body = text(data['body']).trim();
+    final summary = text(data['summary']).trim();
     final sources = rows(data['sources']), chapters = _chapters(note);
     final narrative =
         data['schema_version'] == 'personal-notes-v2' &&
@@ -855,13 +926,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
       unawaited(_source(source));
     }
 
-    final standalone = narrative
-        ? (overviewShown ? '' : text(data['summary']))
-        : body.isNotEmpty
-        ? body
-        : overviewShown
-        ? ''
-        : text(data['summary']);
     Widget paragraph(String value) => SelectableText(
       value,
       style: TextStyle(fontSize: 15.5, height: 1.85, color: _ink),
@@ -880,10 +944,15 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         const ErrorNotice(
           'The transcript has changed. This note retains its earlier version.',
         ),
-      if (standalone.isNotEmpty)
+      if (summary.isNotEmpty && !body.contains(summary))
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          child: paragraph(standalone),
+          child: paragraph(summary),
+        ),
+      if (!narrative && body.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: paragraph(body),
         ),
     ];
     for (var i = 0; i < chapters.length; i++) {
@@ -917,15 +986,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${i + 1}'.padLeft(2, '0'),
-                style: TextStyle(
-                  color: _green,
-                  fontSize: 11,
-                  letterSpacing: .6,
-                ),
-              ),
-              const SizedBox(height: 8),
               Text(
                 text(chapter['title']),
                 style: const TextStyle(
@@ -1045,80 +1105,94 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
     return result;
   }
 
-  Widget _header() => Padding(
-    padding: const EdgeInsets.only(bottom: 22),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          text(record['title']),
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            height: 1.5,
+  Future<void> _editLocation() async {
+    final result = await inputDialog(
+      context,
+      'Meeting location',
+      initial: text(metadata['location']),
+    );
+    if (result == null || !_sameAccount || !mounted) return;
+    await perform(context, () async {
+      final updated = await widget.model.api('PATCH', '$path/metadata', {
+        'location': result.isEmpty ? null : result,
+      });
+      if (_sameAccount) setState(() => metadata = updated);
+    });
+  }
+
+  Widget _header() {
+    final recorded = DateTime.tryParse(text(record['recorded_at'])) != null;
+    final when = coreDate(
+      recorded ? record['recorded_at'] : record['created_at'],
+      time: true,
+      context: context,
+    );
+    final location = text(metadata['location']);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 13),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text(record['title']),
+            style: const TextStyle(
+              fontSize: 23,
+              fontWeight: FontWeight.w600,
+              height: 1.35,
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
-        if (notes.isNotEmpty && !audio)
-          _noteTabs()
-        else if (notes.isNotEmpty || rows(transcript['segments']).isNotEmpty)
-          TextButton.icon(
-            onPressed: generate,
-            icon: Icon(
-              notes.isEmpty ? Icons.auto_awesome_outlined : Icons.add,
-              size: 18,
+          const SizedBox(height: 9),
+          if (notes.isNotEmpty && !audio)
+            _noteTabs()
+          else if (!audio && rows(transcript['segments']).isNotEmpty)
+            TextButton.icon(
+              onPressed: _noteActionPending ? null : generate,
+              icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+              label: const UiText('Generate'),
             ),
-            label: UiText(notes.isEmpty ? 'Generate' : 'New note'),
-          ),
-        Wrap(
-          spacing: 8,
-          runSpacing: 6,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(
-              coreDate(record['created_at'], time: true, context: context),
-              style: TextStyle(fontSize: 12, color: _muted),
-            ),
-            Text(
-              '· ${duration(_duration)}',
-              style: TextStyle(fontSize: 12, color: _muted),
-            ),
-            if (!audio && notes.isNotEmpty)
-              TextButton(onPressed: _versions, child: const UiText('Version')),
-            if (_shares != null)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    _shared ? Icons.link : Icons.lock_outline,
-                    size: 14,
-                    color: _muted,
-                  ),
-                  const SizedBox(width: 4),
-                  UiText(
-                    _shared ? 'Shared' : 'Private',
-                    style: TextStyle(fontSize: 12, color: _muted),
-                  ),
-                ],
+          Wrap(
+            spacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Semantics(
+                label: ui(context, recorded ? 'Recording time' : 'Upload time'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.schedule_outlined, size: 15, color: _muted),
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: Text(
+                        recorded
+                            ? when
+                            : ui(context, 'Upload time') + ' · ' + when,
+                        style: TextStyle(fontSize: 12, color: _muted),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-          ],
-        ),
-        if (_folderTitle.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              _folderTitle,
-              style: TextStyle(fontSize: 12, color: _muted),
-            ),
+              TextButton.icon(
+                icon: const Icon(Icons.location_on_outlined, size: 16),
+                label: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 170),
+                  child: Text(
+                    location.isEmpty ? ui(context, 'Add location') : location,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                onPressed: _editLocation,
+              ),
+            ],
           ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 
   Widget _notesView() {
-    final overview = _hasOverview(_note),
-        data = object(_note['data']),
-        chapters = _chapters(_note);
+    final chapters = _chapters(_note);
     return SingleChildScrollView(
       key: const ValueKey('web-notes-scroll'),
       controller: _noteScroll,
@@ -1128,106 +1202,17 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         children: [
           ..._notices(),
           if (record.isNotEmpty) _header(),
-          if (overview)
-            Row(
-              children: [
-                const Expanded(
-                  child: UiText(
-                    'Overview',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                TextButton(onPressed: _editNote, child: const UiText('Edit')),
-              ],
-            ),
-          if (overview) const SizedBox(height: 12),
-          if (overview)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-              decoration: BoxDecoration(
-                color: _sage,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SelectableText(
-                    text(data['summary']),
-                    style: TextStyle(fontSize: 15, height: 1.8, color: _ink),
-                  ),
-                  const SizedBox(height: 12),
-                  UiText(
-                    'AI-generated · Review key details',
-                    style: TextStyle(fontSize: 10, color: _muted),
-                  ),
-                ],
-              ),
-            ),
-          if (chapters.isNotEmpty)
-            InkWell(
-              onTap: _topics,
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 56),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: _line)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.format_list_bulleted, size: 17),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: UiText('Topics', style: TextStyle(fontSize: 13)),
-                    ),
-                    Text(
-                      context.strings.topicCount(chapters.length),
-                      style: TextStyle(fontSize: 11, color: _muted),
-                    ),
-                    const SizedBox(width: 6),
-                    Icon(Icons.chevron_right, size: 15, color: _muted),
-                  ],
-                ),
-              ),
-            ),
-          const SizedBox(height: 16),
           if (notes.isNotEmpty) ...[
-            Row(
-              children: [
-                const Expanded(
-                  child: UiText(
-                    'Full meeting notes',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                TextButton(
-                  onPressed: _copyExport,
-                  child: const UiText('Copy / Export'),
-                ),
-                if (!overview)
-                  IconButton(
-                    onPressed: _editNote,
-                    tooltip: ui(context, 'Edit'),
-                    icon: const Icon(Icons.edit_outlined, size: 18),
-                  ),
-              ],
-            ),
-            Text(
-              context.strings.fullNoteVersion(text(_note['revision'] ?? 1)),
-              style: TextStyle(fontSize: 12, color: _muted),
-            ),
-            const SizedBox(height: 16),
-            ..._document(_note, overviewShown: overview, anchors: true),
-            Padding(
-              padding: const EdgeInsets.only(top: 28),
-              child: Center(
-                child: UiText(
-                  'End of note',
-                  style: TextStyle(fontSize: 11, color: _muted),
-                ),
+            ..._document(_note, anchors: true),
+            if (chapters.isNotEmpty)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.format_list_bulleted, size: 17),
+                title: const UiText('Topics'),
+                trailing: const Icon(Icons.chevron_right, size: 17),
+                onTap: _topics,
               ),
-            ),
-          ] else if (!loading) ...[
+          ] else if (!loading)
             EmptyState(
               processing['status'] == 'failed'
                   ? 'Summary unavailable'
@@ -1239,21 +1224,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                   : 'Preparing your summary',
               'Your audio remains available.',
             ),
-          ],
-          if (rows(metadata['photos']).isNotEmpty) ...[
-            heading('Photos'),
-            for (final photo in rows(metadata['photos']))
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.image_outlined),
-                title: Text(text(photo['title'])),
-                subtitle: Text(duration(photo['at_ms'])),
-                onTap: () => push(
-                  context,
-                  PersonalFilePage(widget.model, text(photo['id'])),
-                ),
-              ),
-          ],
         ],
       ),
     );
@@ -1270,19 +1240,22 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
         ),
       ),
     if (error.isNotEmpty) ErrorNotice(error, retry: load),
-    ProcessingProgress(
-      processing,
-      browser: true,
-      retry: object(processing['retry']).isEmpty
-          ? null
-          : () async {
-              await widget.model.api(
-                'POST',
-                '/api/v1/jobs/${object(processing['retry'])['job_id']}/retry',
-              );
-              await load();
-            },
-    ),
+    if (processing['stage_status'] != 'complete' ||
+        processing['waiting_reason'] == 'no_speech' ||
+        (processing['warnings'] as List? ?? []).isNotEmpty)
+      ProcessingProgress(
+        processing,
+        browser: widget.model.webExperience,
+        retry: object(processing['retry']).isEmpty
+            ? null
+            : () async {
+                await widget.model.api(
+                  'POST',
+                  '/api/v1/jobs/${object(processing['retry'])['job_id']}/retry',
+                );
+                await load();
+              },
+      ),
   ];
 
   Widget _transcriptView() => ListView(
@@ -1361,6 +1334,20 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                 ? 'No speech recognized'
                 : 'Preparing your transcript',
             'Your audio remains available.',
+          ),
+      ],
+      if (rows(metadata['photos']).isNotEmpty) ...[
+        heading('Photos'),
+        for (final photo in rows(metadata['photos']))
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.image_outlined),
+            title: Text(text(photo['title'])),
+            subtitle: Text(duration(photo['at_ms'])),
+            onTap: () => push(
+              context,
+              PersonalFilePage(widget.model, text(photo['id'])),
+            ),
           ),
       ],
     ],
@@ -1504,41 +1491,6 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                         ),
                       ),
                     ),
-                    Container(
-                      height: 28,
-                      width: 1,
-                      margin: const EdgeInsets.symmetric(horizontal: 12),
-                      color: _line,
-                    ),
-                    TextButton.icon(
-                      onPressed: () => push(
-                        context,
-                        PersonalChatPage(
-                          widget.model,
-                          initial: [
-                            if (notes.isNotEmpty)
-                              {
-                                'type': 'note',
-                                'id': _note['id'],
-                                'revision':
-                                    _note['selected_revision'] ??
-                                    _note['revision'],
-                                'include_source': true,
-                              }
-                            else
-                              {'type': 'recording', 'id': widget.id},
-                          ],
-                        ),
-                      ),
-                      icon: const Icon(Icons.auto_awesome_outlined, size: 15),
-                      label: const UiText(
-                        'Ask Teno',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ],
@@ -1548,6 +1500,55 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
       );
     },
   );
+
+  Future<void> _askAboutNote() async {
+    final question = _question.text.trim();
+    if (question.isEmpty || notes.isEmpty || !_sameAccount) return;
+    final note = _note;
+    FocusScope.of(context).unfocus();
+    _question.clear();
+    await push(
+      context,
+      PersonalChatPage(
+        widget.model,
+        initialQuestion: question,
+        initial: [
+          {
+            'type': 'note',
+            'id': note['id'],
+            'revision': note['selected_revision'] ?? note['revision'],
+            'include_source': true,
+          },
+        ],
+      ),
+    );
+  }
+
+  Widget _noteQuestion() {
+    if (notes.isEmpty) return const SizedBox.shrink();
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.fromLTRB(16, 5, 16, 12),
+      child: TextField(
+        controller: _question,
+        textInputAction: TextInputAction.send,
+        onSubmitted: (_) => _askAboutNote(),
+        decoration: InputDecoration(
+          prefixIcon: Icon(
+            Icons.auto_awesome_outlined,
+            size: 17,
+            color: _green,
+          ),
+          hintText: ui(context, 'Ask about this note'),
+          suffixIcon: IconButton(
+            tooltip: ui(context, 'Send'),
+            icon: const Icon(Icons.arrow_upward),
+            onPressed: _askAboutNote,
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _tabs() => Row(
     children: [
@@ -1631,7 +1632,10 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
                   ('rename', 'Rename'),
                   ('move', 'Move to folder'),
                   ('generate', 'New note'),
-                  if (notes.isNotEmpty) ('versions', 'Version history'),
+                  if (notes.isNotEmpty) ...[
+                    ('versions', 'Version history'),
+                    ('edit-note', 'Edit note'),
+                  ],
                   ('speakers', 'Name speakers'),
                   ('transcribe', 'Transcribe again'),
                   ('replace', 'Find & replace'),
@@ -1661,60 +1665,8 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
               ),
               child: Column(
                 children: [
-                  Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: audio ? _transcriptView() : _notesView(),
-                        ),
-                        if (!audio &&
-                            MediaQuery.sizeOf(context).width >= 1100 &&
-                            _chapters(_note).isNotEmpty)
-                          Container(
-                            width: 230,
-                            padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                            decoration: BoxDecoration(
-                              border: Border(left: BorderSide(color: _line)),
-                            ),
-                            child: ListView(
-                              children: [
-                                const UiText(
-                                  'Topics',
-                                  style: TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                const SizedBox(height: 12),
-                                for (
-                                  var i = 0;
-                                  i < _chapters(_note).length;
-                                  i++
-                                )
-                                  ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    title: Text(
-                                      text(_chapters(_note)[i]['title']),
-                                      style: const TextStyle(fontSize: 13),
-                                    ),
-                                    onTap: () {
-                                      final anchor =
-                                          _topicKeys[i]?.currentContext;
-                                      if (anchor != null)
-                                        Scrollable.ensureVisible(
-                                          anchor,
-                                          alignment: .04,
-                                          duration: const Duration(
-                                            milliseconds: 250,
-                                          ),
-                                        );
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  _dock(),
+                  Expanded(child: audio ? _transcriptView() : _notesView()),
+                  if (audio) _dock() else _noteQuestion(),
                 ],
               ),
             ),
@@ -1727,6 +1679,7 @@ class _WebRecordingPageState extends _PersonalRecordingPageState {
   @override
   void dispose() {
     _loadStamp++;
+    _question.dispose();
     _noteScroll.dispose();
     _transcriptScroll.dispose();
     super.dispose();

@@ -43,6 +43,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private String connectionStage="",pairingStage="";
     private String address="",deviceName="",message="Not connected",firmware="",capacity="",battery="Not received",directory="",pending="",recordName="",lastDraft="";
     private int recordState=-1;private long recordStart,recordPausedAt,recordPausedTotal,operation,lastData,lastPublish;
+    private String startFolder = "", syncFolder = "", downloadFolder = "";
     private final LinkedHashMap<String,JSONObject> found=new LinkedHashMap<>();
     private final ArrayList<String> dirs=new ArrayList<>(),logs=new ArrayList<>();
     private final ArrayList<JSONObject> files=new ArrayList<>();
@@ -184,7 +185,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         }
         if(converting||receiver!=null||!pending.isEmpty())throw new IOException("Recorder busy. Wait for the current action to finish.");
         switch(action){
-            case "sync":deferSync=false;startSync();break;
+            case "sync":deferSync=false;startSync(store.workspaceFolder());break;
             case "refresh": refresh();break;
             case "files":
                 if(recordState!=0)throw new IOException("Stop recording and refresh device status first");
@@ -193,6 +194,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
                 if(recordState!=0)throw new IOException("Device status is unknown. Refresh it first.");
                 if(RecorderService.active||RecorderService.finishing)throw new IOException("Finish the phone recording first.");
                 resetSync();deferSync=false;lastDraft="";syncTarget="";store.pendingDeviceRecord(address,"");
+                startFolder = store.workspaceFolder();
                 begin("start","Waiting for recording to start",15000);ble.send("APP&STA");break;
             case "stop":
                 if(recordState!=1&&recordState!=2)throw new IOException("Recording has not been confirmed. Refresh device status.");
@@ -485,8 +487,13 @@ public final class JwdService extends Service implements JwdBle.Listener {
         }
         publish();
     }
-    private void recording(String name,long seconds){
+    private void recording(String name,long seconds) throws JSONException {
         if(receiver!=null||pending.equals("download")){transferFailed("Recording started during transfer. Stop recording before transferring files.");return;}
+        if (pending.equals("start") && !name.isEmpty()) {
+            String confirmedStart = seconds >= 0 && seconds <= 15
+                ? java.time.Instant.now().minusSeconds(seconds).toString() : null;
+            store.rememberRecorderStart(address,name,startFolder,confirmedStart);
+        }
         if(!name.equals(recordName)){lastDraft="";syncTarget=name;store.pendingDeviceRecord(address,name);syncError="";}
         syncing=false;syncFiles.clear();
         recordState=1;recordName=name;recordStart=SystemClock.elapsedRealtime()-Math.max(0,seconds)*1000;recordPausedAt=0;recordPausedTotal=0;
@@ -503,10 +510,11 @@ public final class JwdService extends Service implements JwdBle.Listener {
         handler.removeCallbacks(syncLater);handler.postDelayed(syncLater,1500);
     }
     private final Runnable syncLater=()->{if(authorized&&recordState==0&&!deferSync&&!syncing&&pending.isEmpty()&&receiver==null&&!converting)try{startSync();}catch(Exception e){syncFailed(e.getMessage());problem(e.getMessage());}};
-    private void startSync()throws Exception{
+    private void startSync()throws Exception{ startSync(""); }
+    private void startSync(String folder)throws Exception{
         if(!sessionCurrent()||ownership.blocked())return;
         if(recordState!=0||!pending.isEmpty()||receiver!=null||converting)return;
-        syncing=true;syncScope=store.scope();syncError="";syncFiles.clear();syncDirectory=0;refresh();publish();
+        syncing=true;syncScope=store.scope();syncFolder=folder;syncError="";syncFiles.clear();syncDirectory=0;refresh();publish();
     }
     private void nextSyncDirectory()throws Exception{
         if(!syncing||recordState!=0)return;
@@ -546,6 +554,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
     private void downloadFile(String dir,String name,long seconds)throws Exception{
         if(store.scope().isEmpty())throw new IOException("Sign in before syncing to this phone.");
         downloadName=JwdProtocol.part(name);downloadDir=JwdProtocol.part(dir);downloadSeconds=seconds;downloadScope=store.scope();raw=new File(store.folder(),"jwd-"+UUID.randomUUID()+".raw");
+        downloadFolder=syncing ? syncFolder : store.workspaceFolder();
         begin("download","Waiting for transfer to start",20000);ble.send("APP&U&"+dir+"&"+name);log("Device file requested");
     }
     @Override public void audio(byte[] data){
@@ -561,6 +570,7 @@ public final class JwdService extends Service implements JwdBle.Listener {
         if(receiver==null||!receiver.complete())return;
         String verification=receiver.finish();receiver=null;handler.removeCallbacks(transferWatch);converting=true;pending="";
         String identity=downloadScope,mac=address,dir=downloadDir,name=downloadName,knownHardware=ownership.syncIdentity();long seconds=downloadSeconds;File source=raw;raw=null;
+        String destination = downloadFolder;
         message="File received. Verifying and decoding audio…";log(verification.equals("crc32_verified")?"Checksum verified":"Checksum unavailable. File length verified.");publish();
         decoder.execute(()->{
             try{
@@ -570,10 +580,17 @@ public final class JwdService extends Service implements JwdBle.Listener {
                     source.delete();handler.post(()->{converting=false;releaseWake();try{inventoryEntries.add(dir+"/"+name+"|"+seconds+"|"+digest);nextOwnershipFile();}catch(Exception e){ownership.fail(e.getMessage());}});return;
                 }
                 JSONObject draft=JwdAudio.importVerified(store,source,mac,dir,name,seconds,verification,percent->handler.post(()->{if(!destroyed){message="Decoding audio "+percent+"%";publish();}}));
+                if (!draft.has("folder_id") && draft.optInt("upload_attempts") == 0 && draft.optString("recording_id").isEmpty()) {
+                    JSONObject captured = store.recorderStart(mac,name);
+                    draft.put("folder_id", captured.optString("folder_id",destination));
+                    String started = captured.optString("recorded_at");
+                    if (!started.isEmpty()) draft.put("recorded_at",started);
+                }
                 if(!knownHardware.isEmpty()&&draft.optInt("upload_attempts")==0&&draft.optString("recording_id").isEmpty()&&draft.optString("upload_client_id").isEmpty()){
                     draft.put("upload_client_id","jwd-"+JwdAudio.hash((knownHardware+"\n"+dir+"\n"+name+"\n"+digest).getBytes(StandardCharsets.UTF_8)));
                 }
                 draft.put("template_id",store.recorderTemplate("jwd:"+mac+"|"+name));store.generationOptions(draft,store.recorderOptions("jwd:"+mac+"|"+name));store.save(draft);
+                store.clearRecorderStart(mac,name);
                 String notes=store.recorderNotes(mac,name);if(!notes.isEmpty()){draft.put("notes",notes);store.save(draft);}
                 store.deviceRecordSynced(mac,dir,name,seconds,draft.optString("id"));
                 try{UploadQueue.saved(this,draft);}catch(Exception ignored){/* The verified local draft remains available for manual retry. */}

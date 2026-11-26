@@ -56,7 +56,7 @@ void main() {
           ('lecture', 'Lecture notes', '课堂'),
           ('inspiration', 'Inspiration', '灵感'),
           ('actions', 'Action items', '待办'),
-          ('brief', 'Concise recap', '简短概览'),
+          ('brief', 'Key insights', '关键见解'),
         ];
         host.overrides['/api/v1/personal/templates'] = {
           'items': [
@@ -96,8 +96,8 @@ void main() {
         );
         await tester.pumpAndSettle();
         final ctx = tester.element(find.byType(PersonalSettings));
-        await tester.ensureVisible(find.text(ui(ctx, 'Note template')));
-        await tester.tap(find.text(ui(ctx, 'Note template')));
+        await tester.ensureVisible(find.text(ui(ctx, 'Default note template')));
+        await tester.tap(find.text(ui(ctx, 'Default note template')));
         await tester.pumpAndSettle();
         expect(find.byType(PersonalTemplatePicker), findsOneWidget);
         expect(tester.takeException(), isNull);
@@ -133,7 +133,7 @@ void main() {
   }
   for (final hasNote in [false, true]) {
     testWidgets(
-      'home default and explicit recording template, existing note $hasNote',
+      'settings default and explicit recording template, existing note $hasNote',
       (tester) async {
         tester.view.devicePixelRatio = 1;
         tester.view.physicalSize = const Size(360, 800);
@@ -144,6 +144,12 @@ void main() {
         await tester.pumpWidget(TenoApp(model: model, initialize: false));
         await tester.pumpAndSettle();
         final defaultControl = find.text('Default note template');
+        expect(defaultControl, findsNothing);
+        await tester.tap(
+          find.widgetWithText(NavigationDestination, 'Settings'),
+        );
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(defaultControl);
         expect(defaultControl.hitTestable(), findsOneWidget);
         await tester.tap(defaultControl);
         await tester.pumpAndSettle();
@@ -154,6 +160,8 @@ void main() {
         await tester.tap(find.text('Use this template'));
         await tester.pumpAndSettle();
         expect(host.prefs['default_template_id'], 'teno:meeting');
+        await tester.tap(find.widgetWithText(NavigationDestination, 'Home'));
+        await tester.pumpAndSettle();
         final recording = find.byWidgetPredicate(
           (w) => w is CoreTile && w.item['id'] == 'record-1',
         );
@@ -165,31 +173,35 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(recording.hitTestable());
         await tester.pumpAndSettle();
-        await tester.tap(hasNote ? find.byTooltip('New note') : find.text('Generate'));
+        await tester.tap(
+          hasNote ? find.byTooltip('New note') : find.text('Generate'),
+        );
         await tester.pumpAndSettle();
-        final submit = find.widgetWithText(FilledButton, 'Generate');
-        expect(tester.widget<FilledButton>(submit).onPressed, isNull);
-        final panel = find.text('Summary template');
-        await tester.tap(panel);
-        await tester.pumpAndSettle();
+        expect(find.byType(PersonalTemplatePicker), findsOneWidget);
         await tester.pageBack();
         await tester.pumpAndSettle();
-        expect(tester.widget<FilledButton>(submit).onPressed, isNull);
-        await tester.tap(panel);
+        expect(
+          host.requests.where((r) => r == 'POST $recordingNotes'),
+          isEmpty,
+        );
+        await tester.tap(
+          hasNote ? find.byTooltip('New note') : find.text('Generate'),
+        );
         await tester.pumpAndSettle();
-        final custom = find.text('Interview insights').last;
-        await tester.ensureVisible(custom);
+        await tester.tap(find.byTooltip('Search'));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), 'Interview');
+        await tester.pumpAndSettle();
+        final custom = find.text('Interview insights').hitTestable();
+        expect(custom, findsOneWidget);
         await tester.tap(custom);
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Use this template'));
-        await tester.pumpAndSettle();
-        expect(find.text('Interview insights'), findsOneWidget);
         expect(
           host.requests.where((r) => r == 'POST $recordingNotes'),
           isEmpty,
         );
         host.overrides.remove(recordingNotes);
-        await tester.tap(submit);
+        await tester.tap(find.widgetWithText(FilledButton, 'Generate note'));
         await tester.pumpAndSettle();
         final body = host.bodies['POST $recordingNotes']!;
         expect(body['template_id'], 'template-1');

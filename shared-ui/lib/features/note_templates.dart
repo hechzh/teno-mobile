@@ -15,7 +15,7 @@ String templateLabel(BuildContext context, String id) {
     'teno:lecture': 'Lecture notes',
     'teno:inspiration': 'Inspiration',
     'teno:actions': 'Action items',
-    'teno:brief': 'Concise recap',
+    'teno:brief': 'Key insights',
   };
   const zh = {
     '@default': '账号默认',
@@ -25,7 +25,7 @@ String templateLabel(BuildContext context, String id) {
     'teno:lecture': '课堂',
     'teno:inspiration': '灵感',
     'teno:actions': '待办',
-    'teno:brief': '简短概览',
+    'teno:brief': '关键见解',
   };
   final chinese = Localizations.localeOf(context).languageCode == 'zh';
   return (chinese ? zh[id] : en[id]) ?? (chinese ? '自定义模板' : 'Custom template');
@@ -45,10 +45,9 @@ class NoteTemplateChoice extends StatelessWidget {
     TenoModel model, {
     String title = 'Default note template',
   }) {
-    final saved = text(model.personalSettings['default_template_id']);
     return NoteTemplateChoice(
       model,
-      value: saved.isEmpty ? 'teno:general' : saved,
+      value: model.defaultNoteTemplate,
       title: title,
       onChanged: (value) =>
           model.updatePersonal({'default_template_id': value}),
@@ -80,7 +79,9 @@ class NoteTemplateChoice extends StatelessWidget {
               PersonalTemplatePicker(model, initial: value),
             );
             if (chosen != null && context.mounted)
-              await onChanged(chosen.isEmpty ? 'teno:general' : chosen);
+              await onChanged(
+                chosen.isEmpty ? model.defaultNoteTemplate : chosen,
+              );
           }),
   );
 }

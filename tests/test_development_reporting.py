@@ -67,7 +67,9 @@ class ReportingTests(unittest.TestCase):
 
     def test_ios_identity_is_independent_and_exact_in_evidence(self):
         env={'GITHUB_RUN_ID':'123457','GITHUB_SHA':'b'*40,'TENO_DEVELOPMENT_STEPS':'{"device":"success"}'}
-        with tempfile.TemporaryDirectory() as tmp,patch.dict(os.environ,env,clear=True):
+        identity={'version':'1.0','build':'11','bundle_id':'com.jwd.ZhiYan',
+                  'source_name':'Teno-iOS-1.0-build11-Xcode','ipa_name':'Teno-iOS-1.0-build11-unsigned.ipa'}
+        with tempfile.TemporaryDirectory() as tmp,patch.dict(os.environ,env,clear=True),patch('ios_metadata.metadata',return_value=identity):
             envelope=report.ci_envelope('ios','success',tmp)
             self.assertEqual(envelope['report']['version'],'1.0.0')
             self.assertIn('1.0 / Build 11',envelope['report']['title']['en'])
@@ -75,7 +77,7 @@ class ReportingTests(unittest.TestCase):
             self.assertEqual(envelope['report']['distribution'],'evidence')
             self.assertEqual(envelope['files'],[])
             android=report.ci_envelope('android','success',tmp)
-            self.assertEqual(android['report']['version'],'0.7.1')
+            self.assertEqual(android['report']['version'],'0.9.7')
 
 
 if __name__=='__main__':unittest.main()

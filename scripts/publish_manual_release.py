@@ -15,8 +15,8 @@ from pathlib import Path
 from report_development import ROOT, words, sha, configuration, send
 from showcase import prepare as prepare_showcase, publish as publish_showcase
 
-VERSION = '0.9.6'
-CODE = 28
+VERSION = '0.9.7'
+CODE = 29
 NOTES = ROOT / f'RELEASE-{VERSION}.txt'
 IOS_NOTES = ROOT / 'RELEASE-0.9.4.txt'
 MANIFEST = ROOT / f'dist/Teno-{VERSION}-manifest.json'
@@ -58,23 +58,23 @@ def android():
         'commit': manifest['source_commit'], 'occurred_at': manifest['packaged_at'],
         'outcome': 'passed', 'implementation': 'implemented',
         'physical': 'pending', 'distribution': 'internal',
-        'title': words(f'Android {VERSION} / {CODE} 录音标题与笔记管理',
-                       f'Android {VERSION} / {CODE} recording titles and note management'),
+        'title': words(f'Android {VERSION} / {CODE} 个人工作空间与录音笔记',
+                       f'Android {VERSION} / {CODE} personal workspaces and recording notes'),
         'changes': manifest['changes'],
         'modules': [
-            {'key': 'summary', 'scope': words('逐篇切换笔记、替换模板与移到回收站', 'Switch notes, replace the selected note template and move a note to Trash'),
+            {'key': 'summary', 'scope': words('首篇直达模板选择，其他笔记可换模板或移到回收站', 'Open the template picker from the first note and manage the template or Trash for other notes'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机交互验收', 'Physical handset interaction')},
-            {'key': 'library', 'scope': words('录音详情与资料库显示共享后端提供的录音标题', 'Recording details and library show the title supplied by the shared backend'),
+            {'key': 'library', 'scope': words('个人工作空间切换、搜索、移动和上传目标', 'Personal workspace switching, search, moves, and upload destination'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机录后验收', 'Post-recording acceptance on a physical phone')},
             {'key': 'distribution', 'scope': words('APK 包名、版本和原签名', 'APK identity, version and original signer'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机覆盖安装', 'Physical in-place upgrade')},
         ],
         'tests': manifest['tests'],
         'sources': sources(),
-        'pending': [words('真机上的录后自动命名、所选笔记换模板与删除、原签名覆盖安装待复核。',
-                          'Post-recording naming, template replacement, note deletion and in-place installation await physical verification.')],
+        'pending': [words('真机录音上传、JWD 同步和原签名覆盖安装待复核。',
+                          'Physical recording upload, JWD sync, and updating on a handset await verification.')],
         'installation': words('直接覆盖安装当前 Teno；保留本机录音和账号。', 'Install over the existing Teno app to keep local recordings and the account.'),
-        'dependency': words('共享后端 1.8.0 的录音自动标题与笔记替换更新。', 'Recording title and note replacement updates on shared backend 1.8.0.'),
+        'dependency': words('依赖共享后端的工作空间与录音笔记更新（迁移 014）。', 'Requires the shared backend workspace and recording note update (migration 014).'),
         'assets': [],
     }
     files = [{**evidence(APK, 'apk', f'Android {VERSION} / {CODE} 原签名包', f'Android {VERSION} / {CODE} original-signer APK'),
@@ -82,7 +82,10 @@ def android():
              evidence(NOTES, 'evidence', '发布说明', 'Release notes'),
              {**evidence(MANIFEST, 'evidence', '构建清单（JSON 文本）', 'Build manifest (JSON text)'),
               'filename': f'Teno-{VERSION}-build{CODE}-manifest.txt'},
+             evidence(SCREEN.parent / 'workspace-home-zh.png', 'screenshot', '个人工作空间首页', 'Personal workspace home'),
+             evidence(SCREEN.parent / 'workspace-switch-zh.png', 'screenshot', '切换个人工作空间', 'Switch personal workspaces'),
              evidence(SCREEN, 'screenshot', '录音笔记标签页', 'Notes for a recording'),
+             evidence(SCREEN.parent / 'primary-template-picker-zh.png', 'screenshot', '首篇笔记模板选择', 'Primary note template picker'),
              evidence(SCREEN.parent / 'note-actions-zh.png', 'screenshot', '所选笔记的操作菜单', 'Selected note actions'),
              evidence(SCREEN.parent / 'delete-note-zh.png', 'screenshot', '将所选笔记移到回收站', 'Move selected note to Trash'),
              evidence(SCREEN.parent / 'change-template-zh.png', 'screenshot', '替换所选笔记的摘要模板', 'Change the selected note template')]

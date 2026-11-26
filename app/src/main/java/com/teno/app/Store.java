@@ -36,7 +36,7 @@ public final class Store {
         if(!draft.optBoolean("generation_frozen")||draft.optString("output_language").isEmpty()){
             if(draft.optString("template_id","@default").equals("@default")){
                 JSONObject settings=new JSONObject(context.getSharedPreferences("teno.personal",0).getString("settings."+scope(),"{}"));
-                draft.put("template_id",settings.optString("default_template_id","teno:general")).put("template_origin","account");
+                draft.put("template_id",settings.optString("default_template_id","teno:brief")).put("template_origin","account");
             }else if(!draft.has("template_origin"))draft.put("template_origin","selection");
             if(draft.optString("output_language").isEmpty())
                 draft.put("output_language",outputLanguage()).put("output_language_origin","interface");
@@ -155,6 +155,32 @@ public final class Store {
     public void deleteDraft(JSONObject d)throws Exception{new File(folder(),d.getString("id")+".json").delete();new File(d.getString("path")).delete();}
     public JSONObject newDraft(String title,String ext)throws Exception{
         String id=UUID.randomUUID().toString();return new JSONObject().put("id",id).put("title",title).put("path",new File(folder(),id+ext).getAbsolutePath()).put("language",language()).put("created_at",java.time.Instant.now().toString()).put("status","local").put("scope",scope());
+    }
+    public String workspaceFolder() {
+        return prefs.getString("workspace.folder." + scope(), "");
+    }
+    public String checkedWorkspaceFolder(String folder) throws IOException {
+        if (!folder.isEmpty() && !folder.matches("[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}"))
+            throw new IOException("Invalid workspace.");
+        return folder;
+    }
+    public void workspaceFolder(String owner, String folder) throws Exception {
+        if (owner.isEmpty() || !owner.equals(scope())) throw new IOException("Account changed.");
+        if (!prefs.edit().putString("workspace.folder." + owner, checkedWorkspaceFolder(folder)).commit())
+            throw new IOException("Could not save the workspace.");
+    }
+    private String recorderStartKey(String address, String name) {
+        return "workspace.recorder." + scope() + "." + address + "|" + name.replaceFirst("\\.[^.]+$", "");
+    }
+    public void rememberRecorderStart(String address, String name, String folder, String recordedAt) throws JSONException {
+        JSONObject data = new JSONObject().put("folder_id", folder).put("recorded_at", recordedAt);
+        prefs.edit().putString(recorderStartKey(address, name), data.toString()).commit();
+    }
+    public JSONObject recorderStart(String address, String name) throws JSONException {
+        return new JSONObject(prefs.getString(recorderStartKey(address, name), "{}"));
+    }
+    public void clearRecorderStart(String address, String name) {
+        prefs.edit().remove(recorderStartKey(address, name)).apply();
     }
     public void recoverRecordings(){
         if(RecorderService.active||RecorderService.finishing||scope().isEmpty())return;

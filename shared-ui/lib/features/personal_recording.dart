@@ -2,6 +2,7 @@ import '../l10n/ui_strings.dart';
 import 'routes/personal_mcp.dart';
 import 'dart:async';
 import 'generation_options.dart';
+import 'note_templates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../core/model.dart';

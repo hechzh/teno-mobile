@@ -153,9 +153,13 @@ final class NativeRuntime implements RuntimeHost {
         work(result,()->{signedIn();store.recordingOptions(cloud,wifi,live);UploadQueue.resume(activity);});
     }
     @Override public void startPhone(String title,Result<String> result){
+        String owner=store.scope(),folder=store.workspaceFolder();
         activity.permissions(new String[]{Manifest.permission.RECORD_AUDIO},()->work(result,()->{
-            signedIn();if(phoneStarting||RecorderService.active||RecorderService.finishing||hardwareCapturing())throw new IOException("Finish the current recording first.");
-            JSONObject draft=store.newDraft(title,".wav");draft.put("live",false);store.save(draft);
+            signedIn();
+            if(!owner.equals(store.scope()))throw new IOException("Account changed. Start the recording again.");
+            if(phoneStarting||RecorderService.active||RecorderService.finishing||hardwareCapturing())throw new IOException("Finish the current recording first.");
+            JSONObject draft=store.newDraft(title,".wav");
+            draft.put("live",false).put("folder_id",folder);store.save(draft);
             String id=draft.getString("id");pendingPhoneId=id;lastSource="phone";phoneStarting=true;RecorderService.error="";
             main.post(()->{try{activity.startForegroundService(new Intent(activity,RecorderService.class).setAction("start").putExtra("id",id));}
                 catch(RuntimeException e){phoneStarting=false;RecorderService.error="Recording could not start. Open the app and try again.";}});

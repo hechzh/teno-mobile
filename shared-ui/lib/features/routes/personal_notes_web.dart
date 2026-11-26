@@ -46,6 +46,8 @@ Widget PersonalTemplatePicker(
   Key? key,
   bool allowTranscript = false,
   String? initial,
+  String actionLabel = 'Use this template',
+  ValueChanged<String?>? onOutputLanguage,
 }) => DeferredContent(
   key: key,
   load: page.loadLibrary,
@@ -53,6 +55,8 @@ Widget PersonalTemplatePicker(
     model,
     initial: initial,
     allowTranscript: allowTranscript,
+    actionLabel: actionLabel,
+    onOutputLanguage: onOutputLanguage,
   ),
 );
 
