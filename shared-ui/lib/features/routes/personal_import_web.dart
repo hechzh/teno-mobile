@@ -18,11 +18,12 @@ Widget PersonalImportPage(
       page.PersonalImportPage(model, pending: pending, sheet: sheet),
 );
 
-Widget PersonalLocalList(TenoModel model, {Key? key}) => DeferredContent(
-  key: key,
-  load: page.loadLibrary,
-  builder: (_) => page.PersonalLocalList(model),
-);
+Widget PersonalLocalList(TenoModel model, {Key? key, String? workspaceId}) =>
+    DeferredContent(
+      key: key,
+      load: page.loadLibrary,
+      builder: (_) => page.PersonalLocalList(model, workspaceId: workspaceId),
+    );
 
 Widget PersonalLocalPage(TenoModel model, String id, {Key? key}) =>
     DeferredContent(

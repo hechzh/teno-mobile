@@ -16,7 +16,7 @@ from report_development import ROOT, words, sha, configuration, send
 from showcase import prepare as prepare_showcase, publish as publish_showcase
 
 VERSION = '0.9.7'
-CODE = 29
+CODE = 30
 NOTES = ROOT / f'RELEASE-{VERSION}.txt'
 IOS_NOTES = ROOT / 'RELEASE-0.9.4.txt'
 MANIFEST = ROOT / f'dist/Teno-{VERSION}-manifest.json'
@@ -84,6 +84,7 @@ def android():
               'filename': f'Teno-{VERSION}-build{CODE}-manifest.txt'},
              evidence(SCREEN.parent / 'workspace-home-zh.png', 'screenshot', '个人工作空间首页', 'Personal workspace home'),
              evidence(SCREEN.parent / 'workspace-switch-zh.png', 'screenshot', '切换个人工作空间', 'Switch personal workspaces'),
+             evidence(SCREEN.parent / 'workspace-library-zh.png', 'screenshot', '工作空间内的资料库', 'Library inside a workspace'),
              evidence(SCREEN, 'screenshot', '录音笔记标签页', 'Notes for a recording'),
              evidence(SCREEN.parent / 'primary-template-picker-zh.png', 'screenshot', '首篇笔记模板选择', 'Primary note template picker'),
              evidence(SCREEN.parent / 'note-actions-zh.png', 'screenshot', '所选笔记的操作菜单', 'Selected note actions'),
