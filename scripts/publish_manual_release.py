@@ -7,21 +7,28 @@ It never calls a model or changes the application baseline.
 """
 import argparse
 import json
+import re
 import shutil
 import subprocess
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from report_development import ROOT, words, sha, configuration, send
-from showcase import prepare as prepare_showcase, publish as publish_showcase
+from showcase import (
+    WEB_PREVIEW_RELEASE,
+    prepare as prepare_showcase,
+    public_web_release,
+    publish as publish_showcase,
+)
 
-VERSION = '0.9.7'
-CODE = 30
+ANDROID_BUILD = (ROOT/'app/build.gradle').read_text(encoding='utf-8')
+VERSION = re.search(r"versionName\s+['\"]([^'\"]+)", ANDROID_BUILD)[1]
+CODE = int(re.search(r'versionCode\s+(\d+)', ANDROID_BUILD)[1])
 NOTES = ROOT / f'RELEASE-{VERSION}.txt'
 IOS_NOTES = ROOT / 'RELEASE-0.9.4.txt'
 MANIFEST = ROOT / f'dist/Teno-{VERSION}-manifest.json'
 APK = ROOT / f'dist/Teno-{VERSION}.apk'
-SCREEN = ROOT / f'verification/v{VERSION}/build{CODE}/note-tabs-zh.png'
+SCREENSHOTS = ROOT / f'verification/v{VERSION}/build{CODE}/language'
 IOS_DIST = ROOT.parent / 'android-ios1431/dist'
 IOS_IPA = IOS_DIST / 'Teno-iOS-1.0-build17-unsigned.ipa'
 IOS_SOURCE = IOS_DIST / 'Teno-iOS-1.0-build17-Xcode.zip'
@@ -43,29 +50,38 @@ def sources():
     return [
         {'label': f'Android {VERSION} manifest', 'reference': rel(MANIFEST), 'sha256': sha(MANIFEST)},
         {'label': f'Android {VERSION} release notes', 'reference': rel(NOTES), 'sha256': sha(NOTES)},
+        {'label': 'Matching Web preview release', 'reference': WEB_PREVIEW_RELEASE},
     ]
 
 
-def android():
+def require_matching_web(manifest):
+    web = public_web_release(preview_only=True)
+    expected = (manifest['version'], manifest['version_code'], manifest['source_commit'])
+    actual = (web['app_ui_base'], web['app_ui_build'], web['source_commit']) if web else None
+    if actual != expected:
+        raise ValueError(f'Web preview must use Android {expected[0]} / {expected[1]} from {expected[2]}')
+
+
+def android(*, verify_web=True):
     manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
     expected = (VERSION, CODE, APK.name, sha(APK), APK.stat().st_size)
     actual = tuple(manifest.get(field) for field in ('version', 'version_code', 'apk', 'sha256', 'bytes'))
     if expected != actual:
         raise ValueError('Manifest does not match the selected Android package')
+    if verify_web:
+        require_matching_web(manifest)
     report = {
         'platform': 'android', 'version': VERSION,
         'build_number': f'manual-{VERSION}-build{CODE}-' + sha(MANIFEST)[:12] + '-android',
         'commit': manifest['source_commit'], 'occurred_at': manifest['packaged_at'],
         'outcome': 'passed', 'implementation': 'implemented',
         'physical': 'pending', 'distribution': 'internal',
-        'title': words(f'Android {VERSION} / {CODE} 个人工作空间与录音笔记',
-                       f'Android {VERSION} / {CODE} personal workspaces and recording notes'),
+        'title': words(f'Android {VERSION} / {CODE} 语言设置与 Web 同步',
+                       f'Android {VERSION} / {CODE} language settings and Web parity'),
         'changes': manifest['changes'],
         'modules': [
-            {'key': 'summary', 'scope': words('首篇直达模板选择，其他笔记可换模板或移到回收站', 'Open the template picker from the first note and manage the template or Trash for other notes'),
+            {'key': 'library', 'scope': words('导入使用设置中的界面语言', 'Imports use the interface language from Settings'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机交互验收', 'Physical handset interaction')},
-            {'key': 'library', 'scope': words('个人工作空间切换、搜索、移动和上传目标', 'Personal workspace switching, search, moves, and upload destination'),
-             'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机录后验收', 'Post-recording acceptance on a physical phone')},
             {'key': 'distribution', 'scope': words('APK 包名、版本和原签名', 'APK identity, version and original signer'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机覆盖安装', 'Physical in-place upgrade')},
         ],
@@ -82,13 +98,9 @@ def android():
              evidence(NOTES, 'evidence', '发布说明', 'Release notes'),
              {**evidence(MANIFEST, 'evidence', '构建清单（JSON 文本）', 'Build manifest (JSON text)'),
               'filename': f'Teno-{VERSION}-build{CODE}-manifest.txt'},
-             evidence(SCREEN.parent / 'workspace-home-zh.png', 'screenshot', '个人工作空间首页', 'Personal workspace home'),
-             evidence(SCREEN.parent / 'workspace-switch-zh.png', 'screenshot', '切换个人工作空间', 'Switch personal workspaces'),
-             evidence(SCREEN.parent / 'workspace-library-zh.png', 'screenshot', '工作空间内的资料库', 'Library inside a workspace'),
-             evidence(SCREEN, 'screenshot', '录音笔记标签页', 'Notes for a recording'),
-             evidence(SCREEN.parent / 'primary-template-picker-zh.png', 'screenshot', '首篇笔记模板选择', 'Primary note template picker'),
-             evidence(SCREEN.parent / 'note-actions-zh.png', 'screenshot', '所选笔记的操作菜单', 'Selected note actions'),
-             evidence(SCREEN.parent / 'delete-note-zh.png', 'screenshot', '将所选笔记移到回收站', 'Move selected note to Trash')]
+             evidence(SCREENSHOTS / 'home-zh-390-1.0.png', 'screenshot', '个人空间首页', 'Personal workspace home'),
+             evidence(SCREENSHOTS / 'settings-zh-390-1.0.png', 'screenshot', '外观与语言', 'Appearance and language'),
+             evidence(SCREENSHOTS / 'import-zh-android.png', 'screenshot', '导入面板', 'Import panel')]
     return {'report': report, 'files': files}
 
 
@@ -157,7 +169,7 @@ def main():
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
 
-    envelopes = [android()]
+    envelopes = [android(verify_web=not args.showcase_only)]
     if not args.skip_ios and IOS_SOURCE.exists():
         envelopes.append(ios())
     for envelope in envelopes:
@@ -190,7 +202,7 @@ def main():
             raise SystemExit('--showcase-only requires --build-id')
         if args.no_showcase:
             raise SystemExit('--showcase-only conflicts with --no-showcase')
-        report = android()['report']
+        report = envelopes[0]['report']
         publish_showcase(args.build_id, report['version'], report['commit'], config,
                          args.output, str(args.showcase_gallery) if args.showcase_gallery else None)
         return

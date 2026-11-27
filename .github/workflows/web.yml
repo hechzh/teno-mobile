@@ -1,8 +1,9 @@
-name: Teno Web preview
+name: Teno Web
 on:
   push:
-    branches: ["feature/teno-web-*", "feature/teno-mvp-*", "feature/teno-0.8.*", "feature/teno-0.9.*", "fix/teno-0.8.*"]
+    branches: ["feature/teno-web-*"]
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 jobs:
@@ -33,14 +34,15 @@ jobs:
           flutter pub get --enforce-lockfile
           flutter analyze --no-pub
           flutter test --no-pub
-      - name: Web release
+      - name: Web analysis
         working-directory: web-client
         run: |
           flutter pub get --enforce-lockfile
           flutter analyze --no-pub
-          flutter build web --release --base-href /app/ --no-web-resources-cdn
-          python3 ../scripts/prepare_web_assets.py
+      - name: Package Web from this Android source commit
+        run: python3 web-client/scripts/package.py --base-href /app-preview/
       - uses: actions/upload-artifact@v4
         with:
           name: Teno-Web-${{ github.sha }}
-          path: web-client/build/web
+          path: dist/Teno-Web-*
+          if-no-files-found: error

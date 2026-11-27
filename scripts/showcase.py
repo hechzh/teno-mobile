@@ -142,11 +142,14 @@ def load_pages(root: Path):
     return pages
 
 
-def public_web_release():
-    for url in (
-        'https://54-214-180-183.sslip.io/app-preview/release.json',
-        'https://54-214-180-183.sslip.io/app/release.json',
-    ):
+WEB_PREVIEW_RELEASE = 'https://54-214-180-183.sslip.io/app-preview/release.json'
+
+
+def public_web_release(*, preview_only=False):
+    urls = (WEB_PREVIEW_RELEASE,) if preview_only else (
+        WEB_PREVIEW_RELEASE, 'https://54-214-180-183.sslip.io/app/release.json',
+    )
+    for url in urls:
         try:
             context = ssl.create_default_context()
             with urllib.request.urlopen(url, timeout=8, context=context) as response:
@@ -155,7 +158,8 @@ def public_web_release():
             base = str(value.get('app_ui_base', ''))
             commit = str(value.get('source_commit', ''))
             if re.fullmatch(r'\d+\.\d+\.\d+', version) and re.fullmatch(r'\d+\.\d+\.\d+', base):
-                return {'version': version, 'app_ui_base': base, 'source_commit': commit}
+                return {'version': version, 'app_ui_base': base, 'source_commit': commit,
+                        'app_ui_build': value.get('app_ui_build')}
         except Exception:
             continue
     return None

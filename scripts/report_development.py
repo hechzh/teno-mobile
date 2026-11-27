@@ -119,6 +119,7 @@ def ci_envelope(platform, status, outbox):
     states = json.loads(os.environ.get('TENO_DEVELOPMENT_STEPS', '{}'))
     definitions = {'shared': ('Flutter 分析与自动测试', 'Flutter analysis and tests', 'unit'),
                    'android': ('Android 构建与 Lint', 'Android build and lint', 'static'),
+                   'web': ('同源 Web 构建', 'Web build from the same commit', 'static'),
                    'simulator': ('iOS 模拟器 XCTest', 'iOS simulator XCTest', 'simulator'),
                    'device': ('iOS 未签名设备编译', 'iOS unsigned device compilation', 'static')}
     tests = []

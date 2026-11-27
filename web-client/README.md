@@ -1,3 +1,14 @@
+# Teno Web 0.4.1
+
+Web 候选使用 Android 0.9.8 / 31 的共用界面。移动 CI 会先从同一提交打包 Web，
+再构建 Android。手工上报 APK 时，发布脚本核对已部署的 Web 候选清单中的
+Android 版本、构建号和源码提交。
+
+从 Android 交付提交运行 `python web-client/scripts/package.py --base-href /app-preview/`。
+脚本使用 Flutter 重新构建，并在 `release.json` 记录配套的 Android 版本和提交。
+将生成的 Web 包部署到候选入口，核对后再上报配套 APK。正式入口使用
+`--base-href /app/`，与同批 Android 正式交付配套。
+
 # Teno Web 0.3.1 candidate
 
 本批同步移除录音中实时转写，只在录音结束、完整文件保存后按云处理设置上传转写。
@@ -199,7 +210,8 @@ Flutter tests do not establish actual iPhone Safari acceptance.
 
 ## Deployment and rollback
 
-Package `build/web` with the files in `deploy/` (the `/deploy` URL is blocked).
+The packaging script compiles a fresh Web bundle and includes `deploy/`.
+The `/deploy` URL is blocked.
 Upload the archive to the existing host, then run `scripts/deploy.sh RELEASE ARCHIVE`.
 The script backs up the gateway configuration and backend Git bundle, creates an
 independent capped static container, and reloads Caddy. It does not restart the API,
