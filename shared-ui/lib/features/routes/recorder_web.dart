@@ -3,6 +3,10 @@
 import 'package:flutter/material.dart';
 import '../../core/model.dart';
 
-Widget DevicePage(TenoModel model, {Key? key}) => const SizedBox.shrink();
+Widget DevicePage(
+  TenoModel model, {
+  Key? key,
+  String selectedHardwareId = '',
+}) => const SizedBox.shrink();
 Future<void> showRecorder(BuildContext context, TenoModel model) async =>
     throw UnsupportedError('Recording requires the native app.');
