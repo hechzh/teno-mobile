@@ -153,6 +153,8 @@ def ci_envelope(platform, status, outbox):
                       'Create or switch personal workspaces on Home. Recordings and imports keep their starting workspace.'),
                 words('首篇直达模板选择。其他笔记可换模板或删除后撤销，笔记显示时间和可编辑地点。',
                       'The first note opens the template picker. Other notes can change templates or be restored after deletion. Notes show time and an editable location.'),
+                words('在「设置 → 外观与语言」选择语言。导入采用发起时的界面语言。',
+                      'Choose the language in Settings under Appearance and language. Imports use the current interface language.'),
             ])
             manifest = ROOT / 'ios/build/handoff' / identity['source_name'] / 'manifest.json'
             files.append({'path': str(manifest), 'sha256': sha(manifest), 'kind': 'evidence',
@@ -165,6 +167,12 @@ def ci_envelope(platform, status, outbox):
                 ('primary-template-picker-zh.png', words('首篇笔记模板选择', 'Primary note template picker')),
             ]:
                 path = ROOT / 'ios/build/screenshots/flutter' / name
+                files.append({'path': str(path), 'sha256': sha(path), 'kind': 'screenshot', 'label': label})
+            for name, label in [
+                ('settings-zh-390-1.0.png', words('外观与语言', 'Appearance and language')),
+                ('import-zh-android.png', words('导入面板', 'Import panel')),
+            ]:
+                path = ROOT / 'ios/build/screenshots/language' / name
                 files.append({'path': str(path), 'sha256': sha(path), 'kind': 'screenshot', 'label': label})
     # The server checks the IPA marketing version against its three-component
     # report version. Keep incompatible unsigned IPAs in the workflow artifact.
