@@ -6,7 +6,6 @@ import '../core/model.dart';
 import '../ui/widgets.dart';
 import '../ui/personal_widgets.dart';
 import 'personal_actions.dart';
-import 'interface_language.dart';
 import 'routes/personal_notes.dart';
 
 class PersonalChatHistory extends StatelessWidget {
@@ -422,7 +421,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     title: widget.embedded ? 'Assistant' : 'Chat',
     showBack: !widget.embedded,
     actions: [
-      InterfaceLanguageButton(widget.model),
       CoreAction(
         Icons.history,
         'Chat history',

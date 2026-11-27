@@ -13,7 +13,6 @@ import 'routes/personal_ask.dart';
 import 'routes/personal_settings.dart';
 import 'routes/personal_recording.dart';
 import 'routes/personal_mcp.dart';
-import 'interface_language.dart';
 
 class PersonalHome extends StatefulWidget {
   const PersonalHome(this.model, {super.key, this.initialSection = 'Home'});
@@ -393,15 +392,8 @@ class _PersonalHomeState extends State<PersonalHome> {
                       ),
                     ),
                   CoreAction(Icons.search, 'Search', search),
-                  CoreAction(
-                    widget.model.webExperience
-                        ? Icons.file_upload_outlined
-                        : Icons.mic_none,
-                    widget.model.webExperience
-                        ? 'Import files'
-                        : 'Start recording',
-                    widget.model.webExperience ? importFiles : record,
-                  ),
+                  if (!widget.model.webExperience)
+                    CoreAction(Icons.mic_none, 'Start recording', record),
                 ],
                 if (section == 'Library' && selectedCount == null) ...[
                   CoreAction(Icons.search, 'Search', search),
@@ -535,19 +527,17 @@ class _PersonalHomeState extends State<PersonalHome> {
                 'New folder',
                 () => perform(context, newFolder),
               ),
-              if (!model.webExperience)
-                CoreAction(
-                  Icons.file_upload_outlined,
-                  'Import files',
-                  importFiles,
-                ),
+              CoreAction(
+                Icons.file_upload_outlined,
+                'Import files',
+                importFiles,
+              ),
               if (!model.webExperience)
                 CoreAction(
                   Icons.calendar_month_outlined,
                   'Calendar',
                   () => push(context, PersonalCalendarPage(model)),
                 ),
-              InterfaceLanguageButton(model, compact: true),
             ],
           ),
           if (workspaceFolders.isNotEmpty)

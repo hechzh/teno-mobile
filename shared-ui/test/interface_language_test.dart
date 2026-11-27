@@ -17,8 +17,12 @@ import 'personal_test.dart' show CoreHost, coreModel;
 class LanguageHost extends CoreHost {
   String locale = 'en';
   bool rejectLocale = false;
+  final importArguments = <String, Json>{};
   @override
   Future<String> platformCommand(String command, String? body) async {
+    if (command == 'import' || command == 'accept_imports') {
+      importArguments[command] = Map<String, dynamic>.from(jsonDecode(body!));
+    }
     if (command != 'interface_locale')
       return super.platformCommand(command, body);
     final args = body == null ? <String, dynamic>{} : jsonDecode(body);
@@ -35,12 +39,33 @@ class LanguageHost extends CoreHost {
   }
 }
 
-Future<void> chooseLanguage(WidgetTester tester, String label) async {
+Future<void> chooseLoginLanguage(WidgetTester tester, String label) async {
   await tester.tap(
     find.byKey(const ValueKey('interface-language-switch')).first,
   );
   await tester.pumpAndSettle();
   await tester.tap(find.widgetWithText(CheckedPopupMenuItem<String>, label));
+  await tester.pumpAndSettle();
+}
+
+Future<void> openLanguageSettings(
+  WidgetTester tester, {
+  bool wide = false,
+}) async {
+  await tester.tap(
+    find.widgetWithText(wide ? ListTile : NavigationDestination, 'Settings'),
+  );
+  await tester.pumpAndSettle();
+  final entry = find.widgetWithText(ListTile, 'Interface language');
+  await tester.scrollUntilVisible(entry, 130);
+  await tester.ensureVisible(entry);
+  await tester.pumpAndSettle();
+  await tester.tap(entry);
+  await tester.pumpAndSettle();
+}
+
+Future<void> chooseSettingsLanguage(WidgetTester tester, String label) async {
+  await tester.tap(find.widgetWithText(RadioListTile<String>, label));
   await tester.pumpAndSettle();
 }
 
@@ -78,7 +103,7 @@ void main() {
     (1100.0, 1.0, true),
   ]) {
     testWidgets(
-      'global language shortcut preserves content and recording ${view.$1}/${view.$2}/web${view.$3}',
+      'settings language preserves content and recording ${view.$1}/${view.$2}/web${view.$3}',
       (tester) async {
         tester.view.devicePixelRatio = 1;
         tester.view.physicalSize = Size(view.$1, 900);
@@ -103,14 +128,10 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        await chooseLanguage(tester, '简体中文');
-        expect(find.text('首页'), findsWidgets);
-        await screenshot(
-          tester,
-          boundary,
-          'home-zh-${view.$1.toInt()}-${view.$2}',
+        final shortcut = find.byKey(
+          const ValueKey('interface-language-switch'),
         );
-        await chooseLanguage(tester, 'English');
+        expect(shortcut, findsNothing);
         expect(find.text('Home'), findsWidgets);
         await screenshot(
           tester,
@@ -127,7 +148,35 @@ void main() {
         );
         await tester.pumpAndSettle();
         await tester.enterText(find.byType(TextField), 'Keep this question 原文');
-        await chooseLanguage(tester, '简体中文');
+        expect(shortcut, findsNothing);
+        await openLanguageSettings(tester, wide: view.$3);
+        await chooseSettingsLanguage(tester, '简体中文');
+        await tester.tap(find.byTooltip('返回'));
+        await tester.pumpAndSettle();
+        tester.state<ScrollableState>(find.byType(Scrollable)).position.jumpTo(0);
+        await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(find.text('外观与语言'), 130);
+        await tester.pumpAndSettle();
+        expect(find.text('界面语言'), findsOneWidget);
+        expect(shortcut, findsNothing);
+        await screenshot(
+          tester,
+          boundary,
+          'settings-zh-${view.$1.toInt()}-${view.$2}',
+        );
+        await tester.tap(
+          find.widgetWithText(view.$3 ? ListTile : NavigationDestination, '首页'),
+        );
+        await tester.pumpAndSettle();
+        await screenshot(
+          tester,
+          boundary,
+          'home-zh-${view.$1.toInt()}-${view.$2}',
+        );
+        await tester.tap(
+          find.widgetWithText(view.$3 ? ListTile : NavigationDestination, '助手'),
+        );
+        await tester.pumpAndSettle();
         expect(find.text('助手'), findsWidgets);
         expect(find.text('Keep this question 原文'), findsOneWidget);
         expect(model.runtime, same(state));
@@ -170,7 +219,7 @@ void main() {
         find.byType(TextField).at(1),
         'synthetic-only-password',
       );
-      await chooseLanguage(tester, '简体中文');
+      await chooseLoginLanguage(tester, '简体中文');
       expect(find.text('用户名'), findsOneWidget);
       expect(
         tester.widget<TextField>(find.byType(TextField).first).controller!.text,
@@ -192,12 +241,13 @@ void main() {
       final model = coreModel(host)..interfaceLanguage = 'en';
       await tester.pumpWidget(TenoApp(model: model, initialize: false));
       await tester.pumpAndSettle();
-      await chooseLanguage(tester, '简体中文');
+      await openLanguageSettings(tester);
+      await chooseSettingsLanguage(tester, '简体中文');
       expect(model.interfaceLanguage, 'en');
       expect(host.locale, 'en');
       expect(find.text('Could not save interface language.'), findsOneWidget);
       host.rejectLocale = false;
-      await chooseLanguage(tester, '简体中文');
+      await chooseSettingsLanguage(tester, '简体中文');
       expect(model.interfaceLanguage, 'zh');
       await tester.pumpWidget(const SizedBox.shrink());
     },
@@ -212,12 +262,63 @@ void main() {
         model = coreModel(host)..interfaceLanguage = 'en';
     await tester.pumpWidget(TenoApp(model: model, initialize: false));
     await tester.pumpAndSettle();
-    await chooseLanguage(tester, 'Follow system');
+    await openLanguageSettings(tester);
+    await chooseSettingsLanguage(tester, 'Follow system');
     expect(host.locale, 'system');
     expect(model.interfaceLanguage, 'system');
-    expect(find.text('首页'), findsWidgets);
+    expect(find.text('界面语言'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  for (final web in [false, true]) {
+    testWidgets('import uses the selected settings language on web=$web', (
+      tester,
+    ) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 844);
+      addTearDown(tester.view.reset);
+      final host = LanguageHost();
+      final model = web
+          ? (TenoModel(host: host, webExperience: true)
+              ..changed(host.state)
+              ..personalCore = true)
+          : coreModel(host);
+      model.interfaceLanguage = 'en';
+      final boundary = GlobalKey();
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: boundary,
+          child: TenoApp(model: model, initialize: false),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await openLanguageSettings(tester);
+      await chooseSettingsLanguage(tester, '简体中文');
+      await tester.tap(find.byTooltip('返回'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(NavigationDestination, '首页'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('导入文件'));
+      await tester.pumpAndSettle();
+      expect(find.text('本次模板'), findsOneWidget);
+      expect(find.text('输出语言'), findsNothing);
+      await screenshot(
+        tester,
+        boundary,
+        'import-zh-${web ? 'web' : 'android'}',
+      );
+      await tester.tap(find.text('从文件导入'));
+      await tester.pumpAndSettle();
+      expect(host.importArguments['import'], {
+        'source': 'files',
+        'template_id': '@default',
+        'folder_id': '',
+        'output_language': 'zh-CN',
+        'output_language_origin': 'interface',
+      });
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
 
   testWidgets(
     'template tabs, Chinese search and preview localize without translating custom content',
@@ -327,6 +428,19 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('English 原文.pdf'), findsOneWidget);
+      expect(find.text('输出语言'), findsNothing);
+      final accept = find.widgetWithText(FilledButton, '导入文件');
+      await tester.ensureVisible(accept);
+      await tester.tap(accept);
+      await tester.pumpAndSettle();
+      expect(
+        host.importArguments['accept_imports']?['output_language'],
+        'zh-CN',
+      );
+      expect(
+        host.importArguments['accept_imports']?['output_language_origin'],
+        'interface',
+      );
       expect(host.requests.where((r) => !r.startsWith('GET ')), isEmpty);
       await tester.pumpWidget(const SizedBox.shrink());
     },

@@ -4,11 +4,10 @@ import '../l10n/ui_strings.dart';
 import '../ui/personal_widgets.dart';
 import '../ui/widgets.dart';
 
-/// A shared shortcut to the app-wide, device-persisted interface preference.
+/// Lets users select the interface language before they can open Settings.
 class InterfaceLanguageButton extends StatefulWidget {
-  const InterfaceLanguageButton(this.model, {super.key, this.compact = false});
+  const InterfaceLanguageButton(this.model, {super.key});
   final TenoModel model;
-  final bool compact;
   @override
   State<InterfaceLanguageButton> createState() =>
       _InterfaceLanguageButtonState();
@@ -42,24 +41,18 @@ class _InterfaceLanguageButtonState extends State<InterfaceLanguageButton> {
           child: Text(item.$2),
         ),
     ],
-    child: widget.compact
-        ? const SizedBox(
-            width: 44,
-            height: 44,
-            child: Icon(Icons.language, size: 20),
-          )
-        : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.language, size: 19),
-                const SizedBox(width: 7),
-                const Text('中文 / EN', style: TextStyle(fontSize: 13)),
-                const Icon(Icons.arrow_drop_down, size: 18),
-              ],
-            ),
-          ),
+    child: const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.language, size: 19),
+          SizedBox(width: 7),
+          Text('中文 / EN', style: TextStyle(fontSize: 13)),
+          Icon(Icons.arrow_drop_down, size: 18),
+        ],
+      ),
+    ),
   );
 }
 
