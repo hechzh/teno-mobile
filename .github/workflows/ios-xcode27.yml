@@ -41,10 +41,22 @@ jobs:
           flutter pub get --enforce-lockfile
           set -o pipefail
           flutter test --no-pub --reporter expanded test/workspace_home_test.dart test/recording_note_actions_test.dart test/web_recording_test.dart test/interface_language_test.dart | tee ../ios-flutter-workspace-notes.log
+      - name: Install XcodeGen 2.46.0 and screenshot OCR
+        run: |
+          tool_dir="$RUNNER_TEMP/teno-xcodegen"
+          mkdir -p "$tool_dir"
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip \
+            --output "$tool_dir/xcodegen.zip"
+          printf '%s  %s\n' '4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806' \
+            "$tool_dir/xcodegen.zip" | shasum -a 256 --check
+          unzip -q "$tool_dir/xcodegen.zip" -d "$tool_dir"
+          export PATH="$tool_dir/xcodegen/bin:$PATH"
+          test "$(xcodegen version)" = 'Version: 2.46.0'
+          printf '%s\n' "$tool_dir/xcodegen/bin" >> "$GITHUB_PATH"
+          brew install tesseract
       - name: Build Flutter frameworks with Xcode 27
         run: |
-          brew install xcodegen tesseract
-          test "$(xcodegen version)" = 'Version: 2.46.0'
           cd shared-ui
           flutter pub get --enforce-lockfile
           flutter build ios-framework --no-codesign --no-debug --no-profile --no-plugins --output="$GITHUB_WORKSPACE/ios/build/frameworks"
