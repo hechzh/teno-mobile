@@ -36,10 +36,11 @@ jobs:
         working-directory: shared-ui
         env:
           TENO_NOTE_TABS_SCREENSHOTS: ${{ github.workspace }}/ios/build/screenshots/flutter
+          TENO_LANGUAGE_SCREENSHOTS: ${{ github.workspace }}/ios/build/screenshots/language
         run: |
           flutter pub get --enforce-lockfile
           set -o pipefail
-          flutter test --no-pub --reporter expanded test/workspace_home_test.dart test/recording_note_actions_test.dart test/web_recording_test.dart | tee ../ios-flutter-workspace-notes.log
+          flutter test --no-pub --reporter expanded test/workspace_home_test.dart test/recording_note_actions_test.dart test/web_recording_test.dart test/interface_language_test.dart | tee ../ios-flutter-workspace-notes.log
       - name: Build Flutter frameworks with Xcode 27
         run: |
           brew install xcodegen tesseract
