@@ -40,7 +40,6 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
   List<Json> imported = [];
   String error = '';
   String template = '@default';
-  String? outputLanguage;
   Future<void> pick(String source) async {
     setState(() {
       busy = true;
@@ -51,7 +50,7 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
         'source': source,
         'template_id': template,
         'folder_id': widget.model.workspaceFolder ?? '',
-        ...widget.model.generationLanguage(outputLanguage),
+        ...widget.model.generationLanguage(),
       });
       if (!mounted) return;
       setState(() => imported = rows(value['items']));
@@ -77,15 +76,11 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
       children: [
         if (error.isNotEmpty) ErrorNotice(error),
         if (busy) const LinearProgressIndicator(minHeight: 2),
-        GenerationOptions(
+        NoteTemplateChoice(
           widget.model,
-          template: template,
-          language: outputLanguage,
+          value: template,
           enabled: !busy,
-          onLanguage: (value) async {
-            setState(() => outputLanguage = value);
-          },
-          onTemplate: (value) async {
+          onChanged: (value) async {
             setState(() => template = value);
           },
         ),
@@ -164,7 +159,7 @@ class _PersonalImportPageState extends State<PersonalImportPage> {
                     final value = await widget.model.command('accept_imports', {
                       'folder_id': widget.model.workspaceFolder ?? '',
                       'template_id': template,
-                      ...widget.model.generationLanguage(outputLanguage),
+                      ...widget.model.generationLanguage(),
                     });
                     widget.model.changed(await widget.model.host.snapshot());
                     if (mounted)
@@ -299,6 +294,14 @@ class PersonalLocalPage extends StatelessWidget {
         );
       final file = draft['kind'] == 'file',
           remote = text(draft[file ? 'file_id' : 'recording_id']);
+      final imported =
+          model.webExperience || file || draft['source'] == 'import';
+      final template = text(draft['template_id']).isEmpty
+          ? '@default'
+          : text(draft['template_id']);
+      final language = draft['output_language_origin'] == 'override'
+          ? text(draft['output_language'])
+          : null;
       return CoreFrame(
         title: model.webExperience ? 'Browser imports' : 'On this phone',
         child: ListView(
@@ -341,34 +344,26 @@ class PersonalLocalPage extends StatelessWidget {
             if (remote.isEmpty && draft['template_frozen'] != true)
               GenerationOptions(
                 model,
-                template: text(draft['template_id']).isEmpty
-                    ? '@default'
-                    : text(draft['template_id']),
-                language: draft['output_language_origin'] == 'override'
-                    ? text(draft['output_language'])
-                    : null,
+                template: template,
+                language: language,
                 onTemplate: (value) async {
                   await model.command('note_template', {
                     'id': id,
                     'template_id': value,
-                    ...model.generationLanguage(
-                      draft['output_language_origin'] == 'override'
-                          ? text(draft['output_language'])
-                          : null,
-                    ),
+                    if (!imported) ...model.generationLanguage(language),
                   });
                   model.changed(await model.host.snapshot());
                 },
-                onLanguage: (value) async {
-                  await model.command('note_template', {
-                    'id': id,
-                    'template_id': text(draft['template_id']).isEmpty
-                        ? '@default'
-                        : text(draft['template_id']),
-                    ...model.generationLanguage(value),
-                  });
-                  model.changed(await model.host.snapshot());
-                },
+                onLanguage: imported
+                    ? null
+                    : (value) async {
+                        await model.command('note_template', {
+                          'id': id,
+                          'template_id': template,
+                          ...model.generationLanguage(value),
+                        });
+                        model.changed(await model.host.snapshot());
+                      },
               ),
             if (draft['generation_frozen'] == true)
               Text(

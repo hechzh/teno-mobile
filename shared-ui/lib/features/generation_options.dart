@@ -10,7 +10,7 @@ class GenerationOptions extends StatelessWidget {
     super.key,
     required this.template,
     required this.onTemplate,
-    required this.onLanguage,
+    this.onLanguage,
     this.language,
     this.enabled = true,
     this.templateTitle = 'This template',
@@ -23,7 +23,7 @@ class GenerationOptions extends StatelessWidget {
   final String templateTitle;
   final bool promptForSelection;
   final Future<void> Function(String) onTemplate;
-  final Future<void> Function(String?) onLanguage;
+  final Future<void> Function(String?)? onLanguage;
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,15 +36,16 @@ class GenerationOptions extends StatelessWidget {
         enabled: enabled,
         onChanged: onTemplate,
       ),
-      GenerationLanguageChoice(
-        model,
-        value: language,
-        onChanged: enabled
-            ? (value) {
-                perform(context, () => onLanguage(value));
-              }
-            : null,
-      ),
+      if (onLanguage case final change?)
+        GenerationLanguageChoice(
+          model,
+          value: language,
+          onChanged: enabled
+              ? (value) {
+                  perform(context, () => change(value));
+                }
+              : null,
+        ),
       const SizedBox(height: 6),
       const UiText(
         'Applies to this file only. Saved notes are unchanged.',

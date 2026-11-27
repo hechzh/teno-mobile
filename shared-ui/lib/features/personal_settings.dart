@@ -48,13 +48,6 @@ class PersonalSettings extends StatelessWidget {
         subtitle: const UiText('Teno account'),
         onTap: () => push(context, PersonalAccountPage(model, profile: true)),
       ),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        title: Text(context.strings.interfaceLanguage),
-        subtitle: Text(context.strings.languageHint),
-        trailing: InterfaceLanguageButton(model),
-        onTap: () => push(context, InterfaceLanguagePage(model)),
-      ),
       settingsGroup(
         context,
         model.webExperience ? 'Files' : 'Recorder & files',
@@ -103,6 +96,12 @@ class PersonalSettings extends StatelessWidget {
       ),
       const Divider(height: 24),
       settingsGroup(context, 'Appearance & language'),
+      settingsEntry(
+        context,
+        'Interface language',
+        Icons.language,
+        () => push(context, InterfaceLanguagePage(model)),
+      ),
       settingsEntry(
         context,
         'Theme',
