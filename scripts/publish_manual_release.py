@@ -15,7 +15,6 @@ from pathlib import Path
 
 from report_development import ROOT, words, sha, configuration, send
 from showcase import (
-    WEB_PREVIEW_RELEASE,
     prepare as prepare_showcase,
     public_web_release,
     publish as publish_showcase,
@@ -50,7 +49,6 @@ def sources():
     return [
         {'label': f'Android {VERSION} manifest', 'reference': rel(MANIFEST), 'sha256': sha(MANIFEST)},
         {'label': f'Android {VERSION} release notes', 'reference': rel(NOTES), 'sha256': sha(NOTES)},
-        {'label': 'Matching Web preview release', 'reference': WEB_PREVIEW_RELEASE},
     ]
 
 
@@ -85,7 +83,10 @@ def android(*, verify_web=True):
             {'key': 'distribution', 'scope': words('APK 包名、版本和原签名', 'APK identity, version and original signer'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机覆盖安装', 'Physical in-place upgrade')},
         ],
-        'tests': manifest['tests'],
+        'tests': manifest['tests'] + ([{
+            'name': words('线上 Web 和 APK 的版本、构建号及源码提交匹配', 'Deployed Web and APK version, build and source match'),
+            'status': 'passed', 'environment': 'server', 'source': rel(MANIFEST),
+        }] if verify_web else []),
         'sources': sources(),
         'pending': [words('真机录音上传、JWD 同步和原签名覆盖安装待复核。',
                           'Physical recording upload, JWD sync, and updating on a handset await verification.')],
