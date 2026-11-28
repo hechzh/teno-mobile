@@ -335,19 +335,6 @@ public class RuntimeMessages {
       this.cloudUpload = setterArg;
     }
 
-    private @NonNull Boolean wifiOnly;
-
-    public @NonNull Boolean getWifiOnly() {
-      return wifiOnly;
-    }
-
-    public void setWifiOnly(@NonNull Boolean setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"wifiOnly\" is null.");
-      }
-      this.wifiOnly = setterArg;
-    }
-
     private @NonNull Boolean livePreview;
 
     public @NonNull Boolean getLivePreview() {
@@ -382,18 +369,18 @@ public class RuntimeMessages {
       if (this == o) { return true; }
       if (o == null || getClass() != o.getClass()) { return false; }
       SessionState that = (SessionState) o;
-      return pigeonDeepEquals(signedIn, that.signedIn) && pigeonDeepEquals(username, that.username) && pigeonDeepEquals(scope, that.scope) && pigeonDeepEquals(server, that.server) && pigeonDeepEquals(cloudUpload, that.cloudUpload) && pigeonDeepEquals(wifiOnly, that.wifiOnly) && pigeonDeepEquals(livePreview, that.livePreview) && pigeonDeepEquals(optionsSet, that.optionsSet);
+      return pigeonDeepEquals(signedIn, that.signedIn) && pigeonDeepEquals(username, that.username) && pigeonDeepEquals(scope, that.scope) && pigeonDeepEquals(server, that.server) && pigeonDeepEquals(cloudUpload, that.cloudUpload) && pigeonDeepEquals(livePreview, that.livePreview) && pigeonDeepEquals(optionsSet, that.optionsSet);
     }
 
     @Override
     public int hashCode() {
-      Object[] fields = new Object[] {getClass(), signedIn, username, scope, server, cloudUpload, wifiOnly, livePreview, optionsSet};
+      Object[] fields = new Object[] {getClass(), signedIn, username, scope, server, cloudUpload, livePreview, optionsSet};
       return pigeonDeepHashCode(fields);
     }
 
     @Override
     public String toString() {
-      return "SessionState{" + "signedIn=" + signedIn + ", " + "username=" + username + ", " + "scope=" + scope + ", " + "server=" + server + ", " + "cloudUpload=" + cloudUpload + ", " + "wifiOnly=" + wifiOnly + ", " + "livePreview=" + livePreview + ", " + "optionsSet=" + optionsSet + "}";
+      return "SessionState{" + "signedIn=" + signedIn + ", " + "username=" + username + ", " + "scope=" + scope + ", " + "server=" + server + ", " + "cloudUpload=" + cloudUpload + ", " + "livePreview=" + livePreview + ", " + "optionsSet=" + optionsSet + "}";
     }
 
     public static final class Builder {
@@ -438,14 +425,6 @@ public class RuntimeMessages {
         return this;
       }
 
-      private @Nullable Boolean wifiOnly;
-
-      @CanIgnoreReturnValue
-      public @NonNull Builder setWifiOnly(@NonNull Boolean setterArg) {
-        this.wifiOnly = setterArg;
-        return this;
-      }
-
       private @Nullable Boolean livePreview;
 
       @CanIgnoreReturnValue
@@ -469,7 +448,6 @@ public class RuntimeMessages {
         pigeonReturn.setScope(scope);
         pigeonReturn.setServer(server);
         pigeonReturn.setCloudUpload(cloudUpload);
-        pigeonReturn.setWifiOnly(wifiOnly);
         pigeonReturn.setLivePreview(livePreview);
         pigeonReturn.setOptionsSet(optionsSet);
         return pigeonReturn;
@@ -478,13 +456,12 @@ public class RuntimeMessages {
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(8);
+      ArrayList<Object> toListResult = new ArrayList<>(7);
       toListResult.add(signedIn);
       toListResult.add(username);
       toListResult.add(scope);
       toListResult.add(server);
       toListResult.add(cloudUpload);
-      toListResult.add(wifiOnly);
       toListResult.add(livePreview);
       toListResult.add(optionsSet);
       return toListResult;
@@ -502,11 +479,9 @@ public class RuntimeMessages {
       pigeonResult.setServer((String) server);
       Object cloudUpload = pigeonVar_list.get(4);
       pigeonResult.setCloudUpload((Boolean) cloudUpload);
-      Object wifiOnly = pigeonVar_list.get(5);
-      pigeonResult.setWifiOnly((Boolean) wifiOnly);
-      Object livePreview = pigeonVar_list.get(6);
+      Object livePreview = pigeonVar_list.get(5);
       pigeonResult.setLivePreview((Boolean) livePreview);
-      Object optionsSet = pigeonVar_list.get(7);
+      Object optionsSet = pigeonVar_list.get(6);
       pigeonResult.setOptionsSet((Boolean) optionsSet);
       return pigeonResult;
     }
@@ -1472,6 +1447,19 @@ public class RuntimeMessages {
       this.openRoute = setterArg;
     }
 
+    private @NonNull Boolean networkAvailable;
+
+    public @NonNull Boolean getNetworkAvailable() {
+      return networkAvailable;
+    }
+
+    public void setNetworkAvailable(@NonNull Boolean setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"networkAvailable\" is null.");
+      }
+      this.networkAvailable = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     RuntimeState() {}
 
@@ -1480,18 +1468,18 @@ public class RuntimeMessages {
       if (this == o) { return true; }
       if (o == null || getClass() != o.getClass()) { return false; }
       RuntimeState that = (RuntimeState) o;
-      return pigeonDeepEquals(sequence, that.sequence) && pigeonDeepEquals(session, that.session) && pigeonDeepEquals(capture, that.capture) && pigeonDeepEquals(device, that.device) && pigeonDeepEquals(playback, that.playback) && pigeonDeepEquals(draftsJson, that.draftsJson) && pigeonDeepEquals(uploadStatus, that.uploadStatus) && pigeonDeepEquals(openRoute, that.openRoute);
+      return pigeonDeepEquals(sequence, that.sequence) && pigeonDeepEquals(session, that.session) && pigeonDeepEquals(capture, that.capture) && pigeonDeepEquals(device, that.device) && pigeonDeepEquals(playback, that.playback) && pigeonDeepEquals(draftsJson, that.draftsJson) && pigeonDeepEquals(uploadStatus, that.uploadStatus) && pigeonDeepEquals(openRoute, that.openRoute) && pigeonDeepEquals(networkAvailable, that.networkAvailable);
     }
 
     @Override
     public int hashCode() {
-      Object[] fields = new Object[] {getClass(), sequence, session, capture, device, playback, draftsJson, uploadStatus, openRoute};
+      Object[] fields = new Object[] {getClass(), sequence, session, capture, device, playback, draftsJson, uploadStatus, openRoute, networkAvailable};
       return pigeonDeepHashCode(fields);
     }
 
     @Override
     public String toString() {
-      return "RuntimeState{" + "sequence=" + sequence + ", " + "session=" + session + ", " + "capture=" + capture + ", " + "device=" + device + ", " + "playback=" + playback + ", " + "draftsJson=" + draftsJson + ", " + "uploadStatus=" + uploadStatus + ", " + "openRoute=" + openRoute + "}";
+      return "RuntimeState{" + "sequence=" + sequence + ", " + "session=" + session + ", " + "capture=" + capture + ", " + "device=" + device + ", " + "playback=" + playback + ", " + "draftsJson=" + draftsJson + ", " + "uploadStatus=" + uploadStatus + ", " + "openRoute=" + openRoute + ", " + "networkAvailable=" + networkAvailable + "}";
     }
 
     public static final class Builder {
@@ -1560,6 +1548,14 @@ public class RuntimeMessages {
         return this;
       }
 
+      private @Nullable Boolean networkAvailable;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setNetworkAvailable(@NonNull Boolean setterArg) {
+        this.networkAvailable = setterArg;
+        return this;
+      }
+
       public @NonNull RuntimeState build() {
         RuntimeState pigeonReturn = new RuntimeState();
         pigeonReturn.setSequence(sequence);
@@ -1570,13 +1566,14 @@ public class RuntimeMessages {
         pigeonReturn.setDraftsJson(draftsJson);
         pigeonReturn.setUploadStatus(uploadStatus);
         pigeonReturn.setOpenRoute(openRoute);
+        pigeonReturn.setNetworkAvailable(networkAvailable);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(8);
+      ArrayList<Object> toListResult = new ArrayList<>(9);
       toListResult.add(sequence);
       toListResult.add(session);
       toListResult.add(capture);
@@ -1585,6 +1582,7 @@ public class RuntimeMessages {
       toListResult.add(draftsJson);
       toListResult.add(uploadStatus);
       toListResult.add(openRoute);
+      toListResult.add(networkAvailable);
       return toListResult;
     }
 
@@ -1606,6 +1604,8 @@ public class RuntimeMessages {
       pigeonResult.setUploadStatus((String) uploadStatus);
       Object openRoute = pigeonVar_list.get(7);
       pigeonResult.setOpenRoute((String) openRoute);
+      Object networkAvailable = pigeonVar_list.get(8);
+      pigeonResult.setNetworkAvailable((Boolean) networkAvailable);
       return pigeonResult;
     }
   }
@@ -1715,7 +1715,7 @@ public class RuntimeMessages {
 
     void platformCommand(@NonNull String command, @Nullable String jsonBody, @NonNull Result<String> result);
 
-    void configure(@NonNull Boolean cloudUpload, @NonNull Boolean wifiOnly, @NonNull Boolean livePreview, @NonNull VoidResult result);
+    void configure(@NonNull Boolean cloudUpload, @NonNull Boolean livePreview, @NonNull VoidResult result);
 
     void startPhone(@NonNull String title, @NonNull Result<String> result);
 
@@ -1907,8 +1907,7 @@ public class RuntimeMessages {
                 ArrayList<Object> wrapped = new ArrayList<>();
                 ArrayList<Object> args = (ArrayList<Object>) message;
                 Boolean cloudUploadArg = (Boolean) args.get(0);
-                Boolean wifiOnlyArg = (Boolean) args.get(1);
-                Boolean livePreviewArg = (Boolean) args.get(2);
+                Boolean livePreviewArg = (Boolean) args.get(1);
                 VoidResult resultCallback =
                     new VoidResult() {
                       public void success() {
@@ -1922,7 +1921,7 @@ public class RuntimeMessages {
                       }
                     };
 
-                api.configure(cloudUploadArg, wifiOnlyArg, livePreviewArg, resultCallback);
+                api.configure(cloudUploadArg, livePreviewArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

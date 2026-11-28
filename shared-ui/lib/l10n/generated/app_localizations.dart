@@ -893,7 +893,7 @@ abstract class AppLocalizations {
   /// No description provided for @label2187c26af752.
   ///
   /// In en, this message translates to:
-  /// **'New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.'**
+  /// **'New recordings upload automatically when a network is available. Manage cloud processing in Settings.'**
   String get label2187c26af752;
 
   /// No description provided for @labela293e2e43fd2.
@@ -3320,12 +3320,6 @@ abstract class AppLocalizations {
   /// **'Upload needs attention'**
   String get labelaedad2135947;
 
-  /// No description provided for @label3c414b7123b8.
-  ///
-  /// In en, this message translates to:
-  /// **'Upload on Wi-Fi only'**
-  String get label3c414b7123b8;
-
   /// No description provided for @labeld541bdf9758b.
   ///
   /// In en, this message translates to:
@@ -5239,12 +5233,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only on this device'**
   String get iteration082Label27;
-
-  /// No description provided for @iteration082Label28.
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting for Wi-Fi'**
-  String get iteration082Label28;
 
   /// No description provided for @iteration082Label29.
   ///

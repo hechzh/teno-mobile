@@ -225,7 +225,6 @@ struct SessionState: Hashable, CustomStringConvertible {
   var scope: String
   var server: String
   var cloudUpload: Bool
-  var wifiOnly: Bool
   var livePreview: Bool
   var optionsSet: Bool
 
@@ -237,9 +236,8 @@ struct SessionState: Hashable, CustomStringConvertible {
     let scope = pigeonVar_list[2] as! String
     let server = pigeonVar_list[3] as! String
     let cloudUpload = pigeonVar_list[4] as! Bool
-    let wifiOnly = pigeonVar_list[5] as! Bool
-    let livePreview = pigeonVar_list[6] as! Bool
-    let optionsSet = pigeonVar_list[7] as! Bool
+    let livePreview = pigeonVar_list[5] as! Bool
+    let optionsSet = pigeonVar_list[6] as! Bool
 
     return SessionState(
       signedIn: signedIn,
@@ -247,7 +245,6 @@ struct SessionState: Hashable, CustomStringConvertible {
       scope: scope,
       server: server,
       cloudUpload: cloudUpload,
-      wifiOnly: wifiOnly,
       livePreview: livePreview,
       optionsSet: optionsSet
     )
@@ -259,7 +256,6 @@ struct SessionState: Hashable, CustomStringConvertible {
       scope,
       server,
       cloudUpload,
-      wifiOnly,
       livePreview,
       optionsSet,
     ]
@@ -268,7 +264,7 @@ struct SessionState: Hashable, CustomStringConvertible {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return RuntimeMessagesPigeonInternal.deepEquals(lhs.signedIn, rhs.signedIn) && RuntimeMessagesPigeonInternal.deepEquals(lhs.username, rhs.username) && RuntimeMessagesPigeonInternal.deepEquals(lhs.scope, rhs.scope) && RuntimeMessagesPigeonInternal.deepEquals(lhs.server, rhs.server) && RuntimeMessagesPigeonInternal.deepEquals(lhs.cloudUpload, rhs.cloudUpload) && RuntimeMessagesPigeonInternal.deepEquals(lhs.wifiOnly, rhs.wifiOnly) && RuntimeMessagesPigeonInternal.deepEquals(lhs.livePreview, rhs.livePreview) && RuntimeMessagesPigeonInternal.deepEquals(lhs.optionsSet, rhs.optionsSet)
+    return RuntimeMessagesPigeonInternal.deepEquals(lhs.signedIn, rhs.signedIn) && RuntimeMessagesPigeonInternal.deepEquals(lhs.username, rhs.username) && RuntimeMessagesPigeonInternal.deepEquals(lhs.scope, rhs.scope) && RuntimeMessagesPigeonInternal.deepEquals(lhs.server, rhs.server) && RuntimeMessagesPigeonInternal.deepEquals(lhs.cloudUpload, rhs.cloudUpload) && RuntimeMessagesPigeonInternal.deepEquals(lhs.livePreview, rhs.livePreview) && RuntimeMessagesPigeonInternal.deepEquals(lhs.optionsSet, rhs.optionsSet)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -278,13 +274,12 @@ struct SessionState: Hashable, CustomStringConvertible {
     RuntimeMessagesPigeonInternal.deepHash(value: scope, hasher: &hasher)
     RuntimeMessagesPigeonInternal.deepHash(value: server, hasher: &hasher)
     RuntimeMessagesPigeonInternal.deepHash(value: cloudUpload, hasher: &hasher)
-    RuntimeMessagesPigeonInternal.deepHash(value: wifiOnly, hasher: &hasher)
     RuntimeMessagesPigeonInternal.deepHash(value: livePreview, hasher: &hasher)
     RuntimeMessagesPigeonInternal.deepHash(value: optionsSet, hasher: &hasher)
   }
 
   public var description: String {
-    return "SessionState(signedIn: \(String(describing: signedIn)), username: \(String(describing: username)), scope: \(String(describing: scope)), server: \(String(describing: server)), cloudUpload: \(String(describing: cloudUpload)), wifiOnly: \(String(describing: wifiOnly)), livePreview: \(String(describing: livePreview)), optionsSet: \(String(describing: optionsSet)))"
+    return "SessionState(signedIn: \(String(describing: signedIn)), username: \(String(describing: username)), scope: \(String(describing: scope)), server: \(String(describing: server)), cloudUpload: \(String(describing: cloudUpload)), livePreview: \(String(describing: livePreview)), optionsSet: \(String(describing: optionsSet)))"
   }
 }
 
@@ -533,6 +528,7 @@ struct RuntimeState: Hashable, CustomStringConvertible {
   var draftsJson: String
   var uploadStatus: String
   var openRoute: String
+  var networkAvailable: Bool
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -545,6 +541,7 @@ struct RuntimeState: Hashable, CustomStringConvertible {
     let draftsJson = pigeonVar_list[5] as! String
     let uploadStatus = pigeonVar_list[6] as! String
     let openRoute = pigeonVar_list[7] as! String
+    let networkAvailable = pigeonVar_list[8] as! Bool
 
     return RuntimeState(
       sequence: sequence,
@@ -554,7 +551,8 @@ struct RuntimeState: Hashable, CustomStringConvertible {
       playback: playback,
       draftsJson: draftsJson,
       uploadStatus: uploadStatus,
-      openRoute: openRoute
+      openRoute: openRoute,
+      networkAvailable: networkAvailable
     )
   }
   func toList() -> [Any?] {
@@ -567,13 +565,14 @@ struct RuntimeState: Hashable, CustomStringConvertible {
       draftsJson,
       uploadStatus,
       openRoute,
+      networkAvailable,
     ]
   }
   static func == (lhs: RuntimeState, rhs: RuntimeState) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return RuntimeMessagesPigeonInternal.deepEquals(lhs.sequence, rhs.sequence) && RuntimeMessagesPigeonInternal.deepEquals(lhs.session, rhs.session) && RuntimeMessagesPigeonInternal.deepEquals(lhs.capture, rhs.capture) && RuntimeMessagesPigeonInternal.deepEquals(lhs.device, rhs.device) && RuntimeMessagesPigeonInternal.deepEquals(lhs.playback, rhs.playback) && RuntimeMessagesPigeonInternal.deepEquals(lhs.draftsJson, rhs.draftsJson) && RuntimeMessagesPigeonInternal.deepEquals(lhs.uploadStatus, rhs.uploadStatus) && RuntimeMessagesPigeonInternal.deepEquals(lhs.openRoute, rhs.openRoute)
+    return RuntimeMessagesPigeonInternal.deepEquals(lhs.sequence, rhs.sequence) && RuntimeMessagesPigeonInternal.deepEquals(lhs.session, rhs.session) && RuntimeMessagesPigeonInternal.deepEquals(lhs.capture, rhs.capture) && RuntimeMessagesPigeonInternal.deepEquals(lhs.device, rhs.device) && RuntimeMessagesPigeonInternal.deepEquals(lhs.playback, rhs.playback) && RuntimeMessagesPigeonInternal.deepEquals(lhs.draftsJson, rhs.draftsJson) && RuntimeMessagesPigeonInternal.deepEquals(lhs.uploadStatus, rhs.uploadStatus) && RuntimeMessagesPigeonInternal.deepEquals(lhs.openRoute, rhs.openRoute) && RuntimeMessagesPigeonInternal.deepEquals(lhs.networkAvailable, rhs.networkAvailable)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -586,10 +585,11 @@ struct RuntimeState: Hashable, CustomStringConvertible {
     RuntimeMessagesPigeonInternal.deepHash(value: draftsJson, hasher: &hasher)
     RuntimeMessagesPigeonInternal.deepHash(value: uploadStatus, hasher: &hasher)
     RuntimeMessagesPigeonInternal.deepHash(value: openRoute, hasher: &hasher)
+    RuntimeMessagesPigeonInternal.deepHash(value: networkAvailable, hasher: &hasher)
   }
 
   public var description: String {
-    return "RuntimeState(sequence: \(String(describing: sequence)), session: \(String(describing: session)), capture: \(String(describing: capture)), device: \(String(describing: device)), playback: \(String(describing: playback)), draftsJson: \(String(describing: draftsJson)), uploadStatus: \(String(describing: uploadStatus)), openRoute: \(String(describing: openRoute)))"
+    return "RuntimeState(sequence: \(String(describing: sequence)), session: \(String(describing: session)), capture: \(String(describing: capture)), device: \(String(describing: device)), playback: \(String(describing: playback)), draftsJson: \(String(describing: draftsJson)), uploadStatus: \(String(describing: uploadStatus)), openRoute: \(String(describing: openRoute)), networkAvailable: \(String(describing: networkAvailable)))"
   }
 }
 
@@ -684,7 +684,7 @@ protocol RuntimeHost {
   func logout() async throws
   func request(method: String, path: String, jsonBody: String?) async throws -> String
   func platformCommand(command: String, jsonBody: String?) async throws -> String
-  func configure(cloudUpload: Bool, wifiOnly: Bool, livePreview: Bool) async throws
+  func configure(cloudUpload: Bool, livePreview: Bool) async throws
   func startPhone(title: String) async throws -> String
   func controlPhone(action: PhoneAction) async throws
   func controlDevice(action: DeviceAction, identifier: String, name: String) async throws
@@ -796,11 +796,10 @@ class RuntimeHostSetup {
       configureChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let cloudUploadArg = args[0] as! Bool
-        let wifiOnlyArg = args[1] as! Bool
-        let livePreviewArg = args[2] as! Bool
+        let livePreviewArg = args[1] as! Bool
         Task { @MainActor in
           do {
-            try await api.configure(cloudUpload: cloudUploadArg, wifiOnly: wifiOnlyArg, livePreview: livePreviewArg)
+            try await api.configure(cloudUpload: cloudUploadArg, livePreview: livePreviewArg)
             reply(wrapResult(nil))
           } catch {
             reply(wrapError(error))

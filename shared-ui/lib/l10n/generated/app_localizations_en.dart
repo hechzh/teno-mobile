@@ -446,7 +446,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get label2187c26af752 =>
-      'New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.';
+      'New recordings upload automatically when a network is available. Manage cloud processing in Settings.';
 
   @override
   String get labela293e2e43fd2 => 'Compatibility scan';
@@ -1723,9 +1723,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelaedad2135947 => 'Upload needs attention';
 
   @override
-  String get label3c414b7123b8 => 'Upload on Wi-Fi only';
-
-  @override
   String get labeld541bdf9758b => 'Upload saved files';
 
   @override
@@ -2838,9 +2835,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get iteration082Label27 => 'Only on this device';
-
-  @override
-  String get iteration082Label28 => 'Waiting for Wi-Fi';
 
   @override
   String get iteration082Label29 => 'Waiting for network';

@@ -87,9 +87,9 @@ final class PersonalRuntimeTests: XCTestCase {
     @MainActor func testCloudDefaultsOnAndExplicitOffSurvivesAccountSwitch() throws {
         let (store,_) = try fixture()
         store.identity("first","one"); XCTAssertTrue(store.cloudUpload); XCTAssertFalse(store.optionsSet)
-        store.configure(cloud:false,wifi:true,live:false)
+        store.configure(cloud:false,live:false)
         store.identity("second","two"); XCTAssertTrue(store.cloudUpload)
-        store.identity("first","one"); XCTAssertFalse(store.cloudUpload); XCTAssertTrue(store.wifiOnly)
+        store.identity("first","one"); XCTAssertFalse(store.cloudUpload)
     }
     @MainActor func testSuccessfulLoginDoesNotRewriteAccountLanguagePreferences() async throws {
         let (store,api) = try fixture(); var methods: [String] = []
@@ -134,8 +134,8 @@ final class PersonalRuntimeTests: XCTestCase {
         let (store,api) = try fixture()
         store.preferences.set(true,forKey:"live_default")
         XCTAssertFalse(store.livePreview); XCTAssertFalse(store.state().livePreview)
-        store.configure(cloud:false,wifi:true,live:true)
-        XCTAssertFalse(store.livePreview); XCTAssertFalse(store.cloudUpload); XCTAssertTrue(store.wifiOnly)
+        store.configure(cloud:false,live:true)
+        XCTAssertFalse(store.livePreview); XCTAssertFalse(store.cloudUpload)
         let recorder = JwdRecorder(store:store,api:api,saved:{ _ in XCTFail("A live packet must not become a saved recording") })
         let before = store.drafts().count
         recorder.onRecordStream(Data(repeating:0,count:3200))

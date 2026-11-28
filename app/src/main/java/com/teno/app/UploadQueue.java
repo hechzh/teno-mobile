@@ -53,25 +53,23 @@ final class UploadQueue {
             d.put("upload_requested",true).put("upload_automatic",automatic).put("upload_attempts",0).put("upload_retry_at",0).put("status","queued").remove("error");store.save(d);
         }
     }
-    static boolean networkAllowed(Context context,Store store){
+    static boolean networkAvailable(Context context){
         ConnectivityManager cm=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkCapabilities caps=cm.getNetworkCapabilities(cm.getActiveNetwork());
-        return caps!=null&&caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)&&(!store.wifiUpload()||caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI));
+        return caps!=null&&caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
     static boolean requested(Store store,JSONObject d){return d.optBoolean("upload_requested")&&!remote(d)&&d.optString("scope").equals(store.scope())&&(!d.optBoolean("upload_automatic")||store.autoUpload())&&(d.optString("parent_local_id").isEmpty()||!parentRecording(store,d).isEmpty());}
-    static JSONObject presentation(Context context,Store store,JSONObject d)throws Exception{
+    static JSONObject presentation(Store store,JSONObject d,boolean networkAvailable)throws Exception{
         JSONObject p=d.optJSONObject("processing");if(p!=null&&remote(d)){
             p=new JSONObject(p.toString());JSONObject saved=p.optJSONObject("preserved");if(saved==null)saved=new JSONObject();saved.put("local_file",new File(d.optString("path")).isFile());p.put("preserved",saved);
-            ConnectivityManager cm=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);NetworkCapabilities net=cm.getNetworkCapabilities(cm.getActiveNetwork());if(net==null||!net.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))p.put("stale",true);return p;
+            if(!networkAvailable)p.put("stale",true);
+            return p;
         }
         String status=d.optString("status"),stage=remote(d)?"checking":status.equals("uploading")?"uploading":d.optBoolean("upload_requested")?"waiting_upload":"saved";
         String reason="";
-        ConnectivityManager cm=(ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkCapabilities network=cm.getNetworkCapabilities(cm.getActiveNetwork());
         if(!store.autoUpload()&&(!d.optBoolean("upload_requested")||d.optBoolean("upload_automatic")))reason="cloud_disabled";
         else if(store.token("access_token").isEmpty())reason="sign_in";
-        else if(network==null||!network.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))reason="network";
-        else if(store.wifiUpload()&&!network.hasTransport(NetworkCapabilities.TRANSPORT_WIFI))reason="wifi_only";
+        else if(!networkAvailable)reason="network";
         else if(d.optLong("upload_retry_at")>System.currentTimeMillis())reason="retry_backoff";
         if(reason.equals("cloud_disabled")&&!remote(d)){stage="saved";status="local";}
         JSONObject kept=new JSONObject().put("local_file",new File(d.optString("path")).isFile());
@@ -84,13 +82,13 @@ final class UploadQueue {
         if(!d.optString("parent_local_id").isEmpty()&&parentRecording(store,d).isEmpty())return "Saved on this phone · Waiting for recording";
         if(d.optString("status").equals("failed"))return "Upload needs attention · Local audio is safe";
         if(d.optBoolean("upload_automatic")&&!store.autoUpload())return "Saved on this phone · Automatic cloud processing is off";
-        if(d.optBoolean("upload_requested"))return d.optString("status").equals("uploading")?"Uploading":store.wifiUpload()?"Queued · Waiting for Wi-Fi":"Queued · Waiting for connection";
+        if(d.optBoolean("upload_requested"))return d.optString("status").equals("uploading")?"Uploading":"Waiting to upload";
         return "Saved on this phone";
     }
     static void resume(Context context){
         if(accountPaused||running.get())return;
         schedule(context);
-        Store store=new Store(context);if(store.scope().isEmpty()||store.token("access_token").isEmpty()||running.get()||!networkAllowed(context,store))return;
+        Store store=new Store(context);if(store.scope().isEmpty()||store.token("access_token").isEmpty()||running.get()||!networkAvailable(context))return;
         JSONArray ds=store.drafts();for(int i=0;i<ds.length();i++){JSONObject d=ds.optJSONObject(i);if(d!=null&&requested(store,d)&&d.optLong("upload_retry_at")<=System.currentTimeMillis()){
             try{context.startForegroundService(new Intent(context,TransferService.class));}catch(RuntimeException ignored){/* Persisted job resumes when Android permits it. */}return;
         }}
@@ -100,15 +98,16 @@ final class UploadQueue {
         Store store=new Store(context);if(store.scope().isEmpty()||store.token("access_token").isEmpty())return;
         long earliest=Long.MAX_VALUE;JSONArray ds=store.drafts();for(int i=0;i<ds.length();i++){JSONObject d=ds.optJSONObject(i);if(d!=null&&requested(store,d))earliest=Math.min(earliest,d.optLong("upload_retry_at"));}
         if(earliest==Long.MAX_VALUE)return;
-        JobInfo.Builder builder=new JobInfo.Builder(JOB_ID,new ComponentName(context,UploadJobService.class)).setRequiredNetworkType(store.wifiUpload()?JobInfo.NETWORK_TYPE_UNMETERED:JobInfo.NETWORK_TYPE_ANY).setMinimumLatency(Math.max(networkAllowed(context,store)?1000:30000,earliest-System.currentTimeMillis())).setPersisted(true);
-        if(store.wifiUpload()&&android.os.Build.VERSION.SDK_INT>=28)builder.setRequiredNetwork(new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build());
+        JobInfo.Builder builder=new JobInfo.Builder(JOB_ID,new ComponentName(context,UploadJobService.class))
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            .setMinimumLatency(Math.max(1000,earliest-System.currentTimeMillis())).setPersisted(true);
         JobInfo job=builder.build();
         ((JobScheduler)context.getSystemService(Context.JOB_SCHEDULER_SERVICE)).schedule(job);
     }
     static void drain(Context context,Progress progress){
         Store store=new Store(context);String owner=store.scope();
         try{
-            while(!accountPaused&&!Thread.currentThread().isInterrupted()&&owner.equals(store.scope())&&!owner.isEmpty()&&!store.token("access_token").isEmpty()&&networkAllowed(context,store)){
+            while(!accountPaused&&!Thread.currentThread().isInterrupted()&&owner.equals(store.scope())&&!owner.isEmpty()&&!store.token("access_token").isEmpty()&&networkAvailable(context)){
                 JSONObject next=null;JSONArray ds=store.drafts();
                 for(int i=ds.length()-1;i>=0;i--){JSONObject d=ds.optJSONObject(i);if(d!=null&&requested(store,d)&&d.optLong("upload_retry_at")<=System.currentTimeMillis()){next=d;break;}}
                 if(next==null)break;upload(context,store,next.optString("id"),owner,progress);

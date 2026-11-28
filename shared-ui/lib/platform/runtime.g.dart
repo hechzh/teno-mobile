@@ -137,7 +137,6 @@ class SessionState {
     required this.scope,
     required this.server,
     required this.cloudUpload,
-    required this.wifiOnly,
     required this.livePreview,
     required this.optionsSet,
   });
@@ -152,8 +151,6 @@ class SessionState {
 
   bool cloudUpload;
 
-  bool wifiOnly;
-
   bool livePreview;
 
   bool optionsSet;
@@ -165,7 +162,6 @@ class SessionState {
       scope,
       server,
       cloudUpload,
-      wifiOnly,
       livePreview,
       optionsSet,
     ];
@@ -183,9 +179,8 @@ class SessionState {
       scope: result[2]! as String,
       server: result[3]! as String,
       cloudUpload: result[4]! as bool,
-      wifiOnly: result[5]! as bool,
-      livePreview: result[6]! as bool,
-      optionsSet: result[7]! as bool,
+      livePreview: result[5]! as bool,
+      optionsSet: result[6]! as bool,
     );
   }
 
@@ -203,7 +198,6 @@ class SessionState {
         _deepEquals(scope, other.scope) &&
         _deepEquals(server, other.server) &&
         _deepEquals(cloudUpload, other.cloudUpload) &&
-        _deepEquals(wifiOnly, other.wifiOnly) &&
         _deepEquals(livePreview, other.livePreview) &&
         _deepEquals(optionsSet, other.optionsSet);
   }
@@ -214,7 +208,7 @@ class SessionState {
 
   @override
   String toString() {
-    return 'SessionState(signedIn: $signedIn, username: $username, scope: $scope, server: $server, cloudUpload: $cloudUpload, wifiOnly: $wifiOnly, livePreview: $livePreview, optionsSet: $optionsSet)';
+    return 'SessionState(signedIn: $signedIn, username: $username, scope: $scope, server: $server, cloudUpload: $cloudUpload, livePreview: $livePreview, optionsSet: $optionsSet)';
   }
 }
 
@@ -522,6 +516,7 @@ class RuntimeState {
     required this.draftsJson,
     required this.uploadStatus,
     required this.openRoute,
+    required this.networkAvailable,
   });
 
   int sequence;
@@ -540,6 +535,8 @@ class RuntimeState {
 
   String openRoute;
 
+  bool networkAvailable;
+
   List<Object?> _toList() {
     return <Object?>[
       sequence,
@@ -550,6 +547,7 @@ class RuntimeState {
       draftsJson,
       uploadStatus,
       openRoute,
+      networkAvailable,
     ];
   }
 
@@ -568,6 +566,7 @@ class RuntimeState {
       draftsJson: result[5]! as String,
       uploadStatus: result[6]! as String,
       openRoute: result[7]! as String,
+      networkAvailable: result[8]! as bool,
     );
   }
 
@@ -587,7 +586,8 @@ class RuntimeState {
         _deepEquals(playback, other.playback) &&
         _deepEquals(draftsJson, other.draftsJson) &&
         _deepEquals(uploadStatus, other.uploadStatus) &&
-        _deepEquals(openRoute, other.openRoute);
+        _deepEquals(openRoute, other.openRoute) &&
+        _deepEquals(networkAvailable, other.networkAvailable);
   }
 
   @override
@@ -596,7 +596,7 @@ class RuntimeState {
 
   @override
   String toString() {
-    return 'RuntimeState(sequence: $sequence, session: $session, capture: $capture, device: $device, playback: $playback, draftsJson: $draftsJson, uploadStatus: $uploadStatus, openRoute: $openRoute)';
+    return 'RuntimeState(sequence: $sequence, session: $session, capture: $capture, device: $device, playback: $playback, draftsJson: $draftsJson, uploadStatus: $uploadStatus, openRoute: $openRoute, networkAvailable: $networkAvailable)';
   }
 }
 
@@ -785,11 +785,7 @@ class RuntimeHost {
     return pigeonVar_replyValue! as String;
   }
 
-  Future<void> configure(
-    bool cloudUpload,
-    bool wifiOnly,
-    bool livePreview,
-  ) async {
+  Future<void> configure(bool cloudUpload, bool livePreview) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.teno_mobile.RuntimeHost.configure$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
@@ -798,7 +794,7 @@ class RuntimeHost {
       binaryMessenger: pigeonVar_binaryMessenger,
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[cloudUpload, wifiOnly, livePreview],
+      <Object?>[cloudUpload, livePreview],
     );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 

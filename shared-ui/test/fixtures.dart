@@ -52,15 +52,16 @@ RuntimeState reviewState({
   String scope = 'review-account',
   String phase = 'idle',
   bool connected = false,
+  bool networkAvailable = true,
 }) => RuntimeState(
   sequence: sequence,
+  networkAvailable: networkAvailable,
   session: SessionState(
     signedIn: signedIn,
     username: signedIn ? 'Alex' : '',
     scope: signedIn ? scope : '',
     server: 'https://api.example.test',
     cloudUpload: true,
-    wifiOnly: false,
     livePreview: true,
     optionsSet: true,
   ),

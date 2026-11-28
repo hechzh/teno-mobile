@@ -22,7 +22,6 @@ String processingStage(Json p) =>
 
 String processingReason(Json p) =>
     const {
-      'wifi_only': 'Waiting for Wi-Fi',
       'network': 'Network unavailable',
       'cloud_disabled': 'Cloud processing is off · Saved locally only',
       'sign_in': 'Sign in to upload',

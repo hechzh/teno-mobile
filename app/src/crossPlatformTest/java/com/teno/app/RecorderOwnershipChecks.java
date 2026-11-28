@@ -73,7 +73,7 @@ final class RecorderOwnershipChecks implements AutoCloseable {
         SharedPreferences prefs=context.getSharedPreferences("teno",0);if(!store.scope().isEmpty()&&!prefs.getBoolean("runtime_test_fixture",false))throw new IOException("Dedicated fixture required");
         Map<String,String> saved=new HashMap<>();for(String key:Arrays.asList("scope","username","session","server"))saved.put(key,prefs.getString(key,null));snapshot=JwdService.snapshot;
         try{
-            store.base("http://127.0.0.1:"+server.getLocalPort());store.identity("Ownership fixture","ownership-"+System.nanoTime());store.tokens(new JSONObject().put("access_token","synthetic-ownership-fixture"));store.recordingOptions(false,false,false);store.deviceKey(address,oldKey);
+            store.base("http://127.0.0.1:"+server.getLocalPort());store.identity("Ownership fixture","ownership-"+System.nanoTime());store.tokens(new JSONObject().put("access_token","synthetic-ownership-fixture"));store.recordingOptions(false,false);store.deviceKey(address,oldKey);
             String originalScope=store.scope();store.identity("Other fixture","different-ownership");test.check(store.deviceKey(address).isEmpty(),"device_key_is_inaccessible_after_account_switch");prefs.edit().putString("scope",originalScope).commit();
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();bytes.write(JwdAudio.wavHeader(64000));bytes.write(new byte[64000]);audio=bytes.toByteArray();
             service=new JwdService();java.lang.reflect.Method attach=ContextWrapper.class.getDeclaredMethod("attachBaseContext",Context.class);attach.setAccessible(true);attach.invoke(service,context);test.runOnMainSync(service::onCreate);handler=(Handler)JwdAutomaticChecks.get(service,"handler");

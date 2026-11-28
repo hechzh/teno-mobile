@@ -23,8 +23,8 @@ public final class RecoveryInstrumentation extends Instrumentation {
             if(!context.getPackageName().equals("com.teno.app.flowverification"))throw new IOException("Isolated application required");
             context.getSharedPreferences("teno",0).edit().remove("jwd.last_address").remove("jwd.last_name").commit();store=new Store(context);
             if(phase.equals("offline")){
-                store.base("http://127.0.0.1:9");store.identity("Recovery fixture","offline-recovery");store.tokens(new JSONObject().put("access_token","offline-fixture-only"));store.markNativePreferences();store.recordingOptions(true,false,false);
-                check(!UploadQueue.networkAllowed(context,store),"network_is_actually_disconnected");
+                store.base("http://127.0.0.1:9");store.identity("Recovery fixture","offline-recovery");store.tokens(new JSONObject().put("access_token","offline-fixture-only"));store.markNativePreferences();store.recordingOptions(true,false);
+                check(!UploadQueue.networkAvailable(context),"network_is_actually_disconnected");
                 JSONObject d=store.newDraft("Offline saved recording",".wav");try(FileOutputStream out=new FileOutputStream(d.getString("path"))){out.write(JwdAudio.wavHeader(64000));out.write(new byte[64000]);out.getFD().sync();}d.put("duration_ms",2000);store.save(d);UploadQueue.saved(context,d);
                 context.getSharedPreferences("recovery-test",0).edit().putString("id",d.getString("id")).commit();
                 check(store.draft(d.getString("id")).optBoolean("upload_requested")&&!UploadQueue.running.get(),"offline_local_file_queued_without_starting_upload");
@@ -34,7 +34,7 @@ public final class RecoveryInstrumentation extends Instrumentation {
                 String id=context.getSharedPreferences("recovery-test",0).getString("id","");JSONObject d=store.draft(id);
                 check(!id.isEmpty()&&new File(d.getString("path")).length()==64044&&d.optBoolean("upload_requested"),"local_file_and_queue_survive_force_stop");
                 fixture=new FlowInstrumentation();fixture.server();store.base("http://127.0.0.1:"+fixture.server.getLocalPort());
-                check(UploadQueue.networkAllowed(context,store),"network_restored");
+                check(UploadQueue.networkAvailable(context),"network_restored");
                 main=(MainActivity)startActivitySync(new Intent(context,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 long until=SystemClock.elapsedRealtime()+15000;while(store.draft(id).optString("recording_id").isEmpty()){if(SystemClock.elapsedRealtime()>until)throw new IOException("Resume upload timed out");Thread.sleep(100);}
                 check(fixture.uploads.get(id)==1&&new File(d.getString("path")).length()==64044,"relaunch_uploads_original_file_once_and_keeps_local_copy");

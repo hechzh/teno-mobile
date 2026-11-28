@@ -74,11 +74,11 @@ def android(*, verify_web=True):
         'commit': manifest['source_commit'], 'occurred_at': manifest['packaged_at'],
         'outcome': 'passed', 'implementation': 'implemented',
         'physical': 'pending', 'distribution': 'internal',
-        'title': words(f'Android {VERSION} / {CODE} 语言设置与 Web 同步',
-                       f'Android {VERSION} / {CODE} language settings and Web parity'),
+        'title': words(f'Android {VERSION} / {CODE} 录音卡离线同步',
+                       f'Android {VERSION} / {CODE} offline recorder sync'),
         'changes': manifest['changes'],
         'modules': [
-            {'key': 'library', 'scope': words('导入使用设置中的界面语言', 'Imports use the interface language from Settings'),
+            {'key': 'library', 'scope': words('已同步到手机的录音及其上传状态', 'Recordings saved on the phone and their upload status'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机交互验收', 'Physical handset interaction')},
             {'key': 'distribution', 'scope': words('APK 包名、版本和原签名', 'APK identity, version and original signer'),
              'implementation': 'implemented', 'verification': 'passed', 'pending': words('真实手机覆盖安装', 'Physical in-place upgrade')},
@@ -99,9 +99,9 @@ def android(*, verify_web=True):
              evidence(NOTES, 'evidence', '发布说明', 'Release notes'),
              {**evidence(MANIFEST, 'evidence', '构建清单（JSON 文本）', 'Build manifest (JSON text)'),
               'filename': f'Teno-{VERSION}-build{CODE}-manifest.txt'},
-             evidence(SCREENSHOTS / 'home-zh-390-1.0.png', 'screenshot', '个人空间首页', 'Personal workspace home'),
-             evidence(SCREENSHOTS / 'settings-zh-390-1.0.png', 'screenshot', '外观与语言', 'Appearance and language'),
-             evidence(SCREENSHOTS / 'import-zh-android.png', 'screenshot', '导入面板', 'Import panel')]
+             evidence(SCREENSHOTS / 'workspace-home-zh.png', 'screenshot', '个人空间首页', 'Personal workspace home'),
+             evidence(SCREENSHOTS / 'recorder-offline-home-zh.png', 'screenshot', '录音卡离线同步状态', 'Offline recorder sync on Home'),
+             evidence(SCREENSHOTS / 'cloud-processing-zh.png', 'screenshot', '云端处理设置', 'Cloud processing settings')]
     return {'report': report, 'files': files}
 
 

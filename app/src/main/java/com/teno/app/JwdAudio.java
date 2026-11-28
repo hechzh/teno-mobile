@@ -12,10 +12,6 @@ import java.util.*;
 final class JwdAudio {
     static String hash(byte[] bytes)throws Exception{return hex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));}
     private static String hex(byte[] bytes){StringBuilder value=new StringBuilder();for(byte b:bytes)value.append(String.format(Locale.ROOT,"%02x",b&255));return value.toString();}
-    static String fileHash(File file)throws Exception{
-        java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");byte[] buffer=new byte[65536];
-        try(InputStream input=new FileInputStream(file)){for(int n;(n=input.read(buffer))>0;)digest.update(buffer,0,n);}return hex(digest.digest());
-    }
     interface Progress {void update(int percent);}
     static boolean opusFrame(byte[] b){
         if(b.length!=80)return false;int toc=b[0]&255;
@@ -62,8 +58,8 @@ final class JwdAudio {
         h.putInt(16).putShort((short)1).putShort((short)1).putInt(16000).putInt(32000).putShort((short)2).putShort((short)16);
         h.put("data".getBytes(StandardCharsets.US_ASCII)).putInt((int)bytes);return h.array();
     }
-    static JSONObject importVerified(Store store,File raw,String address,String dir,String name,long seconds,String verification,Progress progress)throws Exception{
-        String crc=JwdProtocol.crcFile(raw),format=format(raw);
+    static JSONObject importVerified(Store store,File raw,String address,String dir,String name,long seconds,JwdProtocol.VerifiedFile verified,Progress progress)throws Exception{
+        String crc=verified.crc32(),format=format(raw);
         String id=UUID.nameUUIDFromBytes((address+"\n"+dir+"\n"+name+"\n"+crc).getBytes(StandardCharsets.UTF_8)).toString();
         File metadata=new File(store.folder(),id+".json");
         if(metadata.isFile()){JSONObject old=store.draft(id);if(new File(old.getString("path")).isFile())return old;}
@@ -77,7 +73,7 @@ final class JwdAudio {
             try{reader.setDataSource(target.getAbsolutePath());duration=Long.parseLong(reader.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));}finally{reader.release();}
             if(duration<=0||duration>3600000)throw new IOException("Audio duration is invalid or exceeds 60 minutes");
             if(seconds>0&&Math.abs(duration-seconds*1000)>Math.max(3000,seconds*50))throw new IOException("Audio duration does not match the device file. The original file was kept.");
-            draft.put("source","jwd_ble").put("jwd_device",address).put("jwd_directory",dir).put("jwd_file",name).put("jwd_crc32",crc).put("jwd_verification",verification).put("duration_ms",duration).put("source_bytes",raw.length());
+            draft.put("source","jwd_ble").put("jwd_device",address).put("jwd_directory",dir).put("jwd_file",name).put("jwd_crc32",crc).put("jwd_verification",verified.verification()).put("duration_ms",duration).put("source_bytes",raw.length());
             store.save(draft);return draft;
         }catch(Exception e){target.delete();throw e;}
     }

@@ -7,6 +7,11 @@ static BOOL fail(NSError **error, NSString *message) {
     return NO;
 }
 @implementation StrictAudio
++ (uint32_t)updateCRC32:(uint32_t)checksum bytes:(NSData *)bytes {
+    if (bytes.length == 0) return checksum;
+    return (uint32_t)crc32(checksum, bytes.bytes, (uInt)bytes.length);
+}
+
 + (BOOL)decodeOpus:(NSURL *)input output:(NSURL *)output error:(NSError **)error {
     FILE *src = fopen(input.fileSystemRepresentation, "rb");
     if (!src) return fail(error, @"The downloaded audio is unavailable.");

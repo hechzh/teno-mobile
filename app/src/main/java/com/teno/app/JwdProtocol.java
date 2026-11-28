@@ -1,7 +1,10 @@
 package com.teno.app;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.zip.CRC32;
@@ -50,29 +53,35 @@ public final class JwdProtocol {
         CRC32 crc=new CRC32();try(InputStream in=new FileInputStream(file)){byte[] b=new byte[65536];int n;while((n=in.read(b))!=-1)crc.update(b,0,n);}
         return String.format(Locale.ROOT,"%08X",crc.getValue());
     }
+    public record VerifiedFile(String verification, String crc32, String sha256) {}
+
     /** Ordered, bounded disk receiver. Neither byte count nor OFF alone means success. */
     public static final class Receiver implements Closeable {
         public final File file;public final long expected;
         private final FileOutputStream out;private final CRC32 checksum=new CRC32();
+        private final MessageDigest digest;
         private long received;private boolean ended,closed;private String deviceCrc="";
         public Receiver(File file,long expected)throws IOException{
             if(expected<=0||expected>MAX_BYTES)throw new IOException("File size is invalid or exceeds 100 MiB");
+            try{digest=MessageDigest.getInstance("SHA-256");}
+            catch(NoSuchAlgorithmException e){throw new IllegalStateException(e);}
             this.file=file;this.expected=expected;out=new FileOutputStream(file,false);
         }
         public long received(){return received;}
         public void write(byte[] b)throws IOException{
             if(closed||received+b.length>expected)throw new IOException("Received data exceeds the declared file length");
-            out.write(b);checksum.update(b,0,b.length);received+=b.length;
+            out.write(b);checksum.update(b,0,b.length);digest.update(b);received+=b.length;
         }
         public void end(String value)throws IOException{String next=crc(value);if(ended&&!deviceCrc.equals(next))throw new IOException("The final checksum does not match");deviceCrc=next;ended=true;}
         public boolean complete(){return ended&&received==expected;}
-        public String finish()throws IOException{
+        public VerifiedFile finish()throws IOException{
             if(!complete())throw new IOException("The complete file has not been received");
             out.getFD().sync();close();
             String actual=String.format(Locale.ROOT,"%08X",checksum.getValue());
             if(!deviceCrc.isEmpty()&&!actual.equals(deviceCrc))throw new IOException("Checksum failed. Transfer the file again.");
             if(file.length()!=expected)throw new IOException("Local file length does not match");
-            return deviceCrc.isEmpty()?"length_only":"crc32_verified";
+            String sha256=String.format(Locale.ROOT,"%064x",new BigInteger(1,digest.digest()));
+            return new VerifiedFile(deviceCrc.isEmpty()?"length_only":"crc32_verified",actual,sha256);
         }
         public void close()throws IOException{if(!closed){closed=true;out.close();}}
     }

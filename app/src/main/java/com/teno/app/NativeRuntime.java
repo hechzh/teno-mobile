@@ -24,7 +24,7 @@ final class NativeRuntime implements RuntimeHost {
     final PersonalRuntime personal;
     private final BinaryMessenger messenger;
     private final RuntimeEvents events;
-    private boolean closed,visible;
+    private boolean closed,visible,hasNetwork;
     private volatile boolean phoneStarting;
     private long sequence;
     private volatile long deviceRequestGeneration;
@@ -52,7 +52,12 @@ final class NativeRuntime implements RuntimeHost {
     void suspendUi(){visible=false;personal.pause();main.removeCallbacks(tick);}
     private final Runnable tick=new Runnable(){public void run(){
         if(closed||!visible)return;
-        try{events.changed(state(),new VoidResult(){public void success(){}public void error(Throwable e){}});}
+        try{
+            RuntimeState snapshot=state();
+            if(snapshot.getNetworkAvailable()&&!hasNetwork)io.execute(()->UploadQueue.resume(activity));
+            hasNetwork=snapshot.getNetworkAvailable();
+            events.changed(snapshot,new VoidResult(){public void success(){}public void error(Throwable e){}});
+        }
         catch(Exception ignored){/* Explicit snapshots can retry; never log private state. */}
         main.postDelayed(this,500);
     }};
@@ -68,7 +73,7 @@ final class NativeRuntime implements RuntimeHost {
     private SessionState session(){
         return new SessionState.Builder().setSignedIn(!store.scope().isEmpty()&&!store.token("access_token").isEmpty())
             .setUsername(store.name()).setScope(store.scope()).setServer(store.base()).setCloudUpload(store.autoUpload())
-            .setWifiOnly(store.wifiUpload()).setLivePreview(store.liveDefault()).setOptionsSet(store.recordingOptionsSet()).build();
+            .setLivePreview(store.liveDefault()).setOptionsSet(store.recordingOptionsSet()).build();
     }
     JSONObject device()throws JSONException{return new JSONObject(JwdService.snapshot);}
     private boolean hardwareCapturing()throws Exception{
@@ -113,7 +118,8 @@ final class NativeRuntime implements RuntimeHost {
         }
         if(status.isEmpty())status=phase.equals("paused")?"Recording paused":phase.equals("recording")?"Recording · Audio saved locally":"Ready";
         JSONArray drafts=session().getSignedIn()?store.drafts():new JSONArray();
-        for(int i=0;i<drafts.length();i++){JSONObject draft=drafts.getJSONObject(i);draft.put("processing",UploadQueue.presentation(activity,store,draft));draft.remove("path");}
+        boolean networkAvailable=UploadQueue.networkAvailable(activity);
+        for(int i=0;i<drafts.length();i++){JSONObject draft=drafts.getJSONObject(i);draft.put("processing",UploadQueue.presentation(store,draft,networkAvailable));draft.remove("path");}
         return new RuntimeState.Builder().setSequence(++sequence).setSession(session())
             .setCapture(new CaptureState.Builder().setSource(source).setPhase(phase).setElapsedMs(elapsed).setLocalId(id)
                 .setStatus(status).setPartial(partial).setSegmentsJson(segments).setNotes(notes).setPreviewStatus("").build())
@@ -123,7 +129,8 @@ final class NativeRuntime implements RuntimeHost {
                 .setName(d.optBoolean("connected")?d.optString("name"):store.recorderName()).setBattery(d.optString("battery","Not received"))
                 .setStatus(d.optString("message","Connect your recorder to get started.")).setCandidatesJson(candidates.toString())
                 .setFilesJson(d.optJSONArray("files")==null?"[]":d.getJSONArray("files").toString()).build())
-            .setPlayback(media.state()).setDraftsJson(drafts.toString()).setUploadStatus(TransferService.message==null?"":TransferService.message).setOpenRoute(route).build();
+            .setPlayback(media.state()).setDraftsJson(drafts.toString()).setUploadStatus(TransferService.message==null?"":TransferService.message)
+            .setOpenRoute(route).setNetworkAvailable(networkAvailable).build();
     }
     @Override public void snapshot(Result<RuntimeState> result){try{result.success(state());}catch(Exception e){result.error(failure(e));}}
     @Override public void login(String server,String username,String password,Result<SessionState> result){
@@ -149,8 +156,8 @@ final class NativeRuntime implements RuntimeHost {
             if(method.equals("POST"))personal.processingRetry(path,answer);
             return answer.toString();});
     }
-    @Override public void configure(Boolean cloud,Boolean wifi,Boolean live,VoidResult result){
-        work(result,()->{signedIn();store.recordingOptions(cloud,wifi,live);UploadQueue.resume(activity);});
+    @Override public void configure(Boolean cloud,Boolean live,VoidResult result){
+        work(result,()->{signedIn();store.recordingOptions(cloud,live);UploadQueue.resume(activity);});
     }
     @Override public void startPhone(String title,Result<String> result){
         String owner=store.scope(),folder=store.workspaceFolder();

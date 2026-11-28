@@ -36,6 +36,8 @@ final class RuntimeTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at:path) }
         try Data("123456789".utf8).write(to:path)
         XCTAssertEqual(try StrictAudio.crc32(path),"CBF43926")
+        let first = StrictAudio.updateCRC32(0,bytes:Data("1234".utf8))
+        XCTAssertEqual(StrictAudio.updateCRC32(first,bytes:Data("56789".utf8)),0xCBF43926)
     }
     @MainActor func testServerCannotRedirectCredentialsToEmbeddedAuthority() throws {
         XCTAssertThrowsError(try SessionTransport.validateBase("https://user:password@example.com"))

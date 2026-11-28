@@ -59,7 +59,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
         context.getSharedPreferences("teno",0).edit().putBoolean("runtime_test_fixture",true).commit();
         store.base("http://127.0.0.1:9");store.identity("Teno upgrade fixture","cross-platform-upgrade");
         store.tokens(new JSONObject().put("access_token","upgrade-loopback-fixture").put("refresh_token","refresh-loopback-fixture"));
-        store.recordingOptions(false,false,false);store.markNativePreferences();
+        store.recordingOptions(false,false);store.markNativePreferences();
         context.getSharedPreferences("teno",0).edit().putBoolean("live_default",true).commit();
         String address="00:00:00:00:05:00",key=JwdProtocol.newKey();
         store.deviceKey(address,key);store.rememberRecorder(address,"Verification recorder");
@@ -222,15 +222,19 @@ public final class RuntimeInstrumentation extends Instrumentation {
             test.check(!UploadQueue.requested(store,historical),"old_unrequested_file_is_never_retroactively_queued");
             JSONObject auto=store.newDraft("Automatic import policy",".txt");Files.write(new File(auto.getString("path")).toPath(),"Teno fixture".getBytes(StandardCharsets.UTF_8));store.save(auto);UploadQueue.saved(context,auto);
             test.check(UploadQueue.requested(store,store.draft(auto.getString("id"))),"new_import_joins_durable_queue_by_default");
-            store.recordingOptions(true,false,false);test.check(new Store(context).autoUpload(),"existing_explicit_cloud_on_is_preserved");
-            store.recordingOptions(false,true,false);
+            store.recordingOptions(true,false);test.check(new Store(context).autoUpload(),"existing_explicit_cloud_on_is_preserved");
+            store.recordingOptions(false,false);
             test.check(!new Store(context).autoUpload()&&!UploadQueue.requested(store,store.draft(auto.getString("id"))),"explicit_off_is_persisted_and_stops_automatic_queue");
             test.check(UploadQueue.label(store,store.draft(auto.getString("id"))).contains("off"),"queue_explains_manual_opt_out");
             UploadQueue.enqueue(store,auto.getString("id"),false);
             test.check(UploadQueue.requested(store,store.draft(auto.getString("id"))),"manual_processing_works_when_cloud_default_is_off");
-            test.check(UploadQueue.label(store,store.draft(auto.getString("id"))).contains("Wi-Fi"),"wifi_restriction_is_visible_in_queue_state");
+            preferences.edit().putBoolean("wifi_upload."+owner,true).commit();
+            JSONObject pending=store.draft(auto.getString("id"));
+            test.check(UploadQueue.presentation(store,pending,true).optString("waiting_reason").isEmpty(),"legacy_wifi_preference_does_not_block_connected_uploads");
+            test.check(UploadQueue.presentation(store,pending,false).optString("waiting_reason").equals("network"),"offline_upload_waits_for_network");
+            preferences.edit().remove("wifi_upload."+owner).commit();
             test.check(!context.getSharedPreferences("teno.personal",0).getBoolean("lock."+owner,false),"app_lock_defaults_off");
-            store.deleteDraft(historical);store.deleteDraft(auto);store.recordingOptions(false,false,false);
+            store.deleteDraft(historical);store.deleteDraft(auto);store.recordingOptions(false,false);
             // Exercise the same grant-aware URI staging as another app's share intent.
             boolean genericTarget=context.getPackageManager().queryIntentActivities(new Intent(Intent.ACTION_SEND).setType("application/octet-stream"),android.content.pm.PackageManager.MATCH_DEFAULT_ONLY).stream().anyMatch(v->context.getPackageName().equals(v.activityInfo.packageName));
             test.check(genericTarget,"generic_file_sharing_discovers_teno");
@@ -263,7 +267,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
             UploadQueue.resumeAccount(context);
         }
         void importSurfaces()throws Exception {
-            store.recordingOptions(true,false,false);
+            store.recordingOptions(true,false);
             test.runOnMainSync(()->activity.runtime.openPersonal("imports"));Thread.sleep(1400);screenshot("03-import-entry-android");
             for(String source:new String[]{"files","photos"}){
                 CountDownLatch closed=new CountDownLatch(1);AtomicReference<Throwable> error=new AtomicReference<>();
@@ -283,7 +287,7 @@ public final class RuntimeInstrumentation extends Instrumentation {
                 test.check(returned,"system_"+source+"_picker_opens_and_cancels_without_losing_files");
                 test.until(()->activity.hasWindowFocus());Thread.sleep(600);
             }
-            store.recordingOptions(false,false,false);
+            store.recordingOptions(false,false);
         }
         void screenshot(String name)throws Exception {
             try(FileOutputStream out=new FileOutputStream(new File(context.getExternalFilesDir(null),name+".png"))){

@@ -26,11 +26,11 @@ final class Processing082Checks {
         test.check(explicit.getString("output_language").equals("zh-CN"),"single_file_override_is_frozen");
         JSONObject following=store.newDraft("Following",".txt");store.freezeGeneration(following);
         test.check(following.getString("output_language").equals("en-US"),"override_does_not_leak_to_next_file");
-        store.recordingOptions(false,false,false);draft.put("upload_requested",true).put("upload_automatic",true).put("status","queued");
-        JSONObject state=UploadQueue.presentation(context,store,draft);
+        store.recordingOptions(false,false);draft.put("upload_requested",true).put("upload_automatic",true).put("status","queued");
+        JSONObject state=UploadQueue.presentation(store,draft,UploadQueue.networkAvailable(context));
         test.check(state.getString("stage").equals("saved")&&state.getString("stage_status").equals("idle")&&state.getString("waiting_reason").equals("cloud_disabled"),"cloud_disabled_is_local_only_not_processing");
         draft.put("recording_id","synthetic-cloud-id").put("processing",new JSONObject().put("stage","generating_note").put("stage_status","failed").put("preserved",new JSONObject().put("transcript",true).put("notes",1)));
-        state=UploadQueue.presentation(context,store,draft);
+        state=UploadQueue.presentation(store,draft,UploadQueue.networkAvailable(context));
         test.check(state.getString("stage_status").equals("failed")&&state.getJSONObject("preserved").getBoolean("local_file"),"latest_note_failure_retains_local_and_old_artifacts");
         UiLocale.set(context,"system");
     }

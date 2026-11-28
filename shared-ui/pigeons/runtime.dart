@@ -16,7 +16,6 @@ class SessionState {
     required this.scope,
     required this.server,
     required this.cloudUpload,
-    required this.wifiOnly,
     required this.livePreview,
     required this.optionsSet,
   });
@@ -25,7 +24,6 @@ class SessionState {
   String scope;
   String server;
   bool cloudUpload;
-  bool wifiOnly;
   bool livePreview;
   bool optionsSet;
 }
@@ -113,6 +111,7 @@ class RuntimeState {
     required this.draftsJson,
     required this.uploadStatus,
     required this.openRoute,
+    required this.networkAvailable,
   });
   int sequence;
   SessionState session;
@@ -122,6 +121,7 @@ class RuntimeState {
   String draftsJson;
   String uploadStatus;
   String openRoute;
+  bool networkAvailable;
 }
 
 enum PhoneAction { pause, resume, stop, retryPreview }
@@ -156,7 +156,7 @@ abstract class RuntimeHost {
   @async
   String platformCommand(String command, String? jsonBody);
   @async
-  void configure(bool cloudUpload, bool wifiOnly, bool livePreview);
+  void configure(bool cloudUpload, bool livePreview);
   @async
   String startPhone(String title);
   @async

@@ -9,8 +9,8 @@ android {
         applicationId project.findProperty('verificationAppId') ?: 'com.teno.app'
         minSdk 26
         targetSdk 35
-        versionCode 31
-        versionName '0.9.8'
+        versionCode 32
+        versionName '0.9.9'
         testInstrumentationRunner project.findProperty('testRunner') ?: 'com.teno.app.RuntimeInstrumentation'
     }
     signingConfigs {
