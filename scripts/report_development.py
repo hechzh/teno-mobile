@@ -155,6 +155,8 @@ def ci_envelope(platform, status, outbox):
                       'The first note opens the template picker. Other notes can change templates or be restored after deletion. Notes show time and an editable location.'),
                 words('在「设置 → 外观与语言」选择语言。导入采用发起时的界面语言。',
                       'Choose the language in Settings under Appearance and language. Imports use the current interface language.'),
+                words('录音同步到本机后可使用移动网络上传。离线时首页显示已保存录音，联网后继续上传。',
+                      'Recorder files can upload over cellular. Home shows saved recordings while offline and the queue resumes when online.'),
             ])
             manifest = ROOT / 'ios/build/handoff' / identity['source_name'] / 'manifest.json'
             files.append({'path': str(manifest), 'sha256': sha(manifest), 'kind': 'evidence',
@@ -163,6 +165,8 @@ def ci_envelope(platform, status, outbox):
             for name, label in [
                 ('workspace-home-zh.png', words('工作空间首页', 'Workspace home')),
                 ('workspace-library-zh.png', words('工作空间内的资料库', 'Library inside a workspace')),
+                ('recorder-offline-home-zh.png', words('录音卡离线同步状态', 'Offline recorder sync on Home')),
+                ('cloud-processing-zh.png', words('云端处理设置', 'Cloud processing settings')),
                 ('note-tabs-zh.png', words('录音笔记页', 'Recording notes')),
                 ('primary-template-picker-zh.png', words('首篇笔记模板选择', 'Primary note template picker')),
             ]:

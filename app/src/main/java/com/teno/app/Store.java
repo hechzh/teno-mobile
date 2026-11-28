@@ -57,9 +57,8 @@ public final class Store {
     // A missing account preference means automatic processing. Never overwrite an
     // explicit opt-out, and never use the first-recording dialog as an upload gate.
     public boolean autoUpload(){return prefs.getBoolean("auto_upload."+scope(),true);}
-    public boolean wifiUpload(){return prefs.getBoolean("wifi_upload."+scope(),false);}
     public boolean liveDefault(){return false;} // Legacy setting cannot enable recording-time transcription.
-    public void recordingOptions(boolean cloud,boolean wifi,boolean live){prefs.edit().putBoolean("recording_options."+scope(),true).putBoolean("auto_upload."+scope(),cloud).putBoolean("wifi_upload."+scope(),wifi).putBoolean("live_default",false).commit();}
+    public void recordingOptions(boolean cloud,boolean live){prefs.edit().putBoolean("recording_options."+scope(),true).putBoolean("auto_upload."+scope(),cloud).putBoolean("live_default",false).commit();}
     private boolean legacyOwner(){return !scope().isEmpty()&&scope().equals(prefs.getString("jwd.legacy_owner",""));}
     public String recorderAddress(){return prefs.getString("jwd.last_address."+scope(),legacyOwner()?prefs.getString("jwd.last_address",""):"");}
     public String recorderName(){return prefs.getString("jwd.last_name."+scope(),legacyOwner()?prefs.getString("jwd.last_name","Recorder"):"Recorder");}

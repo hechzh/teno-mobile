@@ -9,13 +9,14 @@ import UserNotifications
     let store: NativeStore
     let api: SessionTransport
     private var responses: [Int: Data] = [:]
+    private var replacedTasks: Set<Int> = []
     private var pumping = false
     private var retry: Task<Void, Never>?
     private var restored = false
     private var paused = false
     private var generation = 0
     private var monitor = NWPathMonitor()
-    private var hasNetwork = false, hasWifi = false
+    private(set) var hasNetwork = false
     private(set) var activeId = "", status = ""
     private var uploadPercent: Int64 = -1
     func presentation(_ draft: JSONObject) -> JSONObject {
@@ -29,7 +30,6 @@ import UserNotifications
         if !store.cloudUpload && (draft["upload_requested"] as? Bool != true || draft["upload_automatic"] as? Bool == true) { reason = "cloud_disabled" }
         else if !store.state().signedIn { reason = "sign_in" }
         else if !hasNetwork { reason = "network" }
-        else if store.wifiOnly && !hasWifi { reason = "wifi_only" }
         else if (draft["upload_retry_at"] as? Double ?? 0) > Date().timeIntervalSince1970 { reason = "retry_backoff" }
         if reason == "cloud_disabled" && !Self.remote(draft) { stage = "saved"; status = "local" }
         var value: JSONObject = ["stage":stage,"stage_status":["failed","processing_failed"].contains(status) ? "failed" : stage == "saved" ? "idle" : "running", "waiting_reason":reason,
@@ -50,7 +50,6 @@ import UserNotifications
         monitor.pathUpdateHandler = { [weak self] path in
             Task { @MainActor in
                 self?.hasNetwork = path.status == .satisfied
-                self?.hasWifi = path.usesInterfaceType(.wifi)
                 self?.resume()
             }
         }
@@ -59,12 +58,17 @@ import UserNotifications
             let tasks = await session.allTasks
             for task in tasks {
                 guard let info = metadata(task), string(info["scope"]) == store.scope else { task.cancel(); continue }
-                activeId = string(info["id"])
-            }
-            if tasks.isEmpty {
-                for var draft in store.drafts() where string(draft["status"]) == "uploading" {
-                    draft["status"] = "queued"; try? store.save(draft)
+                if let request = task.originalRequest,
+                   !request.allowsCellularAccess || !request.allowsExpensiveNetworkAccess {
+                    replacedTasks.insert(task.taskIdentifier)
+                    task.cancel()
+                } else {
+                    activeId = string(info["id"])
                 }
+            }
+            for var draft in store.drafts()
+                where string(draft["status"]) == "uploading" && string(draft["id"]) != activeId {
+                draft["status"] = "queued"; try? store.save(draft)
             }
             restored = true; resume()
         }
@@ -91,8 +95,7 @@ import UserNotifications
             (string(draft["parent_local_id"]).isEmpty || !parentRecording(draft).isEmpty)
     }
     func resume() {
-        guard restored, !paused, !pumping, activeId.isEmpty, store.state().signedIn, hasNetwork,
-              !store.wifiOnly || hasWifi else { return }
+        guard restored, !paused, !pumping, activeId.isEmpty, store.state().signedIn, hasNetwork else { return }
         let drafts = store.drafts().reversed().filter(requested)
         guard let next = drafts.first else { return }
         let now = Date().timeIntervalSince1970
@@ -111,21 +114,32 @@ import UserNotifications
                 attempting["template_frozen"] = true
                 attempting["upload_attempts"] = (attempting["upload_attempts"] as? Int ?? 0) + 1
                 try store.save(attempting)
-                // Refresh before creating the OS-owned upload task. Refreshes are serialized.
                 let old = try store.token("access_token")
-                try await api.refresh(after: old)
                 guard owner == store.scope, attemptGeneration == generation, !paused else { return }
                 guard let current = try? store.draft(id), requested(current) else { return }
-                let payload = try multipart(current)
+                let source = URL(fileURLWithPath:string(current["path"]))
+                let filename = string(current["filename"])
+                let name = safeFilename(filename.isEmpty ? string(current["title"]) + "." + source.pathExtension : filename)
+                let formFields = fields(current)
+                let folder = store.root.appendingPathComponent("uploads", isDirectory: true)
+                // Refresh and assemble the file-backed request while BLE continues on the main actor.
+                async let refreshed: Void = api.refresh(after: old)
+                let payload = try await Task.detached(priority:.utility) {
+                    try Self.multipart(folder:folder,source:source,name:name,fields:formFields)
+                }.value
+                var started = false
+                defer { if !started { try? FileManager.default.removeItem(at:payload.file) } }
+                try await refreshed
+                guard owner == store.scope, attemptGeneration == generation, !paused, hasNetwork,
+                      let latest = try? store.draft(id), requested(latest) else { return }
                 var request = try api.makeRequest("POST", string(next["kind"]) == "file" ? "/api/v1/files" : "/api/v1/recordings")
                 request.setValue("multipart/form-data; boundary=" + payload.boundary, forHTTPHeaderField: "Content-Type")
-                request.allowsCellularAccess = !store.wifiOnly
-                request.allowsExpensiveNetworkAccess = !store.wifiOnly
-                var draft = try store.draft(id)
+                var draft = latest
                 draft["status"] = "uploading"
                 try store.save(draft)
                 let task = session.uploadTask(with: request, fromFile: payload.file)
                 task.taskDescription = jsonString(["id": id, "scope": owner, "payload": payload.file.lastPathComponent])
+                started = true
                 activeId = id; uploadPercent = -1; status = "Uploading · Local copy kept"; task.resume()
             } catch {
                 if attemptGeneration == generation, !paused { failed(id, owner: owner, message: error.localizedDescription, retryable: true) }
@@ -213,23 +227,24 @@ import UserNotifications
         activeId = ""; status = ""
     }
     func resumeAccount() { paused = false; resume() }
-    private func multipart(_ draft: JSONObject) throws -> (file: URL, boundary: String) {
+    private nonisolated static func multipart(folder: URL, source: URL, name: String, fields: [(String,String)]) throws -> (file: URL, boundary: String) {
         let boundary = "Teno-" + UUID().uuidString
-        let folder = store.root.appendingPathComponent("uploads", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let file = folder.appendingPathComponent(UUID().uuidString + ".body")
         FileManager.default.createFile(atPath: file.path, contents: nil,
             attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication])
+        var complete = false
+        defer { if !complete { try? FileManager.default.removeItem(at:file) } }
         let out = try FileHandle(forWritingTo: file); defer { try? out.close() }
         func write(_ value: String) throws { try out.write(contentsOf: Data(value.utf8)) }
-        for (name,value) in fields(draft) {
-            try write("--\(boundary)\r\nContent-Disposition: form-data; name=\"\(name)\"\r\n\r\n\(value)\r\n")
+        for (field,value) in fields {
+            try write("--\(boundary)\r\nContent-Disposition: form-data; name=\"\(field)\"\r\n\r\n\(value)\r\n")
         }
-        let source = URL(fileURLWithPath: string(draft["path"]))
-        try write("--\(boundary)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(safeFilename(string(draft["filename"]).isEmpty ? string(draft["title"]) + "." + source.pathExtension : string(draft["filename"])))\"\r\nContent-Type: application/octet-stream\r\n\r\n")
+        try write("--\(boundary)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(name)\"\r\nContent-Type: application/octet-stream\r\n\r\n")
         let input = try FileHandle(forReadingFrom: source); defer { try? input.close() }
         while let bytes = try input.read(upToCount: 256 * 1024), !bytes.isEmpty { try out.write(contentsOf: bytes) }
         try write("\r\n--\(boundary)--\r\n"); try out.synchronize()
+        complete = true
         return (file,boundary)
     }
     private func metadata(_ task: URLSessionTask) -> JSONObject? {
@@ -253,17 +268,19 @@ import UserNotifications
     }
     func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64,
                     totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+        guard !replacedTasks.contains(task.taskIdentifier) else { return }
         guard metadata(task).map({ string($0["scope"]) == store.scope }) == true else { return }
         uploadPercent = totalBytesExpectedToSend > 0 ? totalBytesSent * 100 / totalBytesExpectedToSend : -1
         status = "Uploading \(max(0,uploadPercent))%"
     }
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        let replaced = replacedTasks.remove(task.taskIdentifier) != nil
         let bytes = responses.removeValue(forKey: task.taskIdentifier) ?? Data()
         guard let info = metadata(task) else { return }
         let owner = string(info["scope"]), id = string(info["id"])
         let file = store.root.appendingPathComponent("uploads").appendingPathComponent(string(info["payload"]))
         try? FileManager.default.removeItem(at: file)
-        guard owner == store.scope else { return }
+        guard !replaced, owner == store.scope else { return }
         if activeId == id { activeId = "" }
         if (error as NSError?)?.code == NSURLErrorCancelled { return }
         do {

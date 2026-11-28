@@ -49,6 +49,8 @@ import JwdVtrSDK
     private var transferOwner = ""
     private var transferGeneration = 0
     private var expected: Int64 = 0, received: Int64 = 0
+    private var transferCRC: UInt32 = 0
+    private var transferHash = SHA256()
     var connected: Bool { peripheral?.state == .connected }
     var active: Bool { ["starting","recording","paused","stopping","saving","interrupted"].contains(phase) }
     var elapsed: Int64 { accumulated + (recordStarted.map { Int64((ProcessInfo.processInfo.systemUptime - $0) * 1000) } ?? 0) }
@@ -643,6 +645,8 @@ import JwdVtrSDK
         guard receiving, fileName == string(transfer?["name"]), fileLen > 0, fileLen <= 100 * 1024 * 1024 else { transferError("Invalid recorder file length."); return }
         do {
             expected = Int64(fileLen); received = 0
+            transferCRC = 0
+            transferHash = SHA256()
             transferFile = try store.directory().appendingPathComponent(UUID().uuidString + ".part")
             FileManager.default.createFile(atPath:transferFile!.path,contents:nil,attributes:[.protectionKey:FileProtectionType.completeUntilFirstUserAuthentication])
             transferHandle = try FileHandle(forWritingTo:transferFile!)
@@ -650,28 +654,45 @@ import JwdVtrSDK
         } catch { transferError(error.localizedDescription) }
     }
     func onFileData(_ data: Data, fileName: String) {
-        guard receiving, expected > 0, fileName == string(transfer?["name"]), received + Int64(data.count) <= expected else { transferError("Unexpected or excess recorder audio. No upload was queued."); return }
-        do { try transferHandle?.write(contentsOf:data); received += Int64(data.count); timeout("Transfer stalled. The original stays on your recorder.", seconds:30) }
+        guard receiving, expected > 0, fileName == string(transfer?["name"]),
+              let handle = transferHandle, received + Int64(data.count) <= expected else {
+            transferError("Unexpected or excess recorder audio. No upload was queued."); return
+        }
+        do {
+            try handle.write(contentsOf:data)
+            transferCRC = StrictAudio.updateCRC32(transferCRC, bytes:data)
+            transferHash.update(data:data)
+            received += Int64(data.count)
+            timeout("Transfer stalled. The original stays on your recorder.", seconds:30)
+        }
         catch { transferError(error.localizedDescription) }
     }
     func onTransEvent(_ event: Int32, crc32: String?) {
         guard receiving else { return }
-        guard event == 1, received == expected, expected > 0, let input = transferFile, let entry = transfer else {
+        guard event == 1, received == expected, expected > 0, let input = transferFile,
+              let entry = transfer, let handle = transferHandle else {
             transferError("Recorder transfer was incomplete. No upload was queued."); return
         }
         deadline?.cancel()
-        do { try transferHandle?.synchronize(); try transferHandle?.close(); transferHandle = nil }
+        let crc = String(format:"%08X", transferCRC)
+        if let crc32, !crc32.isEmpty, crc32.uppercased() != crc {
+            transferError("The recorder checksum did not match. No upload was queued."); return
+        }
+        do {
+            try handle.synchronize(); try handle.close(); transferHandle = nil
+            let size = try input.resourceValues(forKeys:[.fileSizeKey]).fileSize ?? 0
+            guard Int64(size) == expected else {
+                transferError("Recorder transfer was incomplete. No upload was queued."); return
+            }
+        }
         catch { transferError(error.localizedDescription); return }
+        let digest = transferHash.finalize().map { String(format:"%02x",$0) }.joined()
         let owner = transferOwner, deviceId = identifier, note = store.notes("jwd:" + identifier + "|" + string(entry["name"]))
         let destination = syncFolder
         let generation = transferGeneration
         status = "Verifying complete recording"
         Task {
             do {
-                let crc = try await Task.detached(priority:.userInitiated) { try StrictAudio.crc32(input) }.value
-                guard generation == transferGeneration else { return }
-                if let crc32, !crc32.isEmpty, crc32.uppercased() != crc { throw RuntimeFailure("FILE_CRC","The recorder checksum did not match. No upload was queued.") }
-                let digest = try await Task.detached(priority:.userInitiated) { try Self.fileHash(input) }.value
                 guard generation == transferGeneration, owner == store.scope else { return }
                 if ownershipReading {
                     ownershipEntries.append(string(entry["dir"]) + "/" + string(entry["name"]) + "|" + String((entry["duration"] as? Int) ?? 0) + "|" + digest)
@@ -714,11 +735,6 @@ import JwdVtrSDK
     private func transferError(_ message: String) {
         sdk.cancelImport(); discardTransfer(); transferQueue.removeAll(); busy = false; phase = "idle"; status = message
         if ownership.running { ownershipListing = false; ownershipReading = false; ownership.fail(message) }
-    }
-    nonisolated static func fileHash(_ url: URL) throws -> String {
-        let file = try FileHandle(forReadingFrom:url); defer { try? file.close() }; var hash = SHA256()
-        while let bytes = try file.read(upToCount:65536), !bytes.isEmpty { hash.update(data:bytes) }
-        return hash.finalize().map { String(format:"%02x",$0) }.joined()
     }
     private func discardTransfer() {
         transferGeneration += 1

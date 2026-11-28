@@ -21,8 +21,8 @@ import Foundation
     func platformCommand(command: String,jsonBody: String?) async throws -> String {
         try await bridgeOperation { try await runtime.platformCommand(command:command,jsonBody:jsonBody) }
     }
-    func configure(cloudUpload: Bool,wifiOnly: Bool,livePreview: Bool) async throws {
-        try await bridgeOperation { try await runtime.configure(cloudUpload:cloudUpload,wifiOnly:wifiOnly,livePreview:livePreview) }
+    func configure(cloudUpload: Bool,livePreview: Bool) async throws {
+        try await bridgeOperation { try await runtime.configure(cloudUpload:cloudUpload,livePreview:livePreview) }
     }
     func startPhone(title: String) async throws -> String { try await bridgeOperation { try await runtime.startPhone(title:title) } }
     func controlPhone(action: PhoneAction) async throws { try await bridgeOperation { try await runtime.controlPhone(action:action) } }

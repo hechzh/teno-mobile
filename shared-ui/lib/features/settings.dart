@@ -104,16 +104,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
     }
   }
 
-  Future<void> configure({bool? cloud, bool? wifi}) =>
-      perform(context, () async {
-        final s = widget.model.runtime!.session;
-        await widget.model.host.configure(
-          cloud ?? s.cloudUpload,
-          wifi ?? s.wifiOnly,
-          false,
-        );
-        widget.model.changed(await widget.model.host.snapshot());
-      });
+  Future<void> configure(bool cloud) => perform(context, () async {
+    await widget.model.host.configure(cloud, false);
+    widget.model.changed(await widget.model.host.snapshot());
+  });
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: widget.model,
@@ -136,13 +130,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                 'Automatically upload saved audio for transcription and summary.',
               ),
               value: s.cloudUpload,
-              onChanged: (v) => configure(cloud: v),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const UiText('Upload on Wi-Fi only'),
-              value: s.wifiOnly,
-              onChanged: (v) => configure(wifi: v),
+              onChanged: configure,
             ),
             const Divider(height: 36),
             const UiText(

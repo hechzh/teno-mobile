@@ -565,6 +565,8 @@
       try { return JSON.stringify(await runtime.call(method, JSON.parse(args))); }
       catch (e) { throw new Error(e.message || 'The action could not be completed.'); }
     }};
+    addEventListener('online', () => runtime.emit());
+    addEventListener('offline', () => runtime.emit());
     addEventListener('beforeunload', e => { if (runtime.uploads.size) { e.preventDefault(); e.returnValue = ''; } });
   }
 })();

@@ -318,7 +318,7 @@ class CoreTile extends StatelessWidget {
     this.showIcon = true,
   });
   final Json item;
-  final VoidCallback open;
+  final VoidCallback? open;
   final bool? selected;
   final VoidCallback? select;
   final String? snippet;

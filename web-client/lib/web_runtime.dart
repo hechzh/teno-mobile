@@ -10,6 +10,9 @@ external JSPromise<JSString> _call(JSString method, JSString arguments);
 @JS('tenoWeb.listen')
 external void _listen(JSFunction listener);
 
+@JS('navigator.onLine')
+external bool get _networkAvailable;
+
 /// The browser host implements the existing bridge without native channels.
 class WebRuntime extends RuntimeHost {
   final String initialFragment = Uri.base.fragment;
@@ -44,13 +47,13 @@ class WebRuntime extends RuntimeHost {
     final session = object(data['session']), player = object(data['playback']);
     return RuntimeState(
       sequence: (data['sequence'] as num).toInt(),
+      networkAvailable: _networkAvailable,
       session: SessionState(
         signedIn: session['signedIn'] == true,
         username: text(session['username']),
         scope: text(session['scope']),
         server: text(session['server']),
         cloudUpload: false,
-        wifiOnly: false,
         livePreview: false,
         optionsSet: true,
       ),

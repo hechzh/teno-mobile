@@ -111,7 +111,7 @@
   <string name="ui_label2b7aa8894c21" formatted="false">云端处理</string>
   <string name="ui_label838991b2b94f" formatted="false">云端处理已关闭。导入文件保留在本机，点击“上传并处理”后才会上传。</string>
   <string name="ui_label8adaed39e1a2" formatted="false">云端处理已开启。导入文件先保存到本机，再自动上传并处理。</string>
-  <string name="ui_label2187c26af752" formatted="false">新录音默认自动上传，转写并生成纪要。可在设置中调整云处理和仅 Wi-Fi 上传。</string>
+  <string name="ui_label2187c26af752" formatted="false">有网络时，新录音默认自动上传。可在设置中调整云端处理。</string>
   <string name="ui_labela293e2e43fd2" formatted="false">兼容扫描</string>
   <string name="ui_label7810980ade40" formatted="false">完整文件经校验并保存到本机后才会上传。传输中断可重连重试，不会自动删除设备原文件。</string>
   <string name="ui_label9d989f15c1c5" formatted="false">录音和导入文件上传后仍保留在本机。请保留应用，以保留这些本机副本。</string>
@@ -516,7 +516,6 @@
   <string name="ui_label567fb2d64a3d" formatted="false">未命名录音</string>
   <string name="ui_labelc26ea11155cf" formatted="false">上传并处理</string>
   <string name="ui_labelaedad2135947" formatted="false">上传需要处理</string>
-  <string name="ui_label3c414b7123b8" formatted="false">仅在 Wi-Fi 下上传</string>
   <string name="ui_labeld541bdf9758b" formatted="false">上传已保存文件</string>
   <string name="ui_label8b898ca34ce7" formatted="false">上传中</string>
   <string name="ui_label65189a29b993" formatted="false">正在上传，完成前请保持此标签页打开。</string>
@@ -813,7 +812,6 @@
   <string name="ui_iteration082label25" formatted="false">尚未生成纪要</string>
   <string name="ui_iteration082label26" formatted="false">尚未提取文字</string>
   <string name="ui_iteration082label27" formatted="false">仅本机保存</string>
-  <string name="ui_iteration082label28" formatted="false">等待 Wi-Fi</string>
   <string name="ui_iteration082label29" formatted="false">等待网络连接</string>
   <string name="ui_iteration082label30" formatted="false">云处理已关闭</string>
   <string name="ui_iteration082label31" formatted="false">登录后继续处理</string>

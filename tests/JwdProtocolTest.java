@@ -23,13 +23,16 @@ public final class JwdProtocolTest {
             check(JwdProtocol.replies("MCU&RT&0\0".getBytes(StandardCharsets.US_ASCII))[0].equals("MCU&RT&0"),"idle_record_reply");
             check(JwdProtocol.replies("MCU&SK&OKMCU&BAT&90".getBytes(StandardCharsets.US_ASCII)).length==2,"coalesced_replies");
             File valid=dir.resolve("valid.raw").toFile();
-            try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(valid,9)){r.write(Arrays.copyOfRange(bytes,0,4));r.write(Arrays.copyOfRange(bytes,4,9));check(!r.complete(),"length_alone_not_complete");r.end("cbf43926");check(r.finish().equals("crc32_verified"),"known_crc32_vector");}
+            try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(valid,9)){r.write(Arrays.copyOfRange(bytes,0,4));r.write(Arrays.copyOfRange(bytes,4,9));check(!r.complete(),"length_alone_not_complete");r.end("cbf43926");JwdProtocol.VerifiedFile verified=r.finish();
+                check(verified.verification().equals("crc32_verified")&&verified.crc32().equals("CBF43926"),"known_crc32_vector");
+                check(verified.sha256().equals("15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225"),"sha256_matches_fragmented_file");
+            }
             check(JwdProtocol.crcFile(valid).equals("CBF43926"),"disk_crc_matches");
-            try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(dir.resolve("late.raw").toFile(),9)){r.write(Arrays.copyOfRange(bytes,0,4));r.end("CBF43926");check(!r.complete(),"end_marker_alone_not_complete");r.write(Arrays.copyOfRange(bytes,4,9));check(r.finish().equals("crc32_verified"),"cross_characteristic_late_audio");}
+            try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(dir.resolve("late.raw").toFile(),9)){r.write(Arrays.copyOfRange(bytes,0,4));r.end("CBF43926");check(!r.complete(),"end_marker_alone_not_complete");r.write(Arrays.copyOfRange(bytes,4,9));check(r.finish().verification().equals("crc32_verified"),"cross_characteristic_late_audio");}
             try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(dir.resolve("crc.raw").toFile(),9)){r.write(bytes);r.end("00000000");rejects(r::finish,"corrupt_crc_blocked");}
             try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(dir.resolve("short.raw").toFile(),10)){r.write(bytes);r.end("CBF43926");rejects(r::finish,"truncated_file_blocked");}
             try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(dir.resolve("extra.raw").toFile(),8)){rejects(()->r.write(bytes),"overflow_blocked");}
-            try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(dir.resolve("legacy.raw").toFile(),9)){r.write(bytes);r.end(null);check(r.finish().equals("length_only"),"legacy_crc_not_falsely_verified");}
+            try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(dir.resolve("legacy.raw").toFile(),9)){r.write(bytes);r.end(null);check(r.finish().verification().equals("length_only"),"legacy_crc_not_falsely_verified");}
             rejects(()->new JwdProtocol.Receiver(dir.resolve("large.raw").toFile(),JwdProtocol.MAX_BYTES+1),"size_bound");
             rejects(()->JwdProtocol.crc("bad"),"malformed_crc_blocked");
             System.out.println("ALL "+count+" CHECKS PASSED");

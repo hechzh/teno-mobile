@@ -50,7 +50,7 @@ import UIKit
             partial:"",segmentsJson:"[]",notes:notes,previewStatus:"")
         let drafts = store.drafts().map { value -> JSONObject in var item = value; item["processing"] = uploads.presentation(value); item.removeValue(forKey:"path"); return item }
         return RuntimeState(sequence:sequence,session:store.state(),capture:capture,device:recorder.state(),playback:media.state(),
-            draftsJson:jsonString(drafts),uploadStatus:uploads.status,openRoute:"")
+            draftsJson:jsonString(drafts),uploadStatus:uploads.status,openRoute:"",networkAvailable:uploads.hasNetwork)
     }
     func snapshot() async throws -> RuntimeState { state() }
     func login(server: String,username: String,password: String) async throws -> SessionState {
@@ -77,8 +77,8 @@ import UIKit
         if method == "POST", path.hasSuffix("/retry") || path.hasSuffix("/notes") || path == "/api/v1/notes/generate", let result = try? jsonObject(bytes) { uploads.processingRetry(path, result:result) }
         return bytes.isEmpty ? "{}" : String(data:bytes,encoding:.utf8) ?? "{}"
     }
-    func configure(cloudUpload: Bool,wifiOnly: Bool,livePreview: Bool) async throws {
-        try signedIn(); store.configure(cloud:cloudUpload,wifi:wifiOnly,live:livePreview); uploads.resume()
+    func configure(cloudUpload: Bool,livePreview: Bool) async throws {
+        try signedIn(); store.configure(cloud:cloudUpload,live:livePreview); uploads.resume()
     }
     func startPhone(title: String) async throws -> String {
         try signedIn()

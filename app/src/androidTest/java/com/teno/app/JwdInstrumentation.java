@@ -25,17 +25,19 @@ public final class JwdInstrumentation extends Instrumentation {
             File fixture=new File(c.getFilesDir(),"jwd-synthetic.raw"),received=new File(store.folder(),"jwd-test.raw");byte[] source=Files.readAllBytes(fixture.toPath());
             check(source.length>8000&&source.length%80==0,"synthetic_opus80_fixture_intact");
             String crc=JwdProtocol.crcFile(fixture);
+            JwdProtocol.VerifiedFile verified;
             try(JwdProtocol.Receiver r=new JwdProtocol.Receiver(received,source.length)){
                 // Simulate the different-sized GATT notifications, including OFF before the final data.
                 int at=0;while(at<source.length){int n=Math.min(244,source.length-at);if(at+n==source.length)r.end(crc);byte[] b=new byte[n];System.arraycopy(source,at,b,0,n);r.write(b);at+=n;}
-                check(r.finish().equals("crc32_verified"),"fragmented_transfer_and_crc_gate");
+                verified=r.finish();
+                check(verified.verification().equals("crc32_verified"),"fragmented_transfer_and_crc_gate");
             }
-            JSONObject draft=JwdAudio.importVerified(store,received,"TEST-SYNTHETIC","2026-10-31","Teno-JWD-合成验收",0,"crc32_verified",p->{});
+            JSONObject draft=JwdAudio.importVerified(store,received,"TEST-SYNTHETIC","2026-10-31","Teno-JWD-合成验收",0,verified,p->{});
             draft.put("language","en-US").put("title","Teno JWD 专用解码与上传验收（合成音频）");store.save(draft);
             File wav=new File(draft.getString("path"));long expected=source.length/80*640+44;
             check(wav.length()==expected,"vendor_native_decoder_all_frames_to_wav");
             check(draft.getLong("duration_ms")>1000,"decoded_wav_has_duration");
-            JSONObject same=JwdAudio.importVerified(store,received,"TEST-SYNTHETIC","2026-10-31","Teno-JWD-合成验收",0,"crc32_verified",p->{});
+            JSONObject same=JwdAudio.importVerified(store,received,"TEST-SYNTHETIC","2026-10-31","Teno-JWD-合成验收",0,verified,p->{});
             check(draft.getString("id").equals(same.getString("id")),"same_device_file_reuses_client_id");
             File bad=new File(store.folder(),"bad-opus.raw");byte[] corrupt=source.clone();corrupt[80]=0;Files.write(bad.toPath(),corrupt);File invalid=new File(store.folder(),"bad-opus.wav");boolean rejected=false;
             try{JwdAudio.decode(bad,invalid,p->{});}catch(IOException expectedError){rejected=true;}check(rejected&&!invalid.exists(),"invalid_opus_frame_never_silently_skipped");bad.delete();

@@ -416,17 +416,19 @@ public final class JwdService extends Service implements JwdBle.Listener {
     }};
     private void maybeFinish()throws Exception{
         if(receiver==null||!receiver.complete())return;
-        String verification=receiver.finish();receiver=null;handler.removeCallbacks(transferWatch);converting=true;pending="";
+        JwdProtocol.VerifiedFile verified=receiver.finish();
+        String verification=verified.verification();
+        receiver=null;handler.removeCallbacks(transferWatch);converting=true;pending="";
         String identity=downloadScope,mac=address,dir=downloadDir,name=downloadName;long seconds=downloadSeconds;File source=raw;raw=null;
         message="File received. Verifying and decoding audio…";log(verification.equals("crc32_verified")?"Checksum verified":"Checksum unavailable. File length verified.");publish();
         decoder.execute(()->{
             try{
                 if(!identity.equals(store.scope()))throw new IOException("The account changed. The original file was kept without adding it to another account.");
-                String digest=JwdAudio.fileHash(source);
+                String digest=verified.sha256();
                 if(ownershipReading){
                     source.delete();handler.post(()->{converting=false;releaseWake();try{inventoryEntries.add(dir+"/"+name+"|"+seconds+"|"+digest);nextOwnershipFile();}catch(Exception e){ownership.fail(e.getMessage());}});return;
                 }
-                JSONObject draft=JwdAudio.importVerified(store,source,mac,dir,name,seconds,verification,percent->handler.post(()->{if(!destroyed){message="Decoding audio "+percent+"%";publish();}}));
+                JSONObject draft=JwdAudio.importVerified(store,source,mac,dir,name,seconds,verified,percent->handler.post(()->{if(!destroyed){message="Decoding audio "+percent+"%";publish();}}));
                 if(!ownership.hardware().isEmpty()&&draft.optInt("upload_attempts")==0&&draft.optString("recording_id").isEmpty()&&draft.optString("upload_client_id").isEmpty()){
                     draft.put("upload_client_id","jwd-"+JwdAudio.hash((ownership.hardware()+"\n"+dir+"\n"+name+"\n"+digest).getBytes(StandardCharsets.UTF_8)));
                 }

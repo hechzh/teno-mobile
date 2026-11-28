@@ -103,12 +103,10 @@ final class KeyVault {
     }
     var username: String { preferences.string(forKey: "username") ?? "" }
     var cloudUpload: Bool { preferences.object(forKey: "auto_upload." + scope) as? Bool ?? true }
-    var wifiOnly: Bool { preferences.bool(forKey: "wifi_upload." + scope) }
     var livePreview: Bool { false } // Keep the bridge field for compatibility.
     var optionsSet: Bool { preferences.bool(forKey: "recording_options." + scope) }
-    func configure(cloud: Bool, wifi: Bool, live: Bool) {
+    func configure(cloud: Bool, live: Bool) {
         preferences.set(cloud, forKey: "auto_upload." + scope)
-        preferences.set(wifi, forKey: "wifi_upload." + scope)
         preferences.set(false, forKey: "live_default")
         preferences.set(true, forKey: "recording_options." + scope)
     }
@@ -237,6 +235,6 @@ final class KeyVault {
     func state() -> SessionState {
         SessionState(signedIn: !scope.isEmpty && !((try? token("access_token")) ?? "").isEmpty,
             username: username, scope: scope, server: base, cloudUpload: cloudUpload,
-            wifiOnly: wifiOnly, livePreview: livePreview, optionsSet: optionsSet)
+            livePreview: livePreview, optionsSet: optionsSet)
     }
 }

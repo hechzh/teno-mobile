@@ -416,7 +416,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get label8adaed39e1a2 => '云端处理已开启。导入文件先保存到本机，再自动上传并处理。';
 
   @override
-  String get label2187c26af752 => '新录音默认自动上传，转写并生成纪要。可在设置中调整云处理和仅 Wi-Fi 上传。';
+  String get label2187c26af752 => '有网络时，新录音默认自动上传。可在设置中调整云端处理。';
 
   @override
   String get labela293e2e43fd2 => '兼容扫描';
@@ -1635,9 +1635,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get labelaedad2135947 => '上传需要处理';
 
   @override
-  String get label3c414b7123b8 => '仅在 Wi-Fi 下上传';
-
-  @override
   String get labeld541bdf9758b => '上传已保存文件';
 
   @override
@@ -2635,9 +2632,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get iteration082Label27 => '仅本机保存';
-
-  @override
-  String get iteration082Label28 => '等待 Wi-Fi';
 
   @override
   String get iteration082Label29 => '等待网络连接';

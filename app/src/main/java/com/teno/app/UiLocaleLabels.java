@@ -113,7 +113,7 @@ final class UiLocaleLabels {
       case "Cloud processing": return R.string.ui_label2b7aa8894c21;
       case "Cloud processing is off. Imported files stay on this phone until you choose Upload and process.": return R.string.ui_label838991b2b94f;
       case "Cloud processing is on. Imported files are saved on this phone, then uploaded and processed automatically.": return R.string.ui_label8adaed39e1a2;
-      case "New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.": return R.string.ui_label2187c26af752;
+      case "New recordings upload automatically when a network is available. Manage cloud processing in Settings.": return R.string.ui_label2187c26af752;
       case "Compatibility scan": return R.string.ui_labela293e2e43fd2;
       case "Complete files are verified and saved locally before cloud upload. Reconnect to retry an interrupted transfer. Device originals are not automatically deleted.": return R.string.ui_label7810980ade40;
       case "Complete recordings and imports remain on this phone after upload. Keep the app installed to retain these local copies.": return R.string.ui_label9d989f15c1c5;
@@ -518,7 +518,6 @@ final class UiLocaleLabels {
       case "Untitled recording": return R.string.ui_label567fb2d64a3d;
       case "Upload and process": return R.string.ui_labelc26ea11155cf;
       case "Upload needs attention": return R.string.ui_labelaedad2135947;
-      case "Upload on Wi-Fi only": return R.string.ui_label3c414b7123b8;
       case "Upload saved files": return R.string.ui_labeld541bdf9758b;
       case "Uploading": return R.string.ui_label8b898ca34ce7;
       case "Uploading. Keep this tab open until upload finishes.": return R.string.ui_label65189a29b993;
@@ -815,7 +814,6 @@ final class UiLocaleLabels {
       case "Notes not yet generated": return R.string.ui_iteration082label25;
       case "Text not yet extracted": return R.string.ui_iteration082label26;
       case "Only on this device": return R.string.ui_iteration082label27;
-      case "Waiting for Wi-Fi": return R.string.ui_iteration082label28;
       case "Waiting for network": return R.string.ui_iteration082label29;
       case "Cloud processing is off": return R.string.ui_iteration082label30;
       case "Sign in to continue processing": return R.string.ui_iteration082label31;

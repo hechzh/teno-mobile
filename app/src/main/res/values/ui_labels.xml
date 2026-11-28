@@ -111,7 +111,7 @@
   <string name="ui_label2b7aa8894c21" formatted="false">Cloud processing</string>
   <string name="ui_label838991b2b94f" formatted="false">Cloud processing is off. Imported files stay on this phone until you choose Upload and process.</string>
   <string name="ui_label8adaed39e1a2" formatted="false">Cloud processing is on. Imported files are saved on this phone, then uploaded and processed automatically.</string>
-  <string name="ui_label2187c26af752" formatted="false">New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.</string>
+  <string name="ui_label2187c26af752" formatted="false">New recordings upload automatically when a network is available. Manage cloud processing in Settings.</string>
   <string name="ui_labela293e2e43fd2" formatted="false">Compatibility scan</string>
   <string name="ui_label7810980ade40" formatted="false">Complete files are verified and saved locally before cloud upload. Reconnect to retry an interrupted transfer. Device originals are not automatically deleted.</string>
   <string name="ui_label9d989f15c1c5" formatted="false">Complete recordings and imports remain on this phone after upload. Keep the app installed to retain these local copies.</string>
@@ -516,7 +516,6 @@
   <string name="ui_label567fb2d64a3d" formatted="false">Untitled recording</string>
   <string name="ui_labelc26ea11155cf" formatted="false">Upload and process</string>
   <string name="ui_labelaedad2135947" formatted="false">Upload needs attention</string>
-  <string name="ui_label3c414b7123b8" formatted="false">Upload on Wi-Fi only</string>
   <string name="ui_labeld541bdf9758b" formatted="false">Upload saved files</string>
   <string name="ui_label8b898ca34ce7" formatted="false">Uploading</string>
   <string name="ui_label65189a29b993" formatted="false">Uploading. Keep this tab open until upload finishes.</string>
@@ -813,7 +812,6 @@
   <string name="ui_iteration082label25" formatted="false">Notes not yet generated</string>
   <string name="ui_iteration082label26" formatted="false">Text not yet extracted</string>
   <string name="ui_iteration082label27" formatted="false">Only on this device</string>
-  <string name="ui_iteration082label28" formatted="false">Waiting for Wi-Fi</string>
   <string name="ui_iteration082label29" formatted="false">Waiting for network</string>
   <string name="ui_iteration082label30" formatted="false">Cloud processing is off</string>
   <string name="ui_iteration082label31" formatted="false">Sign in to continue processing</string>

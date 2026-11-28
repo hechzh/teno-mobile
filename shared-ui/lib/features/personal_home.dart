@@ -36,18 +36,49 @@ class _PersonalHomeState extends State<PersonalHome> {
   int commandSequence = 0, loadSequence = 0;
   final libraryCommands = ValueNotifier<String>('');
   final visited = <String>{'Home'};
+  bool wasOnline = true;
+  String? lastDraftsJson;
+  Set<String> uploadedDrafts = {};
   Timer? timer;
+
+  Set<String> uploadReceipts() => {
+    for (final draft in widget.model.drafts)
+      if (text(draft['recording_id']).isNotEmpty ||
+          text(draft['file_id']).isNotEmpty)
+        text(draft['id']),
+  };
+
   @override
   void initState() {
     super.initState();
     section = widget.initialSection;
     visited.add(section);
-    widget.model.addListener(route);
+    wasOnline = widget.model.runtime?.networkAvailable ?? true;
+    lastDraftsJson = widget.model.runtime?.draftsJson;
+    uploadedDrafts = uploadReceipts();
+    widget.model.addListener(runtimeChanged);
     unawaited(load());
     timer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (section == 'Home') unawaited(load(silent: true));
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => route());
+  }
+
+  void runtimeChanged() {
+    route();
+    final state = widget.model.runtime;
+    if (state == null) return;
+    var refresh = state.networkAvailable && !wasOnline;
+    wasOnline = state.networkAvailable;
+    if (state.draftsJson != lastDraftsJson) {
+      lastDraftsJson = state.draftsJson;
+      final receipts = uploadReceipts();
+      refresh = refresh || receipts.difference(uploadedDrafts).isNotEmpty;
+      uploadedDrafts = receipts;
+    }
+    if (refresh && wasOnline && section == 'Home') {
+      unawaited(load(silent: true));
+    }
   }
 
   void route() {
@@ -102,6 +133,14 @@ class _PersonalHomeState extends State<PersonalHome> {
     if (!silent && mounted) setState(() => loading = true);
     try {
       await model.restoreWorkspace();
+      if (!current()) return;
+      if (model.runtime?.networkAvailable == false) {
+        setState(() {
+          error = '';
+          loading = false;
+        });
+        return;
+      }
       List<Json> available;
       try {
         available = await model.list('/api/v1/personal/workspaces');
@@ -149,7 +188,9 @@ class _PersonalHomeState extends State<PersonalHome> {
     } catch (e) {
       if (current()) {
         setState(() {
-          error = TenoModel.friendly(e);
+          error = model.runtime?.networkAvailable == false
+              ? ''
+              : TenoModel.friendly(e);
           loading = false;
         });
       }
@@ -494,6 +535,32 @@ class _PersonalHomeState extends State<PersonalHome> {
     );
   }
 
+  Widget localDraftTile(Json draft) {
+    final model = widget.model;
+    final offlineRecorder =
+        model.runtime?.networkAvailable == false &&
+        draft['source'] == 'jwd_ble';
+    return CoreTile(
+      {
+        ...draft,
+        'type': draft['kind'] == 'file' ? 'file' : 'recording',
+        if (offlineRecorder)
+          'processing': {
+            'stage': 'saved',
+            'preserved': {'local_file': true},
+            'waiting_reason':
+                object(draft['processing'])['waiting_reason'] ==
+                    'cloud_disabled'
+                ? 'cloud_disabled'
+                : 'network',
+          },
+      },
+      offlineRecorder
+          ? null
+          : () => push(context, PersonalLocalPage(model, text(draft['id']))),
+    );
+  }
+
   Widget home() {
     final model = widget.model;
     final recent = items
@@ -601,14 +668,7 @@ class _PersonalHomeState extends State<PersonalHome> {
                     duration(model.runtime!.capture.elapsedMs),
               ),
             ),
-          for (final draft in local)
-            CoreTile(
-              {
-                ...draft,
-                'type': draft['kind'] == 'file' ? 'file' : 'recording',
-              },
-              () => push(context, PersonalLocalPage(model, text(draft['id']))),
-            ),
+          for (final draft in local) localDraftTile(draft),
           for (final item in recent)
             CoreTile(item, () async {
               await openPersonalItem(context, model, item);
@@ -634,7 +694,7 @@ class _PersonalHomeState extends State<PersonalHome> {
     ++loadSequence;
     timer?.cancel();
     libraryCommands.dispose();
-    widget.model.removeListener(route);
+    widget.model.removeListener(runtimeChanged);
     super.dispose();
   }
 }

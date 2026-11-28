@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/core/model.dart';
 import '../lib/features/personal_home.dart';
+import '../lib/features/personal_import.dart';
 import '../lib/features/personal_library.dart';
 import '../lib/l10n/generated/app_localizations.dart';
 import '../lib/ui/personal_widgets.dart';
@@ -126,6 +127,24 @@ class WorkspaceHost extends CoreHost {
   }
 }
 
+Future<void> screenshot(
+  WidgetTester tester,
+  GlobalKey boundary,
+  String name,
+) async {
+  final dir = Platform.environment['TENO_NOTE_TABS_SCREENSHOTS'];
+  if (dir == null) return;
+  await tester.runAsync(() async {
+    final frame =
+        boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+    final image = await frame.toImage(pixelRatio: 2);
+    final png = await image.toByteData(format: ui.ImageByteFormat.png);
+    await Directory(dir).create(recursive: true);
+    await File('$dir/$name-zh.png').writeAsBytes(png!.buffer.asUint8List());
+    image.dispose();
+  });
+}
+
 void main() {
   setUpAll(() async {
     for (final font in {
@@ -180,27 +199,12 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    Future<void> screenshot(String name) async {
-      final dir = Platform.environment['TENO_NOTE_TABS_SCREENSHOTS'];
-      if (dir == null) return;
-      await tester.runAsync(() async {
-        final frame =
-            boundary.currentContext!.findRenderObject()!
-                as RenderRepaintBoundary;
-        final image = await frame.toImage(pixelRatio: 2);
-        final png = await image.toByteData(format: ui.ImageByteFormat.png);
-        await Directory(dir).create(recursive: true);
-        await File('$dir/$name-zh.png').writeAsBytes(png!.buffer.asUint8List());
-        image.dispose();
-      });
-    }
-
     expect(find.text('录音卡试用与产品定价讨论'), findsOneWidget);
     expect(find.text('最近文件'), findsOneWidget);
     expect(find.text('内容简报'), findsNothing);
-    await screenshot('workspace-home');
+    await screenshot(tester, boundary, 'workspace-home');
     await tap(find.text('个人空间'));
-    await screenshot('workspace-switch');
+    await screenshot(tester, boundary, 'workspace-switch');
     await tap(find.widgetWithText(CheckedPopupMenuItem<String>, '产品设计'));
     expect(host.selected, 'studio');
     expect(find.text('样机交互讨论'), findsOneWidget);
@@ -213,7 +217,7 @@ void main() {
       ),
       findsOneWidget,
     );
-    await screenshot('workspace-library');
+    await screenshot(tester, boundary, 'workspace-library');
     await tap(find.byTooltip('我的文件分类'));
     await tap(find.text('本机文件'));
     expect(find.text('本机样机试用'), findsOneWidget);
@@ -244,4 +248,86 @@ void main() {
       true,
     );
   });
+
+  testWidgets(
+    'a recorder file stays visible when offline and refreshes after upload',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.padding = const FakeViewPadding(top: 24, bottom: 24);
+      addTearDown(tester.view.reset);
+      final draft = {
+        'id': 'offline-card',
+        'title': '录音卡同步示例',
+        'source': 'jwd_ble',
+        'status': 'queued',
+        'duration_ms': 8000,
+      };
+      final host = WorkspaceHost()
+        ..state = (reviewState(networkAvailable: false)
+          ..draftsJson = jsonEncode([draft]));
+      final model = TenoModel(host: host)
+        ..changed(host.state)
+        ..personalCore = true;
+      addTearDown(model.dispose);
+      final boundary = GlobalKey();
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: boundary,
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: personalTheme(false),
+            locale: const Locale('zh'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: PersonalHome(model),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final title = find.text('录音卡同步示例');
+      expect(title, findsOneWidget);
+      expect(find.text('已保存在本机'), findsOneWidget);
+      expect(find.text('网络不可用'), findsOneWidget);
+      expect(host.requests, isEmpty);
+      await tester.tap(title);
+      await tester.pumpAndSettle();
+      expect(find.byType(PersonalLocalPage), findsNothing);
+      await screenshot(tester, boundary, 'recorder-offline-home');
+
+      host.state = reviewState(sequence: 2)..draftsJson = jsonEncode([draft]);
+      model.changed(host.state);
+      await tester.pumpAndSettle();
+      expect(find.text('网络不可用'), findsNothing);
+      expect(find.text('等待上传'), findsOneWidget);
+      expect(
+        host.requests.any((path) => path.contains('type=recent_files')),
+        isTrue,
+      );
+
+      host.requests.clear();
+      host.state = reviewState(sequence: 3)
+        ..draftsJson = jsonEncode([
+          {...draft, 'recording_id': 'record-1', 'status': 'processing'},
+        ]);
+      model.changed(host.state);
+      await tester.pumpAndSettle();
+      expect(title, findsNothing);
+      expect(find.text('录音卡试用与产品定价讨论'), findsOneWidget);
+      expect(
+        host.requests.any((path) => path.contains('type=recent_files')),
+        isTrue,
+      );
+      await tester.tap(find.widgetWithText(NavigationDestination, '设置'));
+      await tester.pumpAndSettle();
+      final cloud = find.text('云端处理');
+      await tester.ensureVisible(cloud);
+      await tester.tap(cloud);
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(SwitchListTile, '云端处理'), findsOneWidget);
+      expect(find.byType(SwitchListTile), findsOneWidget);
+      await screenshot(tester, boundary, 'cloud-processing');
+    },
+  );
 }

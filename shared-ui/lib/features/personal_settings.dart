@@ -283,13 +283,8 @@ class PersonalRecorderPreferences extends StatelessWidget {
   });
   final TenoModel model;
   final bool cloud;
-  Future<void> configure({bool? upload, bool? wifi}) async {
-    final s = model.runtime!.session;
-    await model.host.configure(
-      upload ?? s.cloudUpload,
-      wifi ?? s.wifiOnly,
-      false,
-    );
+  Future<void> configure(bool upload) async {
+    await model.host.configure(upload, false);
     model.changed(await model.host.snapshot());
   }
 
@@ -316,14 +311,8 @@ class PersonalRecorderPreferences extends StatelessWidget {
                 'Automatically upload new recordings and imports for transcription and summaries.',
               ),
               value: model.runtime!.session.cloudUpload,
-              onChanged: (v) => perform(context, () => configure(upload: v)),
+              onChanged: (v) => perform(context, () => configure(v)),
             ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const UiText('Upload on Wi-Fi only'),
-            value: model.runtime!.session.wifiOnly,
-            onChanged: (v) => perform(context, () => configure(wifi: v)),
-          ),
           const SizedBox(height: 24),
           UiText(
             'Complete recordings and imports stay on this phone after upload. Existing saved files are uploaded only when you request it.',
@@ -356,16 +345,6 @@ class _PersonalPreferencesState extends State<PersonalPreferences> {
       final data = await widget.model.api('GET', '/api/v1/me');
       if (mounted) setState(() => settings = object(data['settings']));
     } catch (_) {}
-  }
-
-  Future<void> configure({bool? cloud, bool? wifi}) async {
-    final s = widget.model.runtime!.session;
-    await widget.model.host.configure(
-      cloud ?? s.cloudUpload,
-      wifi ?? s.wifiOnly,
-      false,
-    );
-    widget.model.changed(await widget.model.host.snapshot());
   }
 
   @override
@@ -1043,7 +1022,7 @@ class PersonalHelpPage extends StatelessWidget {
           ),
           heading('Automatic processing'),
           const UiText(
-            'New recordings upload automatically for transcription and notes. Manage cloud processing and Wi-Fi uploads in Settings.',
+            'New recordings upload automatically when a network is available. Manage cloud processing in Settings.',
           ),
           heading('Your recorder'),
           const UiText(
